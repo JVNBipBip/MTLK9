@@ -47,9 +47,29 @@ export function HeroSection() {
         className="absolute inset-0 w-full h-full overflow-hidden transition-transform duration-100"
         style={{ transform: `scale(${scale})`, borderRadius: `${borderRadius}px` }}
       >
-        <div className="w-full h-full bg-gradient-to-br from-primary/80 via-primary/60 to-secondary/40">
-          <div className="absolute inset-0 bg-[url('/placeholder.svg')] bg-cover bg-center opacity-30" />
-        </div>
+        {/* Desktop video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="hidden md:block w-full h-full object-cover"
+        >
+          <source src="/videos/Desktop Hero Video.webm" type="video/webm" />
+        </video>
+        {/* Mobile video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="md:hidden w-full h-full object-cover"
+        >
+          <source src="/videos/Mobile Hero Video.mp4" type="video/mp4" />
+        </video>
+        {/* Fallback bg color while video loads */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/80 via-primary/60 to-secondary/40" />
+        {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />
       </div>
 
