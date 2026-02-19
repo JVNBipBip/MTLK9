@@ -1,11 +1,10 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Shield, MapPin, Users, Star, Clock } from "lucide-react"
+import { Shield, MapPin, Users, Clock } from "lucide-react"
 
 const trustItems = [
   { icon: Clock, text: "10–15+ Years Experience" },
-  { icon: Star, text: "5-Star Google Reviews" },
   { icon: Shield, text: "Humane, Evidence-Guided Methods" },
   { icon: MapPin, text: "Real-World Training — Not a Classroom" },
   { icon: Users, text: "A Team of 4 Specialists" },

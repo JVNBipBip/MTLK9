@@ -172,6 +172,42 @@ html {
   animation: zoom-in 1.2s ease-out forwards;
 }
 
+@keyframes shine {
+  0% {
+    background-position: -50% -50%;
+  }
+  100% {
+    background-position: -150% -150%;
+  }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.shine-effect::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 40%,
+    rgb(255 255 255 / 0.6) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 300% 300%;
+  background-position: -150% -150%;
+  pointer-events: none;
+}
+
+.animate-shine::after {
+  animation: shine 3s ease-in-out 0s infinite;
+}
+
 /* Hide scrollbar for carousel while maintaining scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
