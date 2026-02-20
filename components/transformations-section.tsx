@@ -1,52 +1,16 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
-
-const transformations = [
-  {
-    dogName: "Luna",
-    breed: "German Shepherd Mix",
-    before:
-      "Luna lunged at every dog on the street. Her owner hadn't had a guest over in 8 months.",
-    after:
-      "Luna now walks calmly through the park. Guests come over every weekend.",
-    imagePlaceholder:
-      "[Photo: Luna walking on a loose leash through Parc Maisonneuve, owner smiling beside her]",
-    path: "Reactivity & Anxiety",
-    href: "/results",
-  },
-  {
-    dogName: "Milo",
-    breed: "French Bulldog",
-    before:
-      "Milo pulled so hard on walks his owner stopped taking him out. He destroyed furniture when left alone.",
-    after:
-      "Milo heels on a loose leash and settles calmly when his owner leaves for work.",
-    imagePlaceholder:
-      "[Photo: Milo heeling beside owner on a Montreal sidewalk, café tables in background]",
-    path: "City Manners",
-    href: "/results",
-  },
-  {
-    dogName: "Bella",
-    breed: "Rescue Pit Bull",
-    before:
-      "Bella resource-guarded food and toys. The family had a new baby on the way and were terrified.",
-    after:
-      "Bella is now gentle around the baby. The family kept their dog — and their peace of mind.",
-    imagePlaceholder:
-      "[Photo: Bella relaxing calmly on a blanket at Parc Angrignon, family nearby]",
-    path: "High-Risk Behaviors",
-    href: "/results",
-  },
-]
+import { transformationStories } from "@/lib/transformation-stories"
 
 export function TransformationsSection() {
   const sectionRef = useRef<HTMLElement>(null)
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -61,6 +25,43 @@ export function TransformationsSection() {
     elements?.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+
+    const updateActiveIndex = () => {
+      const items = Array.from(scroller.querySelectorAll("[data-story-card]"))
+      if (!items.length) return
+      const scrollLeft = scroller.scrollLeft
+
+      let closestIndex = 0
+      let closestDistance = Number.POSITIVE_INFINITY
+
+      items.forEach((item, index) => {
+        const distance = Math.abs((item as HTMLElement).offsetLeft - scrollLeft)
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestIndex = index
+        }
+      })
+
+      setActiveIndex(closestIndex)
+    }
+
+    updateActiveIndex()
+    scroller.addEventListener("scroll", updateActiveIndex, { passive: true })
+    return () => scroller.removeEventListener("scroll", updateActiveIndex)
+  }, [])
+
+  const goToSlide = (index: number) => {
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const items = Array.from(scroller.querySelectorAll("[data-story-card]"))
+    const target = items[index] as HTMLElement | undefined
+    if (!target) return
+    scroller.scrollTo({ left: target.offsetLeft, behavior: "smooth" })
+  }
 
   return (
     <section ref={sectionRef} className="py-24 lg:py-32 bg-background">
@@ -78,11 +79,15 @@ export function TransformationsSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {transformations.map((story, index) => (
+        <div
+          ref={scrollerRef}
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
+        >
+          {transformationStories.map((story, index) => (
             <div
               key={story.dogName}
-              className={`reveal opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} group`}
+              data-story-card
+              className={`reveal opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
             >
               <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                 {/* Video/Image Placeholder */}
@@ -91,7 +96,7 @@ export function TransformationsSection() {
                     <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
                       <Play className="w-6 h-6 text-primary ml-0.5" />
                     </div>
-                    <p className="text-xs text-muted-foreground">{story.imagePlaceholder}</p>
+                    <p className="text-xs text-muted-foreground">{story.mediaPlaceholder}</p>
                   </div>
                 </div>
 
@@ -129,7 +134,7 @@ export function TransformationsSection() {
 
                   <Link
                     href={story.href}
-                    className="text-primary text-sm font-medium flex items-center gap-2 mt-6 group-hover:gap-3 transition-all"
+                    className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                   >
                     Read full story
                     <ArrowRight className="w-4 h-4" />
@@ -138,6 +143,22 @@ export function TransformationsSection() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
+          {transformationStories.map((story, index) => (
+            <button
+              key={story.dogName}
+              type="button"
+              onClick={() => goToSlide(index)}
+              className={`h-2.5 rounded-full transition-all ${
+                index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
+              }`}
+              aria-label={`Go to story ${index + 1}`}
+            />
+          ))}
+          <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
+            {activeIndex + 1} / {transformationStories.length}
+          </span>
         </div>
 
         <div className="text-center mt-12">
