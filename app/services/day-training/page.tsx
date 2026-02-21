@@ -4,15 +4,17 @@ import { useEffect, useRef } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
+import { ServiceForYouSection } from "@/components/service-for-you-section"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Play, Check } from "lucide-react"
+import { ArrowRight, Play } from "lucide-react"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
   "You work full time and can't commit to weekday sessions.",
@@ -79,8 +81,12 @@ export default function DayTrainingPage() {
 
       <div ref={contentRef}>
         {/* Hero */}
-        <section className="pt-32 pb-20 lg:pt-40 lg:pb-28 px-6 lg:px-8 bg-primary text-primary-foreground">
-          <div className="max-w-7xl mx-auto">
+        <section
+          className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 px-6 lg:px-8 bg-primary text-primary-foreground bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/images/stats/Community%20Walk.webp')" }}
+        >
+          <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
+          <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
               For busy owners who need professional training during working hours
             </p>
@@ -90,115 +96,24 @@ export default function DayTrainingPage() {
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
               Professional training during the day. Owner handoff when you're home.
             </p>
-          </div>
-        </section>
-
-        {/* This is for you if */}
-        <section className="py-20 lg:py-28 px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-8">
-              This is for you if…
-            </h2>
-            <ul className="space-y-4">
-              {forYouIf.map((item, i) => (
-                <li
-                  key={i}
-                  className={`reveal opacity-0 flex items-start gap-3 ${
-                    i === 1 ? "animation-delay-200" : i === 2 ? "animation-delay-400" : i === 3 ? "animation-delay-600" : ""
-                  }`}
-                >
-                  <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-muted-foreground leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* What we'll work on */}
-        <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-8">
-              What we&apos;ll work on
-            </h2>
-            <ul className="grid sm:grid-cols-2 gap-3">
-              {trainingGoals.map((goal, i) => (
-                <li
-                  key={goal}
-                  className={`reveal opacity-0 flex items-center gap-2 rounded-2xl bg-background border border-border/50 px-4 py-3 ${
-                    i === 1 ? "animation-delay-200" : i === 2 ? "animation-delay-400" : i === 3 ? "animation-delay-200" : i >= 4 ? "animation-delay-600" : ""
-                  }`}
-                >
-                  <Check className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-foreground font-medium">{goal}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Pricing */}
-        <section className="py-20 lg:py-28 px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-12 text-center">
-              Transparent pricing
-            </h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="reveal opacity-0 rounded-3xl border border-border/50 bg-card p-8 shadow-lg">
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Day Training Starter</h3>
-                <p className="text-3xl font-semibold text-primary mb-4">$799</p>
-                <p className="text-sm text-muted-foreground mb-6">2 weeks / 8 sessions</p>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-8">
-                  <li>• Daily professional training</li>
-                  <li>• Leash manners & impulse control</li>
-                  <li>• Real-world proofing</li>
-                  <li>• 2 owner handoff sessions</li>
-                </ul>
-                <Link href="/booking">
-                  <Button className="w-full rounded-full">Get Started</Button>
-                </Link>
-              </div>
-              <div className="reveal opacity-0 animation-delay-200 rounded-3xl border-2 border-primary/30 bg-card p-8 shadow-lg relative">
-                <span className="absolute -top-3 left-6 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                  Most popular
-                </span>
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Day Training Complete</h3>
-                <p className="text-3xl font-semibold text-primary mb-4">$1,499</p>
-                <p className="text-sm text-muted-foreground mb-6">4 weeks / 16 sessions + owner handoff sessions</p>
-                <ul className="space-y-2 text-sm text-muted-foreground mb-8">
-                  <li>• Everything in Starter</li>
-                  <li>• Socialization & obedience foundations</li>
-                  <li>• Extended proofing</li>
-                  <li>• 4 owner handoff sessions</li>
-                </ul>
-                <Link href="/booking">
-                  <Button className="w-full rounded-full">Get Started</Button>
-                </Link>
-              </div>
+            <div className="reveal opacity-0 animation-delay-600 mt-8">
+              <Link href="/booking">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
+                  Book a Free Discovery Call
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* What success looks like */}
-        <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-8">
-              What success looks like
-            </h2>
-            <p className="reveal opacity-0 text-muted-foreground leading-relaxed mb-6">
-              Day training accelerates progress because your dog gets daily professional practice. 
-              Most dogs complete their core training goals within 2–4 weeks. Owner handoff sessions 
-              ensure skills transfer to you — we teach you what we&apos;ve been working on so you can 
-              maintain and build on the progress. You get results faster; your dog gets a head start.
-            </p>
-          </div>
-        </section>
+        <ServiceWorkOnSection goals={trainingGoals} />
 
-        {/* Case study */}
+        {/* Testimonial */}
         <section className="py-20 lg:py-28 px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-8">
-              A transformation story
+            <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-8">
+              Testimonial
             </h2>
             <div className="reveal opacity-0 rounded-3xl overflow-hidden border border-border/50 bg-card">
               <div className="aspect-video bg-muted flex items-center justify-center">
@@ -220,13 +135,23 @@ export default function DayTrainingPage() {
                 </p>
               </div>
             </div>
+            <div className="reveal opacity-0 animation-delay-200 mt-10 text-center">
+              <Link href="/booking">
+                <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
+                  Book a Free Discovery Call
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
+
+        <ServiceForYouSection items={forYouIf} />
 
         {/* FAQ */}
         <section className="py-20 lg:py-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-12">
+            <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-12">
               Frequently asked questions
             </h2>
             <Accordion type="single" collapsible className="reveal opacity-0">
@@ -245,9 +170,9 @@ export default function DayTrainingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 lg:py-28 px-6 lg:px-8">
+        <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-6">
+            <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
               Ready to accelerate your dog&apos;s training?
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
