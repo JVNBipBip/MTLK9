@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Heart, Sparkles } from "lucide-react"
+import { ArrowRight, Heart } from "lucide-react"
 
 const trainers = [
   {
@@ -14,9 +15,25 @@ const trainers = [
     specialty: "Complex cases, aggression, behavioral rehab",
     origin:
       "Nick started in rescue and shelter work, where he saw too many dogs given up because their people didn't have the right support. He built Montreal Canine Training to be the kind of team he wished existed back then.",
-    superpower: "Takes on cases other trainers have turned away — and gets results.",
-    personal: "When he's not training, he's hiking with his own pack or reading the latest behavior research.",
+    superpower: "Takes on cases other trainers have turned away - and gets results.",
+    personal:
+      "When he's not training, he's hiking with his own pack or reading the latest behavior research.",
     photoDesc: "Nick working with a dog on a calm loose-leash walk in a Montreal park",
+    photo: "/images/team/nick.png",
+    photoPosition: "object-[50%_18%]",
+  },
+  {
+    name: "Tyson Jerome White",
+    title: "Reactivity & Leash Work Specialist",
+    years: "10+ years",
+    specialty: "High-distraction environments, leash reactivity",
+    origin:
+      "Tyson came from a background in competitive dog sports before pivoting to behavior work. He knows what it takes to build focus and impulse control when the world is full of triggers.",
+    superpower: "Makes high-distraction urban walks feel manageable - and even enjoyable.",
+    personal:
+      "He runs with his own dog every morning and believes movement is medicine for both species.",
+    photoDesc: "Tyson coaching an owner through a reactive moment on a busy Montreal street",
+    photo: "/images/team/tyson.jpg",
   },
   {
     name: "Shanya Ingwersen",
@@ -26,19 +43,10 @@ const trainers = [
     origin:
       "Shanya fell in love with puppy development after fostering litters and seeing how much early experiences shape a dog's future. She's obsessed with getting the first months right.",
     superpower: "Turns chaotic puppies into calm, confident dogs before bad habits take root.",
-    personal: "She has a soft spot for senior dogs and volunteers at a local rescue on weekends.",
+    personal:
+      "She has a soft spot for senior dogs and volunteers at a local rescue on weekends.",
     photoDesc: "Shanya guiding a puppy through a socialization exercise in a controlled outdoor setting",
-  },
-  {
-    name: "Tyson Jerome White",
-    title: "Reactivity & Leash Work Specialist",
-    years: "10+ years",
-    specialty: "High-distraction environments, leash reactivity",
-    origin:
-      "Tyson came from a background in competitive dog sports before pivoting to behavior work. He knows what it takes to build focus and impulse control when the world is full of triggers.",
-    superpower: "Makes high-distraction urban walks feel manageable — and even enjoyable.",
-    personal: "He runs with his own dog every morning and believes movement is medicine for both species.",
-    photoDesc: "Tyson coaching an owner through a reactive moment on a busy Montreal street",
+    photo: "/images/team/shanya.jpg",
   },
   {
     name: "Jessica Banks",
@@ -46,15 +54,19 @@ const trainers = [
     years: "7+ years",
     specialty: "Separation anxiety, fearful dogs",
     origin:
-      "Jessica's own dog struggled with severe anxiety. When she couldn't find the right help, she became the help — and now specializes in the cases that require patience, empathy, and science.",
+      "Jessica's own dog struggled with severe anxiety. When she couldn't find the right help, she became the help - and now specializes in the cases that require patience, empathy, and science.",
     superpower: "Helps fearful dogs find their confidence without force or flooding.",
-    personal: "She's a certified fear-free professional and advocates for mental health — for dogs and their people.",
+    personal:
+      "She's a certified fear-free professional and advocates for mental health - for dogs and their people.",
     photoDesc: "Jessica sitting calmly with a nervous dog in a quiet, low-stimulus environment",
+    photo: "/images/team/jessica.jpg",
   },
 ]
 
 export function AboutContent() {
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const teamScrollerRef = useRef<HTMLDivElement>(null)
+  const [activeTeamIndex, setActiveTeamIndex] = useState(0)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,9 +85,46 @@ export function AboutContent() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const scroller = teamScrollerRef.current
+    if (!scroller) return
+
+    const updateActiveIndex = () => {
+      const cards = Array.from(scroller.querySelectorAll("[data-team-card]"))
+      if (!cards.length) return
+      const scrollLeft = scroller.scrollLeft
+
+      let closestIndex = 0
+      let closestDistance = Number.POSITIVE_INFINITY
+
+      cards.forEach((card, index) => {
+        const distance = Math.abs(card.getBoundingClientRect().left - scroller.getBoundingClientRect().left)
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestIndex = index
+        }
+      })
+
+      setActiveTeamIndex(closestIndex)
+    }
+
+    updateActiveIndex()
+    scroller.addEventListener("scroll", updateActiveIndex, { passive: true })
+    return () => scroller.removeEventListener("scroll", updateActiveIndex)
+  }, [])
+
+  const goToTeamSlide = (index: number) => {
+    const scroller = teamScrollerRef.current
+    if (!scroller) return
+    const cards = Array.from(scroller.querySelectorAll("[data-team-card]"))
+    const target = cards[index] as HTMLElement | undefined
+    if (!target) return
+    scroller.scrollTo({ left: target.offsetLeft, behavior: "smooth" })
+  }
+
   return (
     <div ref={wrapperRef}>
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 px-6 lg:px-8">
+      <section className="pt-32 pb-16 lg:pt-40 lg:pb-24 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
             Training That Protects the Bond
@@ -86,7 +135,91 @@ export function AboutContent() {
         </div>
       </section>
 
-      {/* Section 1: Our Philosophy */}
+      {/* Section 1: Team Bios */}
+      <section className="reveal opacity-0 animation-delay-200 py-16 lg:py-24 px-6 lg:px-8 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 lg:mb-20">
+            <h2 className="font-display text-2xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
+              Meet the Team
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Four specialists. One mission: help you and your dog thrive together.
+            </p>
+          </div>
+
+          <div className="mb-4 md:hidden">
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground/80">
+              Swipe to meet each trainer
+            </p>
+          </div>
+
+          <div
+            ref={teamScrollerRef}
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:gap-10 lg:gap-12 md:overflow-visible"
+          >
+            {trainers.map((trainer) => (
+              <div
+                key={trainer.name}
+                data-team-card
+                className="snap-center shrink-0 w-[92%] sm:w-[88%] md:w-auto md:shrink"
+              >
+                <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
+                  {/* Photo placeholder */}
+                  <div className="relative aspect-[4/3] bg-muted" aria-label={trainer.photoDesc}>
+                    <Image
+                      src={trainer.photo}
+                      alt={trainer.photoDesc}
+                      fill
+                      className={`object-cover ${trainer.photoPosition ?? ""}`}
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  </div>
+                  <div className="p-6 lg:p-8 flex flex-col flex-grow">
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+                        {trainer.name}
+                      </h3>
+                      <span className="text-sm text-primary font-medium">{trainer.years}</span>
+                    </div>
+                    <p className="text-sm font-medium text-secondary mb-4">{trainer.title}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {trainer.origin}
+                    </p>
+                    <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
+                      <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      {trainer.superpower}
+                    </p>
+                    <p className="text-muted-foreground text-sm leading-relaxed mt-auto">
+                      {trainer.personal}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2.5 md:hidden">
+            {trainers.map((trainer, index) => (
+              <button
+                key={trainer.name}
+                type="button"
+                onClick={() => goToTeamSlide(index)}
+                className={`h-2.5 rounded-full transition-all ${
+                  index === activeTeamIndex
+                    ? "w-7 bg-primary"
+                    : "w-2.5 bg-border hover:bg-muted-foreground/40"
+                }`}
+                aria-label={`Go to trainer ${index + 1}`}
+              />
+            ))}
+            <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
+              {activeTeamIndex + 1} / {trainers.length}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 2: Our Philosophy */}
       <section className="py-16 lg:py-24 px-6 lg:px-8 bg-muted/30">
         <div className="max-w-3xl mx-auto">
           <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-10">
@@ -117,7 +250,7 @@ export function AboutContent() {
         </div>
       </section>
 
-      {/* Section 2: Methods Statement */}
+      {/* Section 3: Methods Statement */}
       <section className="py-16 lg:py-24 px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-6">
@@ -152,65 +285,6 @@ export function AboutContent() {
               ourselves to a higher standard: our methods are transparent, our credentials are
               verifiable, and we&apos;re committed to continuing education in animal behavior science.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3: Team Bios */}
-      <section className="py-16 lg:py-24 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 lg:mb-20">
-<h2 className="reveal opacity-0 font-display text-2xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-            Meet the Team
-            </h2>
-            <p className="reveal opacity-0 animation-delay-200 text-muted-foreground max-w-xl mx-auto">
-              Four specialists. One mission: help you and your dog thrive together.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-10 lg:gap-12">
-            {trainers.map((trainer, index) => (
-              <div
-                key={trainer.name}
-                className={`reveal opacity-0 ${
-                  index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""
-                }`}
-              >
-                <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
-                  {/* Photo placeholder */}
-                  <div
-                    className="aspect-[4/3] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center"
-                    aria-label={trainer.photoDesc}
-                  >
-                    <div className="text-center px-6">
-                      <Sparkles className="w-12 h-12 text-primary/40 mx-auto mb-2" />
-                      <span className="text-xs text-muted-foreground italic">
-                        {trainer.photoDesc}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-6 lg:p-8 flex flex-col flex-grow">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-                        {trainer.name}
-                      </h3>
-                      <span className="text-sm text-primary font-medium">{trainer.years}</span>
-                    </div>
-                    <p className="text-sm font-medium text-secondary mb-4">{trainer.title}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {trainer.origin}
-                    </p>
-                    <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
-                      <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      {trainer.superpower}
-                    </p>
-                    <p className="text-muted-foreground text-sm leading-relaxed mt-auto">
-                      {trainer.personal}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

@@ -13,6 +13,7 @@ export function TransformationsSection() {
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -22,7 +23,16 @@ export function TransformationsSection() {
       { threshold: 0.1 },
     )
     const elements = sectionRef.current?.querySelectorAll(".reveal")
-    elements?.forEach((el) => observer.observe(el))
+    elements?.forEach((el) => {
+      if (!isDesktop && (el as HTMLElement).dataset.storyCard !== undefined) return
+      observer.observe(el)
+    })
+
+    if (!isDesktop) {
+      const mobileStrip = sectionRef.current?.querySelector("[data-mobile-strip-reveal]")
+      if (mobileStrip) observer.observe(mobileStrip)
+    }
+
     return () => observer.disconnect()
   }, [])
 
@@ -79,86 +89,88 @@ export function TransformationsSection() {
           </p>
         </div>
 
-        <div
-          ref={scrollerRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
-        >
-          {transformationStories.map((story, index) => (
-            <div
-              key={story.dogName}
-              data-story-card
-              className={`reveal opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
-            >
-              <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
-                {/* Video/Image Placeholder */}
-                <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
-                  <div className="text-center px-6">
-                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
-                      <Play className="w-6 h-6 text-primary ml-0.5" />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{story.mediaPlaceholder}</p>
-                  </div>
-                </div>
-
-                <div className="p-6 lg:p-8 flex-1 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-display text-xl font-semibold text-foreground">
-                        {story.dogName}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{story.breed}</p>
-                    </div>
-                    <span className="text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
-                      {story.path}
-                    </span>
-                  </div>
-
-                  <div className="space-y-4 flex-1">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-destructive mb-1">
-                        Before
-                      </p>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {story.before}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-primary mb-1">
-                        After
-                      </p>
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {story.after}
-                      </p>
+        <div data-mobile-strip-reveal className="opacity-0 lg:opacity-100">
+          <div
+            ref={scrollerRef}
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
+          >
+            {transformationStories.map((story, index) => (
+              <div
+                key={story.dogName}
+                data-story-card
+                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
+              >
+                <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
+                  {/* Video/Image Placeholder */}
+                  <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
+                    <div className="text-center px-6">
+                      <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
+                        <Play className="w-6 h-6 text-primary ml-0.5" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{story.mediaPlaceholder}</p>
                     </div>
                   </div>
 
-                  <Link
-                    href={story.href}
-                    className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                  >
-                    Read full story
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <div className="p-6 lg:p-8 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-display text-xl font-semibold text-foreground">
+                          {story.dogName}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{story.breed}</p>
+                      </div>
+                      <span className="text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
+                        {story.path}
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 flex-1">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-destructive mb-1">
+                          Before
+                        </p>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          {story.before}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-primary mb-1">
+                          After
+                        </p>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                          {story.after}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={story.href}
+                      className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                    >
+                      Read full story
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
-          {transformationStories.map((story, index) => (
-            <button
-              key={story.dogName}
-              type="button"
-              onClick={() => goToSlide(index)}
-              className={`h-2.5 rounded-full transition-all ${
-                index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
-              }`}
-              aria-label={`Go to story ${index + 1}`}
-            />
-          ))}
-          <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
-            {activeIndex + 1} / {transformationStories.length}
-          </span>
+            ))}
+          </div>
+          <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
+            {transformationStories.map((story, index) => (
+              <button
+                key={story.dogName}
+                type="button"
+                onClick={() => goToSlide(index)}
+                className={`h-2.5 rounded-full transition-all ${
+                  index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
+                }`}
+                aria-label={`Go to story ${index + 1}`}
+              />
+            ))}
+            <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
+              {activeIndex + 1} / {transformationStories.length}
+            </span>
+          </div>
         </div>
 
         <div className="text-center mt-12">

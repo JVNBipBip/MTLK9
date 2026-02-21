@@ -80,7 +80,7 @@ export default function HighRiskPage() {
 
       <div ref={contentRef}>
         {/* Hero */}
-        <section className="pt-28 pb-20 lg:pt-36 lg:pb-28 px-6 lg:px-8 bg-primary text-primary-foreground">
+        <section className="pt-32 pb-20 lg:pt-40 lg:pb-28 px-6 lg:px-8 bg-primary text-primary-foreground">
           <div className="max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
               For dogs with aggression, resource guarding, bite history

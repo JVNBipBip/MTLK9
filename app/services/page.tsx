@@ -4,9 +4,8 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, PawPrint } from "lucide-react"
 
 const services = [
   {
@@ -81,7 +80,7 @@ export default function ServicesPage() {
       <Header />
 
       <div ref={contentRef}>
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 px-6 lg:px-8">
+      <section className="pt-32 pb-16 lg:pt-40 lg:pb-24 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
             <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
@@ -92,50 +91,73 @@ export default function ServicesPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="space-y-8 lg:space-y-10">
             {services.map((service, index) => (
-              <div
+              <article
                 key={service.href}
                 className={`reveal opacity-0 ${
-                  index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-200" : index === 4 ? "animation-delay-600" : ""
+                  index === 1
+                    ? "animation-delay-200"
+                    : index === 2
+                      ? "animation-delay-400"
+                      : index === 3
+                        ? "animation-delay-200"
+                        : index === 4
+                          ? "animation-delay-600"
+                          : ""
                 }`}
               >
-                <div className="h-full bg-card rounded-3xl p-8 border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col group">
-                  <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2 group-hover:text-primary transition-colors">
-                    {service.title}
-                  </h3>
-                  <p className="text-sm font-medium text-primary mb-4">{service.for}</p>
-                  <p className="text-muted-foreground leading-relaxed mb-4 flex-grow">
-                    {service.solves}
-                  </p>
-                  <p className="text-sm text-muted-foreground mb-4">{service.format}</p>
-                  <p className="text-sm font-semibold text-foreground mb-6">
-                    Starting at {service.price}
-                  </p>
-                  <Link href={service.href} className="block">
-                    <Button className="w-full rounded-full group/btn">
-                      {service.cta}
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                  <p className="text-xs text-muted-foreground mt-4 text-center">
-                    Not sure which path?{" "}
-                    <Link
-                      href="/booking"
-                      className="text-primary font-medium hover:underline underline-offset-4"
+                <div className="bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 overflow-hidden">
+                  <div className="grid lg:grid-cols-2">
+                    <div
+                      className={`relative min-h-[240px] md:min-h-[300px] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center p-8 ${
+                        index % 2 === 1 ? "lg:order-2" : ""
+                      }`}
                     >
-                      Book a free discovery call
-                    </Link>{" "}
-                    and we&apos;ll help you decide.
-                  </p>
+                      <div className="text-center">
+                        <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                          <PawPrint className="w-7 h-7 text-primary" />
+                        </div>
+                        <p className="text-sm text-muted-foreground">[Image: {service.title}]</p>
+                      </div>
+                    </div>
+
+                    <div className={`p-8 lg:p-10 flex flex-col ${index % 2 === 1 ? "lg:order-1" : ""}`}>
+                      <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
+                        {service.title}
+                      </h3>
+                      <p className="text-sm font-medium text-primary mb-4">{service.for}</p>
+                      <p className="text-muted-foreground leading-relaxed mb-4 flex-grow">
+                        {service.solves}
+                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">{service.format}</p>
+                      <p className="text-sm font-semibold text-foreground mb-6">
+                        Starting at {service.price}
+                      </p>
+                      <Link href={service.href} className="block">
+                        <Button className="w-full rounded-full group/btn">
+                          {service.cta}
+                          <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                      <p className="text-xs text-muted-foreground mt-4 text-center">
+                        Not sure which path?{" "}
+                        <Link
+                          href="/booking"
+                          className="text-primary font-medium hover:underline underline-offset-4"
+                        >
+                          Book a free discovery call
+                        </Link>{" "}
+                        and we&apos;ll help you decide.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
-
-      <TrustStrip />
 
       <section className="py-24 lg:py-32 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

@@ -15,7 +15,7 @@ export default function FaqPage() {
   return (
     <main className="min-h-screen bg-background">
       <Header />
-      <section className="pt-28 pb-16 md:pt-36 md:pb-24 px-6 lg:px-8">
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4 animate-fade-up">
             The Questions Every Montreal Dog Owner Asks

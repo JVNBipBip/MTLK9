@@ -107,7 +107,7 @@ export function BlogContent() {
   return (
     <div ref={contentRef}>
       {/* Hero */}
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 px-6 lg:px-8">
+      <section className="pt-32 pb-16 lg:pt-40 lg:pb-24 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
             Real Advice for Real Dog Owners

@@ -26,7 +26,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
     <main className="min-h-screen bg-background">
       <Header />
 
-      <section className="pt-28 pb-14 lg:pt-36 lg:pb-20 px-6 lg:px-8">
+      <section className="pt-32 pb-14 lg:pt-40 lg:pb-20 px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
           <p className="text-sm uppercase tracking-[0.18em] text-secondary font-medium mb-4">
             Transformation Story

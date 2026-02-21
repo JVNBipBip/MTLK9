@@ -136,7 +136,7 @@ export function PainPointsSection() {
             {painPoints.map((point, index) => (
               <article
                 key={point.question}
-                className={`${index === 1 || index === 3 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} snap-start shrink-0 w-full group bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-500 overflow-hidden`}
+                className={`${index === 1 || index === 3 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} snap-start shrink-0 w-[88%] sm:w-[82%] md:w-[76%] lg:w-full group bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-500 overflow-hidden`}
               >
                 <div className="grid lg:grid-cols-2 min-h-[560px] lg:min-h-[460px]">
                   <div className="relative h-64 sm:h-80 lg:h-full overflow-hidden">

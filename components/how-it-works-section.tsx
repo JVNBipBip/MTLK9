@@ -75,7 +75,7 @@ export function HowItWorksSection() {
               className={`reveal opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""}`}
             >
               <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 mx-auto md:mx-0">
                   <step.icon className="w-6 h-6 text-primary" />
                 </div>
                 <span className="text-sm font-medium text-muted-foreground/50 mb-2 block">
