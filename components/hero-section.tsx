@@ -101,7 +101,9 @@ export function HeroSection() {
           poster={HERO_FALLBACK}
           onLoadedData={handleVideoReady}
           onCanPlay={handleVideoReady}
-          className="hidden md:block w-full h-full object-cover"
+          className={`hidden md:block w-full h-full object-cover transition-opacity duration-1000 ${
+            isVideoReady ? "opacity-100" : "opacity-0"
+          }`}
         >
           <source src="/videos/Desktop Hero Video.webm" type="video/webm" />
         </video>
@@ -116,7 +118,9 @@ export function HeroSection() {
           poster={HERO_FALLBACK}
           onLoadedData={handleVideoReady}
           onCanPlay={handleVideoReady}
-          className="md:hidden w-full h-full object-cover"
+          className={`md:hidden w-full h-full object-cover transition-opacity duration-1000 ${
+            isVideoReady ? "opacity-100" : "opacity-0"
+          }`}
         >
           <source src="/videos/Mobile Hero Video.mp4" type="video/mp4" />
         </video>
@@ -135,49 +139,47 @@ export function HeroSection() {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-5 md:px-6 lg:px-8 pb-12 pt-16 md:py-20 lg:py-32 w-full">
-        {isVideoReady && (
-          <div className="max-w-2xl">
-            <p className="reveal opacity-0 text-sm md:text-base text-background/95 font-semibold mb-2">
-              5.0 <span className="text-yellow-400">★★★★★</span> · 124 Google reviews
-            </p>
-            <p className="reveal opacity-0 text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
-              Montreal #1 Dog School
-            </p>
-            <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
-              <AnimatedText text="Get your life" delay={0.3} />
-              <br />
-              <AnimatedText text="with your dog" delay={0.6} />
-              <br />
-              <span className="text-accent">
-                <AnimatedText text="back." delay={1.0} />
-              </span>
-            </h1>
-            <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
-              Real-world training for leash pulling, reactivity, anxiety, and everyday manners —
-              built around humane, evidence-guided methods.
-            </p>
-            <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
-              <Link href="/booking" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
-                >
-                  Book a Free Discovery Call
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link href="/services" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto rounded-full px-8 py-6 text-base border-background/30 hover:bg-background/10 text-background bg-transparent backdrop-blur-sm"
-                >
-                  See Training Programs
-                </Button>
-              </Link>
-            </div>
+        <div className="max-w-2xl">
+          <p className="reveal opacity-0 text-sm md:text-base text-background/95 font-semibold mb-2">
+            5.0 <span className="text-yellow-400">★★★★★</span> · 124 Google reviews
+          </p>
+          <p className="reveal opacity-0 text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
+            Montreal #1 Dog School
+          </p>
+          <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
+            <AnimatedText text="Get your life" delay={0.3} />
+            <br />
+            <AnimatedText text="with your dog" delay={0.6} />
+            <br />
+            <span className="text-accent">
+              <AnimatedText text="back." delay={1.0} />
+            </span>
+          </h1>
+          <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
+            Real-world training for leash pulling, reactivity, anxiety, and everyday manners —
+            built around humane, evidence-guided methods.
+          </p>
+          <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
+            <Link href="/booking" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
+              >
+                Book a Free Discovery Call
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <Link href="/services" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto rounded-full px-8 py-6 text-base border-background/30 hover:bg-background/10 text-background bg-transparent backdrop-blur-sm"
+              >
+                See Training Programs
+              </Button>
+            </Link>
           </div>
-        )}
+        </div>
       </div>
     </section>
   )
