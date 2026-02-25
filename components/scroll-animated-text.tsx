@@ -8,7 +8,7 @@ interface ScrollAnimatedTextProps {
   className?: string
   as?: "h1" | "h2" | "h3" | "p" | "span"
   delay?: number
-  charDelay?: number
+  wordDelay?: number
 }
 
 export function ScrollAnimatedText({
@@ -16,27 +16,32 @@ export function ScrollAnimatedText({
   className = "",
   as: Tag = "h2",
   delay = 0,
-  charDelay = 0.02,
+  wordDelay = 0.1,
 }: ScrollAnimatedTextProps) {
   const ref = useRef<HTMLElement>(null)
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" })
 
   return (
     <Tag ref={ref as React.RefObject<never>} className={className}>
-      {text.split("").map((char, index) => (
-        <motion.span
-          key={index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{
-            duration: 0.5,
-            delay: delay + index * charDelay,
-            ease: [0.21, 0.47, 0.32, 0.98],
-          }}
-          style={{ display: char === " " ? "inline" : "inline-block" }}
-        >
-          {char === " " ? "\u00A0" : char}
-        </motion.span>
+      {text.split(" ").map((word, wordIndex, wordsArray) => (
+        <span key={wordIndex} className="inline-block whitespace-nowrap">
+          <motion.span
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{
+              duration: 0.5,
+              delay: delay + wordIndex * wordDelay,
+              ease: [0.21, 0.47, 0.32, 0.98],
+            }}
+            className="inline-block will-change-transform"
+            style={{ backfaceVisibility: "hidden", WebkitFontSmoothing: "antialiased" }}
+          >
+            {word}
+          </motion.span>
+          {wordIndex < wordsArray.length - 1 && (
+            <span className="inline-block">&nbsp;</span>
+          )}
+        </span>
       ))}
     </Tag>
   )
