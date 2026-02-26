@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowRight, Play } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -82,12 +83,12 @@ export default async function StoryPage({ params }: StoryPageProps) {
             </blockquote>
 
             <div className="pt-2">
-              <Link href="/booking">
+              <BookingLink>
                 <Button size="lg" className="rounded-full px-8 py-6 text-base group">
                   Book a Free Discovery Call
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </BookingLink>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ProgramSignupLink } from "@/components/booking-form-provider"
 
 type ServiceWorkOnSectionProps = {
   goals: string[]
@@ -126,12 +126,12 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
         </div>
 
         <div className="reveal opacity-0 animation-delay-600 mt-10 text-center">
-          <Link href="/booking">
+          <ProgramSignupLink>
             <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-              Book a Free Discovery Call
+              Start Program Sign-Up
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-          </Link>
+          </ProgramSignupLink>
         </div>
       </div>
     </section>

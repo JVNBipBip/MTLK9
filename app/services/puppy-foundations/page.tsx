@@ -8,6 +8,7 @@ import { ServiceForYouSection } from "@/components/service-for-you-section"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
+import { ProgramSignupLink } from "@/components/booking-form-provider"
 import {
   Accordion,
   AccordionContent,
@@ -98,12 +99,12 @@ export default function PuppyFoundationsPage() {
               The first few months set the tone for years. Get it right from the start.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
-              <Link href="/booking">
+              <ProgramSignupLink>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
-                  Book a Free Discovery Call
+                  Start Program Sign-Up
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </ProgramSignupLink>
             </div>
           </div>
         </section>
@@ -136,12 +137,12 @@ export default function PuppyFoundationsPage() {
               </div>
             </div>
             <div className="reveal opacity-0 animation-delay-200 mt-10 text-center">
-              <Link href="/booking">
+              <ProgramSignupLink>
                 <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                  Book a Free Discovery Call
+                  Start Program Sign-Up
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </ProgramSignupLink>
             </div>
           </div>
         </section>
@@ -180,15 +181,15 @@ export default function PuppyFoundationsPage() {
               this program is the right fit — no pressure.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
-              <Link href="/booking">
+              <ProgramSignupLink>
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                 >
-                  Book a Free Discovery Call
+                  Start Program Sign-Up
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
-              </Link>
+              </ProgramSignupLink>
             </div>
           </div>
         </section>

@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { BookingContent } from "./booking-content"
+import { BookingPageRedirect } from "./booking-page-redirect"
 
 export const metadata: Metadata = {
   title: "Book Your Evaluation — Montreal Canine Training",
@@ -10,11 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function BookingPage() {
-  return (
-    <main className="min-h-screen bg-background">
-      <Header />
-      <BookingContent />
-      <Footer />
-    </main>
-  )
+  return <BookingPageRedirect />
 }

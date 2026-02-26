@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
+import { BookingFormProvider } from "@/components/booking-form-provider"
 import "./globals.css"
 
 const inter = Inter({
@@ -40,7 +41,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
-        {children}
+        <BookingFormProvider>
+          {children}
+        </BookingFormProvider>
       </body>
     </html>
   )

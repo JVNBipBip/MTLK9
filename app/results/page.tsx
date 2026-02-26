@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 
 const caseStudies = [
   {
@@ -220,7 +221,7 @@ export default function ResultsPage() {
                   Book a free discovery call and start your dog&apos;s transformation.
                 </p>
                 <div className="reveal opacity-0 animation-delay-400">
-                  <Link href="/booking">
+                  <BookingLink>
                     <Button
                       size="lg"
                       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
@@ -228,7 +229,7 @@ export default function ResultsPage() {
                       Book a Free Discovery Call
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
-                  </Link>
+                  </BookingLink>
                 </div>
               </div>
             </div>

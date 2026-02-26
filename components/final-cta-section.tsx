@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 
 export function FinalCTASection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -40,7 +41,7 @@ export function FinalCTASection() {
           </p>
 
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/booking">
+            <BookingLink>
               <Button
                 size="lg"
                 className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
@@ -48,7 +49,7 @@ export function FinalCTASection() {
                 Book Your Free Call
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </Link>
+            </BookingLink>
             <Link href="tel:+15145551234">
               <Button
                 size="lg"

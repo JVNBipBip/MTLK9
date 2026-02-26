@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/functions/node_modules
 
 # next.js
 /.next/
@@ -28,7 +29,13 @@ next-env.d.ts
 
 # reference files
 MTC_Website_Build_Prompt.md
+MTC_Booking_Form_Funnel.md
 /evasion-e-commerce-template/
+/docs/
+
+# firebase
+.config/
+/functions/lib/
 
 # misc
 .DS_Store

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { BookingLink } from "@/components/booking-form-provider"
 
 const navLinks = [
   { label: "Training Programs", href: "/services" },
@@ -65,11 +66,11 @@ export function Header() {
               <Phone className="w-3.5 h-3.5" />
               (514) 555-1234
             </Link>
-            <Link href="/booking">
+            <BookingLink>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
                 Book a Free Call
               </Button>
-            </Link>
+            </BookingLink>
           </div>
 
           <div className="lg:hidden">
@@ -113,11 +114,11 @@ export function Header() {
                       <Phone className="w-4 h-4" />
                       (514) 555-1234
                     </Link>
-                    <Link href="/booking" onClick={() => setIsOpen(false)}>
+                    <BookingLink onClick={() => setIsOpen(false)}>
                       <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-full h-11">
                         Book a Free Call
                       </Button>
-                    </Link>
+                    </BookingLink>
                   </div>
                 </div>
               </SheetContent>

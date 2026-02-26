@@ -1,8 +1,8 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 import { FaqAccordion } from "@/components/faq-accordion"
 
 export const metadata = {
@@ -34,7 +34,7 @@ export default function FaqPage() {
               Still have a question? Book a free 15-minute call and we&apos;ll answer
               it personally.
             </p>
-            <Link href="/booking">
+            <BookingLink>
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 gap-2"
@@ -42,7 +42,7 @@ export default function FaqPage() {
                 Book a Free Call
                 <ArrowRight className="w-4 h-4" />
               </Button>
-            </Link>
+            </BookingLink>
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import Image from "next/image"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Heart } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 
 const trainers = [
   {
@@ -307,7 +308,7 @@ export function AboutContent() {
                 right path together.
               </p>
               <div className="reveal opacity-0 animation-delay-600">
-                <Link href="/booking">
+                <BookingLink>
                   <Button
                     size="lg"
                     className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
@@ -315,7 +316,7 @@ export function AboutContent() {
                     Book Your Free Call
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+                </BookingLink>
               </div>
             </div>
           </div>

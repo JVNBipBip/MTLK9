@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, PawPrint } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 
 const services = [
   {
@@ -142,12 +143,11 @@ export default function ServicesPage() {
                       </Link>
                       <p className="text-xs text-muted-foreground mt-4 text-center">
                         Not sure which path?{" "}
-                        <Link
-                          href="/booking"
+                        <BookingLink
                           className="text-primary font-medium hover:underline underline-offset-4"
                         >
                           Book a free discovery call
-                        </Link>{" "}
+                        </BookingLink>{" "}
                         and we&apos;ll help you decide.
                       </p>
                     </div>
@@ -174,7 +174,7 @@ export default function ServicesPage() {
                 find the right training path — no pressure, no commitment.
               </p>
               <div className="reveal opacity-0 animation-delay-600">
-                <Link href="/booking">
+                <BookingLink>
                   <Button
                     size="lg"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
@@ -182,7 +182,7 @@ export default function ServicesPage() {
                     Book Your Free Call
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+                </BookingLink>
               </div>
             </div>
           </div>
