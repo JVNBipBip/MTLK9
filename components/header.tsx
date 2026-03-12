@@ -6,10 +6,11 @@ import { usePathname } from "next/navigation"
 import { Menu, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { BookingLink } from "@/components/booking-form-provider"
+import { FreeCallLink } from "@/components/booking-form-provider"
 
 const navLinks = [
   { label: "Training Programs", href: "/services" },
+  // { label: "Book Group Class", href: "/group-class-booking" },
   { label: "Results", href: "/results" },
   { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
@@ -62,15 +63,15 @@ export function Header() {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
-            <Link href="tel:+15145551234" className="text-base font-medium text-black/80 hover:text-black flex items-center gap-1.5">
+            <Link href="tel:+15148269558" className="text-base font-medium text-black/80 hover:text-black flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5" />
-              (514) 555-1234
+              514 826 9558
             </Link>
-            <BookingLink>
+            <FreeCallLink>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
                 Book a Free Call
               </Button>
-            </BookingLink>
+            </FreeCallLink>
           </div>
 
           <div className="lg:hidden">
@@ -107,18 +108,18 @@ export function Header() {
                   </div>
                   <div className="pt-5 mt-5 border-t border-black/10 space-y-3">
                     <Link
-                      href="tel:+15145551234"
+                      href="tel:+15148269558"
                       className="text-black/85 flex items-center gap-2 px-3 py-2 text-base font-medium"
                       onClick={() => setIsOpen(false)}
                     >
                       <Phone className="w-4 h-4" />
-                      (514) 555-1234
+                      514 826 9558
                     </Link>
-                    <BookingLink onClick={() => setIsOpen(false)}>
+                    <FreeCallLink onClick={() => setIsOpen(false)}>
                       <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-full h-11">
                         Book a Free Call
                       </Button>
-                    </BookingLink>
+                    </FreeCallLink>
                   </div>
                 </div>
               </SheetContent>

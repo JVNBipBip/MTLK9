@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Phone, MapPin } from "lucide-react"
+import { useBookingForm } from "@/components/booking-form-provider"
 import type { StepProps } from "../types"
 
 const CONNECT_OPTIONS = [
@@ -15,13 +16,24 @@ const CONNECT_OPTIONS = [
   {
     value: "in-person-evaluation",
     icon: MapPin,
-    label: "In-person evaluation ($100)",
+    label: "In-person assessment ($100)",
     description:
       "We meet you and your dog in the real world — a park, your street, your building — and do a full behavioral assessment. 60–75 minutes.",
   },
 ]
 
 export function StepConnect({ formData, updateFormData, onAutoAdvance }: StepProps) {
+  const { openFreeCallModal } = useBookingForm()
+
+  const handleSelect = (value: string) => {
+    if (value === "discovery-call") {
+      openFreeCallModal()
+      return
+    }
+    updateFormData({ connectMethod: value })
+    onAutoAdvance?.()
+  }
+
   return (
     <div className="space-y-3">
       <div>
@@ -37,7 +49,7 @@ export function StepConnect({ formData, updateFormData, onAutoAdvance }: StepPro
             <button
               key={option.value}
               type="button"
-              onClick={() => { updateFormData({ connectMethod: option.value }); onAutoAdvance?.() }}
+              onClick={() => handleSelect(option.value)}
               className={cn(
                 "w-full text-left rounded-xl border p-4 md:p-5 transition-all duration-200",
                 "hover:border-primary/40 hover:bg-primary/5",

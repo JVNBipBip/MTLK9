@@ -5,6 +5,18 @@ import type { BookingFormData } from "../types"
 
 export function StepConfirmation({ formData }: { formData: BookingFormData }) {
   const isDiscoveryCall = formData.connectMethod === "discovery-call"
+  const formattedConsultationDateTime = formData.consultationDateTime
+    ? new Date(formData.consultationDateTime).toLocaleString("en-CA", {
+        timeZone: "America/Toronto",
+        dateStyle: "full",
+        timeStyle: "short",
+      })
+    : "To be confirmed by email"
+  const assessmentSummary = [
+    { label: "When", value: formattedConsultationDateTime },
+    { label: "Where", value: formData.consultationLocation || "To be confirmed by email" },
+    { label: "What", value: formData.consultationWhat || "In-person assessment" },
+  ]
 
   return (
     <div className="space-y-6 text-center py-8">
@@ -18,7 +30,7 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
           {isDiscoveryCall
             ? "You're in. Here's what happens next."
-            : "You're in. Let's pick a time."}
+            : "You're in. Your assessment is booked."}
         </h2>
 
         {isDiscoveryCall ? (
@@ -29,14 +41,14 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
         ) : (
           <div className="space-y-4">
             <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-              We&apos;ll send you a confirmation email with a short prep checklist
-              so we can make the most of our time together.
+              You&apos;ll receive a confirmation email shortly with your booking details and a short prep checklist.
             </p>
-            {/* Placeholder for Calendly / scheduling widget */}
-            <div className="rounded-2xl border border-border bg-muted/30 p-8 max-w-md mx-auto">
-              <p className="text-sm text-muted-foreground">
-                Calendar scheduling widget will be embedded here
-              </p>
+            <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
+              {assessmentSummary.map((item) => (
+                <p key={item.label} className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">{item.label}:</span> {item.value}
+                </p>
+              ))}
             </div>
           </div>
         )}
@@ -46,18 +58,18 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
         <p className="text-sm text-muted-foreground mb-3">Questions before then?</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="tel:+15145551234"
+            href="tel:+15148269558"
             className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             <Phone className="w-4 h-4" />
-            (514) 555-1234
+            514 826 9558
           </a>
           <a
-            href="mailto:info@mtlcaninetraining.com"
+            href="mailto:mtlcaninetraining@gmail.com"
             className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             <Mail className="w-4 h-4" />
-            info@mtlcaninetraining.com
+            mtlcaninetraining@gmail.com
           </a>
         </div>
       </div>

@@ -39,13 +39,13 @@ export function Footer() {
               plans — through humane methods and a team of specialists who have seen it all before.
             </p>
             <div className="space-y-3 text-sm text-background/70">
-              <Link href="tel:+15145551234" className="flex items-center gap-3 hover:text-background transition-colors">
+              <Link href="tel:+15148269558" className="flex items-center gap-3 hover:text-background transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>(514) 555-1234</span>
+                <span>514 826 9558</span>
               </Link>
-              <Link href="mailto:info@mtlcaninetraining.com" className="flex items-center gap-3 hover:text-background transition-colors">
+              <Link href="mailto:mtlcaninetraining@gmail.com" className="flex items-center gap-3 hover:text-background transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>info@mtlcaninetraining.com</span>
+                <span>mtlcaninetraining@gmail.com</span>
               </Link>
               <div className="flex items-center gap-3">
                 <MapPin className="w-4 h-4 shrink-0" />

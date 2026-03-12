@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { AnimatedText } from "@/components/animated-text"
-import { BookingLink } from "@/components/booking-form-provider"
+import { FreeCallLink } from "@/components/booking-form-provider"
 
 const HERO_FALLBACK = "/images/hero-fallback.png"
 
@@ -161,7 +161,7 @@ export function HeroSection() {
             built around humane, evidence-guided methods.
           </p>
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
-            <BookingLink className="w-full sm:w-auto">
+            <FreeCallLink className="w-full sm:w-auto">
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
@@ -169,7 +169,7 @@ export function HeroSection() {
                 Book a Free Discovery Call
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-            </BookingLink>
+            </FreeCallLink>
             <Link href="/services" className="w-full sm:w-auto">
               <Button
                 size="lg"

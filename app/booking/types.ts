@@ -16,6 +16,10 @@ export interface BookingFormData {
   contactPhone: string
   contactBestTime: string
   contactNotes: string
+  consultationDateTime: string
+  consultationSlotKey: string
+  consultationLocation: string
+  consultationWhat: string
 }
 
 export type StepProps = {
@@ -42,4 +46,8 @@ export const INITIAL_FORM_DATA: BookingFormData = {
   contactPhone: "",
   contactBestTime: "",
   contactNotes: "",
+  consultationDateTime: "",
+  consultationSlotKey: "",
+  consultationLocation: "",
+  consultationWhat: "In-person evaluation (60-75 minutes)",
 }
