@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { searchSquareAvailability } from "@/lib/square"
+import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
+import { getConsultationServiceVariationId } from "@/lib/square-service-config"
 
 export const runtime = "nodejs"
 
@@ -10,10 +11,10 @@ function minLeadMinutes() {
 }
 
 export async function GET() {
-  const serviceVariationId = process.env.SQUARE_CONSULTATION_SERVICE_VARIATION_ID
+  const serviceVariationId = await getConsultationServiceVariationId()
   if (!serviceVariationId) {
     return NextResponse.json(
-      { error: "Square consultation slots are not configured. Set SQUARE_CONSULTATION_SERVICE_VARIATION_ID." },
+      { error: "Square consultation slots are not configured. Set in Admin → Service Mapping." },
       { status: 500 },
     )
   }
@@ -27,7 +28,7 @@ export async function GET() {
     endAt,
   })
 
-  const slots = (availability.availabilities || [])
+  const rawSlots = (availability.availabilities || [])
     .map((slot) => {
       const startAtValue = slot.start_at || ""
       const teamMemberId = slot.appointment_segments?.[0]?.team_member_id || ""
@@ -42,11 +43,26 @@ export async function GET() {
     })
     .filter((value): value is { slotKey: string; startAt: string; teamMemberId: string } => Boolean(value))
     .sort((a, b) => a.startAt.localeCompare(b.startAt))
-    .map((slot) => ({
-      slotKey: slot.slotKey,
-      startAt: slot.startAt,
-      teamMemberId: slot.teamMemberId,
-    }))
+
+  const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId))]
+  const teamNames = new Map<string, string | null>()
+  await Promise.all(
+    uniqueTeamIds.map(async (id) => {
+      try {
+        const name = await retrieveSquareTeamMember(id)
+        teamNames.set(id, name ?? null)
+      } catch {
+        teamNames.set(id, null)
+      }
+    }),
+  )
+
+  const slots = rawSlots.map((slot) => ({
+    slotKey: slot.slotKey,
+    startAt: slot.startAt,
+    teamMemberId: slot.teamMemberId,
+    teamMemberName: teamNames.get(slot.teamMemberId) ?? null,
+  }))
 
   return NextResponse.json({ slots })
 }

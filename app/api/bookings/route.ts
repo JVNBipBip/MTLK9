@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { FieldValue } from "firebase-admin/firestore"
+import { getConsultationServiceVariationId } from "@/lib/square-service-config"
 import { ISSUE_SERVICE_MAP } from "@/app/booking/constants"
 import type { BookingFormData } from "@/app/booking/types"
 import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
@@ -67,10 +68,10 @@ export async function POST(request: Request) {
     let squareConsultationStatus: string | null = null
 
     if (isConsultation && formData.consultationDateTime) {
-      const serviceVariationId = process.env.SQUARE_CONSULTATION_SERVICE_VARIATION_ID
+      const serviceVariationId = await getConsultationServiceVariationId()
       if (!serviceVariationId) {
         return NextResponse.json(
-          { error: "Square consultation configuration is incomplete. Set SQUARE_CONSULTATION_SERVICE_VARIATION_ID." },
+          { error: "Square consultation configuration is incomplete. Set in Admin → Service Mapping." },
           { status: 500 },
         )
       }

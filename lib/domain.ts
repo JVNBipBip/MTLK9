@@ -1,6 +1,8 @@
 export const CONSULTATIONS_COLLECTION = "consultations"
+export const SQUARE_SERVICE_CONFIG_COLLECTION = "square_service_config"
 export const CLASS_SESSIONS_COLLECTION = "class_sessions"
 export const BOOKINGS_COLLECTION = "bookings"
+export const SQUARE_TOKENS_COLLECTION = "square_tokens"
 export const DOG_CLASS_ACCESS_COLLECTION = "dog_class_access"
 export const PRIVATE_TRAINING_PACKAGES_COLLECTION = "private_training_packages"
 

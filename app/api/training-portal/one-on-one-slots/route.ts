@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { resolvePrivateSquareServiceVariationId, resolvePrivateSquareServiceVariationIds } from "@/lib/programs"
+import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
 import { ONE_ON_ONE_PROGRAM_ID, loadTrainingPortalContext } from "@/lib/training-portal"
 
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "clientEmail and dogName are required." }, { status: 400 })
     }
 
-    const oneOnOneServiceVariationIds = resolvePrivateSquareServiceVariationIds()
+    const oneOnOneServiceVariationIds = await getPrivateServiceVariationIds()
     if (oneOnOneServiceVariationIds.length === 0) {
       return NextResponse.json({ error: "Missing private training Square mapping configuration." }, { status: 500 })
     }
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const serviceVariationId = resolvePrivateSquareServiceVariationId({
+    const serviceVariationId = await getPrivateServiceVariationId({
       serviceType: portal.activePrivatePackage.serviceType,
       planType: portal.activePrivatePackage.planType,
     })

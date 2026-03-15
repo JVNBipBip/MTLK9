@@ -2,7 +2,7 @@ import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { BOOKINGS_COLLECTION, PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { resolvePrivateSquareServiceVariationId, resolvePrivateSquareServiceVariationIds } from "@/lib/programs"
+import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { ONE_ON_ONE_PROGRAM_ID, ONE_ON_ONE_PROGRAM_LABEL, loadTrainingPortalContext } from "@/lib/training-portal"
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "clientEmail, dogName and selectedSlotKey are required." }, { status: 400 })
   }
 
-  const oneOnOneServiceVariationIds = resolvePrivateSquareServiceVariationIds()
+  const oneOnOneServiceVariationIds = await getPrivateServiceVariationIds()
   if (oneOnOneServiceVariationIds.length === 0) {
     return NextResponse.json({ error: "Missing private training Square mapping configuration." }, { status: 500 })
   }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Your private package has no remaining sessions.", code: "private_package_exhausted" }, { status: 409 })
   }
 
-  const expectedServiceVariationId = resolvePrivateSquareServiceVariationId({
+  const expectedServiceVariationId = await getPrivateServiceVariationId({
     serviceType: portal.activePrivatePackage.serviceType,
     planType: portal.activePrivatePackage.planType,
   })

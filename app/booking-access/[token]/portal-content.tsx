@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 type ConsultationPayload = {
@@ -20,6 +21,7 @@ type ScheduleSlot = {
   programId?: string
   programLabel: string
   teamMemberId?: string
+  teamMemberName?: string | null
   serviceVariationId?: string
 }
 
@@ -138,15 +140,24 @@ export function BookingAccessContent({ token }: { token: string }) {
         </div>
 
         <div className="space-y-3">
-          {slots.map((slot) => (
-            <label key={slot.slotKey} className="flex items-start gap-3 rounded-xl border border-border p-4 cursor-pointer">
-              <input type="radio" checked={selected.includes(slot.slotKey)} onChange={() => setSelected([slot.slotKey])} className="mt-1" />
-              <div>
-                <p className="font-medium">{formatSlotDisplay(slot)}</p>
-                <p className="text-sm text-muted-foreground">{slot.programLabel}</p>
-              </div>
-            </label>
-          ))}
+          {slots.map((slot) => {
+            const staffName = slot.teamMemberName || (slot.teamMemberId ? "Staff" : null)
+            return (
+              <label key={slot.slotKey} className="flex items-start gap-3 rounded-xl border border-border p-4 cursor-pointer">
+                <input type="radio" checked={selected.includes(slot.slotKey)} onChange={() => setSelected([slot.slotKey])} className="mt-1" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium">{formatSlotDisplay(slot)}</p>
+                  <p className="text-sm text-muted-foreground">{slot.programLabel}</p>
+                  {staffName && (
+                    <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5 shrink-0" />
+                      {staffName}
+                    </p>
+                  )}
+                </div>
+              </label>
+            )
+          })}
           {slots.length === 0 ? (
             <p className="text-sm text-muted-foreground">No available schedule slots right now. Please check back later or contact us.</p>
           ) : null}
@@ -161,6 +172,12 @@ export function BookingAccessContent({ token }: { token: string }) {
             <p className="text-muted-foreground">
               <span className="font-medium text-foreground">What:</span> {selectedSlots[0].programLabel}
             </p>
+            {(selectedSlots[0].teamMemberName || selectedSlots[0].teamMemberId) && (
+              <p className="text-muted-foreground flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 shrink-0" />
+                <span className="font-medium text-foreground">With:</span> {selectedSlots[0].teamMemberName || "Staff"}
+              </p>
+            )}
           </div>
         ) : null}
 

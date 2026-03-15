@@ -128,11 +128,6 @@ const faqData: FaqCategory[] = [
           "Yes — between-session support is a core part of what we do. After every session, you get clear homework with video demonstrations. You can text or email us with questions, and we'll check in on your progress. You're never on your own between sessions.",
       },
       {
-        question: "Do you offer group classes, and are they safe for reactive dogs?",
-        answer:
-          "We offer group classes for puppies and dogs with solid foundational manners. Reactive dogs are not appropriate for group settings — they need private, structured work first. Once your dog reaches certain milestones, we may recommend group classes to proof their skills.",
-      },
-      {
         question: "Is board-and-train worth it?",
         answer:
           "We don't offer traditional board-and-train because lasting behavior change requires owner involvement. Our Day Training program is the alternative: your dog trains with us during the day, and we transfer skills to you in handoff sessions. The results stick because you're part of the process.",

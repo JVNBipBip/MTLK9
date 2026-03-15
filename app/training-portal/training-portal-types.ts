@@ -50,7 +50,6 @@ export type StatusResponse = {
       blockedReason: string | null
       sessionsRemaining: number
     }
-    group: { eligible: boolean; allowedClassCount: number }
   }
 }
 

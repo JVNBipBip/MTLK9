@@ -14,7 +14,7 @@ const services = [
     href: "/services/puppy-foundations",
     for: "Puppies 8–20 weeks",
     solves: "Biting/nipping, socialization, house training, building calm routines",
-    format: "Group classes + private sessions available",
+    format: "Private sessions",
     price: "$349",
     cta: "Start Your Puppy's Plan",
   },

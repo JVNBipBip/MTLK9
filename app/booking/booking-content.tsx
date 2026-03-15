@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, Clock } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, Clock, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
@@ -67,7 +67,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   const [isComplete, setIsComplete] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showSchedulingStep, setShowSchedulingStep] = useState(false)
-  const [consultationSlots, setConsultationSlots] = useState<Array<{ startAt: string; slotKey: string; teamMemberId?: string }>>([])
+  const [consultationSlots, setConsultationSlots] = useState<Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>>([])
 
   const groupedSlots = useMemo(() => {
     const groups: Record<string, typeof consultationSlots> = {}
@@ -106,7 +106,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     async function loadSlots() {
       try {
         const response = await fetch("/api/consultation-slots")
-        const data = (await response.json().catch(() => null)) as { slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string }> } | null
+        const data = (await response.json().catch(() => null)) as { slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }> } | null
         if (!active) return
         if (response.ok && data?.slots) setConsultationSlots(data.slots)
       } catch {
@@ -319,6 +319,14 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                               {date.toLocaleTimeString("en-CA", { timeStyle: 'short' })}
                             </span>
                           </div>
+                          {(slot.teamMemberName || slot.teamMemberId) && (
+                            <div className="flex items-center gap-2 mt-1">
+                              <User className={cn("w-4 h-4 shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
+                              <span className={cn("text-sm", isSelected ? "text-foreground" : "text-muted-foreground")}>
+                                {slot.teamMemberName || "Staff"}
+                              </span>
+                            </div>
+                          )}
                         </button>
                       )
                     })}
@@ -362,6 +370,20 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                         <p className="text-muted-foreground">{CONSULTATION_LOCATION}</p>
                       </div>
                     </div>
+
+                    {(() => {
+                      const selectedSlot = consultationSlots.find((s) => s.slotKey === formData.consultationSlotKey)
+                      const staffName = selectedSlot?.teamMemberName || (selectedSlot?.teamMemberId ? "Staff" : null)
+                      return staffName ? (
+                        <div className="flex items-start gap-3">
+                          <User className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                          <div>
+                            <p className="font-medium text-foreground">With</p>
+                            <p className="text-muted-foreground">{staffName}</p>
+                          </div>
+                        </div>
+                      ) : null
+                    })()}
 
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />

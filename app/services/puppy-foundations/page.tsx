@@ -40,8 +40,8 @@ const faqItems = [
     a: "The sooner, the better. Puppies are most receptive to learning between 8 and 16 weeks — that's when their socialization window is wide open. Starting at 8 weeks gives you the best chance to shape calm, confident behaviors before habits solidify.",
   },
   {
-    q: "Is group class or private better?",
-    a: "Both have value. Private sessions let us address your specific challenges (biting, house training) in your home. Group classes build socialization and focus around distractions. Our Puppy Complete package includes both for the best of both worlds.",
+    q: "Why private sessions instead of a class?",
+    a: "Private sessions let us address your puppy's specific challenges (biting, house training) in your home. We tailor every session to your dog's needs and your schedule. You get one-on-one attention and a plan designed just for you.",
   },
   {
     q: "My puppy bites everything — is this normal?",

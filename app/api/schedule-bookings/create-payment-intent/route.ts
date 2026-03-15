@@ -2,7 +2,8 @@ import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { PROGRAM_LABEL_BY_ID, resolveProgramSquareServiceVariationId } from "@/lib/programs"
+import { PROGRAM_LABEL_BY_ID } from "@/lib/programs"
+import { getProgramServiceVariationId } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   if (!recommendedSet.has(programId)) {
     return NextResponse.json({ error: "Selected slot is outside approved class types." }, { status: 400 })
   }
-  const serviceVariationId = serviceVariationFromSlot || resolveProgramSquareServiceVariationId(programId)
+  const serviceVariationId = serviceVariationFromSlot || (await getProgramServiceVariationId(programId))
   if (!serviceVariationId) {
     return NextResponse.json({ error: "Selected class is not mapped to a Square service variation." }, { status: 400 })
   }

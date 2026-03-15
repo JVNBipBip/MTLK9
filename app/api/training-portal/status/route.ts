@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
-import {
-  resolveOneOnOneSquareServiceVariationId,
-  resolvePrivateSquareServiceVariationIds,
-} from "@/lib/programs"
+import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
@@ -26,10 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "clientEmail and dogName are required." }, { status: 400 })
   }
 
-  const oneOnOneServiceVariationIds = [
-    ...resolvePrivateSquareServiceVariationIds(),
-    resolveOneOnOneSquareServiceVariationId(),
-  ].filter((value): value is string => Boolean(value))
+  const oneOnOneServiceVariationIds = await getPrivateServiceVariationIds()
   if (oneOnOneServiceVariationIds.length === 0) {
     return NextResponse.json({ error: "Missing one-on-one Square mapping configuration." }, { status: 500 })
   }
@@ -74,10 +68,6 @@ export async function POST(request: Request) {
             ? "private_package_exhausted"
             : null,
         sessionsRemaining: portal.activePrivatePackage?.sessionsRemaining ?? 0,
-      },
-      group: {
-        eligible: portal.assessmentCompleted && portal.allowedClassCount > 0,
-        allowedClassCount: portal.allowedClassCount,
       },
     },
   })

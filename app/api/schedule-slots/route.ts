@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 import { CONSULTATIONS_COLLECTION, DOG_CLASS_ACCESS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { resolveProgramSquareServiceVariationId } from "@/lib/programs"
+import { getProgramServiceVariationId } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
-import { searchSquareAvailability } from "@/lib/square"
+import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
 
 export const runtime = "nodejs"
 
@@ -13,6 +13,7 @@ export type ScheduleSlot = {
   programId?: string
   programLabel: string
   teamMemberId?: string
+  teamMemberName?: string | null
   serviceVariationId?: string
 }
 
@@ -69,23 +70,20 @@ export async function GET(request: Request) {
     .where("status", "==", "allowed")
     .get()
 
-  const allowedClasses = classAccessSnap.docs.map((d) => {
-    const data = d.data() as { classTypeId?: string; classLabel?: string; squareServiceVariationId?: string }
-    const classTypeId = data.classTypeId || ""
-    const mappedVariationId = resolveProgramSquareServiceVariationId(classTypeId)
-    return {
-      classTypeId,
-      classLabel: data.classLabel || classTypeId || "Class",
-      squareServiceVariationId: data.squareServiceVariationId || mappedVariationId || "",
-    }
-  })
+  const allowedClasses = await Promise.all(
+    classAccessSnap.docs.map(async (d) => {
+      const data = d.data() as { classTypeId?: string; classLabel?: string; squareServiceVariationId?: string }
+      const classTypeId = data.classTypeId || ""
+      const mappedVariationId = await getProgramServiceVariationId(classTypeId)
+      return {
+        classTypeId,
+        classLabel: data.classLabel || classTypeId || "Class",
+        squareServiceVariationId: data.squareServiceVariationId || mappedVariationId || "",
+      }
+    }),
+  )
   if (allowedClasses.length === 0) {
     return NextResponse.json({ error: "No approved class types for this consultation." }, { status: 400 })
-  }
-
-  const teamMemberId = process.env.SQUARE_DEFAULT_TEAM_MEMBER_ID
-  if (!teamMemberId) {
-    return NextResponse.json({ error: "Missing SQUARE_DEFAULT_TEAM_MEMBER_ID." }, { status: 500 })
   }
 
   const now = new Date()
@@ -100,7 +98,6 @@ export async function GET(request: Request) {
     try {
       const availability = await searchSquareAvailability({
         serviceVariationId: allowed.squareServiceVariationId,
-        teamMemberId,
         startAt,
         endAt,
       })
@@ -109,6 +106,8 @@ export async function GET(request: Request) {
         if (!start) continue
         const startMs = new Date(start).getTime()
         if (Number.isNaN(startMs) || startMs < minStartMs) continue
+        const teamMemberId = item.appointment_segments?.[0]?.team_member_id || ""
+        if (!teamMemberId) continue
         const slotKey = `${start}|${allowed.classTypeId}|${teamMemberId}|${allowed.squareServiceVariationId}`
         slotMap.set(slotKey, {
           slotKey,
@@ -124,6 +123,22 @@ export async function GET(request: Request) {
     }
   }
 
-  const slots = Array.from(slotMap.values()).sort((a, b) => a.startAt.localeCompare(b.startAt))
+  const rawSlots = Array.from(slotMap.values()).sort((a, b) => a.startAt.localeCompare(b.startAt))
+  const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId).filter(Boolean))] as string[]
+  const teamNames = new Map<string, string | null>()
+  await Promise.all(
+    uniqueTeamIds.map(async (id) => {
+      try {
+        const name = await retrieveSquareTeamMember(id)
+        teamNames.set(id, name ?? null)
+      } catch {
+        teamNames.set(id, null)
+      }
+    }),
+  )
+  const slots = rawSlots.map((s) => ({
+    ...s,
+    teamMemberName: s.teamMemberId ? teamNames.get(s.teamMemberId) ?? null : null,
+  }))
   return NextResponse.json({ slots })
 }
