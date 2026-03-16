@@ -1,12 +1,19 @@
 import { getAdminDb } from "@/lib/firebase-admin"
 import { SQUARE_SERVICE_CONFIG_COLLECTION } from "@/lib/domain"
 
+export type CustomMapping = {
+  id: string
+  label: string
+  squareServiceVariationId: string
+}
+
 export type SquareServiceConfig = {
   locationId?: string | null
   consultationServiceVariationId?: string | null
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
   programs?: Record<string, string | undefined>
+  customMappings?: CustomMapping[]
   updatedAt?: string
 }
 
