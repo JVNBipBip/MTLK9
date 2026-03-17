@@ -94,7 +94,7 @@ export function TrainingPortalContent({ onClose }: { onClose?: () => void }) {
   const goToBookingPage = () => {
     const params = new URLSearchParams()
     params.set("email", clientEmail.trim().toLowerCase())
-    params.set("dog", dogName.trim())
+    params.set("dog", (statusData?.lookup?.dogName || dogName).trim() || "Guest")
     onClose?.()
     router.push(`/training-portal/book?${params.toString()}`)
   }
@@ -150,12 +150,13 @@ export function TrainingPortalContent({ onClose }: { onClose?: () => void }) {
     setSuccessMessage(null)
     setIsSelectingPackage(true)
     try {
+      const effectiveDogName = (statusData?.lookup?.dogName || dogName).trim() || "Guest"
       const response = await fetch("/api/training-portal/private-package/select", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clientEmail: clientEmail.trim(),
-          dogName: dogName.trim(),
+          dogName: effectiveDogName,
           serviceType: selectedServiceType,
           planType: selectedPlanType,
         }),
@@ -204,7 +205,7 @@ export function TrainingPortalContent({ onClose }: { onClose?: () => void }) {
             <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
           <div className="space-y-1">
             <h2 className="font-semibold text-foreground">Find your profile</h2>
-            <p className="text-sm text-muted-foreground">Enter the email and dog name used for your assessment.</p>
+            <p className="text-sm text-muted-foreground">Enter the email (and dog name if known) used for your assessment.</p>
           </div>
           
           <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleLookup}>
@@ -220,10 +221,9 @@ export function TrainingPortalContent({ onClose }: { onClose?: () => void }) {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium">Dog&apos;s name</label>
+              <label className="text-sm font-medium">Dog&apos;s name <span className="text-muted-foreground font-normal">(optional)</span></label>
               <input
                 type="text"
-                required
                 value={dogName}
                 onChange={(event) => setDogName(event.target.value)}
                 placeholder="e.g. Max"
@@ -253,8 +253,12 @@ export function TrainingPortalContent({ onClose }: { onClose?: () => void }) {
                 <div className="space-y-2 max-w-md mx-auto">
                   <h2 className="text-xl font-semibold text-amber-900">Assessment Required</h2>
                   <p className="text-amber-800/80 leading-relaxed">
-                    It looks like <strong>{statusData.lookup.dogName}</strong> hasn&apos;t completed an assessment yet. 
-                    We require an initial evaluation to build a personalized training plan for you.
+                    {statusData.lookup.dogName ? (
+                      <>It looks like <strong>{statusData.lookup.dogName}</strong> hasn&apos;t completed an assessment yet.</>
+                    ) : (
+                      <>We couldn&apos;t find a completed assessment for this email.</>
+                    )}
+                    {" "}We require an initial evaluation to build a personalized training plan for you.
                   </p>
                   <p className="text-sm text-amber-800/90 mt-4 pt-4 border-t border-amber-200/60">
                     If you believe this is a mistake, please contact us:

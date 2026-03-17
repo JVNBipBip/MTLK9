@@ -19,8 +19,8 @@ export async function POST(request: Request) {
 
   const clientEmail = String(payload.clientEmail || "").trim().toLowerCase()
   const dogName = String(payload.dogName || "").trim()
-  if (!clientEmail || !dogName) {
-    return NextResponse.json({ error: "clientEmail and dogName are required." }, { status: 400 })
+  if (!clientEmail) {
+    return NextResponse.json({ error: "clientEmail is required." }, { status: 400 })
   }
 
   const oneOnOneServiceVariationIds = await getPrivateServiceVariationIds()
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
           clientName: portal.latestConsultation.clientName || null,
           clientEmail: portal.latestConsultation.clientEmail || clientEmail,
           clientPhone: portal.latestConsultation.clientPhone || null,
-          dogName: portal.latestConsultation.dogName || dogName,
+          dogName: portal.latestConsultation.dogName || dogName || portal.dogName || null,
           dogBreed: portal.latestConsultation.dogBreed || null,
           dogAge: portal.latestConsultation.dogAge || null,
           issue: portal.latestConsultation.issue || null,
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       : null,
     lookup: {
       clientEmail,
-      dogName,
+      dogName: portal.dogName || dogName,
     },
     existingBookings: portal.upcomingBookings,
     privateUpcomingBookings: portal.upcomingBookings.filter((booking) => booking.type === "one_on_one"),

@@ -10,6 +10,8 @@ export type CustomMapping = {
 export type SquareServiceConfig = {
   locationId?: string | null
   consultationServiceVariationId?: string | null
+  /** Additional evaluation service variants (e.g. Puppy Evaluation, Daycare Evaluation). Slots from all are merged. */
+  evaluationServiceVariationIds?: string[]
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
   programs?: Record<string, string | undefined>
@@ -17,22 +19,69 @@ export type SquareServiceConfig = {
   updatedAt?: string
 }
 
+type LocationServiceConfig = Omit<SquareServiceConfig, "locationId">
+type ConfigDoc = {
+  locations?: Record<string, LocationServiceConfig>
+  defaultLocationId?: string | null
+  updatedAt?: string
+  locationId?: string | null
+  consultationServiceVariationId?: string | null
+  evaluationServiceVariationIds?: string[]
+  privateInFacility?: Record<string, string | undefined>
+  privateInHome?: Record<string, string | undefined>
+  programs?: Record<string, string | undefined>
+  customMappings?: CustomMapping[]
+}
+
 const CONFIG_DOC_ID = "default"
 
-/** Read service config from Firestore. Falls back to env vars if doc missing or empty. */
-export async function getSquareServiceConfig(): Promise<SquareServiceConfig> {
+/** Read service config from Firestore. Supports per-location format; returns default location's config. */
+export async function getSquareServiceConfig(locationId?: string | null): Promise<SquareServiceConfig> {
   try {
     const db = getAdminDb()
     const doc = await db.collection(SQUARE_SERVICE_CONFIG_COLLECTION).doc(CONFIG_DOC_ID).get()
-    const data = doc.exists ? (doc.data() as SquareServiceConfig) : null
-    if (data && (data.locationId || data.consultationServiceVariationId || Object.keys(data.programs || {}).length > 0 || Object.keys(data.privateInFacility || {}).length > 0 || Object.keys(data.privateInHome || {}).length > 0)) {
-      return data
-    }
-  } catch {
-    /* fall through to env */
-  }
+    if (!doc.exists) return getEnvFallbackConfig()
 
-  // Env fallback
+    const data = doc.data() as ConfigDoc
+    const locations = data.locations || {}
+
+    if (locationId?.trim() && locations[locationId.trim()]) {
+      const loc = locations[locationId.trim()]
+      return { ...loc, locationId: locationId.trim() }
+    }
+
+    const defaultId = data.defaultLocationId?.trim() || Object.keys(locations)[0]
+    if (defaultId && locations[defaultId]) {
+      return { ...locations[defaultId], locationId: defaultId }
+    }
+
+    const legacyLocId = data.locationId?.trim()
+    const hasLegacy =
+      legacyLocId ||
+      data.consultationServiceVariationId ||
+      Object.keys(data.programs || {}).length > 0 ||
+      Object.keys(data.privateInFacility || {}).length > 0 ||
+      Object.keys(data.privateInHome || {}).length > 0 ||
+      (data.customMappings && data.customMappings.length > 0)
+    if (hasLegacy) {
+      return {
+        locationId: legacyLocId || null,
+        consultationServiceVariationId: data.consultationServiceVariationId,
+        evaluationServiceVariationIds: data.evaluationServiceVariationIds,
+        privateInFacility: data.privateInFacility,
+        privateInHome: data.privateInHome,
+        programs: data.programs,
+        customMappings: data.customMappings,
+        updatedAt: data.updatedAt,
+      }
+    }
+  } catch (err) {
+    console.error("[square-service-config] Failed to read from Firestore, using env fallback:", err)
+  }
+  return getEnvFallbackConfig()
+}
+
+function getEnvFallbackConfig(): SquareServiceConfig {
   const programs: Record<string, string> = {}
   const programIds = ["puppy-foundations", "city-manners", "reactivity-anxiety", "high-risk", "day-training"] as const
   const programEnvKeys: Record<string, string> = {
@@ -68,13 +117,23 @@ export async function getSquareServiceConfig(): Promise<SquareServiceConfig> {
   }
 }
 
+
 export async function getConsultationServiceVariationId(): Promise<string | null> {
   const config = await getSquareServiceConfig()
   return config.consultationServiceVariationId?.trim() || null
 }
 
-export async function getProgramServiceVariationId(programId: string): Promise<string | null> {
+/** Returns all evaluation service variation IDs (primary + additional). Used to fetch slots from multiple evaluation types. */
+export async function getConsultationServiceVariationIds(): Promise<string[]> {
   const config = await getSquareServiceConfig()
+  const primary = config.consultationServiceVariationId?.trim()
+  const additional = (config.evaluationServiceVariationIds || []).map((id) => id?.trim()).filter(Boolean)
+  const ids = [...(primary ? [primary] : []), ...additional]
+  return [...new Set(ids)]
+}
+
+export async function getProgramServiceVariationId(programId: string, locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
   return config.programs?.[programId]?.trim() || null
 }
 

@@ -1,4 +1,5 @@
 export const CONSULTATIONS_COLLECTION = "consultations"
+export const SQUARE_CUSTOMERS_COLLECTION = "square_customers"
 export const SQUARE_SERVICE_CONFIG_COLLECTION = "square_service_config"
 export const CLASS_SESSIONS_COLLECTION = "class_sessions"
 export const BOOKINGS_COLLECTION = "bookings"

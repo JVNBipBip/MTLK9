@@ -3,6 +3,7 @@ import {
   CONSULTATIONS_COLLECTION,
   DOG_CLASS_ACCESS_COLLECTION,
   PRIVATE_TRAINING_PACKAGES_COLLECTION,
+  SQUARE_CUSTOMERS_COLLECTION,
 } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 
@@ -218,6 +219,9 @@ function pickLatestActivePackage(items: PrivatePackageLookup[]) {
   } satisfies ActivePrivatePackage
 }
 
+/** Placeholder dog name when we allow Square clients with past bookings but don't know the dog's name */
+export const SQUARE_CLIENT_PLACEHOLDER_DOG_NAME = "Guest"
+
 export async function loadTrainingPortalContext(input: {
   clientEmail: string
   dogName: string
@@ -227,28 +231,58 @@ export async function loadTrainingPortalContext(input: {
   const dogName = normalized(input.dogName)
   const db = getAdminDb()
 
-  const [consultationSnap, classAccessSnap, bookingSnap, privatePackageSnap] = await Promise.all([
+  const [consultationSnap, classAccessSnap, bookingSnap, privatePackageSnap, squareCustomerSnap] = await Promise.all([
     db.collection(CONSULTATIONS_COLLECTION).where("clientId", "==", clientId).limit(200).get(),
     db.collection(DOG_CLASS_ACCESS_COLLECTION).where("clientId", "==", clientId).where("status", "==", "allowed").limit(200).get(),
     db.collection(BOOKINGS_COLLECTION).where("clientId", "==", clientId).limit(300).get(),
     db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).where("status", "==", "active").limit(50).get(),
+    db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1).get(),
   ])
+
+  let squareCustomerSnapResult = squareCustomerSnap
+  if (squareCustomerSnap.empty) {
+    const fallbackSnap = await db
+      .collection(SQUARE_CUSTOMERS_COLLECTION)
+      .where("email", "==", clientId)
+      .limit(1)
+      .get()
+    squareCustomerSnapResult = fallbackSnap
+  }
 
   const consultations = consultationSnap.docs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ConsultationLookup, "id">) }))
     .filter((item) => normalized(String(item.dogName || "")) === dogName)
 
+  const squareCustomer = squareCustomerSnapResult.empty
+    ? null
+    : (squareCustomerSnapResult.docs[0].data() as { bookings?: unknown[]; displayName?: string; email?: string })
+
+  const hasSquareBookings = Boolean(squareCustomer?.bookings?.length && squareCustomer.bookings.length > 0)
+
+  let latestConsultation = pickLatestConsultation(consultations)
+  let assessmentCompleted = latestConsultation?.status === "completed"
+  let effectiveDogName = dogName || (latestConsultation?.dogName ? normalized(String(latestConsultation.dogName)) : "")
+  const isPlaceholderDogName = normalized(SQUARE_CLIENT_PLACEHOLDER_DOG_NAME) === effectiveDogName
+
+  if (!assessmentCompleted && (!effectiveDogName || isPlaceholderDogName) && hasSquareBookings) {
+    assessmentCompleted = true
+    effectiveDogName = SQUARE_CLIENT_PLACEHOLDER_DOG_NAME
+  }
+
+  if (!assessmentCompleted && !effectiveDogName && squareCustomer && !hasSquareBookings) {
+    assessmentCompleted = false
+  }
+
+  const effectiveDogNorm = normalized(effectiveDogName)
   const allowedClassCount = classAccessSnap.docs
     .map((doc) => doc.data() as ClassAccessLookup & { dogName?: string })
-    .filter((item) => normalized(String(item.dogName || "")) === dogName).length
+    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm).length
 
-  const latestConsultation = pickLatestConsultation(consultations)
-  const assessmentCompleted = latestConsultation?.status === "completed"
   const nowIso = new Date().toISOString()
   const activePrivatePackage = pickLatestActivePackage(
     privatePackageSnap.docs
       .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
-      .filter((item) => normalized(String(item.dogName || "")) === dogName),
+      .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm),
   )
   const packageSelectionRequired =
     Boolean(assessmentCompleted) &&
@@ -256,7 +290,7 @@ export async function loadTrainingPortalContext(input: {
 
   const upcomingBookings = bookingSnap.docs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
-    .filter((item) => normalized(String(item.dogName || "")) === dogName)
+    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
     .map((item) => {
       const startAt = bookingStartAt(item)
       if (!startAt) return null
@@ -279,7 +313,7 @@ export async function loadTrainingPortalContext(input: {
 
   return {
     clientId,
-    dogName,
+    dogName: effectiveDogName || dogName,
     latestConsultation,
     assessmentCompleted,
     allowedClassCount,

@@ -68,6 +68,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showSchedulingStep, setShowSchedulingStep] = useState(false)
   const [consultationSlots, setConsultationSlots] = useState<Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>>([])
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false)
 
   const groupedSlots = useMemo(() => {
     const groups: Record<string, typeof consultationSlots> = {}
@@ -103,15 +104,19 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!showSchedulingStep || formData.connectMethod !== "in-person-evaluation") return
     let active = true
+    setIsLoadingSlots(true)
     async function loadSlots() {
       try {
         const response = await fetch("/api/consultation-slots")
         const data = (await response.json().catch(() => null)) as { slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }> } | null
         if (!active) return
         if (response.ok && data?.slots) setConsultationSlots(data.slots)
+        else setConsultationSlots([])
       } catch {
         if (!active) return
         setConsultationSlots([])
+      } finally {
+        if (active) setIsLoadingSlots(false)
       }
     }
     void loadSlots()
@@ -265,7 +270,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 </p>
               </div>
               
-              {consultationSlots.length > 0 ? (
+              {isLoadingSlots ? (
+                <div className="p-12 flex flex-col items-center justify-center gap-4 border rounded-xl bg-muted/20">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Loading available times…</p>
+                </div>
+              ) : consultationSlots.length > 0 ? (
                 <div className="space-y-4">
                   {weekKeys.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">

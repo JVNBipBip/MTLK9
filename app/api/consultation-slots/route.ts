@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
-import { getConsultationServiceVariationId } from "@/lib/square-service-config"
+import { getConsultationServiceVariationIds } from "@/lib/square-service-config"
 
 export const runtime = "nodejs"
 
@@ -11,8 +11,8 @@ function minLeadMinutes() {
 }
 
 export async function GET() {
-  const serviceVariationId = await getConsultationServiceVariationId()
-  if (!serviceVariationId) {
+  const serviceVariationIds = await getConsultationServiceVariationIds()
+  if (serviceVariationIds.length === 0) {
     return NextResponse.json(
       { error: "Square consultation slots are not configured. Set in Admin → Service Mapping." },
       { status: 500 },
@@ -22,27 +22,45 @@ export async function GET() {
   const startAt = new Date().toISOString()
   const endAt = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString()
   const minStartMs = Date.now() + minLeadMinutes() * 60 * 1000
-  const availability = await searchSquareAvailability({
-    serviceVariationId,
-    startAt,
-    endAt,
-  })
 
-  const rawSlots = (availability.availabilities || [])
-    .map((slot) => {
-      const startAtValue = slot.start_at || ""
-      const teamMemberId = slot.appointment_segments?.[0]?.team_member_id || ""
-      if (!startAtValue || !teamMemberId) return null
-      const startMs = new Date(startAtValue).getTime()
-      if (Number.isNaN(startMs) || startMs < minStartMs) return null
-      return {
-        slotKey: `${startAtValue}|${serviceVariationId}|${teamMemberId}`,
-        startAt: startAtValue,
-        teamMemberId,
+  const rawSlots: { slotKey: string; startAt: string; teamMemberId: string }[] = []
+  const skippedServices: string[] = []
+
+  for (const serviceVariationId of serviceVariationIds) {
+    try {
+      const availability = await searchSquareAvailability({ serviceVariationId, startAt, endAt })
+      const rawFromSquare = availability.availabilities || []
+      for (const slot of rawFromSquare) {
+        const startAtValue = slot.start_at || ""
+        const teamMemberId = slot.appointment_segments?.[0]?.team_member_id || ""
+        if (!startAtValue || !teamMemberId) continue
+        const startMs = new Date(startAtValue).getTime()
+        if (Number.isNaN(startMs) || startMs < minStartMs) continue
+        rawSlots.push({
+          slotKey: `${startAtValue}|${serviceVariationId}|${teamMemberId}`,
+          startAt: startAtValue,
+          teamMemberId,
+        })
       }
-    })
-    .filter((value): value is { slotKey: string; startAt: string; teamMemberId: string } => Boolean(value))
-    .sort((a, b) => a.startAt.localeCompare(b.startAt))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes("not bookable") || msg.includes("Service variation")) {
+        skippedServices.push(serviceVariationId)
+        console.warn("[consultation-slots] Skipping service (not bookable in Square):", serviceVariationId)
+      } else {
+        throw err
+      }
+    }
+  }
+  rawSlots.sort((a, b) => a.startAt.localeCompare(b.startAt))
+
+  if (skippedServices.length > 0) {
+    console.log("[consultation-slots] Skipped", skippedServices.length, "services (not bookable):", skippedServices)
+  }
+
+  const teamIdsFromSquare = [...new Set(rawSlots.map((s) => s.teamMemberId))]
+  console.log("[consultation-slots] Queried", serviceVariationIds.length, "evaluation types. Total slots:", rawSlots.length)
+  console.log("[consultation-slots] Team member IDs from Square:", teamIdsFromSquare)
 
   const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId))]
   const teamNames = new Map<string, string | null>()
@@ -63,6 +81,11 @@ export async function GET() {
     teamMemberId: slot.teamMemberId,
     teamMemberName: teamNames.get(slot.teamMemberId) ?? null,
   }))
+
+  const staffSummary = Object.fromEntries(
+    [...new Set(slots.map((s) => s.teamMemberId))].map((id) => [id, teamNames.get(id) ?? "(unknown)"])
+  )
+  console.log("[consultation-slots] Returning", slots.length, "slots. Staff in response:", staffSummary)
 
   return NextResponse.json({ slots })
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { FieldValue } from "firebase-admin/firestore"
-import { getConsultationServiceVariationId } from "@/lib/square-service-config"
+import { getConsultationServiceVariationIds } from "@/lib/square-service-config"
 import { ISSUE_SERVICE_MAP } from "@/app/booking/constants"
 import type { BookingFormData } from "@/app/booking/types"
 import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
@@ -68,8 +68,8 @@ export async function POST(request: Request) {
     let squareConsultationStatus: string | null = null
 
     if (isConsultation && formData.consultationDateTime) {
-      const serviceVariationId = await getConsultationServiceVariationId()
-      if (!serviceVariationId) {
+      const allowedServiceVariationIds = await getConsultationServiceVariationIds()
+      if (allowedServiceVariationIds.length === 0) {
         return NextResponse.json(
           { error: "Square consultation configuration is incomplete. Set in Admin → Service Mapping." },
           { status: 500 },
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       if (!slotStartAt || !slotServiceVariationId || !slotTeamMemberId) {
         return NextResponse.json({ error: "Invalid consultation slot selection." }, { status: 400 })
       }
-      if (slotServiceVariationId !== serviceVariationId) {
+      if (!allowedServiceVariationIds.includes(slotServiceVariationId)) {
         return NextResponse.json({ error: "Selected consultation slot is no longer valid." }, { status: 400 })
       }
 
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
       const squareBooking = await createSquareBooking({
         customerId: squareCustomerId,
         startAt: new Date(slotStartAt).toISOString(),
-        serviceVariationId,
+        serviceVariationId: slotServiceVariationId,
         teamMemberId: slotTeamMemberId,
         idempotencyKey: crypto.randomUUID(),
         note: buildSquareIntakeNote(formData),

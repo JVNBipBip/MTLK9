@@ -93,6 +93,7 @@ export async function GET(request: Request) {
   const minStartMs = now.getTime() + minLeadMinutes() * 60 * 1000
 
   const slotMap = new Map<string, ScheduleSlot>()
+  const teamIdsFromSquareByService = new Map<string, string[]>()
   for (const allowed of allowedClasses) {
     if (!allowed.squareServiceVariationId) continue
     try {
@@ -101,6 +102,8 @@ export async function GET(request: Request) {
         startAt,
         endAt,
       })
+      const tmIds = [...new Set((availability.availabilities || []).map((i) => i.appointment_segments?.[0]?.team_member_id).filter(Boolean))] as string[]
+      teamIdsFromSquareByService.set(allowed.classLabel, tmIds)
       for (const item of availability.availabilities || []) {
         const start = item.start_at || ""
         if (!start) continue
@@ -140,5 +143,11 @@ export async function GET(request: Request) {
     ...s,
     teamMemberName: s.teamMemberId ? teamNames.get(s.teamMemberId) ?? null : null,
   }))
+  const staffSummary = Object.fromEntries(
+    uniqueTeamIds.map((id) => [id, teamNames.get(id) ?? "(unknown)"])
+  )
+  console.log("[schedule-slots] Square team IDs by service:", Object.fromEntries(teamIdsFromSquareByService))
+  console.log("[schedule-slots] Returning", slots.length, "slots. Staff in response:", staffSummary)
+
   return NextResponse.json({ slots })
 }
