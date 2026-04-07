@@ -119,7 +119,7 @@ export default function ResultsPage() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16 lg:mb-20">
               <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-                Real Dogs. Real Montreal. Real Results.
+                Real Dogs. Real Results.
               </h1>
               <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Every dog on this page started exactly where yours is now.
@@ -130,8 +130,7 @@ export default function ResultsPage() {
               {caseStudies.map((study, index) => (
                 <article
                   key={study.name}
-                  className={`reveal opacity-0 ${
-                    index === 1
+                  className={`reveal opacity-0 ${index === 1
                       ? "animation-delay-200"
                       : index === 2
                         ? "animation-delay-400"
@@ -142,7 +141,7 @@ export default function ResultsPage() {
                             : index === 5
                               ? "animation-delay-600"
                               : ""
-                  }`}
+                    }`}
                 >
                   <div className="h-full bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col overflow-hidden">
                     {/* Photo/Video placeholder */}
