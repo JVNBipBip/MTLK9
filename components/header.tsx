@@ -70,7 +70,7 @@ export function Header() {
           <div className="hidden lg:flex items-center gap-3">
             <Link href="tel:+15148269558" className="text-base font-medium text-black/80 hover:text-black flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5" />
-              514 826 9558
+              Call Now
             </Link>
             <FreeCallLink>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
