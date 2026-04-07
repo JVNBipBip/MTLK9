@@ -8,19 +8,17 @@ import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
 import { StepDuration } from "./steps/step-duration"
-import { StepTried } from "./steps/step-tried"
 import { StepImpact } from "./steps/step-impact"
 import { StepDogInfo } from "./steps/step-dog-info"
-import { StepGoals } from "./steps/step-goals"
 import { StepConnect } from "./steps/step-connect"
 import { StepContact } from "./steps/step-contact"
 import { StepConfirmation } from "./steps/step-confirmation"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
 
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 6
 
 // Single-select steps auto-advance on click — no Continue button needed
-const AUTO_ADVANCE_STEPS = new Set([0, 1, 6])
+const AUTO_ADVANCE_STEPS = new Set([0, 1, 4])
 
 function isStepValid(step: number, formData: BookingFormData): boolean {
   switch (step) {
@@ -30,22 +28,16 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
     case 1:
       return formData.duration !== ""
     case 2:
-      return formData.tried.length > 0
-    case 3:
       return formData.impact.length > 0
-    case 4:
+    case 3:
       return (
         formData.dogName.trim() !== "" &&
         formData.dogBreed.trim() !== "" &&
-        formData.dogAge !== "" &&
-        formData.dogDuration !== "" &&
-        formData.dogSource !== ""
+        formData.dogAge !== ""
       )
-    case 5:
-      return formData.goals.length > 0
-    case 6:
+    case 4:
       return formData.connectMethod !== ""
-    case 7:
+    case 5:
       return (
         formData.contactName.trim() !== "" &&
         formData.contactEmail.trim() !== "" &&
@@ -438,12 +430,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
               >
                 {currentStep === 0 && <StepIssue formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
                 {currentStep === 1 && <StepDuration formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 2 && <StepTried formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 3 && <StepImpact formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 4 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 5 && <StepGoals formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 6 && <StepConnect formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 7 && <StepContact formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 2 && <StepImpact formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 3 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 4 && <StepConnect formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
+                {currentStep === 5 && <StepContact formData={formData} updateFormData={updateFormData} />}
               </motion.div>
             </AnimatePresence>
           )}
