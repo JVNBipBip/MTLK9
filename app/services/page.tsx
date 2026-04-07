@@ -6,7 +6,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, PawPrint } from "lucide-react"
-import { TrainingPortalLink } from "@/components/booking-form-provider"
+import { ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form-provider"
 
 const services = [
   {
@@ -135,21 +135,19 @@ export default function ServicesPage() {
                       <p className="text-sm font-semibold text-foreground mb-6">
                         Starting at {service.price}
                       </p>
-                      <Link href={service.href} className="block">
+                      <ProgramSignupLink>
                         <Button className="w-full rounded-full group/btn">
                           {service.cta}
                           <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
+                      </ProgramSignupLink>
+                      <Link
+                        href={service.href}
+                        className="mt-3 inline-flex items-center justify-center w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                      >
+                        Learn More
+                        <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
                       </Link>
-                      <p className="text-xs text-muted-foreground mt-4 text-center">
-                        Not sure which path?{" "}
-                        <TrainingPortalLink
-                          className="text-primary font-medium hover:underline underline-offset-4"
-                        >
-                          Book private training online
-                        </TrainingPortalLink>{" "}
-                        and we&apos;ll help you decide.
-                      </p>
                     </div>
                   </div>
                 </div>
