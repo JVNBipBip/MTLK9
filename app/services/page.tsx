@@ -124,9 +124,9 @@ export default function ServicesPage() {
                     </div>
 
                     <div className={`p-8 lg:p-10 flex flex-col ${index % 2 === 1 ? "lg:order-1" : ""}`}>
-                      <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
+                      <h2 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
                         {service.title}
-                      </h3>
+                      </h2>
                       <p className="text-sm font-medium text-primary mb-4">{service.for}</p>
                       <p className="text-muted-foreground leading-relaxed mb-4 flex-grow">
                         {service.solves}

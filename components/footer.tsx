@@ -13,13 +13,12 @@ const footerLinks = {
     { label: "About Us", href: "/about" },
     { label: "Results", href: "/results" },
     { label: "FAQ", href: "/faq" },
-    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/booking" },
   ],
   resources: [
     { label: "Book a Free Call", href: "/booking" },
     { label: "Book an Evaluation", href: "/booking" },
-    { label: "Google Reviews", href: "#" },
+    { label: "Google Reviews", href: "https://www.google.com/search?sca_esv=1a51245140343e35&sxsrf=ANbL-n4nQ46KR0EQfRE-u1As-F01VkoYUw:1775574475054&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOZXcx_tuXme6UQ3vKDNMy0AG9EXyiX1efheageUu9Z4EdlGsRiMepkUE-rmCGlXbqZRLPZBHXVGMoIWBOw8SkWIPKgGjIKJd2NyDLmZjnI_fD6LrgZCLBk_o-Mfe_EZ-GvPMr7O2rupdmQ0mdMfdmPSHw6tQ0t1QJbx4WCN64IQFgOHGag%3D%3D&q=Montreal+Canine+Training+Inc.+/+Entra%C3%AEnement+Canin+Montr%C3%A9al+Inc.+Reviews&sa=X&ved=2ahUKEwi4lO6ugtyTAxUrETQIHUpNHjkQ0bkNegQIMhAH&biw=2400&bih=1161&dpr=0.8" },
   ],
 }
 
@@ -54,14 +53,18 @@ export function Footer() {
             </div>
             <div className="flex gap-4 mt-6">
               <Link
-                href="#"
+                href="https://www.instagram.com/mtlcaninetraining/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5 text-background" />
               </Link>
               <Link
-                href="#"
+                href="https://www.facebook.com/profile.php?id=100051498044652"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
                 aria-label="Facebook"
               >
@@ -115,10 +118,11 @@ export function Footer() {
             © {new Date().getFullYear()} Montreal Canine Training. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-background/50">
-            <Link href="#" className="hover:text-background transition-colors">
+            {/* TODO: Add real privacy policy and terms pages before launch */}
+            <Link href="/privacy" className="hover:text-background transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-background transition-colors">
+            <Link href="/terms" className="hover:text-background transition-colors">
               Terms of Service
             </Link>
           </div>

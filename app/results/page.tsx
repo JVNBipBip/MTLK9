@@ -162,9 +162,9 @@ export default function ResultsPage() {
 
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-baseline gap-2 mb-4">
-                        <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
+                        <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
                           {study.name}
-                        </h3>
+                        </h2>
                         <span className="text-sm text-muted-foreground">
                           {study.breed}, {study.age}
                         </span>

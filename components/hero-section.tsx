@@ -106,7 +106,7 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/Desktop Hero Video.webm" type="video/webm" />
+          <source src="/videos/desktop-hero.webm" type="video/webm" />
         </video>
         {/* Mobile video */}
         <video
@@ -123,7 +123,7 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/Mobile Hero Video.mp4" type="video/mp4" />
+          <source src="/videos/mobile-hero.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />

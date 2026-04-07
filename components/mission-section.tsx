@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 
@@ -30,7 +31,7 @@ export function MissionSection() {
       <div className="relative max-w-7xl mx-auto rounded-[48px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img src="/images/mission-background.png" alt="Nature background" className="w-full h-full object-cover" />
+          <Image src="/images/mission-background.png" alt="Nature background" fill className="object-cover" sizes="100vw" />
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-foreground/50" />
 
