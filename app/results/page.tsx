@@ -20,7 +20,7 @@ const caseStudies = [
     plan: "Reactivity program with structured desensitization, threshold management, and counter-conditioning in real-world environments.",
     result: "Luna now walks calmly through parks. We can pass other dogs at a distance without her losing it. Walks are finally enjoyable.",
     quote: "I never thought we'd get here. The team gave us a clear plan and stuck with us until it clicked.",
-    servicePath: "Reactivity & Anxiety",
+    servicePath: "Reactivity Training",
     serviceHref: "/services/reactivity",
   },
   {
@@ -33,8 +33,8 @@ const caseStudies = [
     plan: "City Manners program focusing on loose-leash walking, impulse control, and structured management for home alone time.",
     result: "Milo now heels on a loose leash. He's calmer at home and we can actually enjoy Montreal together.",
     quote: "From chaos to calm. The difference is night and day.",
-    servicePath: "City Manners",
-    serviceHref: "/services/city-manners",
+    servicePath: "Obedience Training",
+    serviceHref: "/services/obedience",
   },
   {
     name: "Charlie",
@@ -46,8 +46,8 @@ const caseStudies = [
     plan: "Puppy Foundations program: bite inhibition, socialization, recall foundations, and building calm routines.",
     result: "Charlie is now a calm, socialized puppy. He comes when called, greets people politely, and the biting is under control.",
     quote: "They gave us a roadmap when we had no idea where to start. Best investment we made.",
-    servicePath: "Puppy Foundations",
-    serviceHref: "/services/puppy-foundations",
+    servicePath: "Puppy Training",
+    serviceHref: "/services/puppy-training",
   },
   {
     name: "Bella",
@@ -59,8 +59,8 @@ const caseStudies = [
     plan: "High-Risk Behaviors program: safety evaluation, resource-guarding protocol, and gradual exposure with our newborn.",
     result: "Bella is now gentle around our baby. We have clear management in place and she's part of the family again.",
     quote: "They didn't give up on us when everyone else did. We're forever grateful.",
-    servicePath: "High-Risk Behaviors",
-    serviceHref: "/services/high-risk",
+    servicePath: "Private Classes",
+    serviceHref: "/services/private-classes",
   },
   {
     name: "Oscar",
@@ -72,7 +72,7 @@ const caseStudies = [
     plan: "Separation anxiety protocol with gradual desensitization, settle training, and structured alone-time building.",
     result: "Oscar now settles calmly when we leave. We can go to work, run errands, and have a life again.",
     quote: "I cried when we left him alone for the first time without destruction. It felt like a miracle.",
-    servicePath: "Reactivity & Anxiety",
+    servicePath: "Reactivity Training",
     serviceHref: "/services/reactivity",
   },
   {
@@ -85,7 +85,7 @@ const caseStudies = [
     plan: "Rescue rehabilitation with confidence-building, fear-free exposure, and patience-first approach.",
     result: "Rosie is now confident and explores. She walks willingly, engages with the world, and finally acts like the dog we knew she could be.",
     quote: "They met her where she was. No pressure, just patience. She blossomed.",
-    servicePath: "Reactivity & Anxiety",
+    servicePath: "Reactivity Training",
     serviceHref: "/services/reactivity",
   },
 ]

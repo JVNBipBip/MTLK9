@@ -10,49 +10,50 @@ import { ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form
 
 const services = [
   {
-    title: "Puppy Foundations",
-    href: "/services/puppy-foundations",
-    for: "Puppies 8–20 weeks",
-    solves: "Biting/nipping, socialization, house training, building calm routines",
-    format: "Private sessions",
-    price: "$349",
-    cta: "Start Your Puppy's Plan",
-  },
-  {
-    title: "City Manners",
-    href: "/services/city-manners",
-    for: "Dogs of any age who need urban life skills",
-    solves: "Leash pulling, jumping on guests, ignoring commands outside, impulse control",
-    format: "Private sessions in real-world environments",
-    price: "$449",
-    cta: "Build Better Manners",
-  },
-  {
-    title: "Reactivity & Anxiety",
+    title: "Reactivity Training",
     href: "/services/reactivity",
     for: "Dogs who lunge, bark, or shut down around triggers",
-    solves: "Leash reactivity, dog-dog aggression, fear/anxiety, separation anxiety",
-    format: "Structured multi-week protocol with clear milestones",
-    price: "$599",
+    solves: "Structured protocols covering the Three D's, attention cues, engagement, leash work, confidence building, and real-world scenario training",
+    format: "Private & group classes",
+    price: "",
     cta: "Get Help with Reactivity",
   },
   {
-    title: "High-Risk Behaviors",
-    href: "/services/high-risk",
-    for: "Dogs with aggression, resource guarding, bite history",
-    solves: "Safety concerns, escalating behaviors, cases other trainers have turned away",
-    format: "Evaluation-gated, private intensive sessions",
-    price: "$699",
-    cta: "Book a Safety Evaluation",
+    title: "Private Classes",
+    href: "/services/private-classes",
+    for: "Dogs who need focused, one-on-one attention",
+    solves: "Behaviour modification, leash reactivity, aggression, confidence building, separation anxiety, resource guarding, and handler skill development",
+    format: "3, 5, or 7 session packages",
+    price: "",
+    cta: "Book Private Training",
+    popular: true,
   },
   {
-    title: "Day Training",
-    href: "/services/day-training",
-    for: "Busy owners who need professional training during working hours",
-    solves: "Behavior modification + obedience while you're at work",
-    format: "Your dog trains with us during the day, we transfer skills to you in handoff sessions",
-    price: "$799",
-    cta: "Learn About Day Training",
+    title: "Obedience Training",
+    href: "/services/obedience",
+    for: "Dogs 9 months+ who need reliable real-world skills",
+    solves: "Basic and advanced obedience, the Three D's, engagement, pack walks, high-distraction proofing, and off-leash reliability",
+    format: "Private & group classes — Level 1 & Level 2",
+    price: "",
+    cta: "Start Obedience Training",
+  },
+  {
+    title: "Puppy Training",
+    href: "/services/puppy-training",
+    for: "Puppies 10–20 weeks & teen dogs 5–9 months",
+    solves: "Socialisation, confidence building, bite inhibition, intro to obedience, marker training, and focus around distractions",
+    format: "Private & group classes",
+    price: "",
+    cta: "Start Your Puppy's Plan",
+  },
+  {
+    title: "In-Home Training",
+    href: "/services/in-home",
+    for: "Owners who want training in their own environment",
+    solves: "Behaviour modification, door manners, separation anxiety, house training — all addressed where the problems actually happen",
+    format: "Consultation + 3, 5, or 7 session packages",
+    price: "",
+    cta: "Book In-Home Training",
   },
 ]
 
@@ -131,10 +132,7 @@ export default function ServicesPage() {
                       <p className="text-muted-foreground leading-relaxed mb-4 flex-grow">
                         {service.solves}
                       </p>
-                      <p className="text-sm text-muted-foreground mb-4">{service.format}</p>
-                      <p className="text-sm font-semibold text-foreground mb-6">
-                        Starting at {service.price}
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-6">{service.format}</p>
                       <ProgramSignupLink>
                         <Button className="w-full rounded-full group/btn">
                           {service.cta}

@@ -1,9 +1,9 @@
 export const PROGRAM_OPTIONS = [
-  { id: "puppy-foundations", label: "Puppy Foundations" },
-  { id: "city-manners", label: "City Manners" },
-  { id: "reactivity-anxiety", label: "Reactivity & Anxiety" },
-  { id: "high-risk", label: "High-Risk Behaviors" },
-  { id: "day-training", label: "Day Training" },
+  { id: "reactivity", label: "Reactivity Training" },
+  { id: "private-classes", label: "Private Classes" },
+  { id: "obedience", label: "Obedience Training" },
+  { id: "puppy-training", label: "Puppy Training" },
+  { id: "in-home", label: "In-Home Training" },
 ] as const
 
 export const PROGRAM_LABEL_BY_ID = Object.fromEntries(PROGRAM_OPTIONS.map((item) => [item.id, item.label]))

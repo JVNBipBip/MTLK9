@@ -5,7 +5,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
@@ -18,46 +17,47 @@ import {
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
-  "You just brought a puppy home and want to do it right.",
-  "Your puppy is biting your hands and won't stop.",
-  "Jumping on everyone who walks through the door.",
-  "Accidents in the house — you're not sure if it's normal.",
-  "Won't listen outside — treats work at home but not on walks.",
+  "Your dog's biggest issues happen at home — door manners, guests, anxiety.",
+  "You want training in the exact environment where behaviour breaks down.",
+  "Your schedule makes it hard to attend classes at a fixed location.",
+  "You prefer one-on-one attention from an expert in your own space.",
+  "You've tried facility-based training and the skills didn't transfer home.",
 ]
 
 const trainingGoals = [
-  "Bite inhibition",
-  "House training",
-  "Socialization protocol",
-  "Leash introduction",
-  "Settle and calm",
-  "Recall foundations",
+  "In-home consultation and assessment",
+  "Customised behaviour modification plan",
+  "Door manners and guest greeting",
+  "Separation anxiety protocol",
+  "House training and structure",
+  "Leash skills in your neighbourhood",
+  "Handler coaching and follow-through",
 ]
 
 const faqItems = [
   {
-    q: "When should I start training my puppy?",
-    a: "The sooner, the better. Puppies are most receptive to learning between 8 and 16 weeks — that's when their socialization window is wide open. Starting at 8 weeks gives you the best chance to shape calm, confident behaviors before habits solidify.",
+    q: "How does in-home training start?",
+    a: "Every in-home program starts with a consultation — a meet and greet where we assess your dog, observe their behaviour in your home, and build a customised plan. This isn't a generic programme; it's designed around your dog, your home, and your life.",
   },
   {
-    q: "Why private sessions instead of a class?",
-    a: "Private sessions let us address your puppy's specific challenges (biting, house training) in your home. We tailor every session to your dog's needs and your schedule. You get one-on-one attention and a plan designed just for you.",
+    q: "What's the difference between the 3, 5, and 7 session packages?",
+    a: "Three sessions are great for focused issues like door manners or a single behaviour concern. Five sessions cover more ground — ideal for moderate behaviour modification. Seven sessions are for complex cases or multiple issues that need sustained, structured work.",
   },
   {
-    q: "My puppy bites everything — is this normal?",
-    a: "Yes. Puppies explore with their mouths and teethe until around 6 months. Bite inhibition training teaches them to use a soft mouth — it doesn't stop play, it makes it safe. Most puppies show dramatic improvement within 2 weeks of consistent work.",
+    q: "What areas do you serve for in-home training?",
+    a: "We serve Montreal, the West Island, and Laval. Training happens wherever your dog's behaviour happens — your living room, your front door, your neighbourhood sidewalks.",
   },
   {
-    q: "How do I socialize safely before all vaccines?",
-    a: "We use a structured socialization protocol that prioritizes safety: controlled exposures, puppy-safe environments, and gradual introductions. Your vet can advise on risk in your area — we work within your comfort level while maximizing the critical window.",
+    q: "Is in-home training more effective than facility-based?",
+    a: "For many issues, yes. Dogs behave differently at home than in a training facility. Problems like separation anxiety, door reactivity, and guest behaviour can only be addressed effectively in the environment where they occur.",
   },
   {
-    q: "Will my puppy grow out of bad behaviors?",
-    a: "Some behaviors lessen with age, but many get worse without guidance. Jumping, pulling, and poor impulse control typically escalate if ignored. Early training builds habits that last — and prevents problems from becoming entrenched.",
+    q: "Can I combine in-home with group classes?",
+    a: "Absolutely — many clients do. In-home sessions handle the home-specific issues, then group classes build social skills and obedience around other dogs. We can help you figure out the right combination.",
   },
 ]
 
-export default function PuppyFoundationsPage() {
+export default function InHomePage() {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -90,13 +90,14 @@ export default function PuppyFoundationsPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              For puppies 8–20 weeks
+              Consultation + 3, 5, or 7 Session Packages
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              Raise the dog you&apos;ll be proud to live with.
+              In-Home Dog Training — Montreal
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              The first few months set the tone for years. Get it right from the start.
+              Training where it matters most — in your home, in your neighbourhood,
+              on your schedule. Every program starts with a personalised consultation.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -123,16 +124,16 @@ export default function PuppyFoundationsPage() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <Play className="w-8 h-8 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">Video: Luna&apos;s puppy journey</span>
+                  <span className="text-sm font-medium">Video: Oscar&apos;s in-home training story</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Luna, 12-week-old Golden Retriever</h3>
+                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Oscar, 3-year-old Labrador</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Luna came to us at 10 weeks with intense biting and zero focus outside. Her owners were exhausted. 
-                  Within 4 sessions, bite inhibition improved dramatically. By session 8, she was walking on a loose 
-                  leash in the neighborhood and settling calmly when asked. Her family now enjoys stress-free walks 
-                  and a puppy they&apos;re proud to have over.
+                  Oscar couldn&apos;t be left alone. He destroyed furniture, barked for hours, and his owners
+                  couldn&apos;t leave the house without him. Facility-based training hadn&apos;t helped because the
+                  problem was at home. Through in-home sessions, we built a step-by-step protocol in the
+                  exact environment where Oscar struggled. He now settles calmly when his owners leave.
                 </p>
               </div>
             </div>
@@ -174,11 +175,11 @@ export default function PuppyFoundationsPage() {
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              Ready to start your puppy&apos;s foundation?
+              Training that comes to you.
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              Book a free 15-minute discovery call. We&apos;ll discuss your puppy, your goals, and whether 
-              this program is the right fit — no pressure.
+              Book a free 15-minute discovery call. We&apos;ll learn about your dog, your home,
+              and your goals — then recommend the right package to get started.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>

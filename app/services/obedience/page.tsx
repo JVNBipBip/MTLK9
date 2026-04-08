@@ -5,7 +5,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
@@ -18,45 +17,46 @@ import {
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
-  "You work full time and can't commit to weekday sessions.",
-  "Your dog needs more practice reps than you can give.",
-  "You want professional-level training but need flexibility.",
-  "You're willing to invest for faster results.",
+  "Your dog knows 'sit' at home but ignores you everywhere else.",
+  "You want a well-mannered dog you can take anywhere in Montreal.",
+  "You're ready to move beyond basics and build real-world reliability.",
+  "Your dog pulls on leash, ignores recall, or has zero impulse control outside.",
+  "You want your dog to walk calmly past distractions, dogs, and people.",
 ]
 
 const trainingGoals = [
-  "Leash manners",
-  "Impulse control",
-  "Socialization",
-  "Obedience foundations",
-  "Real-world proofing",
-  "Owner skill transfer",
+  "The Three D's — Duration, Distance, Distraction",
+  "Engagement and relationship building",
+  "Reliable recall in real environments",
+  "Impulse control and focus under pressure",
+  "Pack walks and new environments",
+  "Advanced commands in high-distraction settings",
 ]
 
 const faqItems = [
   {
-    q: "What does a typical day training day look like?",
-    a: "We pick up your dog (or you drop off) in the morning. They spend the day with us — training sessions broken into short bursts, real-world practice in parks and streets, rest periods, and socialization when appropriate. We bring them back in the afternoon. You get a brief update and homework for the evening.",
+    q: "What's the difference between Level 1 and Level 2?",
+    a: "Level 1 is for dogs 9 months and older who need to apply basic obedience in real-world settings. We focus on the Three D's, building engagement, and preparing your dog for more advanced work. Level 2 picks up where Level 1 ends — pack walks, high distractions, new environments, and advanced reliability.",
   },
   {
-    q: "Where does training happen?",
-    a: "In the real world — sidewalks, parks, quiet streets, sometimes our facility. We don't train in a sterile room. Your dog learns where life happens, so skills transfer to your daily routine. Locations vary based on your dog's needs and our schedule.",
+    q: "Can I do obedience training privately instead of in a group?",
+    a: "Absolutely. Private sessions let us tailor everything to your dog — pace, environment, and focus areas. It's ideal if your dog struggles with other dogs nearby, or if you have specific goals that don't fit a group format.",
   },
   {
-    q: "Will my dog bond more with the trainer than me?",
-    a: "No. Dogs form different relationships with different people. Your bond with your dog is built on living together, not just training. We're the practice coach; you're the one they go home to. Owner handoff sessions ensure you learn the skills and maintain the connection.",
+    q: "My dog already knows basic commands. Should I skip Level 1?",
+    a: "Knowing commands at home and executing them reliably in the real world are two different things. Most dogs benefit from Level 1 even if they know the basics — it's about proofing those skills under distraction, not just repeating them in your living room.",
   },
   {
-    q: "How do skills transfer to me?",
-    a: "We include dedicated owner handoff sessions where we teach you exactly what we've been working on. You practice with us, get feedback, and leave with clear homework. Day training accelerates your dog's learning; handoff sessions ensure you can maintain and build on it.",
+    q: "How old does my dog need to be?",
+    a: "Level 1 group classes are for dogs 9 months and older. Level 2 requires dogs to be at least 12 months. For younger dogs, check out our Puppy Training program. Private obedience sessions have no age minimum.",
   },
   {
-    q: "Is day training right for puppies?",
-    a: "Yes, with some considerations. Puppies have shorter attention spans and need more rest. We adapt the schedule — shorter sessions, more naps, age-appropriate socialization. The Puppy Complete package is often a better fit for very young puppies; day training works well from 4–5 months up.",
+    q: "Will my dog be off-leash during group classes?",
+    a: "Not in Level 1. We build reliable leash skills first. Level 2 introduces more freedom as your dog demonstrates consistent focus and recall. Safety always comes first.",
   },
 ]
 
-export default function DayTrainingPage() {
+export default function ObediencePage() {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -89,13 +89,14 @@ export default function DayTrainingPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              For busy owners who need professional training during working hours
+              Private &amp; Group Classes — Level 1 &amp; Level 2
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              Your dog trains while you work. We handle the hard part.
+              Obedience Training in Montreal
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              Professional training during the day. Owner handoff when you're home.
+              Commands that actually work where they matter — on Montreal sidewalks,
+              in busy parks, and around real-world distractions.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -122,17 +123,16 @@ export default function DayTrainingPage() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <Play className="w-8 h-8 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">Video: Charlie&apos;s day training journey</span>
+                  <span className="text-sm font-medium">Video: Milo&apos;s obedience transformation</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Charlie, 1-year-old Border Collie</h3>
+                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Milo, 2-year-old French Bulldog</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Charlie&apos;s owner worked 9–5 and couldn&apos;t do weekday sessions. Charlie had endless 
-                  energy and zero impulse control. After 4 weeks of day training, he was walking calmly on 
-                  leash, settling on cue, and responding reliably to recall. The owner handoff sessions 
-                  taught his owner how to maintain everything — and Charlie&apos;s bond with his owner only 
-                  got stronger. His owner says it was the best investment they could have made.
+                  Milo knew every command in the kitchen — and ignored all of them outside.
+                  Through Level 1 group classes, he learned to hold focus around other dogs and
+                  distractions. By Level 2, he was walking off-leash on pack walks and responding
+                  to recall in new environments. His owner finally has a dog she can take anywhere.
                 </p>
               </div>
             </div>
@@ -174,11 +174,11 @@ export default function DayTrainingPage() {
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              Ready to accelerate your dog&apos;s training?
+              Ready for a dog that actually listens?
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              Book a free 15-minute discovery call. We&apos;ll discuss your schedule, your dog&apos;s needs, 
-              and whether day training is the right fit — no pressure.
+              Book a free 15-minute discovery call. We&apos;ll help you pick the right level
+              and format — group or private — for where your dog is right now.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>

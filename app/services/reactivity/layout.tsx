@@ -2,9 +2,9 @@ import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
 
 export const metadata: Metadata = {
-  title: "Reactivity & Anxiety",
+  title: "Reactivity Training",
   description:
-    "Stop planning your life around your dog's triggers. Structured protocols for leash reactivity, fear, anxiety, and separation anxiety — humane, evidence-guided methods.",
+    "Private and group reactivity training in Montreal. Structured protocols for lunging, barking, fear, and shutting down — using humane, evidence-guided methods.",
   alternates: { canonical: "https://mtlcaninetraining.com/services/reactivity" },
 }
 
@@ -17,10 +17,10 @@ export default function ReactivityLayout({
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Reactivity & Anxiety Dog Training",
-          description: "Structured protocols for leash reactivity, fear, anxiety, and separation anxiety — humane, evidence-guided methods.",
+          name: "Reactivity Dog Training — Montreal",
+          description: "Private and group reactivity training for dogs who lunge, bark, or shut down. Structured protocols using humane, evidence-guided methods.",
           url: "https://mtlcaninetraining.com/services/reactivity",
-          price: "599",
+          price: "349",
         })}
       />
       {children}

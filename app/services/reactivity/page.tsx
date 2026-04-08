@@ -5,7 +5,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
@@ -18,42 +17,43 @@ import {
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
-  "You cross the street when you see another dog.",
-  "You've stopped going to the park entirely.",
-  "You walk at 6 AM to avoid triggers.",
-  "You've tried three harnesses and a head halter.",
-  "You love your dog but secretly resent what your life has become.",
+  "You cross the street every time you see another dog.",
+  "You've rearranged your entire schedule to avoid triggers.",
+  "Your dog lunges, barks, or shuts down on walks.",
+  "You feel embarrassed, frustrated, or helpless on leash.",
+  "Other trainers told you your dog is 'too much.'",
 ]
 
 const trainingGoals = [
-  "Trigger identification and management",
-  "Counter-conditioning protocol",
-  "Threshold work",
-  "Relaxation protocols",
-  "Owner handling skills",
-  "Separation anxiety protocol",
+  "The Three D's — Duration, Distance, Distraction",
+  "Three attention cues — Name, Touch, Leash",
+  "Active and static engagement",
+  "Leash work and reward placement",
+  "Stability work and confidence building",
+  "Realistic scenario training",
+  "Structured socialization",
 ]
 
 const faqItems = [
   {
-    q: "Is my dog aggressive or reactive?",
-    a: "Reactivity is an emotional overreaction — lunging, barking, pulling — often driven by fear or frustration. Aggression involves intent to harm. Many reactive dogs never bite; they're just overwhelmed. We assess each case individually and design protocols accordingly.",
+    q: "Is this available as private and group classes?",
+    a: "Yes — we offer both. Group classes let your dog practice around other dogs in a controlled setting, while private sessions give us full control over the environment and pace. Many clients start private and graduate into group work.",
   },
   {
-    q: "Will my dog ever be 'normal'?",
-    a: "Many reactive dogs learn to stay calm around their triggers with consistent work. 'Normal' looks different for every dog — some will always need management, others become genuinely relaxed. We set realistic goals and celebrate progress at every step.",
+    q: "Is my dog reactive or aggressive?",
+    a: "Reactivity is an emotional overreaction — lunging, barking, pulling — usually driven by fear or frustration. Aggression involves intent to harm. Most reactive dogs are overwhelmed, not dangerous. We assess every case individually to design the right protocol.",
   },
   {
-    q: "Can I still take my dog to parks?",
-    a: "It depends on your dog and the park. Some dogs progress to off-leash parks; others do best with structured, low-traffic areas. We'll help you find safe environments and build skills gradually. Rushing into high-stress situations sets progress back.",
+    q: "Will my dog ever be able to walk calmly?",
+    a: "Most reactive dogs make significant progress with structured work. Some become genuinely relaxed around triggers; others learn reliable coping skills. We set honest milestones so you always know what to expect.",
   },
   {
-    q: "What if my dog has bitten another dog?",
-    a: "We take bite history seriously. We'll assess the situation, create a safety plan, and work within your dog's capacity. Many dogs with bite history can be managed safely with the right protocol — we'll be honest about what's possible.",
+    q: "What if my dog has bitten before?",
+    a: "We take bite history seriously and start with a safety assessment. Many dogs with a bite history can be managed safely with the right protocol. We'll be upfront about what's achievable.",
   },
   {
     q: "Is reactivity my fault?",
-    a: "Reactivity usually comes from genetics, early experiences, or lack of exposure — not from something you did wrong. Blame doesn't help; a clear plan does. We focus on what we can change, not on guilt.",
+    a: "Almost never. Reactivity usually comes from genetics, early experiences, or lack of exposure — not from something you did. Blame doesn't help your dog. A clear plan does.",
   },
 ]
 
@@ -90,13 +90,14 @@ export default function ReactivityPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              For dogs who lunge, bark, or shut down around triggers
+              Private &amp; Group Classes
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              Stop planning your life around your dog&apos;s triggers.
+              Reactivity Training in Montreal
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              A clear protocol. Measurable progress. Your life back.
+              Stop planning your life around your dog&apos;s triggers. Structured protocols for lunging,
+              barking, fear, and shutting down — in both private and group settings.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -129,11 +130,10 @@ export default function ReactivityPage() {
               <div className="p-8">
                 <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Bella, 2-year-old Shepherd mix</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Bella would lose it at the sight of another dog — lunging, barking, impossible to redirect. 
-                  Her owner had stopped walking her in daylight. After 8 sessions of threshold work and 
-                  counter-conditioning, Bella could pass dogs on the same sidewalk without reacting. 
-                  By session 12, she was calmly sitting at a distance while other dogs played. Her owner 
-                  finally has her life back.
+                  Bella would lose it at the sight of another dog — lunging, barking, impossible to redirect.
+                  Her owner had stopped walking her in daylight. After structured threshold work and
+                  counter-conditioning, Bella could pass dogs on the same sidewalk without reacting.
+                  She now sits calmly while other dogs walk by. Her owner finally has her life back.
                 </p>
               </div>
             </div>
@@ -178,8 +178,8 @@ export default function ReactivityPage() {
               Ready to take back your walks?
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              Book a free 15-minute discovery call. We&apos;ll discuss your dog&apos;s triggers, your goals, 
-              and whether this program is the right fit — no pressure.
+              Book a free 15-minute discovery call. We&apos;ll talk about your dog&apos;s triggers, your goals,
+              and which format — private or group — makes the most sense.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>

@@ -5,7 +5,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
@@ -18,46 +17,47 @@ import {
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
-  "Your dog has bitten or attempted to bite.",
-  "They guard food, toys, or spaces aggressively.",
-  "Other trainers have refused the case.",
-  "You're afraid of what might happen next.",
-  "You've been told to surrender your dog.",
+  "Your puppy is biting everything — hands, furniture, ankles.",
+  "You're not sure how to socialise safely without overwhelming them.",
+  "Your teen pup is hitting the 'selective hearing' phase.",
+  "You want to build good habits before bad ones take root.",
+  "You want a confident, well-adjusted dog — not just a trained one.",
 ]
 
 const trainingGoals = [
-  "Safety assessment",
-  "Management protocol",
-  "Bite prevention",
-  "Resource guarding modification",
-  "Controlled socialization",
-  "Risk reduction plan",
+  "Confidence building through guided play",
+  "Controlled socialisation with other puppies",
+  "Engagement, focus, and relationship development",
+  "Obstacle courses and novel experiences",
+  "Introduction to the six basic commands",
+  "Marker training and distraction exposure",
+  "Bite inhibition and impulse control",
 ]
 
 const faqItems = [
   {
-    q: "Will you take my dog's case?",
-    a: "We evaluate each case individually. We don't turn away dogs because they've bitten — we assess severity, context, and whether we can create a safe, effective plan. If we're not the right fit, we'll refer you to someone who might be. We're honest about what we can and can't help with.",
+    q: "What ages are the group classes for?",
+    a: "Puppy Group Socialization is for puppies 10–20 weeks. It's focused on interactive play, confidence, and early development. Teen Puppy Group is for dogs 5–9 months — the adolescent phase where basic obedience, marker training, and focus around other dogs become critical.",
   },
   {
-    q: "Is my dog dangerous?",
-    a: "Dangerous is a loaded word. What matters is risk level and manageability. We conduct a thorough safety assessment to understand triggers, history, and context. From there, we create a realistic plan. Some dogs need lifelong management; others make significant progress. We'll be direct with you.",
+    q: "Can I do puppy training privately instead?",
+    a: "Yes. Private sessions let us focus entirely on your puppy's specific needs — whether that's biting, fearfulness, house training, or anything else. It's one-on-one with a trainer in your environment.",
   },
   {
-    q: "Has a dog ever been too far gone?",
-    a: "Yes. In rare cases, the risk is too high or the dog's welfare can't be improved. When that happens, we're honest. We've also worked with many dogs others gave up on — and helped them live safely and happily. Every case is different.",
+    q: "Is it safe to socialise my puppy before all vaccinations?",
+    a: "We follow veterinary guidelines and create controlled environments where risk is minimised. The socialisation window (8–16 weeks) is critical — waiting too long can create more problems than it prevents. We'll work within your vet's recommendations.",
   },
   {
-    q: "What if my landlord is threatening eviction?",
-    a: "We understand the urgency. We can often fast-track a safety evaluation and create an immediate management plan to reduce risk. Documenting a professional assessment and active training can sometimes help with landlord discussions. We'll work with you on timeline.",
+    q: "My puppy is biting constantly. Is that normal?",
+    a: "Completely normal — but it needs to be addressed early. Bite inhibition training teaches your puppy to control their mouth. Most puppies improve dramatically within a couple of weeks of consistent practice.",
   },
   {
-    q: "Do I need a muzzle?",
-    a: "It depends. For some dogs, a muzzle is a temporary safety tool while we work on underlying issues. For others, it may be part of long-term management. We'll assess your situation and teach proper muzzle conditioning — a muzzle should never be punishment. We use them when they keep everyone safe.",
+    q: "What's the difference between puppy and teen puppy classes?",
+    a: "Puppy classes (10–20 weeks) are about safe exploration, play, and building confidence. Teen classes (5–9 months) shift to structured obedience — six basic commands, marker application, and focus around real-world distractions. Think of it as the foundation vs. the first floor.",
   },
 ]
 
-export default function HighRiskPage() {
+export default function PuppyTrainingPage() {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -90,13 +90,14 @@ export default function HighRiskPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              For dogs with aggression, resource guarding, bite history
+              Private &amp; Group Classes — Puppies &amp; Teens
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              When safety is on the line, you need more than YouTube advice.
+              Puppy Training in Montreal
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              Specialized support for the cases other trainers turn away.
+              The first few months shape the next ten years. Build confidence, manners,
+              and a strong bond from the very beginning.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -123,17 +124,16 @@ export default function HighRiskPage() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <Play className="w-8 h-8 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">Video: Cooper&apos;s high-risk journey</span>
+                  <span className="text-sm font-medium">Video: Charlie&apos;s puppy journey</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Cooper, 4-year-old mixed breed</h3>
+                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Charlie, 5-month-old Golden Retriever</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Cooper had bitten twice and was guarding food and his bed. Two trainers had declined the case. 
-                  We started with a safety evaluation and management protocol. Over 12 sessions, we addressed 
-                  resource guarding, built a predictable routine, and created a risk reduction plan. Cooper 
-                  now lives safely with his family — no more bites, clear boundaries, and a household that 
-                  knows how to manage his triggers. His owner says it saved their dog&apos;s life.
+                  Charlie was a land shark — biting everything and everyone, zero recall, and his owners
+                  were overwhelmed. He started in puppy socialisation and graduated to teen group classes.
+                  He now comes when called, greets people without jumping, and plays calmly with other dogs.
+                  His owners say it&apos;s the best investment they&apos;ve made.
                 </p>
               </div>
             </div>
@@ -175,11 +175,11 @@ export default function HighRiskPage() {
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              Ready to get a clear safety plan?
+              Start your puppy off right.
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              Start with a safety evaluation. We&apos;ll assess your dog, discuss your situation, and 
-              determine the right path forward — no judgment, no pressure.
+              Book a free 15-minute discovery call. We&apos;ll help you figure out which class
+              — socialisation, teen group, or private — is the right fit for your puppy&apos;s age and needs.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>

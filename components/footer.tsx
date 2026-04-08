@@ -3,11 +3,11 @@ import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
 
 const footerLinks = {
   training: [
-    { label: "Puppy Foundations", href: "/services/puppy-foundations" },
-    { label: "City Manners", href: "/services/city-manners" },
-    { label: "Reactivity & Anxiety", href: "/services/reactivity" },
-    { label: "High-Risk Behaviors", href: "/services/high-risk" },
-    { label: "Day Training", href: "/services/day-training" },
+    { label: "Reactivity Training", href: "/services/reactivity" },
+    { label: "Private Classes", href: "/services/private-classes" },
+    { label: "Obedience Training", href: "/services/obedience" },
+    { label: "Puppy Training", href: "/services/puppy-training" },
+    { label: "In-Home Training", href: "/services/in-home" },
   ],
   company: [
     { label: "About Us", href: "/about" },
