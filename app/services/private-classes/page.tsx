@@ -5,7 +5,6 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
@@ -18,46 +17,47 @@ import {
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
 
 const forYouIf = [
-  "Every walk is a battle — you dread going outside.",
-  "Your dog drags you down the street on every walk.",
-  "Jumps on every person who passes by.",
-  "Ignores you the moment you step outside.",
-  "You've tried harnesses, treats, YouTube — nothing stuck.",
+  "Your dog's issues don't fit neatly into a group class.",
+  "You want a trainer's full attention on your specific situation.",
+  "You've tried group classes and your dog needs something more tailored.",
+  "You're dealing with reactivity, anxiety, aggression, or guarding.",
+  "You want a clear plan built around your dog — not a generic curriculum.",
 ]
 
 const trainingGoals = [
-  "Loose leash walking",
-  "Door manners",
-  "Greeting strangers calmly",
-  "Recall in distracting environments",
-  "Impulse control",
-  "Settle in public spaces",
+  "Behaviour modification",
+  "Leash reactivity",
+  "Aggression management",
+  "Confidence building",
+  "Handler skill development",
+  "Separation anxiety protocol",
+  "Resource guarding",
 ]
 
 const faqItems = [
   {
-    q: "How long until my dog stops pulling?",
-    a: "Most dogs achieve reliable loose leash walking within 4–6 sessions when we work consistently. Progress depends on your dog's history, breed, and how much practice happens between sessions. We'll give you a realistic timeline during your discovery call.",
+    q: "What's the difference between the 3, 5, and 7 class packages?",
+    a: "It depends on the complexity of your dog's issues. Three sessions work well for focused problems like leash manners or a single behaviour concern. Five is our most popular — enough to tackle reactivity or anxiety with room for real-world practice. Seven is for complex cases like aggression or multiple overlapping issues.",
   },
   {
-    q: "Do you use special equipment?",
-    a: "We start with standard equipment — flat collar or harness — and add tools only when they help. We don't rely on prong collars or e-collars for basic manners. Our focus is teaching your dog to choose calm behavior, not to avoid discomfort.",
+    q: "Why private over group?",
+    a: "Private classes give us full control over the environment, pace, and focus. There are no distractions from other dogs, no waiting for the group to catch up. Every minute is spent on your dog's specific needs. It's the fastest path to change for most behaviour issues.",
   },
   {
-    q: "Can an older dog learn new manners?",
-    a: "Absolutely. Dogs of any age can learn. Older dogs sometimes take a bit longer to unlearn habits, but they're often more focused than puppies. We've worked with dogs from 1 to 12 years old — age is rarely the limiting factor.",
+    q: "Where do private sessions take place?",
+    a: "Wherever your dog's behaviour happens — your neighbourhood, local parks, busy streets, or our facility. We train in real-world environments so the skills transfer to the situations that actually matter.",
   },
   {
-    q: "What if my dog is fine at home but terrible outside?",
-    a: "That's exactly what we specialize in. Dogs who listen indoors but fall apart outside need proofing in real-world environments. We train where the problems happen — sidewalks, parks, busy streets — not in a sterile classroom.",
+    q: "Can I upgrade my package if I need more sessions?",
+    a: "Absolutely. Many clients start with three sessions and add more as they see progress. We'll always be honest about how many sessions we think you'll need — we'd rather under-promise than over-sell.",
   },
   {
-    q: "Will I need to keep training forever?",
-    a: "Skills need maintenance, but it gets easier. Once your dog has solid foundations, a few minutes of practice on walks keeps everything sharp. We teach you how to maintain progress so training becomes part of your routine, not a chore.",
+    q: "What if my dog has aggression or a bite history?",
+    a: "Private classes are the right format for these cases. We start with a thorough assessment, create a safety plan, and work at your dog's pace. We specialise in the cases other trainers turn away.",
   },
 ]
 
-export default function CityMannersPage() {
+export default function PrivateClassesPage() {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -90,13 +90,14 @@ export default function CityMannersPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              For dogs of any age who need urban life skills
+              Most Popular Option — 3, 5, or 7 Session Packages
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              Make every walk the best part of your day.
+              Private Dog Training in Montreal
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              Calm, focused walks in the real world — not just in your living room.
+              One-on-one sessions built entirely around your dog. No group curriculum,
+              no distractions — just focused work on what matters most.
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -123,15 +124,16 @@ export default function CityMannersPage() {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <Play className="w-8 h-8 text-primary" />
                   </div>
-                  <span className="text-sm font-medium">Video: Max&apos;s city manners journey</span>
+                  <span className="text-sm font-medium">Video: Luna&apos;s private training transformation</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Max, 3-year-old Labrador</h3>
+                <h3 className="font-display text-xl font-semibold tracking-tight text-foreground mb-2">Luna, 3-year-old German Shepherd Mix</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Max pulled so hard his owner had given up on walks. Within 5 sessions, he was walking on a loose 
-                  leash through Plateau Mont-Royal. By session 10, he was settling calmly at outdoor cafés and 
-                  coming when called even with other dogs nearby. His owner now looks forward to every walk.
+                  Luna&apos;s owner had tried two group classes before coming to us. The problem wasn&apos;t Luna&apos;s
+                  ability to learn — it was that she couldn&apos;t focus with other dogs around. In private sessions,
+                  we worked on her specific triggers at her pace. By session five, she was walking calmly through
+                  the park. Her owner says it&apos;s like having a different dog.
                 </p>
               </div>
             </div>
@@ -173,11 +175,11 @@ export default function CityMannersPage() {
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              Ready for calmer walks?
+              Your dog deserves a plan built for them.
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              Book a free 15-minute discovery call. We&apos;ll discuss your dog, your walks, and whether 
-              this program is the right fit — no pressure.
+              Book a free 15-minute discovery call. Tell us what&apos;s going on and we&apos;ll recommend
+              the right package — no pressure, no commitment.
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>

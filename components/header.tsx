@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, Phone } from "lucide-react"
@@ -13,7 +14,7 @@ const navLinks = [
   { label: "Results", href: "/results" },
   { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },
-  { label: "Blogs", href: "/blog" },
+  // { label: "Blogs", href: "/blog" },
 ]
 
 export function Header() {
@@ -40,9 +41,14 @@ export function Header() {
         <div className="pointer-events-none absolute -top-16 left-10 h-28 w-56 rounded-full bg-white/20 blur-2xl" />
         <div className="flex items-center justify-between h-16 md:h-20 px-5 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-display text-black text-xl md:text-2xl font-bold tracking-tight">
-              Montreal Canine Training
-            </span>
+            <Image
+              src="/images/MTLK9_Logo.webp"
+              alt="MTL Canine Training"
+              width={180}
+              height={50}
+              className="h-12 md:h-14 w-auto"
+              priority
+            />
           </Link>
 
           <div className="hidden lg:flex items-center gap-8">

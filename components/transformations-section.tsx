@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { transformationStories } from "@/lib/transformation-stories"
 
@@ -173,13 +174,19 @@ export function TransformationsSection() {
           </div>
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-12 flex flex-col items-center gap-3">
           <Link href="/results">
             <Button variant="outline" className="rounded-full px-8 group">
               See All Results
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
+          <FreeCallLink>
+            <Button className="rounded-full px-8 group bg-primary text-primary-foreground hover:bg-primary/90">
+              Book a Free Discovery Call
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </FreeCallLink>
         </div>
       </div>
     </section>

@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { DOG_AGE_OPTIONS, DOG_DURATION_OPTIONS, DOG_SOURCE_OPTIONS } from "../constants"
+import { DOG_AGE_OPTIONS } from "../constants"
 import type { StepProps } from "../types"
 
 export function StepDogInfo({ formData, updateFormData }: StepProps) {
@@ -64,46 +64,6 @@ export function StepDogInfo({ formData, updateFormData }: StepProps) {
           </Select>
         </div>
 
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">How long have you had them?</Label>
-          <Select
-            value={formData.dogDuration}
-            onValueChange={(value) => updateFormData({ dogDuration: value })}
-          >
-            <SelectTrigger className={cn("rounded-xl h-11 text-base w-full")}>
-              <SelectValue placeholder="Select duration" />
-            </SelectTrigger>
-            <SelectContent>
-              {DOG_DURATION_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">Where did your dog come from?</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {DOG_SOURCE_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => updateFormData({ dogSource: option.value })}
-                className={cn(
-                  "text-center rounded-xl border p-3 transition-all duration-200",
-                  "hover:border-primary/40 hover:bg-primary/5",
-                  formData.dogSource === option.value
-                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                    : "border-border bg-card"
-                )}
-              >
-                <span className="font-medium text-foreground text-sm">{option.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )

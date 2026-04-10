@@ -3,9 +3,10 @@ import { Footer } from "@/components/footer"
 import { AboutContent } from "./about-content"
 
 export const metadata = {
-  title: "About Us — Montreal Canine Training",
+  title: "About Us",
   description:
     "Meet the team behind Montreal Canine Training. We believe training is about the human, not the dog — force-free, science-based methods, real-world sessions, and support until it clicks.",
+  alternates: { canonical: "https://mtlcaninetraining.com/about" },
 }
 
 export default function AboutPage() {

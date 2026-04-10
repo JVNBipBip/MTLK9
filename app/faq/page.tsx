@@ -4,16 +4,22 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { FaqAccordion } from "@/components/faq-accordion"
+import { faqData } from "@/lib/faq-data"
+import { JsonLd, buildFaqJsonLd } from "@/components/json-ld"
 
 export const metadata = {
-  title: "FAQ — Montreal Canine Training",
+  title: "FAQ",
   description:
     "Methods, costs, timelines, safety — everything you need to know before booking dog training in Montreal.",
+  alternates: { canonical: "https://mtlcaninetraining.com/faq" },
 }
 
 export default function FaqPage() {
+  const allFaqItems = faqData.flatMap((cat) => cat.items)
+
   return (
     <main className="min-h-screen bg-background">
+      <JsonLd data={buildFaqJsonLd(allFaqItems)} />
       <Header />
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Phone } from "lucide-react"
 import { AnimatedText } from "@/components/animated-text"
 import { FreeCallLink } from "@/components/booking-form-provider"
 
@@ -106,7 +106,7 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/Desktop Hero Video.webm" type="video/webm" />
+          <source src="/videos/desktop-hero.webm" type="video/webm" />
         </video>
         {/* Mobile video */}
         <video
@@ -123,7 +123,7 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/Mobile Hero Video.mp4" type="video/mp4" />
+          <source src="/videos/mobile-hero.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />
@@ -170,13 +170,14 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>
-            <Link href="/services" className="w-full sm:w-auto">
+            <Link href="tel:+15148269558" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto rounded-full px-8 py-6 text-base border-background/30 text-background bg-transparent backdrop-blur-sm transition-all duration-300 hover:bg-background hover:text-foreground hover:border-background hover:shadow-[0_0_20px_rgba(255,255,255,0.25)]"
+                className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-background text-foreground border-background backdrop-blur-sm transition-all duration-300 hover:bg-transparent hover:text-background hover:border-background/30"
               >
-                See Training Programs
+                <Phone className="mr-2 w-4 h-4" />
+                Call Now
               </Button>
             </Link>
           </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
+import { FreeCallLink } from "@/components/booking-form-provider"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
@@ -10,25 +10,21 @@ const painPoints = [
   {
     question: "Pull on every walk?",
     description: "You dread taking them out. Every walk is a battle.",
-    href: "/services/city-manners",
     image: "/images/pain-points/pulling.png",
   },
   {
     question: "Lunge or bark at other dogs?",
     description: "You cross the street, avoid the park, walk at odd hours.",
-    href: "/services/reactivity",
     image: "/images/pain-points/barking.png",
   },
   {
     question: "Destroy things when left alone?",
     description: "You can't leave the house without worrying.",
-    href: "/services/reactivity",
     image: "/images/pain-points/destroying.png",
   },
   {
     question: "Bite, nip, or jump on people?",
     description: "Guests are afraid. You're embarrassed and on edge.",
-    href: "/services/puppy-foundations",
     image: "/images/pain-points/jumping.png",
   },
 ]
@@ -159,12 +155,12 @@ export function PainPointsSection() {
                     <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-xl">
                       {point.description}
                     </p>
-                    <Link href={point.href} className="mt-auto inline-flex">
-                      <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3.5 text-sm font-semibold transition-colors group-hover:bg-primary/90">
+                    <FreeCallLink className="mt-auto inline-flex">
+                      <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3.5 text-sm font-semibold transition-colors group-hover:bg-primary/90 cursor-pointer">
                         Find your training path
                         <ArrowRight className="w-4 h-4" />
                       </span>
-                    </Link>
+                    </FreeCallLink>
                   </div>
                 </div>
               </article>

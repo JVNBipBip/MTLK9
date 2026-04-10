@@ -18,7 +18,7 @@ export const transformationStories: TransformationStory[] = [
     slug: "luna",
     dogName: "Luna",
     breed: "German Shepherd Mix",
-    path: "Reactivity & Anxiety",
+    path: "Reactivity Training",
     before:
       "Luna lunged at every dog on the street. Her owner hadn't had a guest over in 8 months.",
     after:
@@ -35,7 +35,7 @@ export const transformationStories: TransformationStory[] = [
     slug: "milo",
     dogName: "Milo",
     breed: "French Bulldog",
-    path: "City Manners",
+    path: "Obedience Training",
     before:
       "Milo pulled so hard on walks his owner stopped taking him out. He destroyed furniture when left alone.",
     after:
@@ -51,7 +51,7 @@ export const transformationStories: TransformationStory[] = [
     slug: "bella",
     dogName: "Bella",
     breed: "Rescue Pit Bull",
-    path: "High-Risk Behaviors",
+    path: "Private Classes",
     before:
       "Bella resource-guarded food and toys. The family had a new baby on the way and were terrified.",
     after:

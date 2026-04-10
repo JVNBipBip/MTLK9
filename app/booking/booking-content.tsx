@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
 import { StepDuration } from "./steps/step-duration"
-import { StepTried } from "./steps/step-tried"
 import { StepImpact } from "./steps/step-impact"
 import { StepDogInfo } from "./steps/step-dog-info"
 import { StepGoals } from "./steps/step-goals"
@@ -31,16 +30,12 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
     case 1:
       return formData.duration !== ""
     case 2:
-      return formData.tried.length > 0
-    case 3:
       return formData.impact.length > 0
-    case 4:
+    case 3:
       return (
         formData.dogName.trim() !== "" &&
         formData.dogBreed.trim() !== "" &&
-        formData.dogAge !== "" &&
-        formData.dogDuration !== "" &&
-        formData.dogSource !== ""
+        formData.dogAge !== ""
       )
     case 5:
       return formData.goals.length > 0

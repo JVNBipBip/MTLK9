@@ -4,9 +4,10 @@ import { Footer } from "@/components/footer"
 import { BlogContent } from "./blog-content"
 
 export const metadata: Metadata = {
-  title: "Blog — Montreal Canine Training",
+  title: "Blog",
   description:
     "Tips, stories, and science-backed guidance for Montreal dog owners. Real advice from real trainers.",
+  alternates: { canonical: "https://mtlcaninetraining.com/blog" },
 }
 
 export default function BlogPage() {
