@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { CONSULTATIONS_COLLECTION, DOG_CLASS_ACCESS_COLLECTION } from "@/lib/domain"
+import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
+import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { hashAccessToken } from "@/lib/tokens"
 
@@ -40,20 +41,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   const clientId = String((doc.data().clientId as string) || (doc.data().clientEmail as string) || "").trim().toLowerCase()
   const dogName = String((doc.data().dogName as string) || "")
-  const classAccessSnap = await db
-    .collection(DOG_CLASS_ACCESS_COLLECTION)
-    .where("clientId", "==", clientId)
-    .where("dogName", "==", dogName)
-    .where("status", "==", "allowed")
-    .get()
-  const approvedClasses = classAccessSnap.docs.map((d) => {
-    const data = d.data() as { classTypeId?: string; classLabel?: string; squareServiceVariationId?: string }
-    return {
-      classTypeId: data.classTypeId || "",
-      classLabel: data.classLabel || data.classTypeId || "",
-      squareServiceVariationId: data.squareServiceVariationId || data.classTypeId || "",
-    }
-  })
+  const approvedClasses = await buildApprovedGroupClassesForClientDog(clientId, dogName)
 
   return NextResponse.json({
     ok: true,

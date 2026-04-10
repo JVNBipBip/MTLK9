@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, Clock, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
@@ -12,15 +13,15 @@ import { StepTried } from "./steps/step-tried"
 import { StepImpact } from "./steps/step-impact"
 import { StepDogInfo } from "./steps/step-dog-info"
 import { StepGoals } from "./steps/step-goals"
-import { StepConnect } from "./steps/step-connect"
 import { StepContact } from "./steps/step-contact"
 import { StepConfirmation } from "./steps/step-confirmation"
+import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
 
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 7
 
 // Single-select steps auto-advance on click — no Continue button needed
-const AUTO_ADVANCE_STEPS = new Set([0, 1, 6])
+const AUTO_ADVANCE_STEPS = new Set([0, 1])
 
 function isStepValid(step: number, formData: BookingFormData): boolean {
   switch (step) {
@@ -44,8 +45,6 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
     case 5:
       return formData.goals.length > 0
     case 6:
-      return formData.connectMethod !== ""
-    case 7:
       return (
         formData.contactName.trim() !== "" &&
         formData.contactEmail.trim() !== "" &&
@@ -69,10 +68,37 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   const [showSchedulingStep, setShowSchedulingStep] = useState(false)
   const [consultationSlots, setConsultationSlots] = useState<Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
+  const [intakeContractAccepted, setIntakeContractAccepted] = useState(false)
+  const [trainerFilterId, setTrainerFilterId] = useState<string | null>(null)
+  const [slotsFetchError, setSlotsFetchError] = useState<string | null>(null)
+  const [slotsMeta, setSlotsMeta] = useState<{
+    recommendedTeamMemberId: string | null
+    nickRoutingActive: boolean
+    slotsMessage: string | null
+  }>({
+    recommendedTeamMemberId: null,
+    nickRoutingActive: false,
+    slotsMessage: null,
+  })
+
+  const displaySlots = useMemo(() => {
+    if (!trainerFilterId) return consultationSlots
+    return consultationSlots.filter((s) => s.teamMemberId === trainerFilterId)
+  }, [consultationSlots, trainerFilterId])
+
+  const uniqueTrainers = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const s of consultationSlots) {
+      if (!s.teamMemberId) continue
+      const label = (s.teamMemberName || "Staff").trim() || "Staff"
+      if (!map.has(s.teamMemberId)) map.set(s.teamMemberId, label)
+    }
+    return [...map.entries()].map(([id, name]) => ({ id, name }))
+  }, [consultationSlots])
 
   const groupedSlots = useMemo(() => {
-    const groups: Record<string, typeof consultationSlots> = {}
-    for (const slot of consultationSlots) {
+    const groups: Record<string, typeof displaySlots> = {}
+    for (const slot of displaySlots) {
       const date = new Date(slot.startAt)
       
       // Get start of week (Sunday)
@@ -90,31 +116,81 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       groups[key].push(slot)
     }
     return groups
-  }, [consultationSlots])
+  }, [displaySlots])
 
   const weekKeys = useMemo(() => Object.keys(groupedSlots), [groupedSlots])
   const [selectedWeek, setSelectedWeek] = useState<string>("")
 
   useEffect(() => {
-    if (weekKeys.length > 0 && !selectedWeek) {
-      setSelectedWeek(weekKeys[0])
+    if (weekKeys.length === 0) {
+      setSelectedWeek("")
+      return
     }
-  }, [weekKeys, selectedWeek])
+    setSelectedWeek((prev) => (prev && weekKeys.includes(prev) ? prev : weekKeys[0]))
+  }, [weekKeys])
+
+  useEffect(() => {
+    if (!showSchedulingStep) {
+      setTrainerFilterId(null)
+      setSlotsFetchError(null)
+    }
+  }, [showSchedulingStep])
 
   useEffect(() => {
     if (!showSchedulingStep || formData.connectMethod !== "in-person-evaluation") return
     let active = true
     setIsLoadingSlots(true)
+    setSlotsFetchError(null)
     async function loadSlots() {
       try {
-        const response = await fetch("/api/consultation-slots")
-        const data = (await response.json().catch(() => null)) as { slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }> } | null
+        const params = new URLSearchParams()
+        if (formData.issue) params.set("issue", formData.issue)
+        for (const imp of formData.impact) {
+          params.append("impact", imp)
+        }
+        const response = await fetch(`/api/consultation-slots?${params.toString()}`)
+        const data = (await response.json().catch(() => null)) as {
+          slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>
+          recommendedTeamMemberId?: string | null
+          nickRoutingActive?: boolean
+          slotsMessage?: string | null
+          error?: string
+        } | null
         if (!active) return
-        if (response.ok && data?.slots) setConsultationSlots(data.slots)
-        else setConsultationSlots([])
+        if (response.status === 503) {
+          setConsultationSlots([])
+          setSlotsMeta({
+            recommendedTeamMemberId: null,
+            nickRoutingActive: true,
+            slotsMessage: null,
+          })
+          setSlotsFetchError(data?.error || "Specialist calendar is not configured. Please contact us by phone or email.")
+          return
+        }
+        if (response.ok && data?.slots) {
+          setConsultationSlots(data.slots)
+          setSlotsMeta({
+            recommendedTeamMemberId: data.recommendedTeamMemberId ?? null,
+            nickRoutingActive: data.nickRoutingActive ?? false,
+            slotsMessage: data.slotsMessage ?? null,
+          })
+          setSlotsFetchError(null)
+        } else {
+          setConsultationSlots([])
+          setSlotsMeta({
+            recommendedTeamMemberId: null,
+            nickRoutingActive: false,
+            slotsMessage: null,
+          })
+        }
       } catch {
         if (!active) return
         setConsultationSlots([])
+        setSlotsMeta({
+          recommendedTeamMemberId: null,
+          nickRoutingActive: false,
+          slotsMessage: null,
+        })
       } finally {
         if (active) setIsLoadingSlots(false)
       }
@@ -123,11 +199,23 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     return () => {
       active = false
     }
-  }, [formData.connectMethod, showSchedulingStep])
+  }, [formData.connectMethod, formData.issue, formData.impact, showSchedulingStep])
 
   const updateFormData = useCallback((updates: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
   }, [])
+
+  const setTrainerFilterAndClearSlot = useCallback(
+    (id: string | null) => {
+      setTrainerFilterId(id)
+      setFormData((prev) => ({
+        ...prev,
+        consultationSlotKey: "",
+        consultationDateTime: "",
+      }))
+    },
+    [],
+  )
 
   const goNext = useCallback(() => {
     setDirection(1)
@@ -159,6 +247,22 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       if (!response.ok) {
         const data = (await response.json().catch(() => null)) as { error?: string } | null
         throw new Error(data?.error || "Failed to submit booking form.")
+      }
+
+      try {
+        await fetch("/api/contract-acceptance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientEmail: formData.contactEmail.trim().toLowerCase(),
+            contractKind: "assessment_booking",
+            version: CONTRACT_VERSION,
+            source: "/booking",
+            dogName: formData.dogName.trim(),
+          }),
+        })
+      } catch {
+        /* non-blocking */
       }
 
       setIsComplete(true)
@@ -269,82 +373,184 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   Choose your preferred in-house assessment slot. No payment is required on the website.
                 </p>
               </div>
-              
+
               {isLoadingSlots ? (
                 <div className="p-12 flex flex-col items-center justify-center gap-4 border rounded-xl bg-muted/20">
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">Loading available times…</p>
                 </div>
-              ) : consultationSlots.length > 0 ? (
+              ) : (
                 <div className="space-y-4">
-                  {weekKeys.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                      {weekKeys.map((week) => (
-                        <button
-                          key={week}
-                          onClick={() => setSelectedWeek(week)}
-                          className={cn(
-                            "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                            selectedWeek === week
-                              ? "bg-foreground text-background"
-                              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                          )}
-                        >
-                          {week}
-                        </button>
-                      ))}
+                  {slotsFetchError ? (
+                    <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                      {slotsFetchError}
                     </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {(groupedSlots[selectedWeek] || []).map((slot) => {
-                      const isSelected = formData.consultationSlotKey === slot.slotKey
-                      const date = new Date(slot.startAt)
-                      
-                      return (
-                        <button
-                          key={slot.slotKey}
-                          onClick={() => updateFormData({ 
-                            consultationDateTime: slot.startAt,
-                            consultationSlotKey: slot.slotKey,
-                            consultationLocation: CONSULTATION_LOCATION,
-                            consultationWhat: "In-person assessment"
-                          })}
-                          className={cn(
-                            "relative flex flex-col items-start p-4 rounded-xl border text-left transition-all",
-                            isSelected 
-                              ? "border-primary bg-primary/5 ring-1 ring-primary" 
-                              : "border-border bg-background hover:border-primary/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <Calendar className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")} />
-                            <span className={cn("text-sm font-medium", isSelected ? "text-primary" : "text-foreground")}>
-                              {date.toLocaleDateString("en-CA", { weekday: 'long', month: 'short', day: 'numeric' })}
-                            </span>
+                  ) : null}
+                  {slotsMeta.nickRoutingActive && consultationSlots.length > 0 ? (
+                    <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground">
+                      Based on your answers, you&apos;re booking with our specialist for dogs with safety-related
+                      concerns.
+                    </div>
+                  ) : null}
+                  {consultationSlots.length === 0 ? (
+                    <div className="p-8 text-center border rounded-xl bg-muted/20 space-y-2">
+                      <p className="text-muted-foreground">
+                        {slotsMeta.slotsMessage ||
+                          "No slots available right now. Use the free call option on the site to reach us."}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {uniqueTrainers.length > 1 && !slotsMeta.nickRoutingActive ? (
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                            Trainer
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setTrainerFilterAndClearSlot(null)}
+                              className={cn(
+                                "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                                trainerFilterId === null
+                                  ? "bg-foreground text-background border-foreground"
+                                  : "bg-background text-muted-foreground border-border hover:border-primary/40",
+                              )}
+                            >
+                              All trainers
+                            </button>
+                            {uniqueTrainers.map((t) => (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => setTrainerFilterAndClearSlot(t.id)}
+                                className={cn(
+                                  "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                                  trainerFilterId === t.id
+                                    ? "bg-foreground text-background border-foreground"
+                                    : "bg-background text-muted-foreground border-border hover:border-primary/40",
+                                )}
+                              >
+                                {t.name}
+                              </button>
+                            ))}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")} />
-                            <span className={cn("text-sm", isSelected ? "text-foreground" : "text-muted-foreground")}>
-                              {date.toLocaleTimeString("en-CA", { timeStyle: 'short' })}
-                            </span>
-                          </div>
-                          {(slot.teamMemberName || slot.teamMemberId) && (
-                            <div className="flex items-center gap-2 mt-1">
-                              <User className={cn("w-4 h-4 shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
-                              <span className={cn("text-sm", isSelected ? "text-foreground" : "text-muted-foreground")}>
-                                {slot.teamMemberName || "Staff"}
-                              </span>
+                        </div>
+                      ) : null}
+                      {displaySlots.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-6 border rounded-xl bg-muted/10">
+                          No times for this trainer. Choose &quot;All trainers&quot; to see every opening.
+                        </p>
+                      ) : (
+                        <>
+                          {weekKeys.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                              {weekKeys.map((week) => (
+                                <button
+                                  key={week}
+                                  type="button"
+                                  onClick={() => setSelectedWeek(week)}
+                                  className={cn(
+                                    "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                                    selectedWeek === week
+                                      ? "bg-foreground text-background"
+                                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                                  )}
+                                >
+                                  {week}
+                                </button>
+                              ))}
                             </div>
                           )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-8 text-center border rounded-xl bg-muted/20">
-                  <p className="text-muted-foreground">No slots available right now. Please contact us directly.</p>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {(groupedSlots[selectedWeek] || []).map((slot) => {
+                              const isSelected = formData.consultationSlotKey === slot.slotKey
+                              const date = new Date(slot.startAt)
+                              const showRecommendedBadge =
+                                Boolean(
+                                  slotsMeta.recommendedTeamMemberId &&
+                                    slot.teamMemberId === slotsMeta.recommendedTeamMemberId &&
+                                    !slotsMeta.nickRoutingActive,
+                                )
+
+                              return (
+                                <button
+                                  key={slot.slotKey}
+                                  type="button"
+                                  onClick={() =>
+                                    updateFormData({
+                                      consultationDateTime: slot.startAt,
+                                      consultationSlotKey: slot.slotKey,
+                                      consultationLocation: CONSULTATION_LOCATION,
+                                      consultationWhat: "In-person assessment",
+                                    })
+                                  }
+                                  className={cn(
+                                    "relative flex flex-col items-start p-4 rounded-xl border text-left transition-all",
+                                    isSelected
+                                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                      : "border-border bg-background hover:border-primary/50 hover:bg-muted/50",
+                                  )}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Calendar
+                                      className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")}
+                                    />
+                                    <span
+                                      className={cn(
+                                        "text-sm font-medium",
+                                        isSelected ? "text-primary" : "text-foreground",
+                                      )}
+                                    >
+                                      {date.toLocaleDateString("en-CA", {
+                                        weekday: "long",
+                                        month: "short",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Clock
+                                      className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")}
+                                    />
+                                    <span
+                                      className={cn("text-sm", isSelected ? "text-foreground" : "text-muted-foreground")}
+                                    >
+                                      {date.toLocaleTimeString("en-CA", { timeStyle: "short" })}
+                                    </span>
+                                  </div>
+                                  {(slot.teamMemberName || slot.teamMemberId) && (
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <User
+                                        className={cn(
+                                          "w-4 h-4 shrink-0",
+                                          isSelected ? "text-primary" : "text-muted-foreground",
+                                        )}
+                                      />
+                                      <span
+                                        className={cn(
+                                          "text-sm",
+                                          isSelected ? "text-foreground" : "text-muted-foreground",
+                                        )}
+                                      >
+                                        {slot.teamMemberName || "Staff"}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {showRecommendedBadge ? (
+                                    <Badge variant="secondary" className="mt-2">
+                                      Recommended specialist
+                                    </Badge>
+                                  ) : null}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
 
@@ -406,12 +612,28 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 </motion.div>
               )}
 
+              <div className="space-y-3 pt-2">
+                <details className="rounded-xl border border-border bg-muted/20 p-4 text-sm text-left">
+                  <summary className="cursor-pointer font-medium">{CONTRACT_LABEL.assessment_booking} ({CONTRACT_VERSION})</summary>
+                  <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("assessment_booking")}</p>
+                </details>
+                <label className="flex items-start gap-2 text-sm text-left">
+                  <input
+                    type="checkbox"
+                    checked={intakeContractAccepted}
+                    onChange={(e) => setIntakeContractAccepted(e.target.checked)}
+                    className="mt-1"
+                  />
+                  <span>I have read and agree to this agreement ({CONTRACT_VERSION}).</span>
+                </label>
+              </div>
+
               <div className="flex items-center justify-between gap-3 pt-2">
                 <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
                 <Button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!consultationReadyForPayment || isSubmitting}
+                  disabled={!consultationReadyForPayment || isSubmitting || !intakeContractAccepted}
                   className="rounded-full px-8 h-12 text-base"
                 >
                   {isSubmitting ? (
@@ -442,8 +664,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 {currentStep === 3 && <StepImpact formData={formData} updateFormData={updateFormData} />}
                 {currentStep === 4 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
                 {currentStep === 5 && <StepGoals formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 6 && <StepConnect formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 7 && <StepContact formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 6 && <StepContact formData={formData} updateFormData={updateFormData} />}
               </motion.div>
             </AnimatePresence>
           )}
@@ -453,7 +674,8 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       {/* Bottom nav — only for multi-select / form steps */}
       {showBottomNav && (
         <div className="shrink-0 bg-background border-t border-border/50 px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="max-w-lg mx-auto flex items-center justify-between gap-3">
+          <div className="max-w-lg mx-auto flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
             <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
             <Button
               type="button"
@@ -467,7 +689,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   Submitting...
                 </>
               ) : currentStep === TOTAL_STEPS - 1 ? (
-                formData.connectMethod === "in-person-evaluation" ? "Continue to scheduling" : "Submit"
+                "Continue to scheduling"
               ) : (
                 <>
                   Continue
@@ -475,6 +697,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 </>
               )}
             </Button>
+            </div>
           </div>
         </div>
       )}

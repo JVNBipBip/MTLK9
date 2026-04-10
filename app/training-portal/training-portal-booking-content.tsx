@@ -1,9 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
 import {
   PLAN_TYPE_LABEL,
   SERVICE_TYPE_LABEL,
@@ -40,11 +41,47 @@ export function TrainingPortalBookingContent({
   const [selectedPlanType, setSelectedPlanType] = useState<PrivatePackage["planType"]>("pack_3")
   const [isEditingPackage, setIsEditingPackage] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
+  /** Empty string = all trainers */
+  const [staffFilterId, setStaffFilterId] = useState("")
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [packageContractAccepted, setPackageContractAccepted] = useState(false)
 
   const activePackage = statusData?.activePrivatePackage || null
   const oneOnOneUpcoming = statusData?.existingBookings.find((b) => b.type === "one_on_one") || null
+
+  const staffOptions = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const s of slots) {
+      const id = s.teamMemberId?.trim()
+      if (!id) continue
+      const name = (s.teamMemberName?.trim() || "Trainer").trim()
+      if (!map.has(id)) map.set(id, name)
+    }
+    return [...map.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+  }, [slots])
+
+  const filteredSlots = useMemo(() => {
+    if (!staffFilterId) return slots
+    return slots.filter((s) => s.teamMemberId === staffFilterId)
+  }, [slots, staffFilterId])
+
+  useEffect(() => {
+    setWeekOffset(0)
+  }, [staffFilterId])
+
+  useEffect(() => {
+    setSelectedSlotKeys((prev) =>
+      prev.filter((key) => {
+        const slot = slots.find((s) => s.slotKey === key)
+        if (!slot) return false
+        if (!staffFilterId) return true
+        return slot.teamMemberId === staffFilterId
+      }),
+    )
+  }, [staffFilterId, slots])
 
   const fetchStatus = useCallback(async (opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false
@@ -61,10 +98,14 @@ export function TrainingPortalBookingContent({
       })
       const data = (await response.json()) as StatusResponse & { error?: string }
       if (!response.ok) throw new Error(data.error || "Could not load status.")
+      setPackageContractAccepted(false)
       setStatusData(data)
       if (data.activePrivatePackage) {
         setSelectedServiceType(data.activePrivatePackage.serviceType)
         setSelectedPlanType(data.activePrivatePackage.planType)
+      }
+      if (data.inHomeBookingAllowed !== true) {
+        setSelectedServiceType((prev) => (prev === "in_home" ? "in_facility" : prev))
       }
     } catch (err) {
       if (!silent) {
@@ -104,6 +145,7 @@ export function TrainingPortalBookingContent({
       setSlots(data.slots || [])
       setSelectedSlotKeys([])
       setWeekOffset(0)
+      setStaffFilterId("")
     } catch (err) {
       setSlots([])
       setError(err instanceof Error ? err.message : "Could not load available times.")
@@ -127,6 +169,10 @@ export function TrainingPortalBookingContent({
 
   async function savePrivatePackage() {
     if (!statusData) return
+    if (!packageContractAccepted) {
+      setError("Please read and accept the private training agreement before updating your package.")
+      return
+    }
     setError(null)
     setSuccessMessage(null)
     setIsSelectingPackage(true)
@@ -149,6 +195,21 @@ export function TrainingPortalBookingContent({
         throw new Error(response.ok ? "Invalid response." : `Server error: ${response.status}`)
       }
       if (!response.ok) throw new Error(data.error || "Could not save package.")
+      try {
+        await fetch("/api/contract-acceptance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientEmail: clientEmail.trim().toLowerCase(),
+            contractKind: "private_classes",
+            version: CONTRACT_VERSION,
+            source: "/training-portal/book",
+            dogName: dogName.trim(),
+          }),
+        })
+      } catch {
+        /* non-blocking */
+      }
       await fetchStatus()
       setSlots([])
       setSelectedSlotKeys([])
@@ -222,6 +283,19 @@ export function TrainingPortalBookingContent({
     )
   }
 
+  if (statusData && statusData.privateTrainingAllowed === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-8">
+        <p className="text-amber-900 bg-amber-50 border border-amber-200 rounded-lg p-4 text-center text-sm max-w-md mb-6">
+          Private 1-on-1 training is not enabled on your account. Please contact us if you need access.
+        </p>
+        <Link href="/services">
+          <Button variant="outline">Back to services</Button>
+        </Link>
+      </div>
+    )
+  }
+
   if (!statusData?.assessmentCompleted || !activePackage) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
@@ -259,6 +333,11 @@ export function TrainingPortalBookingContent({
 
           {activePackage && (
             <div className="space-y-4">
+              {statusData?.inHomeBookingAllowed !== true && activePackage.serviceType === "in_home" ? (
+                <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-3">
+                  In-home booking is not enabled on your account. Contact us for access, or ask staff to move you to an in-facility package.
+                </p>
+              ) : null}
               <div className="flex items-center justify-between p-4 border rounded-xl bg-muted/10">
                 <div>
                   <p className="font-medium text-foreground">
@@ -268,7 +347,14 @@ export function TrainingPortalBookingContent({
                     {activePackage.sessionsRemaining} session{activePackage.sessionsRemaining === 1 ? "" : "s"} remaining
                   </p>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setIsEditingPackage(!isEditingPackage)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsEditingPackage(!isEditingPackage)
+                    setPackageContractAccepted(false)
+                  }}
+                >
                   {isEditingPackage ? "Cancel" : "Change Package"}
                 </Button>
               </div>
@@ -279,17 +365,24 @@ export function TrainingPortalBookingContent({
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Service type</p>
                       <div className="space-y-2">
-                        {(["in_facility", "in_home"] as const).map((t) => (
-                          <label key={t} className="flex items-center gap-2 text-sm p-2 rounded hover:bg-muted/50 cursor-pointer">
-                            <input
-                              type="radio"
-                              checked={selectedServiceType === t}
-                              onChange={() => setSelectedServiceType(t)}
-                              className="text-primary focus:ring-primary"
-                            />
-                            {SERVICE_TYPE_LABEL[t]}
-                          </label>
-                        ))}
+                        {(["in_facility", "in_home"] as const)
+                          .filter((t) => t === "in_facility" || statusData?.inHomeBookingAllowed === true)
+                          .map((t) => (
+                            <label key={t} className="flex items-center gap-2 text-sm p-2 rounded hover:bg-muted/50 cursor-pointer">
+                              <input
+                                type="radio"
+                                checked={selectedServiceType === t}
+                                onChange={() => setSelectedServiceType(t)}
+                                className="text-primary focus:ring-primary"
+                              />
+                              {SERVICE_TYPE_LABEL[t]}
+                            </label>
+                          ))}
+                        {statusData?.inHomeBookingAllowed !== true ? (
+                          <p className="text-xs text-muted-foreground">
+                            In-home is available by request only. Contact us if you need training at your location.
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -309,10 +402,25 @@ export function TrainingPortalBookingContent({
                       </div>
                     </div>
                   </div>
+                  <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
+                    <summary className="cursor-pointer font-medium">
+                      {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
+                    </summary>
+                    <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
+                  </details>
+                  <label className="flex items-start gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={packageContractAccepted}
+                      onChange={(e) => setPackageContractAccepted(e.target.checked)}
+                      className="mt-1"
+                    />
+                    <span>I have read and agree to the private training agreement ({CONTRACT_VERSION}).</span>
+                  </label>
                   <div className="flex justify-end">
                     <Button
                       type="button"
-                      disabled={isSelectingPackage}
+                      disabled={isSelectingPackage || !packageContractAccepted}
                       onClick={async () => {
                         await savePrivatePackage()
                       }}
@@ -326,28 +434,67 @@ export function TrainingPortalBookingContent({
           )}
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <h2 className="text-lg font-semibold">Available times</h2>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between flex-wrap">
+              <div>
+                <h2 className="text-lg font-semibold">Available times</h2>
+                {staffOptions.length > 1 ? (
+                  <div className="mt-2 space-y-1.5 max-w-xs">
+                    <label htmlFor="staff-filter" className="text-sm font-medium text-foreground">
+                      Trainer
+                    </label>
+                    <select
+                      id="staff-filter"
+                      className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={staffFilterId}
+                      onChange={(e) => setStaffFilterId(e.target.value)}
+                      disabled={isLoadingSlots || slots.length === 0}
+                    >
+                      <option value="">All trainers</option>
+                      {staffOptions.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex flex-col items-stretch sm:items-end gap-2">
                 {oneOnOneUpcoming && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground text-right">
                     Upcoming: {formatSlotDate(oneOnOneUpcoming.startAt)} at {formatSlotTime(oneOnOneUpcoming.startAt)}
                   </p>
                 )}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={loadOneOnOneSlots}
-                  disabled={isLoadingSlots || !statusData.options.oneOnOne.eligible}
-                >
-                  {isLoadingSlots ? "Loading..." : "Load available times"}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {statusData.squareBookingSiteUrl ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={statusData.squareBookingSiteUrl} target="_blank" rel="noopener noreferrer">
+                        Book in Square
+                      </a>
+                    </Button>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={loadOneOnOneSlots}
+                    disabled={isLoadingSlots || !statusData.options.oneOnOne.eligible}
+                  >
+                    {isLoadingSlots ? "Loading..." : "Load available times"}
+                  </Button>
+                </div>
               </div>
             </div>
 
             {isLoadingSlots ? (
               <div className="py-16 text-center text-muted-foreground">Loading available times...</div>
+            ) : slots.length > 0 && filteredSlots.length === 0 ? (
+              <div className="py-16 text-center text-muted-foreground bg-muted/10 rounded-xl border border-dashed border-border space-y-4">
+                <p>No open times for the selected trainer in this window. Try another trainer or reload availability.</p>
+                <Button type="button" variant="outline" size="sm" onClick={() => setStaffFilterId("")}>
+                  Show all trainers
+                </Button>
+              </div>
             ) : slots.length > 0 && activePackage ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between bg-muted/30 p-4 rounded-xl border border-border">
@@ -366,10 +513,10 @@ export function TrainingPortalBookingContent({
                 </div>
 
                 {(() => {
-                  const weekSlots = slotsInWeek(slots, weekOffset)
+                  const weekSlots = slotsInWeek(filteredSlots, weekOffset)
                   const byDay = slotsByWeekday(weekSlots)
                   const hasPrev = weekOffset > 0
-                  const hasNext = slots.some((s) => {
+                  const hasNext = filteredSlots.some((s) => {
                     const { end } = getWeekRange(weekOffset + 1)
                     return new Date(s.startAt).getTime() > end.getTime()
                   })

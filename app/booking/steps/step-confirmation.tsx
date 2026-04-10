@@ -4,7 +4,6 @@ import { CheckCircle, Phone, Mail } from "lucide-react"
 import type { BookingFormData } from "../types"
 
 export function StepConfirmation({ formData }: { formData: BookingFormData }) {
-  const isDiscoveryCall = formData.connectMethod === "discovery-call"
   const formattedConsultationDateTime = formData.consultationDateTime
     ? new Date(formData.consultationDateTime).toLocaleString("en-CA", {
         timeZone: "America/Toronto",
@@ -28,30 +27,21 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
 
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
-          {isDiscoveryCall
-            ? "You're in. Here's what happens next."
-            : "You're in. Your assessment is booked."}
+          You&apos;re in. Your assessment is booked.
         </h2>
 
-        {isDiscoveryCall ? (
+        <div className="space-y-4">
           <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-            We&apos;ll call you within 1 business day at the number you provided.
-            In the meantime, don&apos;t stress — you just took the hardest step.
+            You&apos;ll receive a confirmation email shortly with your booking details and a short prep checklist.
           </p>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-              You&apos;ll receive a confirmation email shortly with your booking details and a short prep checklist.
-            </p>
-            <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
-              {assessmentSummary.map((item) => (
-                <p key={item.label} className="text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{item.label}:</span> {item.value}
-                </p>
-              ))}
-            </div>
+          <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
+            {assessmentSummary.map((item) => (
+              <p key={item.label} className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">{item.label}:</span> {item.value}
+              </p>
+            ))}
           </div>
-        )}
+        </div>
       </div>
 
       <div className="pt-4 border-t border-border max-w-md mx-auto">

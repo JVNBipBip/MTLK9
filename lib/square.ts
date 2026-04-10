@@ -263,6 +263,46 @@ export async function retrieveSquareCatalogObject(objectId: string) {
   })
 }
 
+/**
+ * Human-readable label for a catalog variation ID (ITEM_VARIATION), using Square item + variation names.
+ * Returns null if the object is missing or not usable.
+ */
+export async function getCatalogVariationDisplayName(variationId: string): Promise<string | null> {
+  const id = variationId.trim()
+  if (!id) return null
+  try {
+    const { object: root } = await retrieveSquareCatalogObject(id)
+    if (!root || root.is_deleted) return null
+    const t = String(root.type || "").toUpperCase()
+
+    if (t === "ITEM_VARIATION") {
+      const varName = root.item_variation_data?.name?.trim() || ""
+      const itemId = root.item_variation_data?.item_id?.trim()
+      let itemName = ""
+      if (itemId) {
+        const { object: item } = await retrieveSquareCatalogObject(itemId)
+        if (item && !item.is_deleted) {
+          itemName = item.item_data?.name?.trim() || ""
+        }
+      }
+      if (itemName && varName && varName !== itemName) {
+        return `${itemName} — ${varName}`
+      }
+      if (itemName) return itemName
+      if (varName) return varName
+      return null
+    }
+
+    if (t === "ITEM") {
+      return root.item_data?.name?.trim() || null
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 export async function createSquarePaymentLinkForVariation(input: {
   variationId: string
   quantity?: string
@@ -270,6 +310,8 @@ export async function createSquarePaymentLinkForVariation(input: {
   buyerPhoneNumber?: string
   note?: string
   redirectUrl?: string
+  /** Correlates Square order → Firestore booking (webhook reads order.reference_id). */
+  orderReferenceId?: string
 }) {
   const cfg = await getSquareConfigAsync()
   return squareRequest<{ payment_link?: { id?: string; url?: string } }>("/v2/online-checkout/payment-links", {
@@ -278,6 +320,7 @@ export async function createSquarePaymentLinkForVariation(input: {
       idempotency_key: crypto.randomUUID(),
       order: {
         location_id: cfg.locationId,
+        ...(input.orderReferenceId ? { reference_id: input.orderReferenceId.slice(0, 40) } : {}),
         line_items: [
           {
             catalog_object_id: input.variationId,
@@ -297,6 +340,38 @@ export async function createSquarePaymentLinkForVariation(input: {
   })
 }
 
+export type SquareAppointmentSegment = {
+  service_variation_id?: string
+  team_member_id?: string
+  duration_minutes?: number
+}
+
+export type SquareBooking = {
+  id?: string
+  status?: string
+  start_at?: string
+  location_id?: string
+  customer_id?: string
+  customer_note?: string
+  seller_note?: string
+  created_at?: string
+  updated_at?: string
+  source?: string
+  appointment_segments?: SquareAppointmentSegment[]
+}
+
+export async function retrieveSquareBooking(bookingId: string) {
+  return squareRequest<{ booking?: SquareBooking }>(`/v2/bookings/${encodeURIComponent(bookingId)}`, {
+    method: "GET",
+  })
+}
+
+export async function retrieveSquareOrder(orderId: string) {
+  return squareRequest<{
+    order?: { id?: string; reference_id?: string; state?: string; total_money?: { amount?: bigint | number; currency?: string } }
+  }>(`/v2/orders/${encodeURIComponent(orderId)}`, { method: "GET" })
+}
+
 export async function listSquareCatalogItems() {
   const items: SquareCatalogObject[] = []
   let cursor: string | undefined
@@ -312,6 +387,71 @@ export async function listSquareCatalogItems() {
   } while (cursor)
 
   return items
+}
+
+type TeamMemberBookingProfile = {
+  team_member_id?: string
+  is_bookable?: boolean
+}
+
+type LocationBookingProfile = {
+  location_id?: string
+  booking_site_url?: string
+  online_booking_enabled?: boolean
+}
+
+/**
+ * Team members enabled for booking at the location. Used so availability can be queried per staff;
+ * Square's unfiltered search often returns only one assignee per slot even when others are free.
+ */
+export async function listBookableTeamMemberIdsForLocation(): Promise<string[]> {
+  const cfg = await getSquareConfigAsync()
+  if (!cfg.locationId) return []
+  const ids: string[] = []
+  let cursor: string | undefined
+  do {
+    const params = new URLSearchParams({
+      location_id: cfg.locationId,
+      bookable_only: "true",
+      limit: "100",
+    })
+    if (cursor) params.set("cursor", cursor)
+    const data = await squareRequest<{
+      team_member_booking_profiles?: TeamMemberBookingProfile[]
+      cursor?: string
+    }>(`/v2/bookings/team-member-booking-profiles?${params.toString()}`, { method: "GET" })
+    for (const p of data.team_member_booking_profiles || []) {
+      const id = p.team_member_id?.trim()
+      if (id && p.is_bookable !== false) ids.push(id)
+    }
+    cursor = data.cursor || undefined
+  } while (cursor)
+  return [...new Set(ids)]
+}
+
+export async function getSquareBookingSiteUrlForLocation(): Promise<string | null> {
+  const cfg = await getSquareConfigAsync()
+  if (!cfg.locationId) return null
+
+  let cursor: string | undefined
+  do {
+    const params = new URLSearchParams({ limit: "100" })
+    if (cursor) params.set("cursor", cursor)
+    const data = await squareRequest<{
+      location_booking_profiles?: LocationBookingProfile[]
+      cursor?: string
+    }>(`/v2/bookings/location-booking-profiles?${params.toString()}`, { method: "GET" })
+
+    const profile = (data.location_booking_profiles || []).find((item) => item.location_id === cfg.locationId)
+    if (profile) {
+      if (profile.online_booking_enabled === false) return null
+      return profile.booking_site_url?.trim() || null
+    }
+
+    cursor = data.cursor || undefined
+  } while (cursor)
+
+  return null
 }
 
 export async function retrieveSquareTeamMember(teamMemberId: string) {

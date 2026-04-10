@@ -77,10 +77,8 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 
   const handleOpenAssessmentFromFreeCall = useCallback(() => {
     closeFreeCallModal()
-    if (!bookingOpen) {
-      openBookingForm()
-    }
-  }, [bookingOpen, closeFreeCallModal, openBookingForm])
+    openBookingForm()
+  }, [closeFreeCallModal, openBookingForm])
 
   return (
     <BookingFormContext.Provider value={{ openBookingForm, openProgramSignupForm, openFreeCallModal, openTrainingPortal }}>
@@ -138,7 +136,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
             <div className="pt-2 border-t border-border">
               <Button type="button" variant="outline" className="w-full rounded-full" onClick={handleOpenAssessmentFromFreeCall}>
                 <Calendar className="w-4 h-4 mr-2" />
-                Book an Assessment Instead
+                Book your in-person assessment
               </Button>
             </div>
           </div>
@@ -150,7 +148,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[1400px] sm:h-[90dvh] sm:shadow-2xl"
         >
           <DialogTitle className="sr-only">Private training portal</DialogTitle>
-          <TrainingPortalContent key={trainingPortalKey} onClose={closeTrainingPortal} />
+          <TrainingPortalContent key={trainingPortalKey} onClose={closeTrainingPortal} mode="private_only" />
         </DialogContent>
       </Dialog>
     </BookingFormContext.Provider>
@@ -264,11 +262,11 @@ export function FreeCallLink({
   className?: string
   onClick?: () => void
 }) {
-  const { openBookingForm } = useBookingForm()
+  const { openFreeCallModal } = useBookingForm()
 
   const handleOpen = () => {
     onClick?.()
-    openBookingForm()
+    openFreeCallModal()
   }
 
   if (isValidElement(children)) {

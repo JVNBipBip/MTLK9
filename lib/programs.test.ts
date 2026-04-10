@@ -1,28 +1,21 @@
-import { PROGRAM_OPTIONS, PROGRAM_LABEL_BY_ID } from "./programs"
+import { LEGACY_GROUP_PROGRAM_LABELS, programLabel } from "./programs"
 
 describe("programs", () => {
-  describe("PROGRAM_OPTIONS", () => {
-    it("has 5 program options", () => {
-      expect(PROGRAM_OPTIONS).toHaveLength(5)
-    })
-
-    it("matches admin PROGRAM_OPTIONS ids", () => {
-      const ids = PROGRAM_OPTIONS.map((p) => p.id)
-      expect(ids).toEqual([
-        "puppy-foundations",
-        "city-manners",
-        "reactivity-anxiety",
-        "high-risk",
-        "day-training",
-      ])
+  describe("LEGACY_GROUP_PROGRAM_LABELS", () => {
+    it("includes known legacy ids", () => {
+      expect(LEGACY_GROUP_PROGRAM_LABELS["puppy-foundations"]).toBe("Puppy Foundations")
+      expect(LEGACY_GROUP_PROGRAM_LABELS["city-manners"]).toBe("City Manners")
     })
   })
 
-  describe("PROGRAM_LABEL_BY_ID", () => {
-    it("maps each program id to same labels as admin", () => {
-      expect(PROGRAM_LABEL_BY_ID["puppy-foundations"]).toBe("Puppy Foundations")
-      expect(PROGRAM_LABEL_BY_ID["city-manners"]).toBe("City Manners")
-      expect(PROGRAM_LABEL_BY_ID["day-training"]).toBe("Day Training")
+  describe("programLabel", () => {
+    it("uses slot order when id is listed", () => {
+      const order = ["x", "y"]
+      expect(programLabel("y", order)).toBe("Group class #2")
+    })
+
+    it("falls back to legacy when no slot order", () => {
+      expect(programLabel("high-risk")).toBe("High-Risk Behaviors")
     })
   })
 })

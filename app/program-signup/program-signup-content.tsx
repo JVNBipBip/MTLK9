@@ -3,5 +3,5 @@
 import { TrainingPortalContent } from "@/app/training-portal/training-portal-content"
 
 export function ProgramSignupContent({ onClose }: { onClose: () => void }) {
-  return <TrainingPortalContent onClose={onClose} />
+  return <TrainingPortalContent onClose={onClose} mode="private_only" />
 }

@@ -4,6 +4,7 @@ import { BOOKINGS_COLLECTION, PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib
 import { getAdminDb } from "@/lib/firebase-admin"
 import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, ONE_ON_ONE_PROGRAM_LABEL, loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
@@ -42,11 +43,23 @@ export async function POST(request: Request) {
   if (!portal.assessmentCompleted) {
     return NextResponse.json({ error: "Assessment must be completed before booking training." }, { status: 403 })
   }
+  if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {
+    return NextResponse.json(
+      { error: "Private training is not enabled for your account.", code: "private_training_blocked" },
+      { status: 403 },
+    )
+  }
   if (!portal.activePrivatePackage) {
     return NextResponse.json({ error: "Please select a private package before booking.", code: "private_package_required" }, { status: 409 })
   }
   if (portal.activePrivatePackage.sessionsRemaining <= 0 || portal.activePrivatePackage.status !== "active") {
     return NextResponse.json({ error: "Your private package has no remaining sessions.", code: "private_package_exhausted" }, { status: 409 })
+  }
+  if (portal.activePrivatePackage.serviceType === "in_home" && !inHomeBookingAllowed(portal.privateLocationAccess)) {
+    return NextResponse.json(
+      { error: "In-home training is not enabled for your account.", code: "in_home_not_allowed" },
+      { status: 403 },
+    )
   }
 
   const expectedServiceVariationId = await getPrivateServiceVariationId({

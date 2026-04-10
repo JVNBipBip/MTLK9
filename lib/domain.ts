@@ -6,6 +6,45 @@ export const BOOKINGS_COLLECTION = "bookings"
 export const SQUARE_TOKENS_COLLECTION = "square_tokens"
 export const DOG_CLASS_ACCESS_COLLECTION = "dog_class_access"
 export const PRIVATE_TRAINING_PACKAGES_COLLECTION = "private_training_packages"
+/** Per-client booking permissions (e.g. in-home vs facility-only). Doc id: `clientBookingSettingsDocId(email)`. */
+export const CLIENT_BOOKING_SETTINGS_COLLECTION = "client_booking_settings"
+export const CONTRACT_ACCEPTANCES_COLLECTION = "contract_acceptances"
+
+export type ContractKind = "daycare" | "private_classes" | "group_classes" | "assessment_booking"
+
+export type ContractAcceptanceRecord = {
+  id: string
+  clientEmail: string
+  contractKind: ContractKind
+  /** Bump when owner replaces legal text. */
+  version: string
+  acceptedAtIso: string
+  source?: string
+  dogName?: string
+  createdAt?: unknown
+}
+
+/** Default when no doc exists: in-facility private training only until admin enables in-home. */
+export type PrivateLocationAccess = "facility_only" | "facility_and_in_home"
+
+/** Private 1-on-1 portal (packages + booking). Default when unset: allowed. */
+export type PrivateTrainingAccess = "allowed" | "blocked"
+
+export type ClientBookingSettingsRecord = {
+  id: string
+  clientEmail: string
+  privateLocationAccess: PrivateLocationAccess
+  privateTrainingAccess?: PrivateTrainingAccess
+  /** Keys: normalized dog name (trim + lower). When true, dog may book any configured group program, including new slots. */
+  groupProgramsIncludeAllFutureByDog?: Record<string, boolean>
+  updatedAt?: unknown
+  updatedAtIso?: string
+}
+
+/** Firestore-safe document id for a normalized client email (matches client_square_links pattern). */
+export function clientBookingSettingsDocId(clientEmail: string) {
+  return clientEmail.trim().toLowerCase().replace(/[.#$[\]]/g, "_")
+}
 
 export type ConsultationStatus = "intake_submitted" | "scheduled" | "completed" | "no_show" | "expired"
 export type BookingPaymentStatus = "pending_payment" | "processing" | "paid" | "failed" | "cancelled" | "not_required"
@@ -63,15 +102,20 @@ export type ClassSessionRecord = {
   title: string
   startsAtIso: string
   endsAtIso: string
+  /** Same id on every session in a purchasable series (client pays for all sessions in the series). */
+  seriesId?: string
   locationId?: string
   locationLabel?: string
   coachId?: string
   capacity: number
   bookedCount: number
+  /** Seats held for unpaid group-series checkouts; released when paid or hold expires. */
+  reservedCount?: number
   isActive: boolean
   waitlistEnabled?: boolean
   minDogAge?: string
   notes?: string
+  squareSourceBookingId?: string
 }
 
 export type BookingRecord = {
@@ -103,6 +147,14 @@ export type BookingRecord = {
   privateServiceType?: "in_facility" | "in_home" | null
   privatePlanType?: "pack_3" | "pack_5" | "pack_7" | "unit" | null
   sessionNumber?: number | null
+  /** Firestore booking id passed to Square order.reference_id for payment link checkout. */
+  squarePaymentLinkId?: string | null
+  squarePaymentLinkUrl?: string | null
+  squareOrderId?: string | null
+  source?: string
+  /** ISO time after which unpaid group hold can be released (reservedCount on sessions). */
+  holdExpiresAtIso?: string | null
+  groupSeriesId?: string | null
   createdAt?: unknown
   updatedAt?: unknown
 }

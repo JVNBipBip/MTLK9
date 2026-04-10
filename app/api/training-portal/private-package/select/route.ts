@@ -2,6 +2,7 @@ import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import {
   PRIVATE_PLAN_TYPES,
   PRIVATE_SERVICE_TYPES,
@@ -50,6 +51,18 @@ export async function POST(request: Request) {
     })
     if (!portal.assessmentCompleted) {
       return NextResponse.json({ error: "Assessment must be completed before selecting a private package." }, { status: 403 })
+    }
+    if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {
+      return NextResponse.json(
+        { error: "Private training is not enabled for your account. Contact us if you believe this is a mistake.", code: "private_training_blocked" },
+        { status: 403 },
+      )
+    }
+    if (serviceType === "in_home" && !inHomeBookingAllowed(portal.privateLocationAccess)) {
+      return NextResponse.json(
+        { error: "In-home private training is not enabled for your account. Contact us to request access.", code: "in_home_not_allowed" },
+        { status: 403 },
+      )
     }
 
     const db = getAdminDb()

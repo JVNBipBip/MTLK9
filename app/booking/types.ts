@@ -40,7 +40,7 @@ export const INITIAL_FORM_DATA: BookingFormData = {
   dogDuration: "",
   dogSource: "",
   goals: [],
-  connectMethod: "",
+  connectMethod: "in-person-evaluation",
   contactName: "",
   contactEmail: "",
   contactPhone: "",

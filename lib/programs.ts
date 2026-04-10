@@ -1,11 +1,21 @@
-export const PROGRAM_OPTIONS = [
-  { id: "puppy-foundations", label: "Puppy Foundations" },
-  { id: "city-manners", label: "City Manners" },
-  { id: "reactivity-anxiety", label: "Reactivity & Anxiety" },
-  { id: "high-risk", label: "High-Risk Behaviors" },
-  { id: "day-training", label: "Day Training" },
-] as const
+import { groupProgramSlotLabel } from "@/lib/group-program-slots"
 
-export const PROGRAM_LABEL_BY_ID = Object.fromEntries(PROGRAM_OPTIONS.map((item) => [item.id, item.label]))
+export const LEGACY_GROUP_PROGRAM_LABELS: Record<string, string> = {
+  "puppy-foundations": "Puppy Foundations",
+  "city-manners": "City Manners",
+  "reactivity-anxiety": "Reactivity & Anxiety",
+  "high-risk": "High-Risk Behaviors",
+  "day-training": "Day Training",
+}
 
-export type ProgramId = (typeof PROGRAM_OPTIONS)[number]["id"]
+/** @deprecated Prefer `programLabel(id, slotOrder)` with service config slot order. */
+export const PROGRAM_LABEL_BY_ID = LEGACY_GROUP_PROGRAM_LABELS
+
+export function programLabel(programId?: string, slotOrder?: string[]) {
+  if (!programId) return "-"
+  if (slotOrder?.length) {
+    const i = slotOrder.indexOf(programId)
+    if (i >= 0) return groupProgramSlotLabel(programId, slotOrder)
+  }
+  return LEGACY_GROUP_PROGRAM_LABELS[programId] || programId
+}
