@@ -26,6 +26,22 @@ export type ApprovedGroupProgram = {
   squareUrl: string | null
 }
 
+export type GroupSeriesListItem = {
+  seriesId: string
+  classType: string
+  programLabel: string
+  sessionCount: number
+  spotsRemaining: number
+  sessions: Array<{
+    id: string
+    title: string
+    startsAtIso: string
+    endsAtIso: string
+    locationLabel: string
+    spotsRemaining: number
+  }>
+}
+
 export type StatusResponse = {
   ok: boolean
   hasConsultation: boolean

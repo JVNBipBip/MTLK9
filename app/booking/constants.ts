@@ -71,10 +71,10 @@ export const BEST_TIME_OPTIONS = [
 
 // Internal routing logic for CRM tagging
 export const ISSUE_SERVICE_MAP: Record<string, string> = {
-  "puppy-out-of-control": "Puppy Foundations",
-  "pulls-lunges-reacts": "City Manners / Reactivity",
-  "anxiety-fear-separation": "Reactivity & Anxiety",
-  "aggression-safety": "High-Risk Behaviors",
-  "better-obedience": "City Manners",
+  "puppy-out-of-control": "Puppy Training",
+  "pulls-lunges-reacts": "Reactivity Training",
+  "anxiety-fear-separation": "Private Classes",
+  "aggression-safety": "Private Classes",
+  "better-obedience": "Obedience Training",
   "something-else": "Manual Review",
 }

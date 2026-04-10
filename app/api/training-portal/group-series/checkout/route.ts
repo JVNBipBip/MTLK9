@@ -3,24 +3,59 @@ import { NextResponse } from "next/server"
 import { BOOKINGS_COLLECTION, CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { GROUP_SERIES_BOOKING_SOURCE, releaseStaleGroupSeriesHolds, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
-import { createSquarePaymentLinkForVariation, getCatalogVariationDisplayName } from "@/lib/square"
+import {
+  buildSquarePublicClassDetailsUrl,
+  createSquarePaymentLinkForVariation,
+  getCatalogVariationDisplayName,
+  getSquareBookingSiteUrlForLocation,
+} from "@/lib/square"
 import { migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
 import { programLabel } from "@/lib/programs"
-import { getGroupClassSeriesVariationId, getPrivateServiceVariationIds, getSquareServiceConfig } from "@/lib/square-service-config"
+import {
+  getGroupClassSeriesVariationId,
+  getPrivateServiceVariationIds,
+  getSquarePublicClassesBaseUrl,
+  getSquareServiceConfig,
+} from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
 
 const HOLD_MS = 30 * 60 * 1000
+const TEMP_PUBLIC_CLASSES_BASE_URL_BY_LOCATION: Record<string, string> = {
+  LD1KBAJ8G70HZ: "https://book.squareup.com/classes/zl4jhtxmud9p3z/location/LD1KBAJ8G70HZ",
+}
 
 type Payload = {
   clientEmail?: string
   dogName?: string
   seriesId?: string
+  sessionId?: string
 }
 
 function normalized(value: string) {
   return value.trim().toLowerCase()
+}
+
+function publicSquareSessionForCheckout(
+  sessions: Array<ClassSessionRecord & { id: string }>,
+  sessionId?: string,
+): ({ id: string; scheduleId: string; startsAtIso: string; locationId: string; locationLabel?: string } & ClassSessionRecord) | null {
+  const ordered = sessionId
+    ? [
+        ...sessions.filter((session) => session.id === sessionId),
+        ...sessions.filter((session) => session.id !== sessionId),
+      ]
+    : sessions
+  for (const session of ordered) {
+    const scheduleId = String(session.squarePublicClassScheduleId || "").trim()
+    const startsAtIso = String(session.startsAtIso || "").trim()
+    const locationId = String(session.locationId || "").trim()
+    if (scheduleId && startsAtIso && locationId) {
+      return { ...session, scheduleId, startsAtIso, locationId }
+    }
+  }
+  return null
 }
 
 export async function POST(request: Request) {
@@ -34,6 +69,7 @@ export async function POST(request: Request) {
   const clientEmail = String(payload.clientEmail || "").trim().toLowerCase()
   const dogName = String(payload.dogName || "").trim()
   const seriesId = String(payload.seriesId || "").trim()
+  const sessionId = String(payload.sessionId || "").trim()
   if (!clientEmail || !dogName || !seriesId) {
     return NextResponse.json({ error: "clientEmail, dogName and seriesId are required." }, { status: 400 })
   }
@@ -93,24 +129,99 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "You do not have access to this program.", code: "program_not_allowed" }, { status: 403 })
   }
 
-  const sessionIds = sessions.map((s) => s.id)
+  const selectedSession = sessionId ? sessions.find((session) => session.id === sessionId) || null : null
+  if (sessionId && !selectedSession) {
+    return NextResponse.json({ error: "Selected session not found for this series.", code: "session_not_found" }, { status: 404 })
+  }
+
+  const publicSquareSession = publicSquareSessionForCheckout(sessions, sessionId)
+  const shouldUseDirectSquareClassUrl =
+    Boolean(publicSquareSession) && (Boolean(sessionId) || sessions.length === 1)
+  const sessionIds = shouldUseDirectSquareClassUrl && publicSquareSession ? [publicSquareSession.id] : sessions.map((s) => s.id)
 
   const dupSnap = await db.collection(BOOKINGS_COLLECTION).where("clientId", "==", portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
   for (const d of dupSnap.docs) {
-    const row = d.data() as { dogName?: string; bookingStatus?: string; paymentStatus?: string }
+    const row = d.data() as { dogName?: string; bookingStatus?: string; paymentStatus?: string; selectedSessionIds?: string[] }
     if (normalized(String(row.dogName || "")) !== dogNorm) continue
     if (String(row.bookingStatus || "").toLowerCase() === "cancelled") continue
     const ps = String(row.paymentStatus || "")
-    if (ps === "paid" || ps === "pending_payment" || ps === "processing") {
+    const existingSessionIds = new Set((row.selectedSessionIds || []).map((id) => String(id || "").trim()).filter(Boolean))
+    const overlapsSelectedSession =
+      sessionIds.length === 0 || sessionIds.some((id) => existingSessionIds.has(id))
+    if ((ps === "paid" || ps === "pending_payment" || ps === "processing") && overlapsSelectedSession) {
       return NextResponse.json(
-        { error: "You already have a booking or checkout in progress for this series.", code: "duplicate_series" },
+        {
+          error: shouldUseDirectSquareClassUrl
+            ? "You already have a booking or checkout in progress for this class."
+            : "You already have a booking or checkout in progress for this series.",
+          code: "duplicate_series",
+        },
         { status: 409 },
       )
     }
   }
 
   const courseVariationId = await getGroupClassSeriesVariationId(classType, null)
+  if (shouldUseDirectSquareClassUrl && publicSquareSession) {
+    const configuredBaseUrl = await getSquarePublicClassesBaseUrl(publicSquareSession.locationId).catch(() => null)
+    const hardcodedBaseUrl = TEMP_PUBLIC_CLASSES_BASE_URL_BY_LOCATION[publicSquareSession.locationId] || null
+    const bookingSiteUrl =
+      configuredBaseUrl ||
+      hardcodedBaseUrl ||
+      (await getSquareBookingSiteUrlForLocation().catch(() => null))
+    const directUrl = bookingSiteUrl
+      ? buildSquarePublicClassDetailsUrl({
+          bookingSiteUrl,
+          locationId: publicSquareSession.locationId,
+          scheduleId: publicSquareSession.scheduleId,
+          startsAtIso: publicSquareSession.startsAtIso,
+        })
+      : null
+    console.log("[group-series-checkout] public Square URL fallback", {
+      seriesId,
+      classType,
+      sessionId,
+      configuredBaseUrl,
+      hardcodedBaseUrl,
+      bookingSiteUrl,
+      publicSquareSession,
+      directUrl,
+    })
+    if (directUrl) {
+      return NextResponse.json({ ok: true, checkoutUrl: directUrl, mode: "public_class" })
+    }
+  }
+
   if (!courseVariationId) {
+    if (publicSquareSession) {
+      const configuredBaseUrl = await getSquarePublicClassesBaseUrl(publicSquareSession.locationId).catch(() => null)
+      const hardcodedBaseUrl = TEMP_PUBLIC_CLASSES_BASE_URL_BY_LOCATION[publicSquareSession.locationId] || null
+      const bookingSiteUrl =
+        configuredBaseUrl ||
+        hardcodedBaseUrl ||
+        (await getSquareBookingSiteUrlForLocation().catch(() => null))
+      const directUrl = bookingSiteUrl
+        ? buildSquarePublicClassDetailsUrl({
+            bookingSiteUrl,
+            locationId: publicSquareSession.locationId,
+            scheduleId: publicSquareSession.scheduleId,
+            startsAtIso: publicSquareSession.startsAtIso,
+          })
+        : null
+      console.log("[group-series-checkout] public Square URL fallback", {
+        seriesId,
+        classType,
+        sessionId,
+        configuredBaseUrl,
+        hardcodedBaseUrl,
+        bookingSiteUrl,
+        publicSquareSession,
+        directUrl,
+      })
+      if (directUrl) {
+        return NextResponse.json({ ok: true, checkoutUrl: directUrl, mode: "public_class" })
+      }
+    }
     return NextResponse.json(
       {
         error:
@@ -125,13 +236,18 @@ export async function POST(request: Request) {
   const bookingRef = db.collection(BOOKINGS_COLLECTION).doc()
   const bookingId = bookingRef.id
 
-  const when = sessions.map((s) => String(s.startsAtIso))
-  const where = sessions.map((s) => String(s.locationLabel || "Group class"))
+  const targetSessions = sessions.filter((session) => sessionIds.includes(session.id))
+  const when = targetSessions.map((s) => String(s.startsAtIso))
+  const where = targetSessions.map((s) => String(s.locationLabel || "Group class"))
   const squareCfg = await getSquareServiceConfig(null)
   const groupSlotOrder = migratedGroupProgramSlotOrder(squareCfg)
   const catalogDisplayName =
     (await getCatalogVariationDisplayName(courseVariationId)) || programLabel(classType, groupSlotOrder) || classType
-  const what = [`${catalogDisplayName} · series (${sessions.length} sessions)`]
+  const what = [
+    shouldUseDirectSquareClassUrl
+      ? `${catalogDisplayName} · single class`
+      : `${catalogDisplayName} · series (${sessions.length} sessions)`,
+  ]
 
   try {
     await db.runTransaction(async (t) => {

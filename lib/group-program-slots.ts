@@ -1,13 +1,5 @@
 import type { SquareServiceConfig } from "@/lib/square-service-config"
 
-export const LEGACY_GROUP_PROGRAM_ORDER = [
-  "puppy-foundations",
-  "city-manners",
-  "reactivity-anxiety",
-  "high-risk",
-  "day-training",
-] as const
-
 type ConfigSlice = Pick<
   SquareServiceConfig,
   "groupProgramSlotOrder" | "groupProgramLabels" | "groupProgramSquareUrls" | "programs" | "groupClassSeriesVariations"
@@ -25,12 +17,7 @@ export function migratedGroupProgramSlotOrder(config: ConfigSlice): string[] {
     ...Object.keys(config.programs || {}),
     ...Object.keys(config.groupClassSeriesVariations || {}),
   ])
-  const legacy = LEGACY_GROUP_PROGRAM_ORDER.filter((id) => keys.has(id))
-  const rest = [...keys].filter(
-    (k) => !LEGACY_GROUP_PROGRAM_ORDER.includes(k as (typeof LEGACY_GROUP_PROGRAM_ORDER)[number]),
-  )
-  rest.sort()
-  return [...legacy, ...rest]
+  return [...keys].sort()
 }
 
 export function groupProgramSlotLabel(programId: string, slotOrder: string[]): string {

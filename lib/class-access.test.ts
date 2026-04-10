@@ -7,8 +7,8 @@ import { DOG_CLASS_ACCESS_COLLECTION } from "./domain"
 describe("class-access", () => {
   describe("classAccessDocId", () => {
     it("joins clientId, dogName, classTypeId as lowercase", () => {
-      const id = classAccessDocId("Client1", "Buddy", "puppy-foundations")
-      expect(id).toBe("client1__buddy__puppy-foundations")
+      const id = classAccessDocId("Client1", "Buddy", "obedience")
+      expect(id).toBe("client1__buddy__obedience")
     })
 
     it("trims whitespace", () => {

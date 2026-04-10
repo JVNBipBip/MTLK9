@@ -454,6 +454,32 @@ export async function getSquareBookingSiteUrlForLocation(): Promise<string | nul
   return null
 }
 
+export function buildSquarePublicClassDetailsUrl(input: {
+  bookingSiteUrl: string
+  locationId: string
+  scheduleId: string
+  startsAtIso: string
+}): string | null {
+  const bookingSiteUrl = input.bookingSiteUrl.trim()
+  const locationId = input.locationId.trim()
+  const scheduleId = input.scheduleId.trim()
+  const startsAt = new Date(input.startsAtIso)
+  if (!bookingSiteUrl || !locationId || !scheduleId || Number.isNaN(startsAt.getTime())) return null
+
+  try {
+    const parsed = new URL(bookingSiteUrl)
+    const match = parsed.pathname.match(/^(\/classes\/[^/]+\/location\/[^/]+)/)
+    const basePath = match ? match[1] : null
+    if (!basePath) return null
+
+    const url = new URL(`${basePath}/classDetails/${encodeURIComponent(scheduleId)}`, parsed.origin)
+    url.searchParams.set("dateStart", String(Math.floor(startsAt.getTime() / 1000)))
+    return url.toString()
+  } catch {
+    return null
+  }
+}
+
 export async function retrieveSquareTeamMember(teamMemberId: string) {
   const result = await squareRequest<{
     team_member?: { given_name?: string; family_name?: string }

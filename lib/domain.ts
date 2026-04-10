@@ -116,6 +116,8 @@ export type ClassSessionRecord = {
   minDogAge?: string
   notes?: string
   squareSourceBookingId?: string
+  squarePublicClassInstanceId?: string
+  squarePublicClassScheduleId?: string
 }
 
 export type BookingRecord = {

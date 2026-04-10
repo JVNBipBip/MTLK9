@@ -1,10 +1,10 @@
-import { LEGACY_GROUP_PROGRAM_LABELS, programLabel } from "./programs"
+import { PROGRAM_LABEL_BY_ID, programLabel } from "./programs"
 
 describe("programs", () => {
-  describe("LEGACY_GROUP_PROGRAM_LABELS", () => {
-    it("includes known legacy ids", () => {
-      expect(LEGACY_GROUP_PROGRAM_LABELS["puppy-foundations"]).toBe("Puppy Foundations")
-      expect(LEGACY_GROUP_PROGRAM_LABELS["city-manners"]).toBe("City Manners")
+  describe("PROGRAM_LABEL_BY_ID", () => {
+    it("includes the currently offered programs", () => {
+      expect(PROGRAM_LABEL_BY_ID["reactivity"]).toBe("Reactivity Training")
+      expect(PROGRAM_LABEL_BY_ID["in-home"]).toBe("In-Home Training")
     })
   })
 
@@ -14,8 +14,12 @@ describe("programs", () => {
       expect(programLabel("y", order)).toBe("Group class #2")
     })
 
-    it("falls back to legacy when no slot order", () => {
-      expect(programLabel("high-risk")).toBe("High-Risk Behaviors")
+    it("falls back to the configured program labels", () => {
+      expect(programLabel("private-classes")).toBe("Private Classes")
+    })
+
+    it("humanizes unknown ids without hardcoding legacy offerings", () => {
+      expect(programLabel("custom-program")).toBe("Custom Program")
     })
   })
 })

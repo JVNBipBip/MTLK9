@@ -16,6 +16,8 @@ export type SquareServiceConfig = {
   evaluationServiceVariationIds?: string[]
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
+  /** Base public classes URL used to build Square classDetails links for imported public sessions. */
+  publicClassesBaseUrl?: string | null
   groupProgramSlotOrder?: string[]
   /** Client-facing labels for group programs when using Square handoff links. */
   groupProgramLabels?: Record<string, string | undefined>
@@ -39,6 +41,7 @@ type ConfigDoc = {
   evaluationServiceVariationIds?: string[]
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
+  publicClassesBaseUrl?: string | null
   groupProgramSlotOrder?: string[]
   groupProgramLabels?: Record<string, string | undefined>
   groupProgramSquareUrls?: Record<string, string | undefined>
@@ -73,6 +76,7 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
     const hasLegacy =
       legacyLocId ||
       data.consultationServiceVariationId ||
+      data.publicClassesBaseUrl ||
       Object.keys(data.groupProgramLabels || {}).length > 0 ||
       Object.keys(data.groupProgramSquareUrls || {}).length > 0 ||
       Object.keys(data.programs || {}).length > 0 ||
@@ -88,6 +92,7 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
         evaluationServiceVariationIds: data.evaluationServiceVariationIds,
         privateInFacility: data.privateInFacility,
         privateInHome: data.privateInHome,
+        publicClassesBaseUrl: data.publicClassesBaseUrl,
         groupProgramSlotOrder: data.groupProgramSlotOrder,
         groupProgramLabels: data.groupProgramLabels,
         groupProgramSquareUrls: data.groupProgramSquareUrls,
@@ -104,37 +109,11 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
 }
 
 function getEnvFallbackConfig(): SquareServiceConfig {
-  const programs: Record<string, string> = {}
-  const programIds = ["puppy-foundations", "city-manners", "reactivity-anxiety", "high-risk", "day-training"] as const
-  const programEnvKeys: Record<string, string> = {
-    "puppy-foundations": "SQUARE_PROGRAM_PUPPY_FOUNDATIONS_SERVICE_VARIATION_ID",
-    "city-manners": "SQUARE_PROGRAM_CITY_MANNERS_SERVICE_VARIATION_ID",
-    "reactivity-anxiety": "SQUARE_PROGRAM_REACTIVITY_ANXIETY_SERVICE_VARIATION_ID",
-    "high-risk": "SQUARE_PROGRAM_HIGH_RISK_SERVICE_VARIATION_ID",
-    "day-training": "SQUARE_PROGRAM_DAY_TRAINING_SERVICE_VARIATION_ID",
-  }
-  for (const id of programIds) {
-    const val = process.env[programEnvKeys[id]]?.trim()
-    if (val) programs[id] = val
-  }
-
-  const groupClassSeriesVariations: Record<string, string> = {}
-  const groupSeriesEnvKeys: Record<string, string> = {
-    "puppy-foundations": "SQUARE_GROUP_CLASS_SERIES_PUPPY_FOUNDATIONS_SERVICE_VARIATION_ID",
-    "city-manners": "SQUARE_GROUP_CLASS_SERIES_CITY_MANNERS_SERVICE_VARIATION_ID",
-    "reactivity-anxiety": "SQUARE_GROUP_CLASS_SERIES_REACTIVITY_ANXIETY_SERVICE_VARIATION_ID",
-    "high-risk": "SQUARE_GROUP_CLASS_SERIES_HIGH_RISK_SERVICE_VARIATION_ID",
-    "day-training": "SQUARE_GROUP_CLASS_SERIES_DAY_TRAINING_SERVICE_VARIATION_ID",
-  }
-  for (const id of programIds) {
-    const val = process.env[groupSeriesEnvKeys[id]]?.trim()
-    if (val) groupClassSeriesVariations[id] = val
-  }
-
   return {
     locationId: process.env.SQUARE_LOCATION_ID?.trim() || null,
     consultationServiceVariationId: process.env.SQUARE_CONSULTATION_SERVICE_VARIATION_ID?.trim() || null,
     highRiskConsultationTeamMemberId: process.env.SQUARE_NICK_TEAM_MEMBER_ID?.trim() || null,
+    publicClassesBaseUrl: process.env.SQUARE_PUBLIC_CLASSES_BASE_URL?.trim() || null,
     privateInFacility: {
       default: process.env.SQUARE_PRIVATE_IN_FACILITY_SERVICE_VARIATION_ID?.trim() || process.env.SQUARE_ONE_ON_ONE_SERVICE_VARIATION_ID?.trim() || undefined,
       pack_3: process.env.SQUARE_PRIVATE_IN_FACILITY_PACK_3_SERVICE_VARIATION_ID?.trim() || undefined,
@@ -149,9 +128,6 @@ function getEnvFallbackConfig(): SquareServiceConfig {
       pack_7: process.env.SQUARE_PRIVATE_IN_HOME_PACK_7_SERVICE_VARIATION_ID?.trim() || undefined,
       unit: process.env.SQUARE_PRIVATE_IN_HOME_UNIT_SERVICE_VARIATION_ID?.trim() || undefined,
     },
-    programs: Object.keys(programs).length > 0 ? programs : undefined,
-    groupClassSeriesVariations:
-      Object.keys(groupClassSeriesVariations).length > 0 ? groupClassSeriesVariations : undefined,
   }
 }
 
@@ -190,6 +166,11 @@ export async function getGroupProgramLabel(programId: string, locationId?: strin
 export async function getGroupClassSeriesVariationId(programId: string, locationId?: string | null): Promise<string | null> {
   const config = await getSquareServiceConfig(locationId)
   return config.groupClassSeriesVariations?.[programId]?.trim() || null
+}
+
+export async function getSquarePublicClassesBaseUrl(locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
+  return config.publicClassesBaseUrl?.trim() || null
 }
 
 export type PrivateServiceType = "in_facility" | "in_home"

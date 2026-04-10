@@ -70,6 +70,7 @@ export type GroupSeriesListItem = {
     startsAtIso: string
     endsAtIso: string
     locationLabel: string
+    spotsRemaining: number
   }>
 }
 
@@ -83,6 +84,13 @@ export function spotsRemainingForSessions(sessions: SessionForSeries[]): number 
       return Math.max(0, cap - booked - reserved)
     }),
   )
+}
+
+function spotsRemainingForSession(session: SessionForSeries): number {
+  const cap = Number(session.capacity ?? 0)
+  const booked = Number(session.bookedCount ?? 0)
+  const reserved = Number(session.reservedCount ?? 0)
+  return Math.max(0, cap - booked - reserved)
 }
 
 export async function finalizeGroupSeriesPaymentFromWebhook(
@@ -171,6 +179,7 @@ export function groupSessionsIntoSeriesList(
         startsAtIso: s.startsAtIso,
         endsAtIso: s.endsAtIso,
         locationLabel: s.locationLabel || "",
+        spotsRemaining: spotsRemainingForSession(s),
       })),
     })
   }
