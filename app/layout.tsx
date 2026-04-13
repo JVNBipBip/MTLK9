@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { BookingFormProvider } from "@/components/booking-form-provider"
+import { FacebookPixel } from "@/components/facebook-pixel"
 import { JsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import "./globals.css"
 
@@ -83,6 +84,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
+        <FacebookPixel />
         <JsonLd data={localBusinessJsonLd} />
         <BookingFormProvider>
           {children}

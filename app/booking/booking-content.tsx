@@ -14,6 +14,7 @@ import { StepConnect } from "./steps/step-connect"
 import { StepContact } from "./steps/step-contact"
 import { StepConfirmation } from "./steps/step-confirmation"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
+import { trackFBLead } from "@/lib/facebook-pixel"
 
 const TOTAL_STEPS = 6
 
@@ -59,6 +60,17 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   const [isComplete, setIsComplete] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showSchedulingStep, setShowSchedulingStep] = useState(false)
+
+  // Capture fbclid from URL, localStorage, or cookie on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const fbclid =
+      params.get("fbclid") ||
+      localStorage.getItem("fbclid") ||
+      document.cookie.match(/(?:^|;\s*)_fbc=([^;]*)/)?.[1] ||
+      ""
+    if (fbclid) updateFormData({ fbclid })
+  }, [updateFormData])
   const [consultationSlots, setConsultationSlots] = useState<Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
 
@@ -154,6 +166,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       }
 
       setIsComplete(true)
+      trackFBLead({
+        content_name: formData.connectMethod === "in-person-evaluation"
+          ? "In-Person Evaluation"
+          : "Free Discovery Call",
+        content_category: "Dog Training Lead",
+      })
     } catch (error) {
       console.error("[Booking Form] Submission failed:", error)
       const message = error instanceof Error ? error.message : "Could not submit right now. Please try again in a moment."
