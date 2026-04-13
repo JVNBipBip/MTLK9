@@ -10,147 +10,47 @@ export interface FaqCategory {
 
 export const faqData: FaqCategory[] = [
   {
-    title: "Methods & Approach",
+    title: "Training Methods & Approach",
     items: [
       {
-        question: "What training methods and tools do you use?",
+        question: "What type of training methods are used?",
         answer:
-          "We use force-free, science-based methods rooted in modern learning theory. That means positive reinforcement, clear communication, and management — never fear, pain, or intimidation. We do not use prong collars, choke chains, or e-collars. We use treats, engagement, and real-world practice to build lasting behavior change.",
+          "We offer a variety of different methods. It all depends on the dog in front of us, what is best suited for the dog as well as what is comfortable for the client. Our goal is to use the safest and most effective method tailored to the dog's needs emphasizing the importance of the dog's emotional state. Strong relationship building is priority for us.",
       },
       {
-        question: "Will training hurt my dog or break their spirit?",
+        question: "What is the main focus of your training?",
         answer:
-          "Absolutely not. A dog who feels safe learns faster and bonds deeper. We never push a dog past their emotional threshold. Every technique we use is designed to build confidence, not suppress personality. Your dog will still be your dog — just calmer, more focused, and easier to live with.",
-      },
-      {
-        question: "What credentials and qualifications does your team have?",
-        answer:
-          "Our team has 15+ combined years of hands-on experience with hundreds of dogs. We invest heavily in continuing education in animal behavior science, attend industry conferences, and stay current with the latest research. Dog training is unregulated in Canada — we hold ourselves to a higher standard than the industry requires.",
-      },
-      {
-        question: "How is your approach different from other trainers?",
-        answer:
-          "We train in the real world — parks, sidewalks, your neighborhood — not in a training room. That means the skills your dog learns actually work where they matter. We also coach you, the owner, so results last a lifetime. You won't be dependent on us forever.",
-      },
-      {
-        question: "Why do you train in parks instead of a training room?",
-        answer:
-          "Because your dog doesn't misbehave in a training room. The problem happens on the street, at the park, in your apartment hallway. Training in the real world means your dog learns to behave where it actually counts. It's harder, but it's honest — and the results stick.",
+          "Our training philosophy is quite different from the traditional training methods. We focus primarily on developing a solid relationship between human and dog. We first work on building active engagement before doing any type of obedience training. Engagement, motivation, communication, connection, confidence and relationship is our top priority.",
       },
     ],
   },
   {
-    title: "Cost & Logistics",
+    title: "Services & Classes",
     items: [
       {
-        question: "How much does training cost, and what's included?",
+        question: "What can we expect in private classes?",
         answer:
-          "Our programs start at $349 for puppy foundations and go up to $1,499 for intensive day training packages. Every package includes private sessions, homework, and between-session support. We publish our pricing transparently because we believe you deserve to know what you're investing in before you commit.",
+          "Private classes are our top choice & something we highly recommend for all clients. During these classes, we take the time to educate owners and help them improve their handling skills. We make sure to challenge both the handler and dog every class while controlling the environment for them. We have demo dogs and other distractions that can be introduced during these sessions. Once you and your dog start having the necessary tools to move forward, we will make the effort to continue the training sessions in different environments. This is a way for us to show you how to manage and work with your dog in public environments. We strongly believe this is a realistic and effective way to help dogs owners.",
       },
       {
-        question: "How many sessions will my dog need?",
+        question: "What type of services do you offer?",
         answer:
-          "It depends on the behavior, its history, and your goals. Most manners issues see real progress in 4–6 sessions. Reactivity and anxiety cases often need 8–16. We'll give you an honest estimate after your evaluation — we'd rather under-promise and over-deliver.",
-      },
-      {
-        question: "What's a realistic timeline for seeing results?",
-        answer:
-          "Most owners notice improvement within the first 2–3 sessions. Significant behavior change typically takes 4–8 weeks of consistent work. We set realistic milestones at your evaluation so you always know what to expect and can measure progress.",
-      },
-      {
-        question: "Do you offer payment plans or package deals?",
-        answer:
-          "Yes. Our packages are designed to give you the best value, and we offer flexible payment options for larger programs. Ask about payment plans during your discovery call — we want training to be accessible, not a financial barrier.",
-      },
-      {
-        question: "What is your cancellation/rescheduling policy?",
-        answer:
-          "Life happens — we get it. We ask for 24 hours notice for reschedules. Late cancellations may incur a fee, and no-shows are charged in full. If something unexpected comes up, just reach out and we'll work with you.",
-      },
-      {
-        question: "Do you train at my home? What areas do you serve?",
-        answer:
-          "We train wherever your dog's behavior happens — your neighborhood, local parks, busy streets, and yes, your home when relevant. We serve Montreal, the West Island, and Laval areas. Our facility is at 7770 Boul Henri-Bourassa E in Anjou.",
+          "We offer consultations, pet obedience, behaviour modification, intro to dog sports and apprenticeship courses. Our services are mostly private classes and group classes. The obedience group classes consists of different levels that are accustomed to the dog's age, level of training and handler skills.",
       },
     ],
   },
   {
-    title: "My Dog's Specific Issues",
+    title: "Getting Started",
     items: [
       {
-        question: "Can you help with leash reactivity?",
+        question: "How can I enroll my dog in a group class?",
         answer:
-          "This is one of our most common cases. Leash reactivity — lunging, barking, pulling toward other dogs or people — responds well to structured desensitization and counter-conditioning. We work at your dog's pace in real environments, and most dogs show measurable improvement within 3–4 sessions.",
+          "The first step is to schedule an evaluation with one of our trainers. This evaluation will determine which program is best suited for you and your dog. Once you have completed the evaluation session, a trainer will provide you details on how to prepare for your first group class/private class and what to bring.",
       },
       {
-        question: "My puppy is biting and jumping — what should I do?",
+        question: "How can I reach out to a trainer and learn more about the services?",
         answer:
-          "This is normal puppy behavior, but it needs to be addressed early before it becomes a habit. Bite inhibition training teaches your puppy to use a soft mouth. Most puppies improve dramatically within 2 weeks of consistent work. Our Puppy Foundations program is designed exactly for this.",
-      },
-      {
-        question: "How do I socialize my puppy safely?",
-        answer:
-          "Socialization isn't about flooding your puppy with experiences — it's about controlled, positive exposure during the critical window (8–16 weeks). We use a structured protocol that balances safety with the experiences your puppy needs. We'll work within your vet's recommendations.",
-      },
-      {
-        question: "Can you help with separation anxiety?",
-        answer:
-          "Yes. Separation anxiety is one of the most emotionally exhausting issues for owners. We use a gradual desensitization protocol that builds your dog's ability to be alone, step by step. It takes patience, but the results are life-changing — for both of you.",
-      },
-      {
-        question: "My dog guards food or toys — can training fix this?",
-        answer:
-          "Resource guarding can be modified with the right approach. We use counter-conditioning to change how your dog feels about people approaching their stuff — not punishment, which makes guarding worse. The severity determines the timeline, and we'll assess everything during your evaluation.",
-      },
-      {
-        question: "What if my dog is aggressive — can you take the case safely?",
-        answer:
-          "We specialize in high-risk cases that other trainers have turned away. Safety is our first priority — for you, your dog, and our team. Every aggressive case starts with a thorough safety evaluation. We'll be honest about what's achievable and build a management plan from day one.",
-      },
-    ],
-  },
-  {
-    title: "How Training Works",
-    items: [
-      {
-        question: "Will training work if I'm busy and can't practice for hours?",
-        answer:
-          "Our plans are designed for real life, not an ideal world. We give you structured, sustainable practice — usually 10–15 minutes a day. Consistency matters more than duration. If you can brush your teeth, you can practice your dog's training plan.",
-      },
-      {
-        question: "What happens between sessions? Do I get homework and support?",
-        answer:
-          "Yes — between-session support is a core part of what we do. After every session, you get clear homework with video demonstrations. You can text or email us with questions, and we'll check in on your progress. You're never on your own between sessions.",
-      },
-      {
-        question: "Is board-and-train worth it?",
-        answer:
-          "We don't offer traditional board-and-train because lasting behavior change requires owner involvement. Our Day Training program is the alternative: your dog trains with us during the day, and we transfer skills to you in handoff sessions. The results stick because you're part of the process.",
-      },
-      {
-        question: "Can you guarantee results?",
-        answer:
-          "No ethical trainer guarantees results — every dog is different, and behavior change depends on many factors including owner consistency. What we guarantee is a clear plan, honest assessment, professional support, and a team that won't give up on you. We set realistic milestones and celebrate every win.",
-      },
-    ],
-  },
-  {
-    title: "Choosing a Trainer",
-    items: [
-      {
-        question: "How do I know if reviews are trustworthy?",
-        answer:
-          "Look for specificity. Generic 5-star reviews that say 'great trainer!' tell you nothing. Real reviews describe specific behaviors, timelines, and outcomes. Check Google Reviews, look for before/after stories, and ask the trainer for references. Our results page shows real dogs with real stories.",
-      },
-      {
-        question: "What red flags should I watch for when choosing a trainer?",
-        answer:
-          "Run from anyone who guarantees results, uses pain-based tools (prong collars, e-collars, choke chains) as a first resort, won't explain their methods, or blames you for your dog's behavior. A good trainer educates, supports, and meets you where you are — without judgment or shortcuts.",
-      },
-      {
-        question: "Why is dog training unregulated, and what does that mean for me?",
-        answer:
-          "In Canada, anyone can call themselves a dog trainer with zero education or oversight. That means it's on you to vet credentials, methods, and reviews. We publish our methods, show our results, and welcome questions — because transparency is how we earn your trust when the industry won't do it for us.",
+          "The best way to reach us is by submitting a request form through our website. You can also call/text our trainers for information and bookings.",
       },
     ],
   },

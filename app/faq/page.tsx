@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Phone } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { FaqAccordion } from "@/components/faq-accordion"
 import { faqData } from "@/lib/faq-data"
@@ -34,21 +34,41 @@ export default function FaqPage() {
         </div>
       </section>
       <section className="px-6 lg:px-8 pb-20 md:pb-28">
-        <div className="max-w-3xl mx-auto">
-          <div className="rounded-3xl bg-primary/5 border border-primary/10 p-8 md:p-10 text-center animate-fade-up">
-            <p className="text-lg md:text-xl text-foreground font-medium mb-6">
-              Still have a question? Book a free 15-minute call and we&apos;ll answer
-              it personally.
-            </p>
-            <FreeCallLink>
-              <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 gap-2"
-              >
-                Book a Free Call
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </FreeCallLink>
+        <div className="max-w-7xl mx-auto">
+          <div className="relative rounded-[48px] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-secondary" />
+            <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
+              <p className="text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
+                Still Have Questions?
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-primary-foreground text-balance mb-6 max-w-3xl mx-auto">
+                Book a free 15-minute discovery call
+              </h2>
+              <p className="text-lg text-primary-foreground/80 max-w-xl mx-auto leading-relaxed mb-10">
+                We&apos;ll answer your questions personally and help you figure out the right path for your dog.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <FreeCallLink>
+                  <Button
+                    size="lg"
+                    className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
+                  >
+                    Book Your Free Call
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </FreeCallLink>
+                <a href="tel:+15148269558">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full px-8 py-6 text-base border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground bg-transparent"
+                  >
+                    <Phone className="mr-2 w-4 h-4" />
+                    514 826 9558
+                  </Button>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>

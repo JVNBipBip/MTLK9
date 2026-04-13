@@ -5,13 +5,15 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, PawPrint } from "lucide-react"
+import Image from "next/image"
+import { ArrowRight } from "lucide-react"
 import { ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form-provider"
 
 const services = [
   {
     title: "Reactivity Training",
     href: "/services/reactivity",
+    image: "/images/Classes images/reactivity.webp",
     for: "Dogs who lunge, bark, or shut down around triggers",
     solves: "Structured protocols covering the Three D's, attention cues, engagement, leash work, confidence building, and real-world scenario training",
     format: "Private & group classes",
@@ -21,6 +23,7 @@ const services = [
   {
     title: "Private Classes",
     href: "/services/private-classes",
+    image: "/images/Classes images/private.webp",
     for: "Dogs who need focused, one-on-one attention",
     solves: "Behaviour modification, leash reactivity, aggression, confidence building, separation anxiety, resource guarding, and handler skill development",
     format: "3, 5, or 7 session packages",
@@ -31,6 +34,7 @@ const services = [
   {
     title: "Obedience Training",
     href: "/services/obedience",
+    image: "/images/Classes images/obedience.webp",
     for: "Dogs 9 months+ who need reliable real-world skills",
     solves: "Basic and advanced obedience, the Three D's, engagement, pack walks, high-distraction proofing, and off-leash reliability",
     format: "Private & group classes — Level 1 & Level 2",
@@ -40,6 +44,7 @@ const services = [
   {
     title: "Puppy Training",
     href: "/services/puppy-training",
+    image: "/images/Classes images/puppy.webp",
     for: "Puppies 10–20 weeks & teen dogs 5–9 months",
     solves: "Socialisation, confidence building, bite inhibition, intro to obedience, marker training, and focus around distractions",
     format: "Private & group classes",
@@ -49,6 +54,7 @@ const services = [
   {
     title: "In-Home Training",
     href: "/services/in-home",
+    image: "/images/Classes images/in-home.webp",
     for: "Owners who want training in their own environment",
     solves: "Behaviour modification, door manners, separation anxiety, house training — all addressed where the problems actually happen",
     format: "Consultation + 3, 5, or 7 session packages",
@@ -112,16 +118,17 @@ export default function ServicesPage() {
                 <div className="bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 overflow-hidden">
                   <div className="grid lg:grid-cols-2">
                     <div
-                      className={`relative min-h-[240px] md:min-h-[300px] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center p-8 ${
+                      className={`relative min-h-[240px] md:min-h-[300px] overflow-hidden ${
                         index % 2 === 1 ? "lg:order-2" : ""
                       }`}
                     >
-                      <div className="text-center">
-                        <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                          <PawPrint className="w-7 h-7 text-primary" />
-                        </div>
-                        <p className="text-sm text-muted-foreground">[Image: {service.title}]</p>
-                      </div>
+                      <Image
+                        src={service.image}
+                        alt={service.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
                     </div>
 
                     <div className={`p-8 lg:p-10 flex flex-col ${index % 2 === 1 ? "lg:order-1" : ""}`}>

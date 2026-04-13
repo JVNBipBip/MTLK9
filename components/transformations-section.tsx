@@ -98,7 +98,7 @@ export function TransformationsSection() {
             ref={scrollerRef}
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
           >
-            {transformationStories.map((story, index) => (
+            {transformationStories.slice(0, 3).map((story, index) => (
               <div
                 key={story.dogName}
                 data-story-card
@@ -169,7 +169,7 @@ export function TransformationsSection() {
             ))}
           </div>
           <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
-            {transformationStories.map((story, index) => (
+            {transformationStories.slice(0, 3).map((story, index) => (
               <button
                 key={story.dogName}
                 type="button"
