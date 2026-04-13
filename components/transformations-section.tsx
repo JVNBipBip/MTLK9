@@ -107,9 +107,9 @@ export function TransformationsSection() {
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                   {/* Video/Image */}
                   {story.wistiaId ? (
-                    <div className="relative aspect-[9/16] max-h-[400px] bg-muted overflow-hidden">
+                    <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
                       {/* @ts-expect-error - Wistia web component */}
-                      <wistia-player media-id={story.wistiaId} aspect="0.5625" className="w-full h-full" />
+                      <wistia-player media-id={story.wistiaId} aspect="0.5625" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "177.78%", height: "100%" }} />
                     </div>
                   ) : (
                     <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">

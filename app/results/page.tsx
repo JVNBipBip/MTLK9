@@ -164,9 +164,9 @@ export default function ResultsPage() {
                   <div className="h-full bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col overflow-hidden">
                     {/* Photo/Video */}
                     {study.wistiaId ? (
-                      <div className="aspect-[9/16] max-h-[400px] bg-muted overflow-hidden">
+                      <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
                         {/* @ts-expect-error - Wistia web component */}
-                        <wistia-player media-id={study.wistiaId} aspect="0.5625" className="w-full h-full" />
+                        <wistia-player media-id={study.wistiaId} aspect="0.5625" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "177.78%", height: "100%" }} />
                       </div>
                     ) : (
                       <div
