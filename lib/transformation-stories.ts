@@ -10,10 +10,28 @@ export type TransformationStory = {
   mediaPlaceholder: string
   mediaType: "image" | "video"
   mediaSrc?: string
+  wistiaId?: string
   href: string
 }
 
 export const transformationStories: TransformationStory[] = [
+  {
+    slug: "theo",
+    dogName: "Theo",
+    breed: "Doberman",
+    path: "Puppy Training",
+    before:
+      "Searching for a trainer who truly understood the intensity of a working-line Doberman. I was meticulous and hesitant until I found Nick.",
+    after:
+      "Every session leaves me more confident. We have a clear path forward, and the support is always flexible and open—no question is ever too small.",
+    testimonial:
+      "I feel so much more confident every time I have a session. They are incredibly flexible and always there to support you, no matter what you need help with.",
+    mediaAlt: "Rebecca's video testimonial about training Theo, her Doberman puppy",
+    mediaPlaceholder: "",
+    mediaType: "video",
+    wistiaId: "i0ipeqgj8k",
+    href: "/results/theo",
+  },
   {
     slug: "luna",
     dogName: "Luna",

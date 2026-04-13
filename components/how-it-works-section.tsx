@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Phone, MapPin, ClipboardList, Handshake } from "lucide-react"
+import { Phone, MapPin, ClipboardList, Handshake, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 
 const steps = [
@@ -88,6 +90,15 @@ export function HowItWorksSection() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="text-center mt-16">
+          <FreeCallLink>
+            <Button className="rounded-full px-8 py-6 text-base group bg-primary text-primary-foreground hover:bg-primary/90">
+              Get Started
+              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </FreeCallLink>
         </div>
       </div>
     </section>

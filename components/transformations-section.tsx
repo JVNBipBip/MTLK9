@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Script from "next/script"
 import Link from "next/link"
 import { ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -76,6 +77,8 @@ export function TransformationsSection() {
 
   return (
     <section ref={sectionRef} className="py-24 lg:py-32 bg-background">
+      <Script src="https://fast.wistia.com/player.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/i0ipeqgj8k.js" strategy="lazyOnload" />
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
@@ -99,18 +102,25 @@ export function TransformationsSection() {
               <div
                 key={story.dogName}
                 data-story-card
-                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
+                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
               >
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
-                  {/* Video/Image Placeholder */}
-                  <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
-                    <div className="text-center px-6">
-                      <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
-                        <Play className="w-6 h-6 text-primary ml-0.5" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">{story.mediaPlaceholder}</p>
+                  {/* Video/Image */}
+                  {story.wistiaId ? (
+                    <div className="relative aspect-[9/16] max-h-[400px] bg-muted overflow-hidden">
+                      {/* @ts-expect-error - Wistia web component */}
+                      <wistia-player media-id={story.wistiaId} aspect="0.5625" className="w-full h-full" />
                     </div>
-                  </div>
+                  ) : (
+                    <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
+                      <div className="text-center px-6">
+                        <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
+                          <Play className="w-6 h-6 text-primary ml-0.5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{story.mediaPlaceholder}</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="p-6 lg:p-8 flex-1 flex flex-col">
                     <div className="flex items-center justify-between mb-4">
@@ -144,13 +154,15 @@ export function TransformationsSection() {
                       </div>
                     </div>
 
-                    <Link
-                      href={story.href}
-                      className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                    >
-                      Read full story
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    <FreeCallLink>
+                      <button
+                        type="button"
+                        className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
+                      >
+                        Get Started
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </FreeCallLink>
                   </div>
                 </div>
               </div>
@@ -181,12 +193,6 @@ export function TransformationsSection() {
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          <FreeCallLink>
-            <Button className="rounded-full px-8 group bg-primary text-primary-foreground hover:bg-primary/90">
-              Book a Free Discovery Call
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </FreeCallLink>
         </div>
       </div>
     </section>

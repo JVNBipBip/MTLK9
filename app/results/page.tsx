@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Link from "next/link"
+import Script from "next/script"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
@@ -10,6 +10,22 @@ import { ArrowRight, Play } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 
 const caseStudies = [
+  {
+    name: "Theo",
+    breed: "Doberman",
+    age: "",
+    photoDesc: "Rebecca's video testimonial about training Theo, her Doberman puppy",
+    wistiaId: "i0ipeqgj8k",
+    problem:
+      "Searching for a trainer who truly understood the intensity of a working-line Doberman. I was meticulous and hesitant until I found Nick.",
+    plan: "",
+    result:
+      "Every session leaves me more confident. We have a clear path forward, and the support is always flexible and open—no question is ever too small.",
+    quote:
+      "I feel so much more confident every time I have a session. They are incredibly flexible and always there to support you, no matter what you need help with.",
+    servicePath: "Puppy Training",
+    serviceHref: "/services/puppy-training",
+  },
   {
     name: "Luna",
     breed: "German Shepherd Mix",
@@ -112,6 +128,8 @@ export default function ResultsPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <Script src="https://fast.wistia.com/player.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/i0ipeqgj8k.js" strategy="lazyOnload" />
       <Header />
 
       <div ref={contentRef}>
@@ -144,20 +162,27 @@ export default function ResultsPage() {
                     }`}
                 >
                   <div className="h-full bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col overflow-hidden">
-                    {/* Photo/Video placeholder */}
-                    <div
-                      className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center relative group cursor-pointer"
-                      aria-label={study.photoDesc}
-                    >
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <Play className="w-6 h-6 ml-1" fill="currentColor" />
-                        </div>
+                    {/* Photo/Video */}
+                    {study.wistiaId ? (
+                      <div className="aspect-[9/16] max-h-[400px] bg-muted overflow-hidden">
+                        {/* @ts-expect-error - Wistia web component */}
+                        <wistia-player media-id={study.wistiaId} aspect="0.5625" className="w-full h-full" />
                       </div>
-                      <span className="absolute bottom-2 left-2 right-2 text-xs text-muted-foreground italic text-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 py-1 px-2 rounded">
-                        {study.photoDesc}
-                      </span>
-                    </div>
+                    ) : (
+                      <div
+                        className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center relative group cursor-pointer"
+                        aria-label={study.photoDesc}
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <Play className="w-6 h-6 ml-1" fill="currentColor" />
+                          </div>
+                        </div>
+                        <span className="absolute bottom-2 left-2 right-2 text-xs text-muted-foreground italic text-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 py-1 px-2 rounded">
+                          {study.photoDesc}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-baseline gap-2 mb-4">
@@ -165,7 +190,7 @@ export default function ResultsPage() {
                           {study.name}
                         </h2>
                         <span className="text-sm text-muted-foreground">
-                          {study.breed}, {study.age}
+                          {study.breed}{study.age ? `, ${study.age}` : ""}
                         </span>
                       </div>
 
@@ -176,12 +201,14 @@ export default function ResultsPage() {
                           </p>
                           <p className="text-muted-foreground">{study.problem}</p>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground mb-1">
-                            The Plan
-                          </p>
-                          <p className="text-muted-foreground">{study.plan}</p>
-                        </div>
+                        {study.plan && (
+                          <div>
+                            <p className="font-medium text-foreground mb-1">
+                              The Plan
+                            </p>
+                            <p className="text-muted-foreground">{study.plan}</p>
+                          </div>
+                        )}
                         <div>
                           <p className="font-medium text-foreground mb-1">
                             The Result
@@ -194,12 +221,12 @@ export default function ResultsPage() {
                         &ldquo;{study.quote}&rdquo;
                       </blockquote>
 
-                      <Link href={study.serviceHref} className="mt-4 inline-flex">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/20 px-3 py-1.5 text-sm font-medium text-secondary hover:bg-secondary/30 transition-colors">
-                          {study.servicePath}
+                      <FreeCallLink>
+                        <button type="button" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
+                          Book Free Evaluation
                           <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </Link>
+                        </button>
+                      </FreeCallLink>
                     </div>
                   </div>
                 </article>
