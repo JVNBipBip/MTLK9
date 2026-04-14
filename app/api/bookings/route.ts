@@ -6,6 +6,7 @@ import type { BookingFormData } from "@/app/booking/types"
 import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { pushLeadToGHL } from "@/lib/gohighlevel"
 
 export const runtime = "nodejs"
 
@@ -147,6 +148,11 @@ export async function POST(request: Request) {
     }
 
     const docRef = await getAdminDb().collection(CONSULTATIONS_COLLECTION).add(submission)
+
+    // Push lead to GoHighLevel (non-blocking)
+    pushLeadToGHL(formData).catch((err) =>
+      console.error("[Booking API] GHL push failed (non-blocking):", err)
+    )
 
     return NextResponse.json({
       ok: true,

@@ -20,6 +20,7 @@ export interface BookingFormData {
   consultationSlotKey: string
   consultationLocation: string
   consultationWhat: string
+  fbclid: string
 }
 
 export type StepProps = {
@@ -50,4 +51,5 @@ export const INITIAL_FORM_DATA: BookingFormData = {
   consultationSlotKey: "",
   consultationLocation: "",
   consultationWhat: "In-person evaluation (60-75 minutes)",
+  fbclid: "",
 }

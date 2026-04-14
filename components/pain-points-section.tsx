@@ -10,22 +10,22 @@ const painPoints = [
   {
     question: "Pull on every walk?",
     description: "You dread taking them out. Every walk is a battle.",
-    image: "/images/pain-points/pulling.png",
+    image: "/images/pain-points/pulling.webp",
   },
   {
     question: "Lunge or bark at other dogs?",
     description: "You cross the street, avoid the park, walk at odd hours.",
-    image: "/images/pain-points/barking.png",
+    image: "/images/pain-points/barking.webp",
   },
   {
     question: "Destroy things when left alone?",
     description: "You can't leave the house without worrying.",
-    image: "/images/pain-points/destroying.png",
+    image: "/images/pain-points/destroying.webp",
   },
   {
     question: "Bite, nip, or jump on people?",
     description: "Guests are afraid. You're embarrassed and on edge.",
-    image: "/images/pain-points/jumping.png",
+    image: "/images/pain-points/jumping.webp",
   },
 ]
 

@@ -2,6 +2,7 @@ import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { PainPointsSection } from "@/components/pain-points-section"
 import { HowItWorksSection } from "@/components/how-it-works-section"
+import { FaqSection } from "@/components/faq-section"
 import { TrustStrip } from "@/components/trust-strip"
 import { TransformationsSection } from "@/components/transformations-section"
 import { StatsSection } from "@/components/stats-section"
@@ -18,6 +19,7 @@ export default function Home() {
       <StatsSection />
       <TransformationsSection />
       <HowItWorksSection />
+      <FaqSection />
       <FinalCTASection />
       <Footer />
     </main>

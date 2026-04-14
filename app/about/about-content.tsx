@@ -11,54 +11,41 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 const trainers = [
   {
     name: "Nick Azzuolo",
-    title: "Founder & Behavioral Rehabilitation Specialist",
+    title: "Owner, Founder & Head Trainer",
     years: "15+ years",
-    specialty: "Complex cases, aggression, behavioral rehab",
+    specialty: "Pet obedience, canine sports, behavioral rehab",
     origin:
-      "Nick started in rescue and shelter work, where he saw too many dogs given up because their people didn't have the right support. He built Montreal Canine Training to be the kind of team he wished existed back then.",
-    superpower: "Takes on cases other trainers have turned away - and gets results.",
+      "Nick has been handling dogs since a young age and always had a natural skill working with them. With an engineering degree and mentorship from professional trainers in canine sports and rehabilitation, he built Montreal Canine Training to combine pet obedience with sport-level techniques.",
+    superpower: "Prioritizes engagement, motivation, communication, confidence, and relationship-building above all.",
     personal:
-      "When he's not training, he's hiking with his own pack or reading the latest behavior research.",
+      "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.",
     photoDesc: "Nick working with a dog on a calm loose-leash walk in a Montreal park",
     photo: "/images/team/nick.png",
     photoPosition: "object-[50%_18%]",
   },
   {
     name: "Tyson Jerome White",
-    title: "Reactivity & Leash Work Specialist",
+    title: "Trainer",
     years: "10+ years",
-    specialty: "High-distraction environments, leash reactivity",
+    specialty: "Obedience, behavior modification, relationship building",
     origin:
-      "Tyson came from a background in competitive dog sports before pivoting to behavior work. He knows what it takes to build focus and impulse control when the world is full of triggers.",
-    superpower: "Makes high-distraction urban walks feel manageable - and even enjoyable.",
+      "Tyson's journey began with his first dog, Winston, an Australian Shepherd. He believes structure and consistency are essential for coexistence. He specializes in obedience training, behavior modification, and relationship building through private sessions and group classes.",
+    superpower: "Makes high-distraction urban walks feel manageable — and even enjoyable.",
     personal:
-      "He runs with his own dog every morning and believes movement is medicine for both species.",
+      "He has two dogs of his own and lives by the philosophy that structure creates freedom.",
     photoDesc: "Tyson coaching an owner through a reactive moment on a busy Montreal street",
     photo: "/images/team/tyson.jpg",
   },
   {
-    name: "Shanya Ingwersen",
-    title: "Puppy Development Specialist",
-    years: "8+ years",
-    specialty: "Puppy socialization, foundation work",
-    origin:
-      "Shanya fell in love with puppy development after fostering litters and seeing how much early experiences shape a dog's future. She's obsessed with getting the first months right.",
-    superpower: "Turns chaotic puppies into calm, confident dogs before bad habits take root.",
-    personal:
-      "She has a soft spot for senior dogs and volunteers at a local rescue on weekends.",
-    photoDesc: "Shanya guiding a puppy through a socialization exercise in a controlled outdoor setting",
-    photo: "/images/team/shanya.jpg",
-  },
-  {
     name: "Jessica Banks",
-    title: "Anxiety & Confidence Building Specialist",
-    years: "7+ years",
-    specialty: "Separation anxiety, fearful dogs",
+    title: "Trainer",
+    years: "8+ years",
+    specialty: "Confidence-building, reactivity, obedience",
     origin:
-      "Jessica's own dog struggled with severe anxiety. When she couldn't find the right help, she became the help - and now specializes in the cases that require patience, empathy, and science.",
+      "Animals have always been central to Jessica's life. She owns two dogs — Bones the husky and Fish the chihuahua — both raised from puppyhood. After eight years in dog grooming, she pursued training full-time, completing the MTL Canine Training Program with over 80 hours of hands-on experience.",
     superpower: "Helps fearful dogs find their confidence without force or flooding.",
     personal:
-      "She's a certified fear-free professional and advocates for mental health - for dogs and their people.",
+      "She specializes in confidence-building, reactivity, and obedience training.",
     photoDesc: "Jessica sitting calmly with a nervous dog in a quiet, low-stimulus environment",
     photo: "/images/team/jessica.jpg",
   },
@@ -144,7 +131,7 @@ export function AboutContent() {
               Meet the Team
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Four specialists. One mission: help you and your dog thrive together.
+              Three specialists. One mission: help you and your dog thrive together.
             </p>
           </div>
 
@@ -156,7 +143,7 @@ export function AboutContent() {
 
           <div
             ref={teamScrollerRef}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 md:gap-10 lg:gap-12 md:overflow-visible"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-8 lg:gap-10 md:overflow-visible"
           >
             {trainers.map((trainer) => (
               <div
