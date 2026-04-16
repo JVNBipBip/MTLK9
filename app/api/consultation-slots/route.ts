@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
-import { getConsultationServiceVariationIds } from "@/lib/square-service-config"
+import { intakeRequiresNickOnlyConsultation } from "@/lib/consultation-routing"
+import { getConsultationServiceVariationIds, getNickTeamMemberIdForConsultation } from "@/lib/square-service-config"
 
 export const runtime = "nodejs"
+
+type RawSlot = { slotKey: string; startAt: string; teamMemberId: string }
 
 function minLeadMinutes() {
   const raw = Number.parseInt(process.env.SQUARE_CONSULTATION_MIN_LEAD_MINUTES || "", 10)
@@ -10,20 +13,12 @@ function minLeadMinutes() {
   return raw
 }
 
-export async function GET() {
-  const serviceVariationIds = await getConsultationServiceVariationIds()
-  if (serviceVariationIds.length === 0) {
-    return NextResponse.json(
-      { error: "Square consultation slots are not configured. Set in Admin → Service Mapping." },
-      { status: 500 },
-    )
-  }
-
+async function loadRawConsultationSlots(serviceVariationIds: string[]): Promise<RawSlot[]> {
   const startAt = new Date().toISOString()
   const endAt = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString()
   const minStartMs = Date.now() + minLeadMinutes() * 60 * 1000
 
-  const rawSlots: { slotKey: string; startAt: string; teamMemberId: string }[] = []
+  const rawSlots: RawSlot[] = []
   const skippedServices: string[] = []
 
   for (const serviceVariationId of serviceVariationIds) {
@@ -52,17 +47,55 @@ export async function GET() {
       }
     }
   }
+
   rawSlots.sort((a, b) => a.startAt.localeCompare(b.startAt))
 
   if (skippedServices.length > 0) {
     console.log("[consultation-slots] Skipped", skippedServices.length, "services (not bookable):", skippedServices)
   }
 
+  return rawSlots
+}
+
+type Intake = { issue: string; impact: string[] }
+
+async function respondWithConsultationSlots(intake: Intake) {
+  const serviceVariationIds = await getConsultationServiceVariationIds()
+  if (serviceVariationIds.length === 0) {
+    return NextResponse.json(
+      { error: "Square consultation slots are not configured. Set in Admin → Service Mapping." },
+      { status: 500 },
+    )
+  }
+
+  const rawSlots = await loadRawConsultationSlots(serviceVariationIds)
   const teamIdsFromSquare = [...new Set(rawSlots.map((s) => s.teamMemberId))]
   console.log("[consultation-slots] Queried", serviceVariationIds.length, "evaluation types. Total slots:", rawSlots.length)
   console.log("[consultation-slots] Team member IDs from Square:", teamIdsFromSquare)
 
-  const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId))]
+  const nickRequired = intakeRequiresNickOnlyConsultation(intake.issue, intake.impact)
+  const nickId = await getNickTeamMemberIdForConsultation()
+
+  if (nickRequired && !nickId) {
+    return NextResponse.json(
+      {
+        error:
+          "High-risk consultations require a specialist calendar. In Admin → Service Mapping, choose the high-risk consultation staff member (or set SQUARE_NICK_TEAM_MEMBER_ID on the server).",
+        slots: [],
+        nickRoutingActive: true,
+      },
+      { status: 503 },
+    )
+  }
+
+  let filtered = nickRequired && nickId ? rawSlots.filter((s) => s.teamMemberId === nickId) : rawSlots
+
+  const slotsMessage =
+    nickRequired && filtered.length === 0
+      ? "No assessment times are currently available with our specialist for dogs with safety-related concerns. Please call or email us and we will help you schedule."
+      : undefined
+
+  const uniqueTeamIds = [...new Set(filtered.map((s) => s.teamMemberId))]
   const teamNames = new Map<string, string | null>()
   await Promise.all(
     uniqueTeamIds.map(async (id) => {
@@ -75,7 +108,7 @@ export async function GET() {
     }),
   )
 
-  const slots = rawSlots.map((slot) => ({
+  const slots = filtered.map((slot) => ({
     slotKey: slot.slotKey,
     startAt: slot.startAt,
     teamMemberId: slot.teamMemberId,
@@ -87,6 +120,37 @@ export async function GET() {
   )
   console.log("[consultation-slots] Returning", slots.length, "slots. Staff in response:", staffSummary)
 
-  return NextResponse.json({ slots })
+  return NextResponse.json({
+    slots,
+    recommendedTeamMemberId: nickRequired ? null : nickId,
+    nickRoutingActive: nickRequired,
+    slotsMessage: slotsMessage ?? null,
+  })
 }
 
+function parseIntakeFromSearchParams(searchParams: URLSearchParams): Intake {
+  const issue = searchParams.get("issue") ?? ""
+  const impact = searchParams.getAll("impact").filter(Boolean)
+  return { issue, impact }
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  return respondWithConsultationSlots(parseIntakeFromSearchParams(searchParams))
+}
+
+export async function POST(request: Request) {
+  let body: unknown = null
+  try {
+    body = await request.json()
+  } catch {
+    body = null
+  }
+  const obj = body && typeof body === "object" ? (body as Record<string, unknown>) : {}
+  const issue = typeof obj.issue === "string" ? obj.issue : ""
+  const impactRaw = obj.impact
+  const impact = Array.isArray(impactRaw)
+    ? impactRaw.filter((x): x is string => typeof x === "string")
+    : []
+  return respondWithConsultationSlots({ issue, impact })
+}

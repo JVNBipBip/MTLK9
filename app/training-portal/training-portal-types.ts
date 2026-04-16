@@ -18,6 +18,30 @@ export type Slot = {
   teamMemberName?: string | null
 }
 
+export type PrivateLocationAccess = "facility_only" | "facility_and_in_home"
+
+export type ApprovedGroupProgram = {
+  programId: string
+  programLabel: string
+  squareUrl: string | null
+}
+
+export type GroupSeriesListItem = {
+  seriesId: string
+  classType: string
+  programLabel: string
+  sessionCount: number
+  spotsRemaining: number
+  sessions: Array<{
+    id: string
+    title: string
+    startsAtIso: string
+    endsAtIso: string
+    locationLabel: string
+    spotsRemaining: number
+  }>
+}
+
 export type StatusResponse = {
   ok: boolean
   hasConsultation: boolean
@@ -41,7 +65,14 @@ export type StatusResponse = {
     bookingStatus: string
     squareBookingStatus: string | null
   }>
-  privateUpcomingBookings: Array<{ id: string; startAt: string; label: string; type: string }>
+  privateUpcomingBookings: Array<{
+    id: string
+    startAt: string
+    label: string
+    type: string
+    bookingStatus?: string
+    squareBookingStatus?: string | null
+  }>
   activePrivatePackage: PrivatePackage | null
   options: {
     oneOnOne: {
@@ -50,7 +81,18 @@ export type StatusResponse = {
       blockedReason: string | null
       sessionsRemaining: number
     }
+    groupClasses: {
+      eligible: boolean
+      allowedProgramIds: string[]
+      blockedReason: string | null
+    }
   }
+  /** Admin default: facility_only (in-home hidden until enabled). */
+  privateLocationAccess: PrivateLocationAccess
+  inHomeBookingAllowed: boolean
+  privateTrainingAccess: "allowed" | "blocked"
+  privateTrainingAllowed: boolean
+  squareBookingSiteUrl: string | null
 }
 
 export const SERVICE_TYPE_LABEL: Record<PrivatePackage["serviceType"], string> = {

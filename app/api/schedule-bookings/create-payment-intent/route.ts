@@ -2,8 +2,9 @@ import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { PROGRAM_LABEL_BY_ID } from "@/lib/programs"
-import { getProgramServiceVariationId } from "@/lib/square-service-config"
+import { migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
+import { programLabel } from "@/lib/programs"
+import { getProgramServiceVariationId, getSquareServiceConfig } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 
@@ -72,6 +73,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Selected class is not mapped to a Square service variation." }, { status: 400 })
   }
 
+  const squareCfg = await getSquareServiceConfig(null)
+  const groupSlotOrder = migratedGroupProgramSlotOrder(squareCfg)
+
   const duplicateSnap = await db
     .collection(BOOKINGS_COLLECTION)
     .where("consultationId", "==", consultationId)
@@ -107,7 +111,7 @@ export async function POST(request: Request) {
     summary: {
       when: [startAt],
       where: ["Square booking"],
-      what: [PROGRAM_LABEL_BY_ID[programId] || programId],
+      what: [programLabel(programId, groupSlotOrder) || programId],
     },
     paymentIntentId: null,
     paymentStatus: "not_required",

@@ -10,11 +10,22 @@ export type CustomMapping = {
 export type SquareServiceConfig = {
   locationId?: string | null
   consultationServiceVariationId?: string | null
+  /** Square team member ID for high-risk consultation routing (e.g. Nick). Set in Admin → Service Mapping. */
+  highRiskConsultationTeamMemberId?: string | null
   /** Additional evaluation service variants (e.g. Puppy Evaluation, Daycare Evaluation). Slots from all are merged. */
   evaluationServiceVariationIds?: string[]
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
+  /** Base public classes URL used to build Square classDetails links for imported public sessions. */
+  publicClassesBaseUrl?: string | null
+  groupProgramSlotOrder?: string[]
+  /** Client-facing labels for group programs when using Square handoff links. */
+  groupProgramLabels?: Record<string, string | undefined>
+  /** Square booking/checkout URLs shown to approved clients for group programs. */
+  groupProgramSquareUrls?: Record<string, string | undefined>
   programs?: Record<string, string | undefined>
+  /** Square catalog variation priced for the entire group series (checkout always uses quantity 1 — indivisible). */
+  groupClassSeriesVariations?: Record<string, string | undefined>
   customMappings?: CustomMapping[]
   updatedAt?: string
 }
@@ -26,10 +37,16 @@ type ConfigDoc = {
   updatedAt?: string
   locationId?: string | null
   consultationServiceVariationId?: string | null
+  highRiskConsultationTeamMemberId?: string | null
   evaluationServiceVariationIds?: string[]
   privateInFacility?: Record<string, string | undefined>
   privateInHome?: Record<string, string | undefined>
+  publicClassesBaseUrl?: string | null
+  groupProgramSlotOrder?: string[]
+  groupProgramLabels?: Record<string, string | undefined>
+  groupProgramSquareUrls?: Record<string, string | undefined>
   programs?: Record<string, string | undefined>
+  groupClassSeriesVariations?: Record<string, string | undefined>
   customMappings?: CustomMapping[]
 }
 
@@ -59,7 +76,11 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
     const hasLegacy =
       legacyLocId ||
       data.consultationServiceVariationId ||
+      data.publicClassesBaseUrl ||
+      Object.keys(data.groupProgramLabels || {}).length > 0 ||
+      Object.keys(data.groupProgramSquareUrls || {}).length > 0 ||
       Object.keys(data.programs || {}).length > 0 ||
+      Object.keys(data.groupClassSeriesVariations || {}).length > 0 ||
       Object.keys(data.privateInFacility || {}).length > 0 ||
       Object.keys(data.privateInHome || {}).length > 0 ||
       (data.customMappings && data.customMappings.length > 0)
@@ -67,10 +88,16 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
       return {
         locationId: legacyLocId || null,
         consultationServiceVariationId: data.consultationServiceVariationId,
+        highRiskConsultationTeamMemberId: data.highRiskConsultationTeamMemberId,
         evaluationServiceVariationIds: data.evaluationServiceVariationIds,
         privateInFacility: data.privateInFacility,
         privateInHome: data.privateInHome,
+        publicClassesBaseUrl: data.publicClassesBaseUrl,
+        groupProgramSlotOrder: data.groupProgramSlotOrder,
+        groupProgramLabels: data.groupProgramLabels,
+        groupProgramSquareUrls: data.groupProgramSquareUrls,
         programs: data.programs,
+        groupClassSeriesVariations: data.groupClassSeriesVariations,
         customMappings: data.customMappings,
         updatedAt: data.updatedAt,
       }
@@ -82,23 +109,11 @@ export async function getSquareServiceConfig(locationId?: string | null): Promis
 }
 
 function getEnvFallbackConfig(): SquareServiceConfig {
-  const programs: Record<string, string> = {}
-  const programIds = ["puppy-foundations", "city-manners", "reactivity-anxiety", "high-risk", "day-training"] as const
-  const programEnvKeys: Record<string, string> = {
-    "puppy-foundations": "SQUARE_PROGRAM_PUPPY_FOUNDATIONS_SERVICE_VARIATION_ID",
-    "city-manners": "SQUARE_PROGRAM_CITY_MANNERS_SERVICE_VARIATION_ID",
-    "reactivity-anxiety": "SQUARE_PROGRAM_REACTIVITY_ANXIETY_SERVICE_VARIATION_ID",
-    "high-risk": "SQUARE_PROGRAM_HIGH_RISK_SERVICE_VARIATION_ID",
-    "day-training": "SQUARE_PROGRAM_DAY_TRAINING_SERVICE_VARIATION_ID",
-  }
-  for (const id of programIds) {
-    const val = process.env[programEnvKeys[id]]?.trim()
-    if (val) programs[id] = val
-  }
-
   return {
     locationId: process.env.SQUARE_LOCATION_ID?.trim() || null,
     consultationServiceVariationId: process.env.SQUARE_CONSULTATION_SERVICE_VARIATION_ID?.trim() || null,
+    highRiskConsultationTeamMemberId: process.env.SQUARE_NICK_TEAM_MEMBER_ID?.trim() || null,
+    publicClassesBaseUrl: process.env.SQUARE_PUBLIC_CLASSES_BASE_URL?.trim() || null,
     privateInFacility: {
       default: process.env.SQUARE_PRIVATE_IN_FACILITY_SERVICE_VARIATION_ID?.trim() || process.env.SQUARE_ONE_ON_ONE_SERVICE_VARIATION_ID?.trim() || undefined,
       pack_3: process.env.SQUARE_PRIVATE_IN_FACILITY_PACK_3_SERVICE_VARIATION_ID?.trim() || undefined,
@@ -113,7 +128,6 @@ function getEnvFallbackConfig(): SquareServiceConfig {
       pack_7: process.env.SQUARE_PRIVATE_IN_HOME_PACK_7_SERVICE_VARIATION_ID?.trim() || undefined,
       unit: process.env.SQUARE_PRIVATE_IN_HOME_UNIT_SERVICE_VARIATION_ID?.trim() || undefined,
     },
-    programs: Object.keys(programs).length > 0 ? programs : undefined,
   }
 }
 
@@ -135,6 +149,28 @@ export async function getConsultationServiceVariationIds(): Promise<string[]> {
 export async function getProgramServiceVariationId(programId: string, locationId?: string | null): Promise<string | null> {
   const config = await getSquareServiceConfig(locationId)
   return config.programs?.[programId]?.trim() || null
+}
+
+export async function getGroupProgramSquareUrl(programId: string, locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
+  return config.groupProgramSquareUrls?.[programId]?.trim() || null
+}
+
+export async function getGroupProgramLabel(programId: string, locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
+  const label = config.groupProgramLabels?.[programId]?.trim()
+  return label || null
+}
+
+/** Full-series group checkout: one catalog item, quantity 1 (buyers cannot pay for a subset via quantity). */
+export async function getGroupClassSeriesVariationId(programId: string, locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
+  return config.groupClassSeriesVariations?.[programId]?.trim() || null
+}
+
+export async function getSquarePublicClassesBaseUrl(locationId?: string | null): Promise<string | null> {
+  const config = await getSquareServiceConfig(locationId)
+  return config.publicClassesBaseUrl?.trim() || null
 }
 
 export type PrivateServiceType = "in_facility" | "in_home"
@@ -178,4 +214,12 @@ export async function getPrivateServiceVariationIds(): Promise<string[]> {
     }
   }
   return Array.from(values)
+}
+
+/** Specialist (e.g. Nick) for high-risk consultation slot filtering. Firestore first, then SQUARE_NICK_TEAM_MEMBER_ID. */
+export async function getNickTeamMemberIdForConsultation(): Promise<string | null> {
+  const config = await getSquareServiceConfig()
+  const fromConfig = config.highRiskConsultationTeamMemberId?.trim()
+  if (fromConfig) return fromConfig
+  return process.env.SQUARE_NICK_TEAM_MEMBER_ID?.trim() || null
 }

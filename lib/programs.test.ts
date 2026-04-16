@@ -1,28 +1,25 @@
-import { PROGRAM_OPTIONS, PROGRAM_LABEL_BY_ID } from "./programs"
+import { PROGRAM_LABEL_BY_ID, programLabel } from "./programs"
 
 describe("programs", () => {
-  describe("PROGRAM_OPTIONS", () => {
-    it("has 5 program options", () => {
-      expect(PROGRAM_OPTIONS).toHaveLength(5)
-    })
-
-    it("matches admin PROGRAM_OPTIONS ids", () => {
-      const ids = PROGRAM_OPTIONS.map((p) => p.id)
-      expect(ids).toEqual([
-        "puppy-foundations",
-        "city-manners",
-        "reactivity-anxiety",
-        "high-risk",
-        "day-training",
-      ])
+  describe("PROGRAM_LABEL_BY_ID", () => {
+    it("includes the currently offered programs", () => {
+      expect(PROGRAM_LABEL_BY_ID["reactivity"]).toBe("Reactivity Training")
+      expect(PROGRAM_LABEL_BY_ID["in-home"]).toBe("In-Home Training")
     })
   })
 
-  describe("PROGRAM_LABEL_BY_ID", () => {
-    it("maps each program id to same labels as admin", () => {
-      expect(PROGRAM_LABEL_BY_ID["puppy-foundations"]).toBe("Puppy Foundations")
-      expect(PROGRAM_LABEL_BY_ID["city-manners"]).toBe("City Manners")
-      expect(PROGRAM_LABEL_BY_ID["day-training"]).toBe("Day Training")
+  describe("programLabel", () => {
+    it("uses slot order when id is listed", () => {
+      const order = ["x", "y"]
+      expect(programLabel("y", order)).toBe("Group class #2")
+    })
+
+    it("falls back to the configured program labels", () => {
+      expect(programLabel("private-classes")).toBe("Private Classes")
+    })
+
+    it("humanizes unknown ids without hardcoding legacy offerings", () => {
+      expect(programLabel("custom-program")).toBe("Custom Program")
     })
   })
 })

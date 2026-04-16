@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { CONSULTATIONS_COLLECTION, DOG_CLASS_ACCESS_COLLECTION } from "@/lib/domain"
+import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
+import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { getProgramServiceVariationId } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
 
@@ -63,25 +63,7 @@ export async function GET(request: Request) {
 
   const clientId = String(consultation.clientId || consultation.clientEmail || "").trim().toLowerCase()
   const dogName = String(consultation.dogName || "")
-  const classAccessSnap = await db
-    .collection(DOG_CLASS_ACCESS_COLLECTION)
-    .where("clientId", "==", clientId)
-    .where("dogName", "==", dogName)
-    .where("status", "==", "allowed")
-    .get()
-
-  const allowedClasses = await Promise.all(
-    classAccessSnap.docs.map(async (d) => {
-      const data = d.data() as { classTypeId?: string; classLabel?: string; squareServiceVariationId?: string }
-      const classTypeId = data.classTypeId || ""
-      const mappedVariationId = await getProgramServiceVariationId(classTypeId)
-      return {
-        classTypeId,
-        classLabel: data.classLabel || classTypeId || "Class",
-        squareServiceVariationId: data.squareServiceVariationId || mappedVariationId || "",
-      }
-    }),
-  )
+  const allowedClasses = await buildApprovedGroupClassesForClientDog(clientId, dogName)
   if (allowedClasses.length === 0) {
     return NextResponse.json({ error: "No approved class types for this consultation." }, { status: 400 })
   }

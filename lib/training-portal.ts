@@ -1,11 +1,18 @@
 import {
   BOOKINGS_COLLECTION,
+  CLASS_SESSIONS_COLLECTION,
+  CLIENT_BOOKING_SETTINGS_COLLECTION,
   CONSULTATIONS_COLLECTION,
   DOG_CLASS_ACCESS_COLLECTION,
   PRIVATE_TRAINING_PACKAGES_COLLECTION,
   SQUARE_CUSTOMERS_COLLECTION,
+  clientBookingSettingsDocId,
+  type PrivateLocationAccess,
+  type PrivateTrainingAccess,
 } from "@/lib/domain"
+import { parsePrivateLocationAccess, parsePrivateTrainingAccess } from "@/lib/client-booking-settings"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { allConfiguredGroupProgramTypeIds, isGroupProgramsAllFutureForDog } from "@/lib/group-dog-program-access"
 
 export const ONE_ON_ONE_PROGRAM_ID = "one-on-one-training"
 export const ONE_ON_ONE_PROGRAM_LABEL = "1-on-1 Training"
@@ -38,6 +45,7 @@ type BookingLookup = {
   dogName?: string
   selectedClassTypes?: string[]
   selectedSlots?: string[]
+  selectedSessionIds?: string[]
   summary?: { when?: string[]; what?: string[]; where?: string[] }
   bookingStatus?: string
   squareBookingStatus?: string | null
@@ -95,11 +103,17 @@ export type TrainingPortalContext = {
   latestConsultation: ConsultationLookup | null
   assessmentCompleted: boolean
   allowedClassCount: number
+  /** Distinct group program ids this dog may book (from dog_class_access). */
+  allowedGroupClassTypeIds: string[]
   hasOneOnOneUpcoming: boolean
   oneOnOneUpcomingBooking: UpcomingTrainingBooking | null
   upcomingBookings: UpcomingTrainingBooking[]
   activePrivatePackage: ActivePrivatePackage | null
   packageSelectionRequired: boolean
+  /** Admin-controlled; default facility_only when unset. */
+  privateLocationAccess: PrivateLocationAccess
+  /** Admin-controlled; default allowed when unset. */
+  privateTrainingAccess: PrivateTrainingAccess
 }
 
 function asIsoDate(value: unknown) {
@@ -135,11 +149,20 @@ export function privatePlanSessionLimit(planType: PrivatePlanType) {
   return 1
 }
 
-function bookingStartAt(booking: BookingLookup) {
+function bookingStartAt(booking: BookingLookup, sessionStartById?: Map<string, string>) {
   const slotStart = booking.selectedSlots?.[0]?.split("|")?.[0]
   if (slotStart) {
     const iso = asIsoDate(slotStart)
     if (iso) return iso
+  }
+  const ids = booking.selectedSessionIds
+  if (ids?.length && sessionStartById?.size) {
+    const times = ids.map((id) => sessionStartById.get(id)).filter((v): v is string => Boolean(v))
+    if (times.length) {
+      const earliest = [...times].sort((a, b) => a.localeCompare(b))[0]
+      const iso = asIsoDate(earliest)
+      if (iso) return iso
+    }
   }
   const summaryStart = booking.summary?.when?.[0]
   return asIsoDate(summaryStart)
@@ -231,13 +254,24 @@ export async function loadTrainingPortalContext(input: {
   const dogName = normalized(input.dogName)
   const db = getAdminDb()
 
-  const [consultationSnap, classAccessSnap, bookingSnap, privatePackageSnap, squareCustomerSnap] = await Promise.all([
-    db.collection(CONSULTATIONS_COLLECTION).where("clientId", "==", clientId).limit(200).get(),
-    db.collection(DOG_CLASS_ACCESS_COLLECTION).where("clientId", "==", clientId).where("status", "==", "allowed").limit(200).get(),
-    db.collection(BOOKINGS_COLLECTION).where("clientId", "==", clientId).limit(300).get(),
-    db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).where("status", "==", "active").limit(50).get(),
-    db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1).get(),
-  ])
+  const settingsDocId = clientBookingSettingsDocId(clientId)
+  const [consultationSnap, classAccessSnap, bookingSnap, privatePackageSnap, squareCustomerSnap, clientSettingsSnap] =
+    await Promise.all([
+      db.collection(CONSULTATIONS_COLLECTION).where("clientId", "==", clientId).limit(200).get(),
+      db.collection(DOG_CLASS_ACCESS_COLLECTION).where("clientId", "==", clientId).where("status", "==", "allowed").limit(200).get(),
+      db.collection(BOOKINGS_COLLECTION).where("clientId", "==", clientId).limit(300).get(),
+      db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).where("status", "==", "active").limit(50).get(),
+      db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1).get(),
+      db.collection(CLIENT_BOOKING_SETTINGS_COLLECTION).doc(settingsDocId).get(),
+    ])
+
+  const privateLocationAccess: PrivateLocationAccess = clientSettingsSnap.exists
+    ? parsePrivateLocationAccess(clientSettingsSnap.data()?.privateLocationAccess)
+    : parsePrivateLocationAccess(undefined)
+
+  const privateTrainingAccess: PrivateTrainingAccess = clientSettingsSnap.exists
+    ? parsePrivateTrainingAccess(clientSettingsSnap.data()?.privateTrainingAccess)
+    : parsePrivateTrainingAccess(undefined)
 
   let squareCustomerSnapResult = squareCustomerSnap
   if (squareCustomerSnap.empty) {
@@ -274,9 +308,39 @@ export async function loadTrainingPortalContext(input: {
   }
 
   const effectiveDogNorm = normalized(effectiveDogName)
-  const allowedClassCount = classAccessSnap.docs
-    .map((doc) => doc.data() as ClassAccessLookup & { dogName?: string })
-    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm).length
+  const explicitGroupIds = [
+    ...new Set(
+      classAccessSnap.docs
+        .map((doc) => doc.data() as ClassAccessLookup & { dogName?: string; classTypeId?: string })
+        .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
+        .map((item) => String(item.classTypeId || "").trim())
+        .filter(Boolean),
+    ),
+  ]
+  let allowedGroupClassTypeIds = explicitGroupIds
+  if (isGroupProgramsAllFutureForDog(clientSettingsSnap.data(), effectiveDogNorm)) {
+    allowedGroupClassTypeIds = [...new Set([...explicitGroupIds, ...(await allConfiguredGroupProgramTypeIds())])]
+  }
+  const allowedClassCount = allowedGroupClassTypeIds.length
+
+  const bookingRows = bookingSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
+  const allSessionIds = new Set<string>()
+  for (const row of bookingRows) {
+    for (const sid of row.selectedSessionIds || []) {
+      if (sid) allSessionIds.add(sid)
+    }
+  }
+  const sessionStartById = new Map<string, string>()
+  if (allSessionIds.size > 0) {
+    const ids = [...allSessionIds].slice(0, 120)
+    const refs = ids.map((id) => db.collection(CLASS_SESSIONS_COLLECTION).doc(id))
+    const snaps = await db.getAll(...refs)
+    for (const s of snaps) {
+      if (!s.exists) continue
+      const d = s.data() as { startsAtIso?: string }
+      if (d.startsAtIso) sessionStartById.set(s.id, d.startsAtIso)
+    }
+  }
 
   const nowIso = new Date().toISOString()
   const activePrivatePackage = pickLatestActivePackage(
@@ -288,11 +352,10 @@ export async function loadTrainingPortalContext(input: {
     Boolean(assessmentCompleted) &&
     (!activePrivatePackage || activePrivatePackage.status !== "active" || activePrivatePackage.sessionsRemaining <= 0)
 
-  const upcomingBookings = bookingSnap.docs
-    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
+  const upcomingBookings = bookingRows
     .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
     .map((item) => {
-      const startAt = bookingStartAt(item)
+      const startAt = bookingStartAt(item, sessionStartById)
       if (!startAt) return null
       if (startAt <= nowIso) return null
       if (isCancelled(item)) return null
@@ -317,10 +380,13 @@ export async function loadTrainingPortalContext(input: {
     latestConsultation,
     assessmentCompleted,
     allowedClassCount,
+    allowedGroupClassTypeIds,
     hasOneOnOneUpcoming: Boolean(oneOnOneUpcomingBooking),
     oneOnOneUpcomingBooking,
     upcomingBookings: sortedUpcoming,
     activePrivatePackage,
     packageSelectionRequired,
+    privateLocationAccess,
+    privateTrainingAccess,
   } satisfies TrainingPortalContext
 }

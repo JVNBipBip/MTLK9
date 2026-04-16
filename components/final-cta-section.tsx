@@ -50,7 +50,7 @@ export function FinalCTASection() {
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>
-            <Link href="tel:+15148269558">
+            <FreeCallLink>
               <Button
                 size="lg"
                 variant="outline"
@@ -59,7 +59,7 @@ export function FinalCTASection() {
                 <Phone className="mr-2 w-4 h-4" />
                 514 826 9558
               </Button>
-            </Link>
+            </FreeCallLink>
           </div>
 
           <p className="reveal opacity-0 animation-delay-600 text-sm text-primary-foreground/60 mt-8">

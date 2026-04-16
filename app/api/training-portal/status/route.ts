@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
+import { getSquareBookingSiteUrlForLocation } from "@/lib/square"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
@@ -33,6 +34,12 @@ export async function POST(request: Request) {
     dogName,
     oneOnOneServiceVariationIds,
   })
+  let squareBookingSiteUrl: string | null = null
+  try {
+    squareBookingSiteUrl = await getSquareBookingSiteUrlForLocation()
+  } catch {
+    squareBookingSiteUrl = null
+  }
 
   return NextResponse.json({
     ok: true,
@@ -60,15 +67,35 @@ export async function POST(request: Request) {
     activePrivatePackage: portal.activePrivatePackage,
     options: {
       oneOnOne: {
-        eligible: portal.assessmentCompleted && !portal.packageSelectionRequired,
+        eligible:
+          portal.privateTrainingAccess !== "blocked" &&
+          portal.assessmentCompleted &&
+          !portal.packageSelectionRequired,
         hasUpcoming: portal.hasOneOnOneUpcoming,
-        blockedReason: portal.packageSelectionRequired
-          ? "private_package_required"
-          : portal.activePrivatePackage && portal.activePrivatePackage.sessionsRemaining <= 0
-            ? "private_package_exhausted"
-            : null,
+        blockedReason:
+          portal.privateTrainingAccess === "blocked"
+            ? "private_training_blocked"
+            : portal.packageSelectionRequired
+              ? "private_package_required"
+              : portal.activePrivatePackage && portal.activePrivatePackage.sessionsRemaining <= 0
+                ? "private_package_exhausted"
+                : null,
         sessionsRemaining: portal.activePrivatePackage?.sessionsRemaining ?? 0,
       },
+      groupClasses: {
+        eligible: portal.assessmentCompleted && portal.allowedGroupClassTypeIds.length > 0,
+        allowedProgramIds: portal.allowedGroupClassTypeIds,
+        blockedReason: !portal.assessmentCompleted
+          ? "assessment_required"
+          : portal.allowedGroupClassTypeIds.length === 0
+            ? "no_group_program_access"
+            : null,
+      },
     },
+    privateLocationAccess: portal.privateLocationAccess,
+    inHomeBookingAllowed: portal.privateLocationAccess === "facility_and_in_home",
+    privateTrainingAccess: portal.privateTrainingAccess,
+    privateTrainingAllowed: portal.privateTrainingAccess !== "blocked",
+    squareBookingSiteUrl,
   })
 }

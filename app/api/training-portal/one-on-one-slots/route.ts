@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server"
 import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
-import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
+import {
+  listBookableTeamMemberIdsForLocation,
+  retrieveSquareTeamMember,
+  searchSquareAvailability,
+} from "@/lib/square"
+import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
@@ -24,6 +29,11 @@ function minLeadMinutes() {
   const raw = Number.parseInt(process.env.SQUARE_ONE_ON_ONE_MIN_LEAD_MINUTES || "", 10)
   if (Number.isNaN(raw) || raw < 0) return 60
   return raw
+}
+
+function isSquareServiceAssignmentMismatch(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error)
+  return message.includes("Search did not find a team member who performs the selected service variation")
 }
 
 export async function POST(request: Request) {
@@ -54,6 +64,12 @@ export async function POST(request: Request) {
     if (!portal.assessmentCompleted) {
       return NextResponse.json({ error: "Assessment must be completed before booking training." }, { status: 403 })
     }
+    if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {
+      return NextResponse.json(
+        { error: "Private training is not enabled for your account.", code: "private_training_blocked" },
+        { status: 403 },
+      )
+    }
     if (!portal.activePrivatePackage) {
       return NextResponse.json(
         {
@@ -72,6 +88,15 @@ export async function POST(request: Request) {
         { status: 409 },
       )
     }
+    if (portal.activePrivatePackage.serviceType === "in_home" && !inHomeBookingAllowed(portal.privateLocationAccess)) {
+      return NextResponse.json(
+        {
+          error: "In-home training is no longer enabled for your account. Please contact us or switch to in-facility packages.",
+          code: "in_home_not_allowed",
+        },
+        { status: 403 },
+      )
+    }
 
     const serviceVariationId = await getPrivateServiceVariationId({
       serviceType: portal.activePrivatePackage.serviceType,
@@ -88,27 +113,78 @@ export async function POST(request: Request) {
     const DAY_MS = 24 * 60 * 60 * 1000
     const WINDOW_DAYS = 31
 
-    const availabilityPromises = [0, 1, 2].map((i) => {
-      const windowStart = new Date(now.getTime() + i * WINDOW_DAYS * DAY_MS)
-      const windowEnd = new Date(now.getTime() + (i + 1) * WINDOW_DAYS * DAY_MS)
-      return searchSquareAvailability({
-        serviceVariationId,
-        startAt: windowStart.toISOString(),
-        endAt: windowEnd.toISOString(),
-      })
-    })
-
-    const availabilityResults = await Promise.all(availabilityPromises)
-
-    // Log what Square returns (for debugging staff visibility)
-    const allTeamIdsFromSquare = new Set<string>()
-    for (const av of availabilityResults) {
-      for (const item of av.availabilities || []) {
-        const tmId = item.appointment_segments?.[0]?.team_member_id
-        if (tmId) allTeamIdsFromSquare.add(tmId)
+    let bookableTeamIds: string[] = []
+    try {
+      bookableTeamIds = await listBookableTeamMemberIdsForLocation()
+      if (bookableTeamIds.length === 0) {
+        console.warn(
+          "[one-on-one-slots] Square returned no bookable team members for this location (check Team → Booking / Appointments in Square, or location_id). Using aggregate availability — often only one staff per slot.",
+        )
       }
+    } catch (err) {
+      console.warn(
+        "[one-on-one-slots] Could not list bookable team profiles (need APPOINTMENTS_BUSINESS_SETTINGS_READ); using aggregate availability only:",
+        err,
+      )
     }
-    console.log("[one-on-one-slots] Square returned team member IDs:", [...allTeamIdsFromSquare])
+
+    /**
+     * Square's unfiltered availability search returns one team_member_id per slot; another trainer
+     * can be chosen even when Jessica (etc.) is also free for that service. Query each bookable
+     * staff member with team_member_id_filter and merge so the portal shows everyone's real openings.
+     */
+    async function fetchWindowsForTeam(teamMemberId: string | undefined) {
+      return Promise.all(
+        [0, 1, 2].map((i) => {
+          const windowStart = new Date(now.getTime() + i * WINDOW_DAYS * DAY_MS)
+          const windowEnd = new Date(now.getTime() + (i + 1) * WINDOW_DAYS * DAY_MS)
+          return searchSquareAvailability({
+            serviceVariationId,
+            startAt: windowStart.toISOString(),
+            endAt: windowEnd.toISOString(),
+            ...(teamMemberId ? { teamMemberId } : {}),
+          })
+        }),
+      )
+    }
+
+    let availabilityResults: Awaited<ReturnType<typeof searchSquareAvailability>>[]
+    if (bookableTeamIds.length > 0) {
+      const perStaff = await Promise.allSettled(bookableTeamIds.map((id) => fetchWindowsForTeam(id)))
+      const unexpectedFailure = perStaff.find(
+        (result) => result.status === "rejected" && !isSquareServiceAssignmentMismatch(result.reason),
+      )
+      if (unexpectedFailure?.status === "rejected") {
+        throw unexpectedFailure.reason
+      }
+
+      perStaff.forEach((result, index) => {
+        if (result.status === "rejected") {
+          console.warn(
+            "[one-on-one-slots] Skipping team member for service variation mismatch:",
+            bookableTeamIds[index],
+            serviceVariationId,
+            result.reason,
+          )
+        }
+      })
+
+      const fulfilled = perStaff
+        .filter((result): result is PromiseFulfilledResult<Awaited<ReturnType<typeof fetchWindowsForTeam>>> => result.status === "fulfilled")
+        .map((result) => result.value)
+
+      if (fulfilled.length > 0) {
+        availabilityResults = fulfilled.flat()
+      } else {
+        console.warn(
+          "[one-on-one-slots] All per-staff availability searches were skipped; falling back to aggregate availability for service variation:",
+          serviceVariationId,
+        )
+        availabilityResults = await fetchWindowsForTeam(undefined)
+      }
+    } else {
+      availabilityResults = await fetchWindowsForTeam(undefined)
+    }
 
     for (const availability of availabilityResults) {
       for (const item of availability.availabilities || []) {

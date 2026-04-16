@@ -1,8 +1,10 @@
 import crypto from "node:crypto"
-import { FieldValue } from "firebase-admin/firestore"
+import type { Firestore } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { finalizeGroupSeriesPaymentFromWebhook } from "@/lib/group-class-series"
+import { reconcileSquareBookingWebhook, type SquareWebhookPayload } from "@/lib/square-webhook-bookings"
+import { retrieveSquareBooking, retrieveSquareOrder } from "@/lib/square"
 
 export const runtime = "nodejs"
 
@@ -11,6 +13,84 @@ function isValidSignature(input: { signature: string; body: string; url: string;
   hmac.update(input.url + input.body)
   const digest = hmac.digest("base64")
   return digest === input.signature
+}
+
+function tryGetOrderCheckoutHints(payload: WebhookPayload): {
+  orderId?: string
+  referenceId?: string
+  state?: string
+  amountCents?: number
+} {
+  const obj = payload.data?.object
+  if (!obj || typeof obj !== "object") return {}
+
+  const order = obj.order as Record<string, unknown> | undefined
+  if (order && typeof order.id === "string") {
+    const tm = order.total_money as { amount?: number | bigint } | undefined
+    const amt = tm?.amount
+    return {
+      orderId: order.id,
+      referenceId: typeof order.reference_id === "string" ? order.reference_id : undefined,
+      state: typeof order.state === "string" ? order.state : undefined,
+      amountCents: amt != null ? Number(amt) : undefined,
+    }
+  }
+
+  const ou = obj.order_updated as Record<string, unknown> | undefined
+  if (ou && typeof ou.order_id === "string") {
+    return {
+      orderId: ou.order_id,
+      state: typeof ou.state === "string" ? ou.state : undefined,
+    }
+  }
+
+  const payment = obj.payment as Record<string, unknown> | undefined
+  if (payment && typeof payment.order_id === "string") {
+    return {
+      orderId: payment.order_id,
+      state: typeof payment.status === "string" ? payment.status : undefined,
+    }
+  }
+
+  return {}
+}
+
+async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: WebhookPayload) {
+  const hints = tryGetOrderCheckoutHints(payload)
+  if (!hints.orderId) return
+
+  let referenceId = hints.referenceId
+  let state = hints.state
+  let amountCents = hints.amountCents
+
+  const hasInlinePaidOrder = Boolean(referenceId && state === "COMPLETED")
+  if (!hasInlinePaidOrder) {
+    try {
+      const full = await retrieveSquareOrder(hints.orderId)
+      const ord = full.order
+      if (!ord) return
+      referenceId = referenceId || ord.reference_id || undefined
+      state = ord.state || state
+      if (ord.total_money?.amount != null) {
+        amountCents = Number(ord.total_money.amount)
+      }
+    } catch {
+      return
+    }
+  }
+
+  if (!referenceId || state !== "COMPLETED") return
+
+  const bookingId = referenceId.trim()
+  if (!bookingId || bookingId.length > 40) return
+
+  await finalizeGroupSeriesPaymentFromWebhook(db, {
+    bookingId,
+    squareOrderId: hints.orderId,
+    amountCents,
+    eventId: payload.event_id ?? null,
+    eventType: payload.type ?? null,
+  })
 }
 
 export async function POST(request: Request) {
@@ -25,51 +105,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid webhook signature." }, { status: 401 })
   }
 
-  const payload = JSON.parse(rawBody) as {
-    type?: string
-    event_id?: string
-    data?: {
-      object?: {
-        booking?: {
-          id?: string
-          status?: string
-          customer_id?: string
-          appointment_segments?: Array<{ service_variation_id?: string }>
-        }
-      }
-    }
+  let payload: WebhookPayload
+  try {
+    payload = JSON.parse(rawBody) as WebhookPayload
+  } catch {
+    return NextResponse.json({ ok: true })
   }
-
-  const booking = payload.data?.object?.booking
-  if (!booking?.id) return NextResponse.json({ ok: true })
 
   const db = getAdminDb()
-  const bookingSnap = await db.collection(BOOKINGS_COLLECTION).where("squareBookingId", "==", booking.id).limit(1).get()
-  if (!bookingSnap.empty) {
-    await bookingSnap.docs[0].ref.set(
-      {
-        squareBookingStatus: booking.status || null,
-        squareWebhookLastEventId: payload.event_id || null,
-        squareWebhookLastEventType: payload.type || null,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    )
+  try {
+    await reconcileSquareBookingWebhook(db, payload, { retrieveBooking: retrieveSquareBooking })
+  } catch (err) {
+    console.error("[square webhook] booking reconcile:", err)
   }
 
-  const consultationSnap = await db.collection(CONSULTATIONS_COLLECTION).where("squareConsultationBookingId", "==", booking.id).limit(1).get()
-  if (!consultationSnap.empty) {
-    await consultationSnap.docs[0].ref.set(
-      {
-        squareConsultationStatus: booking.status || null,
-        squareWebhookLastEventId: payload.event_id || null,
-        squareWebhookLastEventType: payload.type || null,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    )
+  try {
+    await maybeFinalizeGroupSeriesFromOrderWebhook(db, payload)
+  } catch (err) {
+    console.error("[square webhook] group series finalize:", err)
   }
 
   return NextResponse.json({ ok: true })
 }
-

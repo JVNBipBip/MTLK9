@@ -1,5 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
+import { FreeCallLink } from "@/components/booking-form-provider"
 
 const footerLinks = {
   training: [
@@ -38,10 +41,12 @@ export function Footer() {
               plans — through humane methods and a team of specialists who have seen it all before.
             </p>
             <div className="space-y-3 text-sm text-background/70">
-              <Link href="tel:+15148269558" className="flex items-center gap-3 hover:text-background transition-colors">
-                <Phone className="w-4 h-4" />
-                <span>514 826 9558</span>
-              </Link>
+              <FreeCallLink className="flex items-center gap-3 hover:text-background transition-colors text-left w-full sm:w-auto cursor-pointer">
+                <span className="flex items-center gap-3">
+                  <Phone className="w-4 h-4" />
+                  <span>514 826 9558</span>
+                </span>
+              </FreeCallLink>
               <Link href="mailto:mtlcaninetraining@gmail.com" className="flex items-center gap-3 hover:text-background transition-colors">
                 <Mail className="w-4 h-4" />
                 <span>mtlcaninetraining@gmail.com</span>
