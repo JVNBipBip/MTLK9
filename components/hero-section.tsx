@@ -150,15 +150,15 @@ export function HeroSection() {
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
             <AnimatedText text="Get your life" delay={0.3} />
             <br />
-            <AnimatedText text="with your dog" delay={0.6} />
+            <AnimatedText text="back" delay={0.6} />
             <br />
             <span className="text-accent">
-              <AnimatedText text="back." delay={1.0} />
+              <AnimatedText text="with your dog." delay={1.0} />
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
-            Real-world training for leash pulling, reactivity, anxiety, and everyday manners —
-            built around humane, evidence-guided methods.
+            Real-World training for leash pulling, reactivity, behaviour and everyday manners —
+            built to deliver effective, lasting results.
           </p>
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
             <FreeCallLink className="w-full sm:w-auto">

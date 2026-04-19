@@ -5,9 +5,9 @@ import { Shield, MapPin, Users, Clock } from "lucide-react"
 
 const trustItems = [
   { icon: Clock, text: "10–15+ Years Experience" },
-  { icon: Shield, text: "Humane, Evidence-Guided Methods" },
-  { icon: MapPin, text: "Real-World Training — Not a Classroom" },
-  { icon: Users, text: "A Team of 4 Specialists" },
+  { icon: Shield, text: "Customized Training Programs" },
+  { icon: MapPin, text: "Real Training, Real Results" },
+  { icon: Users, text: "A Team of Professionals" },
 ]
 
 export function TrustStrip() {

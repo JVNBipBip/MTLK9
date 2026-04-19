@@ -19,7 +19,7 @@ const steps = [
     number: "02",
     title: "Evaluation Session",
     description:
-      "We meet you and your dog in the real world — a park, your neighborhood — and assess behavior where it actually happens.",
+      "We meet you and your dog, assess their needs, create a custom training plan, and start hands-on training right away.",
   },
   {
     icon: ClipboardList,
@@ -66,7 +66,7 @@ export function HowItWorksSection() {
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            From your first call to a calmer, more confident dog — here&apos;s the path.
+            From your first call to a stable, trained and confident dog, here&apos;s how to start.
           </p>
         </div>
 

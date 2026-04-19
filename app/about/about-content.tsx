@@ -215,24 +215,23 @@ export function AboutContent() {
           </h2>
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p className="reveal opacity-0 animation-delay-200">
-              We believe training is really about the human, not the dog. Your dog is already doing
-              what makes sense to them. Our job is to help you understand why — and give you the
-              tools to guide them without breaking the trust between you.
+              At Montreal Canine Training, we help build strong, healthy relationships between dogs
+              and their owners. With a proven track record, we consistently deliver real,
+              professional, and effective training solutions.
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              We train in the real world because that&apos;s where your dog lives — not in a training
-              room. Parks, sidewalks, cafés, your own home. That&apos;s where behavior happens, and
-              that&apos;s where we work.
+              Every dog is assessed individually to create a personalized training plan. From
+              basic/advanced obedience to severe behavioral issues, our experienced team delivers
+              real results. We believe training is about the human, not the dog. Your dog is already
+              doing what makes sense to them. We help you understand why and give you the tools to
+              guide them without breaking trust. We train in the real world, not just at our
+              facility — progressing into everyday environments like parks, cafés, hardware stores
+              and markets.
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              Every dog deserves to be understood, not just corrected. We don&apos;t mask symptoms with
-              quick fixes. We get to the root of what&apos;s driving the behavior, and we build from
-              there.
-            </p>
-            <p className="reveal opacity-0 animation-delay-200">
-              We don&apos;t just hand you techniques. We give you a plan, support between sessions,
-              and someone in your corner until it clicks. Because training isn&apos;t a one-off — it&apos;s
-              a partnership.
+              We don&apos;t just hand you techniques. We give you a plan, ongoing support between
+              sessions, and stay in your corner until you see results — because training isn&apos;t
+              a one-off, it&apos;s a partnership.
             </p>
           </div>
         </div>
@@ -245,15 +244,16 @@ export function AboutContent() {
             Our Methods
           </h2>
           <p className="reveal opacity-0 animation-delay-200 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-8">
-            Force-free, science-based, transparent
+            Positive reinforcement training, motivation and reward based training
           </p>
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p className="reveal opacity-0 animation-delay-200">
-              <strong className="text-foreground">Our approach:</strong> We use force-free,
-              science-based methods rooted in modern learning theory. We do not use fear, pain, or
-              intimidation. We do not use prong collars, choke chains, or e-collars. We build
-              behavior through positive reinforcement, clear communication, and management that keeps
-              everyone safe while we work.
+              <strong className="text-foreground">Our approach:</strong> We build and shape
+              behaviours using positive reinforcement, clear communication, and motivation, creating
+              confident, engaged dogs. We don&apos;t use fear or pain. We adapt our approach to their
+              needs, perception and understanding. Our expertise in a variety of proven training
+              methods allows us to support a wider range of dogs, resulting in high success rates,
+              from early puppy development to severe behavioral problems.
             </p>
             <p className="reveal opacity-0 animation-delay-200">
               <strong className="text-foreground">What to expect in a session:</strong> We meet you
