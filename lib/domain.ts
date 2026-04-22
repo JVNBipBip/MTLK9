@@ -9,6 +9,8 @@ export const PRIVATE_TRAINING_PACKAGES_COLLECTION = "private_training_packages"
 /** Per-client booking permissions (e.g. in-home vs facility-only). Doc id: `clientBookingSettingsDocId(email)`. */
 export const CLIENT_BOOKING_SETTINGS_COLLECTION = "client_booking_settings"
 export const CONTRACT_ACCEPTANCES_COLLECTION = "contract_acceptances"
+/** Persisted record of every incoming Square webhook event (for observability and debugging). */
+export const SQUARE_WEBHOOK_EVENTS_COLLECTION = "square_webhook_events"
 
 export type ContractKind = "daycare" | "private_classes" | "group_classes" | "assessment_booking"
 

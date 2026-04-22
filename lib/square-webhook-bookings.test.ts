@@ -3,7 +3,7 @@ jest.mock("./square-service-config", () => ({
 }))
 
 import type { Firestore } from "firebase-admin/firestore"
-import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION } from "@/lib/domain"
+import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION, SQUARE_CUSTOMERS_COLLECTION } from "@/lib/domain"
 import { reconcileSquareBookingWebhook } from "./square-webhook-bookings"
 
 type DocData = Record<string, unknown>
@@ -37,6 +37,14 @@ class FakeDocRef {
     const existing = this.store.get(this.id) || {}
     this.store.set(this.id, options?.merge ? deepMerge(existing, data) : data)
   }
+
+  async get() {
+    const data = this.store.get(this.id)
+    return {
+      exists: data !== undefined,
+      data: () => data,
+    }
+  }
 }
 
 class FakeQuerySnapshot {
@@ -48,6 +56,7 @@ class FakeQuerySnapshot {
 
   get docs() {
     return this.entries.map(([id, data]) => ({
+      id,
       ref: new FakeDocRef(this.store, id),
       data: () => data,
     }))
@@ -59,15 +68,17 @@ class FakeQuery {
     private store: Map<string, DocData>,
     private field: string,
     private value: unknown,
+    private max: number = 1,
   ) {}
 
-  limit() {
+  limit(n: number) {
+    this.max = n
     return this
   }
 
   async get() {
     const entries = [...this.store.entries()].filter(([, data]) => data[this.field] === this.value)
-    return new FakeQuerySnapshot(this.store, entries.slice(0, 1))
+    return new FakeQuerySnapshot(this.store, entries.slice(0, this.max))
   }
 }
 
@@ -259,6 +270,246 @@ describe("reconcileSquareBookingWebhook", () => {
       bookingStatus: "cancelled",
       squareBookingStatus: "CANCELLED",
       squareWebhookLastEventId: "evt_cancel",
+    })
+  })
+
+  it("merges an unmatched consultation booking into an existing consultation when email matches", async () => {
+    const db = new FakeFirestore()
+    db.seed(CONSULTATIONS_COLLECTION, "intake_doc", {
+      clientName: "Jamie Client",
+      clientEmail: "jamie@example.com",
+      clientPhone: "+15145551234",
+      status: "intake_submitted",
+    })
+
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => ({
+          customer: {
+            id: "cust_1",
+            given_name: "Jamie",
+            family_name: "Client",
+            email_address: "jamie@example.com",
+            phone_number: "+15145551234",
+          },
+        }),
+      },
+    )
+
+    expect(outcome.action).toBe("merged_existing_consultation")
+    expect(outcome.matchedBy).toBe("email")
+    expect(outcome.docId).toBe("intake_doc")
+    expect(db.data(CONSULTATIONS_COLLECTION, "intake_doc")).toMatchObject({
+      squareConsultationBookingId: "sq_booking_new",
+      squareCustomerId: "cust_1",
+      scheduledAtIso: "2026-04-20T16:00:00.000Z",
+      consultationDateTime: "2026-04-20T16:00:00.000Z",
+      clientName: "Jamie Client",
+      clientEmail: "jamie@example.com",
+      clientPhone: "+15145551234",
+      status: "scheduled",
+    })
+    // must not create a new stub
+    expect(db.all(CONSULTATIONS_COLLECTION)).toHaveLength(1)
+  })
+
+  it("populates a consultation stub with Square customer data when no match exists", async () => {
+    const db = new FakeFirestore()
+
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => ({
+          customer: {
+            id: "cust_1",
+            given_name: "Pat",
+            family_name: "New",
+            email_address: "pat@example.com",
+            phone_number: "+15145550000",
+          },
+        }),
+      },
+    )
+
+    expect(outcome.action).toBe("created_consultation_stub")
+    expect(outcome.clientEmail).toBe("pat@example.com")
+    const created = db.all(CONSULTATIONS_COLLECTION)
+    expect(created).toHaveLength(1)
+    expect(created[0]?.data).toMatchObject({
+      clientName: "Pat New",
+      clientEmail: "pat@example.com",
+      clientPhone: "+15145550000",
+      squareCustomerId: "cust_1",
+      squareConsultationBookingId: "sq_booking_new",
+      status: "scheduled",
+      needsAdminReview: true,
+    })
+  })
+
+  it("enriches from the local square_customers mirror without calling the Square API", async () => {
+    const db = new FakeFirestore()
+    db.seed(SQUARE_CUSTOMERS_COLLECTION, "cust_1", {
+      givenName: "Sam",
+      familyName: "Local",
+      email: "sam@example.com",
+      emailLower: "sam@example.com",
+      phone: "+15145559999",
+      displayName: "Sam Local",
+    })
+
+    let apiCalls = 0
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => {
+          apiCalls += 1
+          return { customer: { id: "cust_1", email_address: "should-not-win@example.com" } }
+        },
+      },
+    )
+
+    expect(outcome.action).toBe("created_consultation_stub")
+    // Local mirror wins over the API response for display fields.
+    expect(outcome.clientName).toBe("Sam Local")
+    expect(outcome.clientEmail).toBe("sam@example.com")
+    expect(outcome.clientPhone).toBe("+15145559999")
+    // The live call is still made in parallel (used as a fallback), but its
+    // values don't override the local mirror.
+    expect(apiCalls).toBe(1)
+
+    const created = db.all(CONSULTATIONS_COLLECTION)
+    expect(created).toHaveLength(1)
+    expect(created[0]?.data).toMatchObject({
+      clientName: "Sam Local",
+      clientEmail: "sam@example.com",
+      clientPhone: "+15145559999",
+      squareCustomerId: "cust_1",
+    })
+  })
+
+  it("matches existing consultation by squareCustomerId even when email differs", async () => {
+    const db = new FakeFirestore()
+    db.seed(CONSULTATIONS_COLLECTION, "existing_doc", {
+      clientName: "Alex Existing",
+      clientEmail: "old-email@example.com",
+      clientPhone: "+15145551111",
+      status: "intake_submitted",
+      squareCustomerId: "cust_1",
+    })
+
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => ({
+          customer: {
+            id: "cust_1",
+            email_address: "new-email@example.com",
+          },
+        }),
+      },
+    )
+
+    expect(outcome.action).toBe("merged_existing_consultation")
+    expect(outcome.matchedBy).toBe("square_customer_id")
+    expect(outcome.docId).toBe("existing_doc")
+    expect(db.data(CONSULTATIONS_COLLECTION, "existing_doc")).toMatchObject({
+      squareConsultationBookingId: "sq_booking_new",
+      squareCustomerId: "cust_1",
+      // Existing email is preserved; we only fill blanks, never overwrite.
+      clientEmail: "old-email@example.com",
+      status: "scheduled",
+    })
+    expect(db.all(CONSULTATIONS_COLLECTION)).toHaveLength(1)
+  })
+
+  it("still creates a stub when Square customer retrieval fails", async () => {
+    const db = new FakeFirestore()
+
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => {
+          throw new Error("Square customer fetch blew up")
+        },
+      },
+    )
+
+    expect(outcome.action).toBe("created_consultation_stub")
+    expect(outcome.clientEmail).toBeNull()
+    const created = db.all(CONSULTATIONS_COLLECTION)
+    expect(created).toHaveLength(1)
+    expect(created[0]?.data).toMatchObject({
+      clientName: "",
+      clientEmail: "",
+      clientPhone: "",
+      squareCustomerId: "cust_1",
+      squareConsultationBookingId: "sq_booking_new",
     })
   })
 

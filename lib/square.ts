@@ -80,24 +80,60 @@ async function getSquareConfigAsync() {
   }
 }
 
+function parseRetryAfterMs(header: string | null): number | null {
+  if (!header) return null
+  const seconds = Number(header)
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.min(Math.ceil(seconds * 1000), 60_000)
+  }
+  const date = Date.parse(header)
+  if (!Number.isNaN(date)) {
+    return Math.min(Math.max(0, date - Date.now()), 60_000)
+  }
+  return null
+}
+
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms))
+}
+
+const MAX_SQUARE_RETRIES = 5
+
 async function squareRequest<T>(path: string, init: RequestInit) {
   const cfg = await getSquareConfigAsync()
-  const response = await fetch(`${cfg.baseUrl}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${cfg.accessToken}`,
-      "Square-Version": cfg.apiVersion,
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
-  })
+  let attempt = 0
+  while (true) {
+    const response = await fetch(`${cfg.baseUrl}${path}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${cfg.accessToken}`,
+        "Square-Version": cfg.apiVersion,
+        "Content-Type": "application/json",
+        ...(init.headers || {}),
+      },
+    })
 
-  const data = (await response.json().catch(() => null)) as { errors?: Array<{ detail?: string; code?: string }> } | null
-  if (!response.ok) {
+    const data = (await response.json().catch(() => null)) as { errors?: Array<{ detail?: string; code?: string }> } | null
+    if (response.ok) return data as T
+
+    const isRateLimited = response.status === 429
+    const isTransient = response.status >= 500 && response.status < 600
+    if ((isRateLimited || isTransient) && attempt < MAX_SQUARE_RETRIES) {
+      const retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"))
+      const backoffMs = Math.min(30_000, 500 * 2 ** attempt)
+      const jitterMs = Math.floor(Math.random() * 250)
+      const waitMs = (retryAfterMs ?? backoffMs) + jitterMs
+      attempt += 1
+      console.warn(
+        `[Square] ${response.status} ${path} — retrying in ${waitMs}ms (attempt ${attempt}/${MAX_SQUARE_RETRIES})`,
+      )
+      await sleep(waitMs)
+      continue
+    }
+
     const firstError = data?.errors?.[0]
     throw new Error(firstError?.detail || firstError?.code || `Square request failed with ${response.status}.`)
   }
-  return data as T
 }
 
 export type SquareSearchAvailabilityResult = {
@@ -362,6 +398,24 @@ export type SquareBooking = {
 
 export async function retrieveSquareBooking(bookingId: string) {
   return squareRequest<{ booking?: SquareBooking }>(`/v2/bookings/${encodeURIComponent(bookingId)}`, {
+    method: "GET",
+  })
+}
+
+export type SquareCustomer = {
+  id?: string
+  given_name?: string
+  family_name?: string
+  nickname?: string
+  company_name?: string
+  email_address?: string
+  phone_number?: string
+  reference_id?: string
+  note?: string
+}
+
+export async function retrieveSquareCustomer(customerId: string) {
+  return squareRequest<{ customer?: SquareCustomer }>(`/v2/customers/${encodeURIComponent(customerId)}`, {
     method: "GET",
   })
 }
