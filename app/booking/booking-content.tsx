@@ -32,8 +32,10 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
     case 1:
       return formData.duration !== ""
     case 2:
-      return formData.impact.length > 0
+      return formData.tried.length > 0
     case 3:
+      return formData.impact.length > 0
+    case 4:
       return (
         formData.dogName.trim() !== "" &&
         formData.dogBreed.trim() !== "" &&
