@@ -64,6 +64,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showSchedulingStep, setShowSchedulingStep] = useState(false)
 
+  const updateFormData = useCallback((updates: Partial<BookingFormData>) => {
+    setFormData((prev) => ({ ...prev, ...updates }))
+  }, [])
+
   // Capture fbclid from URL, localStorage, or cookie on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -208,10 +212,6 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       active = false
     }
   }, [formData.connectMethod, formData.issue, formData.impact, showSchedulingStep])
-
-  const updateFormData = useCallback((updates: Partial<BookingFormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }))
-  }, [])
 
   const setTrainerFilterAndClearSlot = useCallback(
     (id: string | null) => {
