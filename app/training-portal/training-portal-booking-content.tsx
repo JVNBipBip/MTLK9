@@ -69,10 +69,6 @@ export function TrainingPortalBookingContent({
   }, [slots, staffFilterId])
 
   useEffect(() => {
-    setWeekOffset(0)
-  }, [staffFilterId])
-
-  useEffect(() => {
     setSelectedSlotKeys((prev) =>
       prev.filter((key) => {
         const slot = slots.find((s) => s.slotKey === key)
@@ -144,8 +140,6 @@ export function TrainingPortalBookingContent({
       if (!response.ok) throw new Error(data.error || "Could not load available times.")
       setSlots(data.slots || [])
       setSelectedSlotKeys([])
-      setWeekOffset(0)
-      setStaffFilterId("")
     } catch (err) {
       setSlots([])
       setError(err instanceof Error ? err.message : "Could not load available times.")

@@ -2,9 +2,8 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, Clock, User } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
@@ -110,38 +109,30 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     return [...map.entries()].map(([id, name]) => ({ id, name }))
   }, [consultationSlots])
 
-  const groupedSlots = useMemo(() => {
+  const slotsByDay = useMemo(() => {
     const groups: Record<string, typeof displaySlots> = {}
     for (const slot of displaySlots) {
-      const date = new Date(slot.startAt)
-      
-      // Get start of week (Sunday)
-      const startOfWeek = new Date(date)
-      startOfWeek.setDate(date.getDate() - date.getDay())
-      startOfWeek.setHours(0, 0, 0, 0)
-      
-      // Get end of week (Saturday)
-      const endOfWeek = new Date(startOfWeek)
-      endOfWeek.setDate(startOfWeek.getDate() + 6)
-      
-      const key = `${startOfWeek.toLocaleDateString("en-CA", { month: "short", day: "numeric" })} - ${endOfWeek.toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`
-      
+      const d = new Date(slot.startAt)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
       if (!groups[key]) groups[key] = []
       groups[key].push(slot)
+    }
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime())
     }
     return groups
   }, [displaySlots])
 
-  const weekKeys = useMemo(() => Object.keys(groupedSlots), [groupedSlots])
-  const [selectedWeek, setSelectedWeek] = useState<string>("")
+  const dayKeys = useMemo(() => Object.keys(slotsByDay).sort(), [slotsByDay])
+  const [selectedDay, setSelectedDay] = useState<string>("")
 
   useEffect(() => {
-    if (weekKeys.length === 0) {
-      setSelectedWeek("")
+    if (dayKeys.length === 0) {
+      setSelectedDay("")
       return
     }
-    setSelectedWeek((prev) => (prev && weekKeys.includes(prev) ? prev : weekKeys[0]))
-  }, [weekKeys])
+    setSelectedDay((prev) => (prev && dayKeys.includes(prev) ? prev : dayKeys[0]))
+  }, [dayKeys])
 
   useEffect(() => {
     if (!showSchedulingStep) {
@@ -373,14 +364,6 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       {/* Step content — scrollable */}
       <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 overscroll-contain">
         <div className="max-w-lg mx-auto w-full">
-          {formData.connectMethod === "in-person-evaluation" && (
-            <div className="mb-4 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm">
-              <p className="font-medium text-foreground">In-person assessment booking</p>
-              <p className="text-muted-foreground">
-                Choose your preferred assessment slot and we will confirm it in Square.
-              </p>
-            </div>
-          )}
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>
@@ -403,9 +386,31 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     </div>
                   ) : null}
                   {slotsMeta.nickRoutingActive && consultationSlots.length > 0 ? (
-                    <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground">
-                      Based on your answers, you&apos;re booking with our specialist for dogs with safety-related
-                      concerns.
+                    <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground space-y-1">
+                      <p>
+                        Based on your answers, you&apos;re booking with our specialist for dogs with
+                        safety-related concerns.
+                      </p>
+                      <p className="text-muted-foreground">
+                        Please note: the specialist assessment is $165 CAD (our standard assessment is $145 CAD).
+                      </p>
+                    </div>
+                  ) : null}
+                  {!slotsMeta.nickRoutingActive &&
+                  slotsMeta.recommendedTeamMemberId &&
+                  consultationSlots.length > 0 ? (
+                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm space-y-1">
+                      <p className="flex items-center gap-2 font-medium text-foreground">
+                        <span
+                          aria-hidden="true"
+                          className="w-2 h-2 rounded-full bg-primary"
+                        />
+                        Recommended specialist for your dog&apos;s needs
+                      </p>
+                      <p className="text-muted-foreground pl-4">
+                        Specialist assessment is $165 CAD (standard is $145 CAD). Look for the dot on
+                        the recommended trainer and time slots below.
+                      </p>
                     </div>
                   ) : null}
                   {consultationSlots.length === 0 ? (
@@ -435,21 +440,36 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                             >
                               All trainers
                             </button>
-                            {uniqueTrainers.map((t) => (
-                              <button
-                                key={t.id}
-                                type="button"
-                                onClick={() => setTrainerFilterAndClearSlot(t.id)}
-                                className={cn(
-                                  "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
-                                  trainerFilterId === t.id
-                                    ? "bg-foreground text-background border-foreground"
-                                    : "bg-background text-muted-foreground border-border hover:border-primary/40",
-                                )}
-                              >
-                                {t.name}
-                              </button>
-                            ))}
+                            {uniqueTrainers.map((t) => {
+                              const isRecommendedTrainer =
+                                !!slotsMeta.recommendedTeamMemberId &&
+                                t.id === slotsMeta.recommendedTeamMemberId
+                              const isActive = trainerFilterId === t.id
+                              return (
+                                <button
+                                  key={t.id}
+                                  type="button"
+                                  onClick={() => setTrainerFilterAndClearSlot(t.id)}
+                                  className={cn(
+                                    "relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
+                                    isActive
+                                      ? "bg-foreground text-background border-foreground"
+                                      : "bg-background text-muted-foreground border-border hover:border-primary/40",
+                                  )}
+                                >
+                                  {isRecommendedTrainer ? (
+                                    <span
+                                      aria-hidden="true"
+                                      className={cn(
+                                        "w-1.5 h-1.5 rounded-full",
+                                        isActive ? "bg-background" : "bg-primary",
+                                      )}
+                                    />
+                                  ) : null}
+                                  {t.name}
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
                       ) : null}
@@ -458,112 +478,155 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                           No times for this trainer. Choose &quot;All trainers&quot; to see every opening.
                         </p>
                       ) : (
-                        <>
-                          {weekKeys.length > 1 && (
-                            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                              {weekKeys.map((week) => (
-                                <button
-                                  key={week}
-                                  type="button"
-                                  onClick={() => setSelectedWeek(week)}
-                                  className={cn(
-                                    "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
-                                    selectedWeek === week
-                                      ? "bg-foreground text-background"
-                                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
-                                  )}
-                                >
-                                  {week}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {(groupedSlots[selectedWeek] || []).map((slot) => {
-                              const isSelected = formData.consultationSlotKey === slot.slotKey
-                              const date = new Date(slot.startAt)
-                              const showRecommendedBadge =
-                                Boolean(
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                              Pick a day
+                            </p>
+                            <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 no-scrollbar snap-x">
+                              {dayKeys.map((dayKey) => {
+                                const daySlots = slotsByDay[dayKey] || []
+                                const first = daySlots[0]
+                                if (!first) return null
+                                const d = new Date(first.startAt)
+                                const isActive = selectedDay === dayKey
+                                const count = daySlots.length
+                                const hasRecommended =
+                                  !slotsMeta.nickRoutingActive &&
                                   slotsMeta.recommendedTeamMemberId &&
-                                    slot.teamMemberId === slotsMeta.recommendedTeamMemberId &&
-                                    !slotsMeta.nickRoutingActive,
-                                )
-
-                              return (
-                                <button
-                                  key={slot.slotKey}
-                                  type="button"
-                                  onClick={() =>
-                                    updateFormData({
-                                      consultationDateTime: slot.startAt,
-                                      consultationSlotKey: slot.slotKey,
-                                      consultationLocation: CONSULTATION_LOCATION,
-                                      consultationWhat: "In-person assessment",
-                                    })
-                                  }
-                                  className={cn(
-                                    "relative flex flex-col items-start p-4 rounded-xl border text-left transition-all",
-                                    isSelected
-                                      ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                      : "border-border bg-background hover:border-primary/50 hover:bg-muted/50",
-                                  )}
-                                >
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Calendar
-                                      className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")}
-                                    />
+                                  daySlots.some(
+                                    (s) => s.teamMemberId === slotsMeta.recommendedTeamMemberId,
+                                  )
+                                return (
+                                  <button
+                                    key={dayKey}
+                                    type="button"
+                                    onClick={() => setSelectedDay(dayKey)}
+                                    className={cn(
+                                      "relative snap-start shrink-0 flex flex-col items-center justify-center px-4 py-3 rounded-xl border min-w-[76px] transition-colors",
+                                      isActive
+                                        ? "border-primary bg-primary text-primary-foreground"
+                                        : "border-border bg-background hover:border-primary/40 hover:bg-muted/40",
+                                    )}
+                                  >
                                     <span
                                       className={cn(
-                                        "text-sm font-medium",
-                                        isSelected ? "text-primary" : "text-foreground",
+                                        "text-[10px] font-semibold uppercase tracking-wide",
+                                        isActive ? "text-primary-foreground/80" : "text-muted-foreground",
                                       )}
                                     >
-                                      {date.toLocaleDateString("en-CA", {
-                                        weekday: "long",
-                                        month: "short",
-                                        day: "numeric",
-                                      })}
+                                      {d.toLocaleDateString("en-CA", { weekday: "short" })}
                                     </span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Clock
-                                      className={cn("w-4 h-4", isSelected ? "text-primary" : "text-muted-foreground")}
-                                    />
+                                    <span className="text-lg font-bold leading-none mt-1">
+                                      {d.getDate()}
+                                    </span>
                                     <span
-                                      className={cn("text-sm", isSelected ? "text-foreground" : "text-muted-foreground")}
+                                      className={cn(
+                                        "text-[10px] mt-1",
+                                        isActive ? "text-primary-foreground/80" : "text-muted-foreground",
+                                      )}
                                     >
-                                      {date.toLocaleTimeString("en-CA", { timeStyle: "short" })}
+                                      {d.toLocaleDateString("en-CA", { month: "short" })}
                                     </span>
-                                  </div>
-                                  {(slot.teamMemberName || slot.teamMemberId) && (
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <User
+                                    <span
+                                      className={cn(
+                                        "text-[10px] mt-1",
+                                        isActive
+                                          ? "text-primary-foreground/70"
+                                          : "text-muted-foreground/80",
+                                      )}
+                                    >
+                                      {count} {count === 1 ? "slot" : "slots"}
+                                    </span>
+                                    {hasRecommended ? (
+                                      <span
+                                        aria-hidden="true"
                                         className={cn(
-                                          "w-4 h-4 shrink-0",
-                                          isSelected ? "text-primary" : "text-muted-foreground",
+                                          "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full",
+                                          isActive ? "bg-primary-foreground" : "bg-primary",
                                         )}
                                       />
-                                      <span
-                                        className={cn(
-                                          "text-sm",
-                                          isSelected ? "text-foreground" : "text-muted-foreground",
-                                        )}
-                                      >
-                                        {slot.teamMemberName || "Staff"}
-                                      </span>
-                                    </div>
-                                  )}
-                                  {showRecommendedBadge ? (
-                                    <Badge variant="secondary" className="mt-2">
-                                      Recommended specialist
-                                    </Badge>
-                                  ) : null}
-                                </button>
-                              )
-                            })}
+                                    ) : null}
+                                  </button>
+                                )
+                              })}
+                            </div>
                           </div>
-                        </>
+
+                          {selectedDay && slotsByDay[selectedDay]?.length ? (
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                                Times on{" "}
+                                {new Date(slotsByDay[selectedDay][0].startAt).toLocaleDateString(
+                                  "en-CA",
+                                  { weekday: "long", month: "long", day: "numeric" },
+                                )}
+                              </p>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {slotsByDay[selectedDay].map((slot) => {
+                                  const isSelected =
+                                    formData.consultationSlotKey === slot.slotKey
+                                  const d = new Date(slot.startAt)
+                                  const isRecommended = Boolean(
+                                    slotsMeta.recommendedTeamMemberId &&
+                                      slot.teamMemberId === slotsMeta.recommendedTeamMemberId &&
+                                      !slotsMeta.nickRoutingActive,
+                                  )
+                                  const showTrainerName =
+                                    !trainerFilterId &&
+                                    uniqueTrainers.length > 1 &&
+                                    (slot.teamMemberName || slot.teamMemberId)
+
+                                  return (
+                                    <button
+                                      key={slot.slotKey}
+                                      type="button"
+                                      onClick={() =>
+                                        updateFormData({
+                                          consultationDateTime: slot.startAt,
+                                          consultationSlotKey: slot.slotKey,
+                                          consultationLocation: CONSULTATION_LOCATION,
+                                          consultationWhat: "In-person assessment",
+                                        })
+                                      }
+                                      className={cn(
+                                        "relative flex flex-col items-center justify-center py-3 px-3 rounded-xl border text-center transition-colors",
+                                        isSelected
+                                          ? "border-primary bg-primary text-primary-foreground ring-1 ring-primary"
+                                          : "border-border bg-background hover:border-primary/40 hover:bg-muted/40",
+                                      )}
+                                    >
+                                      <span className="text-sm font-semibold">
+                                        {d.toLocaleTimeString("en-CA", { timeStyle: "short" })}
+                                      </span>
+                                      {showTrainerName ? (
+                                        <span
+                                          className={cn(
+                                            "text-[11px] mt-0.5 leading-tight",
+                                            isSelected
+                                              ? "text-primary-foreground/85"
+                                              : "text-muted-foreground",
+                                          )}
+                                        >
+                                          {slot.teamMemberName || "Staff"}
+                                        </span>
+                                      ) : null}
+                                      {isRecommended ? (
+                                        <span
+                                          aria-label="Recommended specialist"
+                                          className={cn(
+                                            "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full",
+                                            isSelected ? "bg-primary-foreground" : "bg-primary",
+                                          )}
+                                        />
+                                      ) : null}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
                       )}
                     </>
                   )}

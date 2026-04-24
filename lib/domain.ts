@@ -109,6 +109,9 @@ export type ClassSessionRecord = {
   locationId?: string
   locationLabel?: string
   coachId?: string
+  /** Price mirrored from Square's public class schedule; used to build ad-hoc Payment Link line items. */
+  priceAmountCents?: number | null
+  priceCurrency?: string | null
   capacity: number
   bookedCount: number
   /** Seats held for unpaid group-series checkouts; released when paid or hold expires. */

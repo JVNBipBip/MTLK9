@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState, type FormEvent } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useBookingForm } from "@/components/booking-form-provider"
 import { X, Search, CheckCircle2, AlertCircle, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,20 +9,10 @@ import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-t
 import {
   PLAN_TYPE_LABEL,
   SERVICE_TYPE_LABEL,
-  type ApprovedGroupProgram,
-  type GroupSeriesListItem,
   type PrivatePackage,
   type StatusResponse,
 } from "./training-portal-types"
-
-type PortalBooking = {
-  id: string
-  startAt: string
-  label: string
-  type: "one_on_one" | "group"
-  bookingStatus: string
-  squareBookingStatus: string | null
-}
+import { GroupClassesContent } from "./group-classes-content"
 
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString("en-CA", {
@@ -33,7 +23,7 @@ function formatDateTime(iso: string) {
 }
 
 /** `private_only`: service-page sign-up modal — private packages & sessions only (no group enrollment UI). */
-export type TrainingPortalMode = "full" | "private_only"
+export type TrainingPortalMode = "full" | "private_only" | "group_only"
 
 export function TrainingPortalContent({
   onClose,
@@ -43,10 +33,11 @@ export function TrainingPortalContent({
   mode?: TrainingPortalMode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const { openBookingForm, openFreeCallModal } = useBookingForm()
   const privateOnly = mode === "private_only"
-  const groupOnly = mode === "full"
+  const groupExperience = mode !== "private_only"
   const [clientEmail, setClientEmail] = useState("")
   const [dogName, setDogName] = useState("")
   const [statusData, setStatusData] = useState<StatusResponse | null>(null)
@@ -57,14 +48,6 @@ export function TrainingPortalContent({
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [privateContractAccepted, setPrivateContractAccepted] = useState(false)
-  const [groupPrograms, setGroupPrograms] = useState<ApprovedGroupProgram[]>([])
-  const [groupLoading, setGroupLoading] = useState(false)
-  const [groupErr, setGroupErr] = useState<string | null>(null)
-  const [groupSeries, setGroupSeries] = useState<GroupSeriesListItem[]>([])
-  const [groupSeriesLoading, setGroupSeriesLoading] = useState(false)
-  const [groupSeriesErr, setGroupSeriesErr] = useState<string | null>(null)
-  const [groupSeriesCheckoutId, setGroupSeriesCheckoutId] = useState<string | null>(null)
-  const [selectedGroupSessionBySeries, setSelectedGroupSessionBySeries] = useState<Record<string, string>>({})
 
   const activePackage = statusData?.activePrivatePackage || null
 
@@ -104,7 +87,7 @@ export function TrainingPortalContent({
     )
     if (email) setClientEmail(email)
     if (dog) setDogName(dog)
-    router.replace("/training-portal", { scroll: false })
+    router.replace(pathname || "/training-portal", { scroll: false })
     if (!email) return
     void (async () => {
       setIsLoadingStatus(true)
@@ -132,120 +115,7 @@ export function TrainingPortalContent({
         setIsLoadingStatus(false)
       }
     })()
-  }, [searchParams, router])
-
-  useEffect(() => {
-    if (privateOnly) {
-      setGroupPrograms([])
-      setGroupErr(null)
-      setGroupSeries([])
-      setGroupSeriesErr(null)
-      return
-    }
-    if (!statusData?.options.groupClasses?.eligible) {
-      setGroupPrograms([])
-      setGroupErr(null)
-      setGroupSeries([])
-      setGroupSeriesErr(null)
-      return
-    }
-    const email = clientEmail.trim().toLowerCase()
-    const dog = (statusData.lookup.dogName || dogName).trim()
-    if (!email) return
-    let cancelled = false
-    setGroupLoading(true)
-    setGroupErr(null)
-    void (async () => {
-      try {
-        const response = await fetch("/api/training-portal/group-programs/list", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clientEmail: email, dogName: dog }),
-        })
-        const data = (await response.json()) as { programs?: ApprovedGroupProgram[]; error?: string }
-        if (cancelled) return
-        if (!response.ok) {
-          setGroupErr(data.error || "Could not load approved group classes.")
-          setGroupPrograms([])
-          return
-        }
-        setGroupPrograms(data.programs || [])
-      } catch {
-        if (!cancelled) {
-          setGroupErr("Could not load approved group classes.")
-          setGroupPrograms([])
-        }
-      } finally {
-        if (!cancelled) setGroupLoading(false)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [privateOnly, statusData?.options.groupClasses?.eligible, statusData?.lookup.dogName, clientEmail, dogName])
-
-  useEffect(() => {
-    if (privateOnly) {
-      setGroupSeries([])
-      setGroupSeriesErr(null)
-      setSelectedGroupSessionBySeries({})
-      return
-    }
-    if (!statusData?.options.groupClasses?.eligible) {
-      setGroupSeries([])
-      setGroupSeriesErr(null)
-      setSelectedGroupSessionBySeries({})
-      return
-    }
-    const email = clientEmail.trim().toLowerCase()
-    const dog = (statusData.lookup.dogName || dogName).trim()
-    if (!email) return
-    let cancelled = false
-    setGroupSeriesLoading(true)
-    setGroupSeriesErr(null)
-    void (async () => {
-      try {
-        const response = await fetch("/api/training-portal/group-series/list", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clientEmail: email, dogName: dog }),
-        })
-        const data = (await response.json()) as { series?: GroupSeriesListItem[]; error?: string }
-        if (cancelled) return
-        if (!response.ok) {
-          setGroupSeriesErr(data.error || "Could not load scheduled group classes.")
-          setGroupSeries([])
-          return
-        }
-        setGroupSeries(data.series || [])
-      } catch {
-        if (!cancelled) {
-          setGroupSeriesErr("Could not load scheduled group classes.")
-          setGroupSeries([])
-        }
-      } finally {
-        if (!cancelled) setGroupSeriesLoading(false)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [privateOnly, statusData?.options.groupClasses?.eligible, statusData?.lookup.dogName, clientEmail, dogName])
-
-  useEffect(() => {
-    setSelectedGroupSessionBySeries((prev) => {
-      const next: Record<string, string> = {}
-      for (const series of groupSeries) {
-        const existing = prev[series.seriesId]
-        if (existing && series.sessions.some((session) => session.id === existing)) {
-          next[series.seriesId] = existing
-        } else if (series.sessions.length > 0) {
-          next[series.seriesId] = series.sessions[0].id
-        }
-      }
-      return next
-    })
-  }, [groupSeries])
+  }, [searchParams, router, pathname])
 
   async function fetchStatus() {
     setError(null)
@@ -344,33 +214,6 @@ export function TrainingPortalContent({
       return
     }
     void savePrivatePackage()
-  }
-
-  async function handleGroupSeriesCheckout(seriesId: string, sessionId?: string) {
-    if (!statusData) return
-    setGroupSeriesErr(null)
-    setGroupSeriesCheckoutId(seriesId)
-    try {
-      const response = await fetch("/api/training-portal/group-series/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientEmail: clientEmail.trim().toLowerCase(),
-          dogName: (statusData.lookup.dogName || dogName).trim(),
-          seriesId,
-          sessionId,
-        }),
-      })
-      const data = (await response.json()) as { checkoutUrl?: string; error?: string }
-      if (!response.ok || !data.checkoutUrl) {
-        throw new Error(data.error || "Could not start group class checkout.")
-      }
-      window.location.assign(data.checkoutUrl)
-    } catch (err) {
-      setGroupSeriesErr(err instanceof Error ? err.message : "Could not start group class checkout.")
-    } finally {
-      setGroupSeriesCheckoutId(null)
-    }
   }
 
   return (
@@ -518,7 +361,7 @@ export function TrainingPortalContent({
                 <div>
                   <h3 className="font-medium text-green-900">Assessment Verified</h3>
                   <p className="text-sm text-green-800/80 mt-0.5">
-                    {groupOnly
+                    {groupExperience
                       ? "Welcome back! You can now view approved group class options for this dog."
                       : "Welcome back! You are eligible to book private training sessions."}
                   </p>
@@ -547,156 +390,13 @@ export function TrainingPortalContent({
                   )}
                 </div>
 
-                {!privateOnly && statusData.options.groupClasses ? (
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                    <h3 className="text-lg font-medium">Approved group classes</h3>
-                    {!statusData.options.groupClasses.eligible ? (
-                      <p className="text-sm text-muted-foreground">
-                        {statusData.options.groupClasses.blockedReason === "no_group_program_access"
-                          ? "No group program is enabled for this dog yet. Ask staff after your assessment to turn on the programs you need."
-                          : "Complete your assessment to enroll in group classes online."}
-                      </p>
-                    ) : (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          These are the group programs your dog is approved for. Use the scheduled classes section below to continue booking.
-                        </p>
-                        {groupErr ? <p className="text-sm text-destructive">{groupErr}</p> : null}
-                        {groupLoading ? (
-                          <p className="text-sm text-muted-foreground">Loading approved group classes…</p>
-                        ) : groupPrograms.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">
-                            No approved group classes are available right now.
-                          </p>
-                        ) : (
-                          <div className="space-y-4">
-                            {groupPrograms.map((row) => (
-                              <div key={row.programId} className="rounded-xl border border-border p-4 bg-muted/10">
-                                <p className="font-medium text-foreground">{row.programLabel}</p>
-                                <p className="text-sm text-muted-foreground">Approved for this dog.</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ) : null}
-
-                {!privateOnly && statusData.options.groupClasses ? (
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                    <h3 className="text-lg font-medium">Available scheduled group classes</h3>
-                    {!statusData.options.groupClasses.eligible ? (
-                      <p className="text-sm text-muted-foreground">
-                        Eligible scheduled classes will appear here after group access is enabled for this dog.
-                      </p>
-                    ) : (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          Only upcoming group classes approved for this dog are shown here. Selecting one continues to Square checkout.
-                        </p>
-                        {groupSeriesErr ? <p className="text-sm text-destructive">{groupSeriesErr}</p> : null}
-                        {groupSeriesLoading ? (
-                          <p className="text-sm text-muted-foreground">Loading scheduled group classes…</p>
-                        ) : groupSeries.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">
-                            No upcoming scheduled classes are open for this dog right now.
-                          </p>
-                        ) : (
-                          <div className="space-y-4">
-                            {groupSeries.map((series) => (
-                              <div key={series.seriesId} className="rounded-xl border border-border p-4 space-y-3 bg-muted/10">
-                                {(() => {
-                                  const selectedSessionId = selectedGroupSessionBySeries[series.seriesId] || series.sessions[0]?.id
-                                  return (
-                                    <>
-                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                  <div>
-                                    <p className="font-medium text-foreground">{series.programLabel}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                      {series.sessionCount} session{series.sessionCount !== 1 ? "s" : ""} included
-                                    </p>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground">
-                                    {series.spotsRemaining} spot{series.spotsRemaining !== 1 ? "s" : ""} remaining
-                                  </p>
-                                </div>
-                                <div className="space-y-2">
-                                  {series.sessions.map((session) => (
-                                    <button
-                                      key={session.id}
-                                      type="button"
-                                      className="w-full rounded-lg border bg-background/80 p-3 text-left transition-colors"
-                                      style={{
-                                        borderColor: selectedSessionId === session.id ? "var(--foreground)" : "var(--border)",
-                                        boxShadow: selectedSessionId === session.id ? "inset 0 0 0 1px var(--foreground)" : undefined,
-                                      }}
-                                      onClick={() =>
-                                        setSelectedGroupSessionBySeries((prev) => ({
-                                          ...prev,
-                                          [series.seriesId]: session.id,
-                                        }))
-                                      }
-                                    >
-                                      <p className="font-medium">{session.title || series.programLabel}</p>
-                                      <p className="text-sm text-muted-foreground">{formatDateTime(session.startsAtIso)}</p>
-                                      <p className="text-xs text-muted-foreground">
-                                        {session.spotsRemaining} spot{session.spotsRemaining !== 1 ? "s" : ""} remaining
-                                      </p>
-                                      {session.locationLabel ? (
-                                        <p className="text-xs text-muted-foreground">{session.locationLabel}</p>
-                                      ) : null}
-                                    </button>
-                                  ))}
-                                </div>
-                                {series.sessions.length > 1 ? (
-                                  <p className="text-xs text-muted-foreground">
-                                    Choose a class date before continuing to Square.
-                                  </p>
-                                ) : null}
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  className="rounded-full"
-                                  disabled={groupSeriesCheckoutId !== null || !selectedSessionId}
-                                  onClick={() => void handleGroupSeriesCheckout(series.seriesId, selectedSessionId)}
-                                >
-                                  {groupSeriesCheckoutId === series.seriesId ? "Opening Square…" : "Continue in Square"}
-                                </Button>
-                                    </>
-                                  )
-                                })()}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ) : null}
-
                 {!privateOnly ? (
-                  <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-                    <h3 className="text-lg font-medium">Upcoming group sessions</h3>
-                    {statusData.existingBookings.filter((b) => b.type === "group").length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No upcoming group sessions on file.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {statusData.existingBookings
-                          .filter((b) => b.type === "group")
-                          .map((booking) => (
-                            <div key={booking.id} className="rounded-lg border border-border p-3">
-                              <p className="font-medium">{booking.label}</p>
-                              <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt)}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Status: {booking.bookingStatus || "-"}
-                                {booking.squareBookingStatus ? ` (${booking.squareBookingStatus})` : ""}
-                              </p>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                  </div>
+                  <GroupClassesContent
+                    statusData={statusData}
+                    clientEmail={clientEmail}
+                    dogName={dogName}
+                    redirectPath={pathname || "/training-portal"}
+                  />
                 ) : null}
 
                 {privateOnly ? (

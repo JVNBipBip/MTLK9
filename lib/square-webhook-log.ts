@@ -10,6 +10,20 @@ export type WebhookLogStage =
   | "reconcile_error"
   | "order_finalize_ok"
   | "order_finalize_error"
+  | "class_sync_triggered"
+  | "class_sync_skipped"
+  | "class_sync_error"
+
+export type WebhookLogClassSyncInfo = {
+  /** Whether the admin app ran (or was asked to run) a class sync. */
+  triggered: boolean
+  /** Structured reason when we didn't call the admin endpoint. */
+  reason?: "event_not_relevant" | "config_missing" | "request_failed" | "debounce" | null
+  /** True when the admin app returned skipped=true (debounced). */
+  skipped?: boolean
+  /** Final lastRunAtIso the admin app reported, if we got a response. */
+  lastRunAtIso?: string | null
+}
 
 export type WebhookLogEntry = {
   /** Which processing stage produced this entry. */
@@ -22,6 +36,8 @@ export type WebhookLogEntry = {
   signatureValid: boolean
   /** Structured outcome of the booking reconciler, if it ran. */
   reconcile?: ReconcileOutcome | null
+  /** Structured outcome of the class-sync trigger, if it ran. */
+  classSync?: WebhookLogClassSyncInfo | null
   /** Error message if a stage threw. */
   error?: string | null
   /** Truncated raw body for debugging — capped to keep doc size reasonable. */
@@ -54,6 +70,7 @@ export async function logSquareWebhookEvent(
     eventType: entry.eventType,
     signatureValid: entry.signatureValid,
     reconcile: entry.reconcile ?? null,
+    classSync: entry.classSync ?? null,
     error: entry.error ?? null,
     requestUrl: entry.requestUrl,
     rawBodyPreview: trimBody(entry.rawBody),

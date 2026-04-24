@@ -11,6 +11,7 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 
 const navLinks = [
   { label: "Training Programs", href: "/services" },
+  { label: "Group Classes", href: "/group-classes" },
   { label: "Results", href: "/results" },
   { label: "About Us", href: "/about" },
   { label: "FAQ", href: "/faq" },

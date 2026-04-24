@@ -32,18 +32,21 @@ export async function releaseStaleGroupSeriesHolds(db: Firestore) {
 export async function releaseHoldsForGroupBooking(db: Firestore, bookingId: string) {
   const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
   await db.runTransaction(async (t) => {
+    // Firestore requires all reads before any writes in a transaction, so
+    // read the booking first, then batch-read every session, then emit writes.
     const bSnap = await t.get(bookingRef)
     if (!bSnap.exists) return
     const bd = bSnap.data() as { paymentStatus?: string; selectedSessionIds?: string[] }
     if (bd.paymentStatus !== "pending_payment") return
     const sessionIds = bd.selectedSessionIds || []
-    for (const sid of sessionIds) {
-      const sRef = db.collection(CLASS_SESSIONS_COLLECTION).doc(sid)
-      const sSnap = await t.get(sRef)
+    const sessionRefs = sessionIds.map((sid) => db.collection(CLASS_SESSIONS_COLLECTION).doc(sid))
+    const sessionSnaps = sessionRefs.length > 0 ? await t.getAll(...sessionRefs) : []
+
+    for (const sSnap of sessionSnaps) {
       if (!sSnap.exists) continue
       const sd = sSnap.data() as { reservedCount?: number }
       const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
-      t.update(sRef, { reservedCount: reserved, updatedAt: FieldValue.serverTimestamp() })
+      t.update(sSnap.ref, { reservedCount: reserved, updatedAt: FieldValue.serverTimestamp() })
     }
     t.update(bookingRef, {
       bookingStatus: "cancelled",
@@ -55,7 +58,19 @@ export async function releaseHoldsForGroupBooking(db: Firestore, bookingId: stri
 
 export type SessionForSeries = Pick<
   ClassSessionRecord,
-  "id" | "classType" | "title" | "startsAtIso" | "endsAtIso" | "locationLabel" | "capacity" | "bookedCount" | "reservedCount" | "isActive" | "seriesId"
+  | "id"
+  | "classType"
+  | "title"
+  | "startsAtIso"
+  | "endsAtIso"
+  | "locationLabel"
+  | "priceAmountCents"
+  | "priceCurrency"
+  | "capacity"
+  | "bookedCount"
+  | "reservedCount"
+  | "isActive"
+  | "seriesId"
 >
 
 export type GroupSeriesListItem = {
@@ -70,6 +85,8 @@ export type GroupSeriesListItem = {
     startsAtIso: string
     endsAtIso: string
     locationLabel: string
+    priceAmountCents: number | null
+    priceCurrency: string | null
     spotsRemaining: number
   }>
 }
@@ -111,14 +128,16 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
     if (bd.paymentStatus === "paid") return
     if (bd.paymentStatus !== "pending_payment" && bd.paymentStatus !== "processing") return
     const sessionIds = bd.selectedSessionIds || []
-    for (const sid of sessionIds) {
-      const sRef = db.collection(CLASS_SESSIONS_COLLECTION).doc(sid)
-      const sSnap = await t.get(sRef)
+    // Firestore requires all reads before any writes in a transaction, so
+    // batch-read every session up front before emitting any updates.
+    const sessionRefs = sessionIds.map((sid) => db.collection(CLASS_SESSIONS_COLLECTION).doc(sid))
+    const sessionSnaps = sessionRefs.length > 0 ? await t.getAll(...sessionRefs) : []
+    for (const sSnap of sessionSnaps) {
       if (!sSnap.exists) continue
       const sd = sSnap.data() as { bookedCount?: number; reservedCount?: number }
       const booked = Number(sd.bookedCount ?? 0)
       const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
-      t.update(sRef, {
+      t.update(sSnap.ref, {
         bookedCount: booked + 1,
         reservedCount: reserved,
         updatedAt: FieldValue.serverTimestamp(),
@@ -179,6 +198,8 @@ export function groupSessionsIntoSeriesList(
         startsAtIso: s.startsAtIso,
         endsAtIso: s.endsAtIso,
         locationLabel: s.locationLabel || "",
+        priceAmountCents: s.priceAmountCents ?? null,
+        priceCurrency: s.priceCurrency ?? null,
         spotsRemaining: spotsRemainingForSession(s),
       })),
     })

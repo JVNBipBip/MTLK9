@@ -10,8 +10,9 @@ describe("intakeRequiresNickOnlyConsultation", () => {
     expect(intakeRequiresNickOnlyConsultation("pulls-lunges-reacts", ["worried-about-safety"])).toBe(true)
   })
 
-  it("returns true when impact includes thought-about-rehoming", () => {
-    expect(intakeRequiresNickOnlyConsultation("puppy-out-of-control", ["thought-about-rehoming"])).toBe(true)
+  it("does not route to specialist for thought-about-rehoming alone", () => {
+    expect(intakeRequiresNickOnlyConsultation("puppy-out-of-control", ["thought-about-rehoming"])).toBe(false)
+    expect(intakeRequiresNickOnlyConsultation("pulls-lunges-reacts", ["thought-about-rehoming"])).toBe(false)
   })
 
   it("returns false for typical intake", () => {
@@ -21,6 +22,6 @@ describe("intakeRequiresNickOnlyConsultation", () => {
 
   it("documents impact constants used for routing", () => {
     expect(NICK_ROUTING_IMPACT_VALUES).toContain("worried-about-safety")
-    expect(NICK_ROUTING_IMPACT_VALUES).toContain("thought-about-rehoming")
+    expect(NICK_ROUTING_IMPACT_VALUES).not.toContain("thought-about-rehoming")
   })
 })

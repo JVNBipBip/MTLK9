@@ -1,5 +1,5 @@
 /** Impact values that, with other signals, route consultations to the specialist (Nick) only. */
-export const NICK_ROUTING_IMPACT_VALUES = ["worried-about-safety", "thought-about-rehoming"] as const
+export const NICK_ROUTING_IMPACT_VALUES = ["worried-about-safety"] as const
 
 /**
  * When true, only consultation slots for the configured specialist (see {@link getNickTeamMemberIdForConsultation} in

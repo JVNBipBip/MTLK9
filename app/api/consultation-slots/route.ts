@@ -5,6 +5,12 @@ import { getConsultationServiceVariationIds, getNickTeamMemberIdForConsultation 
 
 export const runtime = "nodejs"
 
+// Team member IDs that should never be offered to customers in the
+// public consultation booking flow, regardless of what Square returns.
+const HIDDEN_CONSULTATION_TEAM_MEMBER_IDS = new Set<string>([
+  "TM32wtl__BW48AwU", // Sam Di Q
+])
+
 type RawSlot = { slotKey: string; startAt: string; teamMemberId: string }
 
 function minLeadMinutes() {
@@ -68,10 +74,21 @@ async function respondWithConsultationSlots(intake: Intake) {
     )
   }
 
-  const rawSlots = await loadRawConsultationSlots(serviceVariationIds)
-  const teamIdsFromSquare = [...new Set(rawSlots.map((s) => s.teamMemberId))]
-  console.log("[consultation-slots] Queried", serviceVariationIds.length, "evaluation types. Total slots:", rawSlots.length)
+  const rawSlotsFromSquare = await loadRawConsultationSlots(serviceVariationIds)
+  const rawSlots = rawSlotsFromSquare.filter(
+    (s) => !HIDDEN_CONSULTATION_TEAM_MEMBER_IDS.has(s.teamMemberId),
+  )
+  const teamIdsFromSquare = [...new Set(rawSlotsFromSquare.map((s) => s.teamMemberId))]
+  console.log("[consultation-slots] Queried", serviceVariationIds.length, "evaluation types. Total slots:", rawSlotsFromSquare.length)
   console.log("[consultation-slots] Team member IDs from Square:", teamIdsFromSquare)
+  if (rawSlotsFromSquare.length !== rawSlots.length) {
+    console.log(
+      "[consultation-slots] Hiding",
+      rawSlotsFromSquare.length - rawSlots.length,
+      "slot(s) from blocked team members:",
+      [...HIDDEN_CONSULTATION_TEAM_MEMBER_IDS],
+    )
+  }
 
   const nickRequired = intakeRequiresNickOnlyConsultation(intake.issue, intake.impact)
   const nickId = await getNickTeamMemberIdForConsultation()

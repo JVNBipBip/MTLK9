@@ -376,6 +376,78 @@ export async function createSquarePaymentLinkForVariation(input: {
   })
 }
 
+/**
+ * Line item for a multi-item Payment Link. Either `variationId` (catalog-backed)
+ * OR `name` + `amountCents` + `currency` (ad-hoc) must be provided.
+ */
+export type SquarePaymentLinkLineItem = {
+  variationId?: string
+  name?: string
+  amountCents?: number
+  currency?: string
+  quantity?: string
+}
+
+/**
+ * Multi-line-item Payment Link. Used for cart-style checkouts where the buyer picks
+ * several class sessions and we want one Square order covering all of them.
+ */
+export async function createSquarePaymentLinkForItems(input: {
+  items: SquarePaymentLinkLineItem[]
+  buyerEmail?: string
+  buyerPhoneNumber?: string
+  note?: string
+  redirectUrl?: string
+  /** Correlates Square order → Firestore booking (webhook reads order.reference_id). */
+  orderReferenceId?: string
+}) {
+  if (!input.items || input.items.length === 0) {
+    throw new Error("Payment link requires at least one line item.")
+  }
+  const lineItems = input.items.map((item) => {
+    if (item.variationId?.trim()) {
+      return {
+        catalog_object_id: item.variationId.trim(),
+        quantity: item.quantity || "1",
+      }
+    }
+    const name = item.name?.trim()
+    const amount = item.amountCents
+    const currency = item.currency?.trim()
+    if (!name || amount == null || !Number.isFinite(amount) || amount < 0 || !currency) {
+      throw new Error("Ad-hoc line item requires name, amountCents, and currency.")
+    }
+    return {
+      name,
+      quantity: item.quantity || "1",
+      base_price_money: {
+        amount: Math.round(amount),
+        currency: currency.toUpperCase(),
+      },
+    }
+  })
+  const cfg = await getSquareConfigAsync()
+  return squareRequest<{ payment_link?: { id?: string; url?: string } }>("/v2/online-checkout/payment-links", {
+    method: "POST",
+    body: JSON.stringify({
+      idempotency_key: crypto.randomUUID(),
+      order: {
+        location_id: cfg.locationId,
+        ...(input.orderReferenceId ? { reference_id: input.orderReferenceId.slice(0, 40) } : {}),
+        line_items: lineItems,
+      },
+      checkout_options: {
+        redirect_url: input.redirectUrl || undefined,
+      },
+      pre_populated_data: {
+        buyer_email: input.buyerEmail || undefined,
+        buyer_phone_number: input.buyerPhoneNumber || undefined,
+      },
+      description: input.note || undefined,
+    }),
+  })
+}
+
 export type SquareAppointmentSegment = {
   service_variation_id?: string
   team_member_id?: string

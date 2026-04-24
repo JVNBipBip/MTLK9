@@ -2,6 +2,7 @@ import crypto from "node:crypto"
 import type { Firestore } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { triggerClassSync, shouldTriggerClassSync } from "@/lib/class-sync-trigger"
 import { finalizeGroupSeriesPaymentFromWebhook } from "@/lib/group-class-series"
 import { reconcileSquareBookingWebhook, type SquareWebhookPayload } from "@/lib/square-webhook-bookings"
 import { retrieveSquareBooking, retrieveSquareCustomer, retrieveSquareOrder } from "@/lib/square"
@@ -206,6 +207,46 @@ export async function POST(request: Request) {
       rawBody,
       requestUrl: request.url,
     })
+  }
+
+  // Automated class-sync trigger: whenever Square fires an event type that may have
+  // changed the public class schedule (configurable via CLASS_SYNC_EVENT_TYPES), call
+  // the admin app's class-sync endpoint so Firestore stays in sync without staff having
+  // to click "Run sync now". The admin endpoint debounces bursts internally.
+  if (shouldTriggerClassSync(eventType)) {
+    const outcome = await triggerClassSync({ eventType, eventId })
+    if (outcome.triggered) {
+      await logSquareWebhookEvent(db, {
+        stage: outcome.skipped ? "class_sync_skipped" : "class_sync_triggered",
+        eventId,
+        eventType,
+        signatureValid: true,
+        classSync: {
+          triggered: true,
+          skipped: outcome.skipped,
+          reason: outcome.skipped ? "debounce" : null,
+          lastRunAtIso: outcome.lastRunAtIso,
+        },
+        rawBody,
+        requestUrl: request.url,
+      })
+    } else {
+      const error = "error" in outcome ? outcome.error : undefined
+      console.error("[square webhook] class sync trigger failed:", outcome.reason, error)
+      await logSquareWebhookEvent(db, {
+        stage: "class_sync_error",
+        eventId,
+        eventType,
+        signatureValid: true,
+        classSync: {
+          triggered: false,
+          reason: outcome.reason,
+        },
+        error: error ?? null,
+        rawBody,
+        requestUrl: request.url,
+      })
+    }
   }
 
   return NextResponse.json({ ok: true })

@@ -38,6 +38,8 @@ export type GroupSeriesListItem = {
     startsAtIso: string
     endsAtIso: string
     locationLabel: string
+    priceAmountCents: number | null
+    priceCurrency: string | null
     spotsRemaining: number
   }>
 }
