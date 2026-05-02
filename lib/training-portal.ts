@@ -49,8 +49,21 @@ type BookingLookup = {
   summary?: { when?: string[]; what?: string[]; where?: string[] }
   bookingStatus?: string
   squareBookingStatus?: string | null
+  squarePaymentLinkUrl?: string | null
   squareServiceVariationId?: string | null
   createdAt?: unknown
+}
+
+type SyncedSquareBookingLookup = {
+  id?: string
+  startAtIso?: string
+  status?: string | null
+}
+
+type SyncedSquareCustomerLookup = {
+  bookings?: SyncedSquareBookingLookup[]
+  displayName?: string
+  email?: string
 }
 
 type ClassAccessLookup = {
@@ -83,6 +96,7 @@ export type UpcomingTrainingBooking = {
   type: "one_on_one" | "group"
   bookingStatus: string
   squareBookingStatus: string | null
+  squarePaymentLinkUrl: string | null
 }
 
 export type ActivePrivatePackage = {
@@ -172,6 +186,28 @@ function isCancelled(booking: BookingLookup) {
   const status = String(booking.bookingStatus || "").toLowerCase()
   const squareStatus = String(booking.squareBookingStatus || "").toLowerCase()
   return status === "cancelled" || squareStatus === "cancelled"
+}
+
+function isCancelledSquareStatus(status: unknown) {
+  const value = String(status || "").trim().toLowerCase()
+  return value === "cancelled" || value === "canceled"
+}
+
+export function isActiveSyncedSquareBooking(booking: SyncedSquareBookingLookup, nowIso = new Date().toISOString()) {
+  const startAtIso = asIsoDate(booking.startAtIso)
+  if (!startAtIso) return false
+  if (startAtIso < nowIso) return false
+  return !isCancelledSquareStatus(booking.status)
+}
+
+export function isCompletedConsultationOlderThanOneYear(consultation: ConsultationLookup | null, now = new Date()) {
+  if (consultation?.status !== "completed") return false
+  const completedIso = asIsoDate(consultation.completedAtIso) || asIsoDate(consultation.submittedAtIso)
+  if (!completedIso) return false
+
+  const oneYearAgo = new Date(now)
+  oneYearAgo.setUTCFullYear(oneYearAgo.getUTCFullYear() - 1)
+  return completedIso < oneYearAgo.toISOString()
 }
 
 function isOneOnOneBooking(booking: BookingLookup, oneOnOneServiceVariationIds: string[]) {
@@ -287,23 +323,21 @@ export async function loadTrainingPortalContext(input: {
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ConsultationLookup, "id">) }))
     .filter((item) => normalized(String(item.dogName || "")) === dogName)
 
-  const squareCustomer = squareCustomerSnapResult.empty
-    ? null
-    : (squareCustomerSnapResult.docs[0].data() as { bookings?: unknown[]; displayName?: string; email?: string })
-
-  const hasSquareBookings = Boolean(squareCustomer?.bookings?.length && squareCustomer.bookings.length > 0)
+  const squareCustomer = squareCustomerSnapResult.empty ? null : (squareCustomerSnapResult.docs[0].data() as SyncedSquareCustomerLookup)
+  const squareBookings = squareCustomer?.bookings || []
+  const activeSquareBookings = squareBookings.filter((booking) => isActiveSyncedSquareBooking(booking))
 
   let latestConsultation = pickLatestConsultation(consultations)
   let assessmentCompleted = latestConsultation?.status === "completed"
   let effectiveDogName = dogName || (latestConsultation?.dogName ? normalized(String(latestConsultation.dogName)) : "")
   const isPlaceholderDogName = normalized(SQUARE_CLIENT_PLACEHOLDER_DOG_NAME) === effectiveDogName
 
-  if (!assessmentCompleted && (!effectiveDogName || isPlaceholderDogName) && hasSquareBookings) {
+  if (!assessmentCompleted && (!effectiveDogName || isPlaceholderDogName) && activeSquareBookings.length > 0) {
     assessmentCompleted = true
     effectiveDogName = SQUARE_CLIENT_PLACEHOLDER_DOG_NAME
   }
 
-  if (!assessmentCompleted && !effectiveDogName && squareCustomer && !hasSquareBookings) {
+  if (!assessmentCompleted && !effectiveDogName && squareCustomer && activeSquareBookings.length === 0) {
     assessmentCompleted = false
   }
 
@@ -324,6 +358,18 @@ export async function loadTrainingPortalContext(input: {
   const allowedClassCount = allowedGroupClassTypeIds.length
 
   const bookingRows = bookingSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
+  const hasMatchingLocalBooking = bookingRows.some((item) => {
+    if (isCancelled(item)) return false
+    if (!effectiveDogNorm) return false
+    return normalized(String(item.dogName || "")) === effectiveDogNorm
+  })
+  const hasKnownBooking =
+    hasMatchingLocalBooking ||
+    squareBookings.some((booking) => Boolean(asIsoDate(booking.startAtIso)) && !isCancelledSquareStatus(booking.status))
+  if (assessmentCompleted && isCompletedConsultationOlderThanOneYear(latestConsultation) && !hasKnownBooking) {
+    assessmentCompleted = false
+  }
+
   const allSessionIds = new Set<string>()
   for (const row of bookingRows) {
     for (const sid of row.selectedSessionIds || []) {
@@ -367,6 +413,7 @@ export async function loadTrainingPortalContext(input: {
         type,
         bookingStatus: String(item.bookingStatus || ""),
         squareBookingStatus: item.squareBookingStatus || null,
+        squarePaymentLinkUrl: item.squarePaymentLinkUrl || null,
       } satisfies UpcomingTrainingBooking
     })
     .filter((item): item is UpcomingTrainingBooking => Boolean(item))

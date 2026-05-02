@@ -48,6 +48,7 @@ export function TrainingPortalContent({
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [privateContractAccepted, setPrivateContractAccepted] = useState(false)
+  const [privateContractAlreadyAccepted, setPrivateContractAlreadyAccepted] = useState(false)
 
   const activePackage = statusData?.activePrivatePackage || null
 
@@ -78,6 +79,26 @@ export function TrainingPortalContent({
     if (dogFromUrl && !dogName) setDogName(dogFromUrl)
   }, [searchParams, clientEmail, dogName])
 
+  async function loadPrivateContractAccepted(email: string) {
+    const cleanedEmail = email.trim().toLowerCase()
+    if (!cleanedEmail) {
+      setPrivateContractAlreadyAccepted(false)
+      return
+    }
+    try {
+      const params = new URLSearchParams({
+        clientEmail: cleanedEmail,
+        contractKind: "private_classes",
+        version: CONTRACT_VERSION,
+      })
+      const response = await fetch(`/api/contract-acceptance?${params.toString()}`)
+      const data = (await response.json()) as { accepted?: boolean }
+      setPrivateContractAlreadyAccepted(response.ok && Boolean(data.accepted))
+    } catch {
+      setPrivateContractAlreadyAccepted(false)
+    }
+  }
+
   useEffect(() => {
     if (searchParams.get("group") !== "success") return
     const email = (searchParams.get("email") || "").trim().toLowerCase()
@@ -101,6 +122,7 @@ export function TrainingPortalContent({
         const data = (await response.json()) as StatusResponse & { error?: string }
         if (!response.ok) throw new Error(data.error || "Could not load profile.")
         setPrivateContractAccepted(false)
+        await loadPrivateContractAccepted(email)
         setStatusData(data)
         if (data.activePrivatePackage) {
           setSelectedServiceType(data.activePrivatePackage.serviceType)
@@ -133,6 +155,7 @@ export function TrainingPortalContent({
       const data = (await response.json()) as StatusResponse & { error?: string }
       if (!response.ok) throw new Error(data.error || "Could not load training portal status.")
       setPrivateContractAccepted(false)
+      await loadPrivateContractAccepted(clientEmail)
       setStatusData(data)
       if (data.activePrivatePackage) {
         setSelectedServiceType(data.activePrivatePackage.serviceType)
@@ -156,7 +179,7 @@ export function TrainingPortalContent({
 
   async function savePrivatePackage() {
     if (!statusData) return
-    if (!privateContractAccepted) {
+    if (!privateContractAlreadyAccepted && !privateContractAccepted) {
       setError("Please read and accept the private training agreement before saving a package.")
       return
     }
@@ -183,20 +206,23 @@ export function TrainingPortalContent({
         throw new Error(response.ok ? "Invalid response from server." : `Server error: ${response.status}`)
       }
       if (!response.ok) throw new Error(data.error || "Could not save private package.")
-      try {
-        await fetch("/api/contract-acceptance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            clientEmail: clientEmail.trim().toLowerCase(),
-            contractKind: "private_classes",
-            version: CONTRACT_VERSION,
-            source: "/training-portal",
-            dogName: effectiveDogName,
-          }),
-        })
-      } catch {
-        /* non-blocking */
+      if (!privateContractAlreadyAccepted) {
+        try {
+          await fetch("/api/contract-acceptance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clientEmail: clientEmail.trim().toLowerCase(),
+              contractKind: "private_classes",
+              version: CONTRACT_VERSION,
+              source: "/training-portal",
+              dogName: effectiveDogName,
+            }),
+          })
+          setPrivateContractAlreadyAccepted(true)
+        } catch {
+          /* non-blocking */
+        }
       }
       await fetchStatus()
       goToBookingPage()
@@ -497,26 +523,35 @@ export function TrainingPortalContent({
                               </div>
                             </div>
                           </div>
-                          <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                            <summary className="cursor-pointer font-medium">
-                              {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
-                            </summary>
-                            <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
-                          </details>
-                          <label className="flex items-start gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={privateContractAccepted}
-                              onChange={(e) => setPrivateContractAccepted(e.target.checked)}
-                              className="mt-1"
-                            />
-                            <span>I have read and agree to the private training agreement (version {CONTRACT_VERSION}).</span>
-                          </label>
+                          {privateContractAlreadyAccepted ? (
+                            <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                              Private training agreement already accepted for this version.
+                            </p>
+                          ) : (
+                            <>
+                              <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
+                                <summary className="cursor-pointer font-medium">
+                                  {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
+                                </summary>
+                                <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
+                              </details>
+                              <label className="flex items-start gap-2 text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={privateContractAccepted}
+                                  onChange={(e) => setPrivateContractAccepted(e.target.checked)}
+                                  className="mt-1"
+                                />
+                                <span>I have read and agree to the private training agreement (version {CONTRACT_VERSION}).</span>
+                              </label>
+                            </>
+                          )}
                           <div className="flex flex-wrap items-center gap-3">
                             <Button
                               type="button"
                               disabled={
-                                isSelectingPackage || (!selectionMatchesActive && !privateContractAccepted)
+                                isSelectingPackage ||
+                                (!selectionMatchesActive && !privateContractAlreadyAccepted && !privateContractAccepted)
                               }
                               onClick={handlePrivatePackageContinue}
                             >

@@ -1,15 +1,30 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import { ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form-provider"
+import { ArrowRight, HelpCircle, Users, UserRound } from "lucide-react"
+import { BookingLink, ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form-provider"
 
-const services = [
+type ServiceFormat = "private" | "group"
+type ServiceCard = {
+  title: string
+  href: string
+  image: string
+  for: string
+  solves: string
+  format: string
+  price: string
+  cta: string
+  formats: ServiceFormat[]
+  popular?: boolean
+}
+
+const services: ServiceCard[] = [
   {
     title: "Reactivity Training",
     href: "/services/reactivity",
@@ -18,7 +33,8 @@ const services = [
     solves: "Structured protocols covering the Three D's, attention cues, engagement, leash work, confidence building, and real-world scenario training",
     format: "Private & group classes",
     price: "",
-    cta: "Get Help with Reactivity",
+    cta: "Choose Reactivity Format",
+    formats: ["private", "group"],
   },
   {
     title: "Private Classes",
@@ -29,6 +45,7 @@ const services = [
     format: "3, 5, or 7 session packages",
     price: "",
     cta: "Book Private Training",
+    formats: ["private"],
     popular: true,
   },
   {
@@ -39,7 +56,8 @@ const services = [
     solves: "Basic and advanced obedience, the Three D's, engagement, pack walks, high-distraction proofing, and off-leash reliability",
     format: "Private & group classes — Level 1 & Level 2",
     price: "",
-    cta: "Start Obedience Training",
+    cta: "Choose Obedience Format",
+    formats: ["private", "group"],
   },
   {
     title: "Puppy Training",
@@ -49,7 +67,8 @@ const services = [
     solves: "Socialisation, confidence building, bite inhibition, intro to obedience, marker training, and focus around distractions",
     format: "Private & group classes",
     price: "",
-    cta: "Start Your Puppy's Plan",
+    cta: "Choose Puppy Class Format",
+    formats: ["private", "group"],
   },
   {
     title: "In-Home Training",
@@ -60,11 +79,13 @@ const services = [
     format: "Consultation + 3, 5, or 7 session packages",
     price: "",
     cta: "Book In-Home Training",
+    formats: ["private"],
   },
 ]
 
 export default function ServicesPage() {
   const contentRef = useRef<HTMLDivElement>(null)
+  const [selectedService, setSelectedService] = useState<ServiceCard | null>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -140,12 +161,19 @@ export default function ServicesPage() {
                         {service.solves}
                       </p>
                       <p className="text-sm text-muted-foreground mb-6">{service.format}</p>
-                      <ProgramSignupLink>
-                        <Button className="w-full rounded-full group/btn">
+                      {service.formats.includes("group") ? (
+                        <Button className="w-full rounded-full group/btn" onClick={() => setSelectedService(service)}>
                           {service.cta}
                           <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
-                      </ProgramSignupLink>
+                      ) : (
+                        <ProgramSignupLink>
+                          <Button className="w-full rounded-full group/btn">
+                            {service.cta}
+                            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </ProgramSignupLink>
+                      )}
                       <Link
                         href={service.href}
                         className="mt-3 inline-flex items-center justify-center w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -192,6 +220,80 @@ export default function ServicesPage() {
         </div>
       </section>
       </div>
+
+      <Dialog open={Boolean(selectedService)} onOpenChange={(open) => !open && setSelectedService(null)}>
+        <DialogContent className="w-[95vw] max-w-[620px] rounded-3xl p-0 overflow-hidden">
+          <div className="p-6 sm:p-8 space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
+                Choose your format
+              </p>
+              <DialogTitle className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                How would you like to start {selectedService?.title.toLowerCase()}?
+              </DialogTitle>
+              <DialogDescription className="mt-3 leading-relaxed">
+                If you already know the format you want, choose it below. If not, book an assessment and
+                we&apos;ll recommend the right path for your dog.
+              </DialogDescription>
+            </div>
+
+            <div className="grid gap-3">
+              <ProgramSignupLink onClick={() => setSelectedService(null)}>
+                <button
+                  type="button"
+                  className="group flex w-full items-start gap-4 rounded-2xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                >
+                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <UserRound className="h-5 w-5" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block font-medium text-foreground">Private training</span>
+                    <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                      One-on-one coaching for behaviour work, custom goals, or dogs who need a quieter setup.
+                    </span>
+                  </span>
+                  <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                </button>
+              </ProgramSignupLink>
+
+              <Link
+                href="/group-classes"
+                onClick={() => setSelectedService(null)}
+                className="group flex w-full items-start gap-4 rounded-2xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+              >
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
+                  <Users className="h-5 w-5" />
+                </span>
+                <span className="flex-1">
+                  <span className="block font-medium text-foreground">Group class</span>
+                  <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                    Small scheduled cohorts for approved dogs. Check availability or request a spot.
+                  </span>
+                </span>
+                <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+              </Link>
+
+              <BookingLink onClick={() => setSelectedService(null)}>
+                <button
+                  type="button"
+                  className="group flex w-full items-start gap-4 rounded-2xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/40"
+                >
+                  <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-foreground/10 text-foreground">
+                    <HelpCircle className="h-5 w-5" />
+                  </span>
+                  <span className="flex-1">
+                    <span className="block font-medium text-foreground">I&apos;m not sure yet</span>
+                    <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
+                      Book an assessment and we&apos;ll place your dog in the right private or group path.
+                    </span>
+                  </span>
+                  <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                </button>
+              </BookingLink>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </main>

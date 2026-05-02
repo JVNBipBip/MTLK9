@@ -145,7 +145,7 @@ export type BookingRecord = {
   amountCents: number
   currency: string
   paidAtIso?: string | null
-  bookingStatus: "pending_payment" | "paid" | "cancelled" | "rescheduled" | "confirmed" | "booked_no_payment"
+  bookingStatus: "requested" | "pending_payment" | "paid" | "cancelled" | "rescheduled" | "confirmed" | "booked_no_payment"
   squareBookingId?: string | null
   squareBookingStatus?: string | null
   squareServiceVariationId?: string | null

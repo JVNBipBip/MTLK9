@@ -46,6 +46,7 @@ export function TrainingPortalBookingContent({
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [packageContractAccepted, setPackageContractAccepted] = useState(false)
+  const [packageContractAlreadyAccepted, setPackageContractAlreadyAccepted] = useState(false)
 
   const activePackage = statusData?.activePrivatePackage || null
   const oneOnOneUpcoming = statusData?.existingBookings.find((b) => b.type === "one_on_one") || null
@@ -79,6 +80,26 @@ export function TrainingPortalBookingContent({
     )
   }, [staffFilterId, slots])
 
+  const loadPrivateContractAccepted = useCallback(async () => {
+    const cleanedEmail = clientEmail.trim().toLowerCase()
+    if (!cleanedEmail) {
+      setPackageContractAlreadyAccepted(false)
+      return
+    }
+    try {
+      const params = new URLSearchParams({
+        clientEmail: cleanedEmail,
+        contractKind: "private_classes",
+        version: CONTRACT_VERSION,
+      })
+      const response = await fetch(`/api/contract-acceptance?${params.toString()}`)
+      const data = (await response.json()) as { accepted?: boolean }
+      setPackageContractAlreadyAccepted(response.ok && Boolean(data.accepted))
+    } catch {
+      setPackageContractAlreadyAccepted(false)
+    }
+  }, [clientEmail])
+
   const fetchStatus = useCallback(async (opts?: { silent?: boolean }) => {
     const silent = opts?.silent ?? false
     if (!silent) setError(null)
@@ -95,6 +116,7 @@ export function TrainingPortalBookingContent({
       const data = (await response.json()) as StatusResponse & { error?: string }
       if (!response.ok) throw new Error(data.error || "Could not load status.")
       setPackageContractAccepted(false)
+      await loadPrivateContractAccepted()
       setStatusData(data)
       if (data.activePrivatePackage) {
         setSelectedServiceType(data.activePrivatePackage.serviceType)
@@ -111,7 +133,7 @@ export function TrainingPortalBookingContent({
     } finally {
       setIsLoadingStatus(false)
     }
-  }, [clientEmail, dogName])
+  }, [clientEmail, dogName, loadPrivateContractAccepted])
 
   useEffect(() => {
     fetchStatus()
@@ -163,7 +185,7 @@ export function TrainingPortalBookingContent({
 
   async function savePrivatePackage() {
     if (!statusData) return
-    if (!packageContractAccepted) {
+    if (!packageContractAlreadyAccepted && !packageContractAccepted) {
       setError("Please read and accept the private training agreement before updating your package.")
       return
     }
@@ -189,20 +211,23 @@ export function TrainingPortalBookingContent({
         throw new Error(response.ok ? "Invalid response." : `Server error: ${response.status}`)
       }
       if (!response.ok) throw new Error(data.error || "Could not save package.")
-      try {
-        await fetch("/api/contract-acceptance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            clientEmail: clientEmail.trim().toLowerCase(),
-            contractKind: "private_classes",
-            version: CONTRACT_VERSION,
-            source: "/training-portal/book",
-            dogName: dogName.trim(),
-          }),
-        })
-      } catch {
-        /* non-blocking */
+      if (!packageContractAlreadyAccepted) {
+        try {
+          await fetch("/api/contract-acceptance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              clientEmail: clientEmail.trim().toLowerCase(),
+              contractKind: "private_classes",
+              version: CONTRACT_VERSION,
+              source: "/training-portal/book",
+              dogName: dogName.trim(),
+            }),
+          })
+          setPackageContractAlreadyAccepted(true)
+        } catch {
+          /* non-blocking */
+        }
       }
       await fetchStatus()
       setSlots([])
@@ -396,25 +421,33 @@ export function TrainingPortalBookingContent({
                       </div>
                     </div>
                   </div>
-                  <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                    <summary className="cursor-pointer font-medium">
-                      {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
-                    </summary>
-                    <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
-                  </details>
-                  <label className="flex items-start gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={packageContractAccepted}
-                      onChange={(e) => setPackageContractAccepted(e.target.checked)}
-                      className="mt-1"
-                    />
-                    <span>I have read and agree to the private training agreement ({CONTRACT_VERSION}).</span>
-                  </label>
+                  {packageContractAlreadyAccepted ? (
+                    <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                      Private training agreement already accepted for this version.
+                    </p>
+                  ) : (
+                    <>
+                      <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
+                        <summary className="cursor-pointer font-medium">
+                          {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
+                        </summary>
+                        <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
+                      </details>
+                      <label className="flex items-start gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={packageContractAccepted}
+                          onChange={(e) => setPackageContractAccepted(e.target.checked)}
+                          className="mt-1"
+                        />
+                        <span>I have read and agree to the private training agreement ({CONTRACT_VERSION}).</span>
+                      </label>
+                    </>
+                  )}
                   <div className="flex justify-end">
                     <Button
                       type="button"
-                      disabled={isSelectingPackage || !packageContractAccepted}
+                      disabled={isSelectingPackage || (!packageContractAlreadyAccepted && !packageContractAccepted)}
                       onClick={async () => {
                         await savePrivatePackage()
                       }}

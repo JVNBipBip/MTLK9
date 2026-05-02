@@ -1,8 +1,7 @@
 import { CLIENT_BOOKING_SETTINGS_COLLECTION, DOG_CLASS_ACCESS_COLLECTION, clientBookingSettingsDocId } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { allowedGroupProgramIdsFromConfig, migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
+import { currentGroupClassProgramIds } from "@/lib/group-class-programs"
 import { programLabel } from "@/lib/programs"
-import { getProgramServiceVariationId, getSquareServiceConfig } from "@/lib/square-service-config"
 
 export function normalizedDogKey(dogName: string) {
   return dogName.trim().toLowerCase()
@@ -18,8 +17,7 @@ export function isGroupProgramsAllFutureForDog(
 }
 
 export async function allConfiguredGroupProgramTypeIds(): Promise<string[]> {
-  const cfg = await getSquareServiceConfig(null)
-  return [...allowedGroupProgramIdsFromConfig(cfg)]
+  return currentGroupClassProgramIds()
 }
 
 async function mergeAllowedGroupProgramIds(
@@ -77,19 +75,12 @@ export async function buildApprovedGroupClassesForClientDog(
   const mergedIds = await mergeAllowedGroupProgramIds(explicitIds, settingsSnap.data(), dogKey)
   if (mergedIds.length === 0) return []
 
-  const squareCfg = await getSquareServiceConfig(null)
-  const slotOrder = migratedGroupProgramSlotOrder(squareCfg)
-
-  return Promise.all(
-    mergedIds.map(async (classTypeId) => {
-      const row = fromDoc.get(classTypeId)
-      const mappedVariationId = (await getProgramServiceVariationId(classTypeId, null)) || ""
-      const configuredLabel = squareCfg.groupProgramLabels?.[classTypeId]?.trim() || ""
-      return {
-        classTypeId,
-        classLabel: row?.classLabel || configuredLabel || programLabel(classTypeId, slotOrder),
-        squareServiceVariationId: row?.squareServiceVariationId || mappedVariationId || "",
-      }
-    }),
-  )
+  return mergedIds.map((classTypeId) => {
+    const row = fromDoc.get(classTypeId)
+    return {
+      classTypeId,
+      classLabel: row?.classLabel || programLabel(classTypeId),
+      squareServiceVariationId: row?.squareServiceVariationId || "",
+    }
+  })
 }

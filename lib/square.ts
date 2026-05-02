@@ -299,6 +299,13 @@ export async function retrieveSquareCatalogObject(objectId: string) {
   })
 }
 
+export async function getServiceVariationDurationMinutes(serviceVariationId: string): Promise<number | null> {
+  const result = await retrieveSquareCatalogObject(serviceVariationId)
+  const durationMs = result.object?.item_variation_data?.service_duration
+  if (!durationMs || durationMs <= 0) return null
+  return Math.max(1, Math.round(durationMs / 60_000))
+}
+
 /**
  * Human-readable label for a catalog variation ID (ITEM_VARIATION), using Square item + variation names.
  * Returns null if the object is missing or not usable.
@@ -468,6 +475,11 @@ export type SquareBooking = {
   appointment_segments?: SquareAppointmentSegment[]
 }
 
+type ListSquareBookingsResponse = {
+  bookings?: SquareBooking[]
+  cursor?: string
+}
+
 export async function retrieveSquareBooking(bookingId: string) {
   return squareRequest<{ booking?: SquareBooking }>(`/v2/bookings/${encodeURIComponent(bookingId)}`, {
     method: "GET",
@@ -618,18 +630,22 @@ export async function retrieveSquareTeamMember(teamMemberId: string) {
 
 export async function listSquareBookings(input?: { startAtMin?: string; startAtMax?: string; limit?: number }) {
   const cfg = await getSquareConfigAsync()
-  const params = new URLSearchParams()
-  params.set("location_id", cfg.locationId)
-  params.set("start_at_min", input?.startAtMin || new Date().toISOString())
-  if (input?.startAtMax) params.set("start_at_max", input.startAtMax)
-  if (input?.limit) params.set("limit", String(input.limit))
-  return squareRequest<{
-    bookings?: Array<{
-      start_at?: string
-      appointment_segments?: Array<{ service_variation_id?: string }>
-    }>
-  }>(`/v2/bookings?${params.toString()}`, {
-    method: "GET",
-  })
+  const bookings: SquareBooking[] = []
+  let cursor: string | undefined
+  do {
+    const params = new URLSearchParams()
+    params.set("location_id", cfg.locationId)
+    params.set("start_at_min", input?.startAtMin || new Date().toISOString())
+    if (input?.startAtMax) params.set("start_at_max", input.startAtMax)
+    params.set("limit", String(Math.min(Math.max(input?.limit || 100, 1), 200)))
+    if (cursor) params.set("cursor", cursor)
+    const response = await squareRequest<ListSquareBookingsResponse>(`/v2/bookings?${params.toString()}`, {
+      method: "GET",
+    })
+    bookings.push(...(response.bookings || []))
+    cursor = response.cursor
+  } while (cursor)
+
+  return { bookings }
 }
 

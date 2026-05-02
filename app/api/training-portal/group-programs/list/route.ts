@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
-import { getCatalogVariationDisplayName } from "@/lib/square"
-import { migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
+import { groupClassProgramOptionsFromSessions } from "@/lib/group-class-programs"
 import { programLabel } from "@/lib/programs"
-import { getPrivateServiceVariationIds, getSquareServiceConfig, type SquareServiceConfig } from "@/lib/square-service-config"
+import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
@@ -10,36 +9,6 @@ export const runtime = "nodejs"
 type Payload = {
   clientEmail?: string
   dogName?: string
-}
-
-async function displayLabelForGroupProgram(
-  programId: string,
-  config: SquareServiceConfig,
-  slotOrder: string[],
-  cache: Map<string, string>,
-): Promise<string> {
-  const hit = cache.get(programId)
-  if (hit) return hit
-
-  const configuredLabel = config.groupProgramLabels?.[programId]?.trim()
-  if (configuredLabel) {
-    cache.set(programId, configuredLabel)
-    return configuredLabel
-  }
-
-  for (const variationId of [config.groupClassSeriesVariations?.[programId], config.programs?.[programId]]) {
-    const value = variationId?.trim()
-    if (!value) continue
-    const fromSquare = await getCatalogVariationDisplayName(value)
-    if (fromSquare) {
-      cache.set(programId, fromSquare)
-      return fromSquare
-    }
-  }
-
-  const fallback = programLabel(programId, slotOrder)
-  cache.set(programId, fallback)
-  return fallback
 }
 
 export async function POST(request: Request) {
@@ -85,16 +54,13 @@ export async function POST(request: Request) {
     })
   }
 
-  const config = await getSquareServiceConfig(null)
-  const slotOrder = migratedGroupProgramSlotOrder(config)
-  const labelCache = new Map<string, string>()
-  const programs = await Promise.all(
-    portal.allowedGroupClassTypeIds.map(async (programId) => ({
-      programId,
-      programLabel: await displayLabelForGroupProgram(programId, config, slotOrder, labelCache),
-      squareUrl: config.groupProgramSquareUrls?.[programId]?.trim() || null,
-    })),
-  )
+  const options = await groupClassProgramOptionsFromSessions(portal.allowedGroupClassTypeIds)
+  const labelById = new Map(options.map((option) => [option.id, option.label]))
+  const programs = portal.allowedGroupClassTypeIds.map((programId) => ({
+    programId,
+    programLabel: labelById.get(programId) || programLabel(programId),
+    squareUrl: null,
+  }))
 
   return NextResponse.json({
     ok: true,

@@ -66,6 +66,7 @@ export type StatusResponse = {
     type: "one_on_one" | "group"
     bookingStatus: string
     squareBookingStatus: string | null
+    squarePaymentLinkUrl: string | null
   }>
   privateUpcomingBookings: Array<{
     id: string

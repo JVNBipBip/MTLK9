@@ -1,6 +1,7 @@
 export interface BookingFormData {
   issue: string
   issueOther: string
+  followUps: Record<string, string>
   duration: string
   tried: string[]
   impact: string[]
@@ -32,6 +33,7 @@ export type StepProps = {
 export const INITIAL_FORM_DATA: BookingFormData = {
   issue: "",
   issueOther: "",
+  followUps: {},
   duration: "",
   tried: [],
   impact: [],

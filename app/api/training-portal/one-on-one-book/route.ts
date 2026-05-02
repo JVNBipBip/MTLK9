@@ -4,6 +4,7 @@ import { BOOKINGS_COLLECTION, PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib
 import { getAdminDb } from "@/lib/firebase-admin"
 import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, ONE_ON_ONE_PROGRAM_LABEL, loadTrainingPortalContext } from "@/lib/training-portal"
 
@@ -80,6 +81,18 @@ export async function POST(request: Request) {
   const serviceVariationId = serviceVariationFromSlot || expectedServiceVariationId
   if (serviceVariationId !== expectedServiceVariationId) {
     return NextResponse.json({ error: "Selected slot does not match your package service type." }, { status: 400 })
+  }
+  if (portal.activePrivatePackage.serviceType === "in_facility") {
+    const roomAvailable = await isFacilityRoomAvailable({
+      startAt: new Date(startAt).toISOString(),
+      serviceVariationId,
+    })
+    if (!roomAvailable) {
+      return NextResponse.json(
+        { error: "That time is no longer available because both facility rooms are booked." },
+        { status: 409 },
+      )
+    }
   }
 
   const db = getAdminDb()

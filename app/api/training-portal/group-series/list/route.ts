@@ -2,43 +2,11 @@ import { NextResponse } from "next/server"
 import { CLASS_SESSIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { groupSessionsIntoSeriesList, releaseStaleGroupSeriesHolds, type SessionForSeries } from "@/lib/group-class-series"
-import { migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
 import { programLabel } from "@/lib/programs"
-import { getCatalogVariationDisplayName } from "@/lib/square"
-import {
-  getGroupClassSeriesVariationId,
-  getPrivateServiceVariationIds,
-  getProgramServiceVariationId,
-  getSquareServiceConfig,
-} from "@/lib/square-service-config"
+import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 
 export const runtime = "nodejs"
-
-async function displayLabelForGroupProgram(
-  classType: string,
-  cache: Map<string, string>,
-  groupSlotOrder: string[],
-): Promise<string> {
-  const hit = cache.get(classType)
-  if (hit) return hit
-  const fallback = programLabel(classType, groupSlotOrder).trim() || classType
-
-  const seriesVid = await getGroupClassSeriesVariationId(classType, null)
-  const programVid = await getProgramServiceVariationId(classType, null)
-
-  for (const vid of [seriesVid, programVid]) {
-    if (!vid?.trim()) continue
-    const fromSquare = await getCatalogVariationDisplayName(vid)
-    if (fromSquare) {
-      cache.set(classType, fromSquare)
-      return fromSquare
-    }
-  }
-
-  cache.set(classType, fallback)
-  return fallback
-}
 
 type Payload = {
   clientEmail?: string
@@ -100,16 +68,11 @@ export async function POST(request: Request) {
     return { id: doc.id, ...d }
   })
 
-  const squareCfg = await getSquareServiceConfig(null)
-  const groupSlotOrder = migratedGroupProgramSlotOrder(squareCfg)
-  const series = groupSessionsIntoSeriesList(raw, allowedClassTypes, nowIso, groupSlotOrder)
-  const labelCache = new Map<string, string>()
-  const seriesWithLabels = await Promise.all(
-    series.map(async (row) => ({
-      ...row,
-      programLabel: await displayLabelForGroupProgram(row.classType, labelCache, groupSlotOrder),
-    })),
-  )
+  const series = groupSessionsIntoSeriesList(raw, allowedClassTypes, nowIso)
+  const seriesWithLabels = series.map((row) => ({
+    ...row,
+    programLabel: programLabel(row.classType),
+  }))
 
   return NextResponse.json({
     ok: true,

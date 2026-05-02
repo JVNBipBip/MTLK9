@@ -12,6 +12,36 @@ function isContractKind(v: unknown): v is ContractKind {
   return typeof v === "string" && (KINDS as readonly string[]).includes(v)
 }
 
+export async function GET(request: Request) {
+  const url = new URL(request.url)
+  const clientEmail = String(url.searchParams.get("clientEmail") || "").trim().toLowerCase()
+  const contractKind = url.searchParams.get("contractKind")
+  const version = String(url.searchParams.get("version") || CONTRACT_VERSION).trim() || CONTRACT_VERSION
+
+  if (!clientEmail || !clientEmail.includes("@")) {
+    return NextResponse.json({ error: "Valid clientEmail is required." }, { status: 400 })
+  }
+  if (!isContractKind(contractKind)) {
+    return NextResponse.json({ error: "Invalid contractKind." }, { status: 400 })
+  }
+
+  const snap = await getAdminDb()
+    .collection(CONTRACT_ACCEPTANCES_COLLECTION)
+    .where("clientEmail", "==", clientEmail)
+    .limit(100)
+    .get()
+
+  const match = snap.docs
+    .map((doc) => ({ id: doc.id, ...(doc.data() as { contractKind?: string; version?: string; acceptedAtIso?: string }) }))
+    .find((row) => row.contractKind === contractKind && row.version === version)
+
+  return NextResponse.json({
+    ok: true,
+    accepted: Boolean(match),
+    acceptedAtIso: match?.acceptedAtIso || null,
+  })
+}
+
 export async function POST(request: Request) {
   let body: {
     clientEmail?: string

@@ -6,15 +6,13 @@
  *
  * Configuration:
  * - `CLASS_SYNC_EVENT_TYPES`: comma-separated Square webhook event types that should fire
- *   a sync. Defaults to a conservative set that covers typical class add/remove flows.
+ *   a sync. Defaults to catalog updates; booking events are consultations/private classes.
  * - `ADMIN_BASE_URL`: base URL of the admin app (e.g. https://mltk-9-admin.vercel.app).
  * - `CLASS_SYNC_WEBHOOK_SECRET`: shared secret between this app and the admin app; sent
  *   as `Authorization: Bearer <secret>`.
  */
 
 const DEFAULT_EVENT_TYPES = [
-  "booking.created",
-  "booking.updated",
   "catalog.version.updated",
 ]
 

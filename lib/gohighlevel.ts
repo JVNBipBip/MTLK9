@@ -35,10 +35,13 @@ async function ghlFetch(path: string, options: RequestInit = {}) {
 }
 
 function buildIntakeNotes(formData: BookingFormData): string {
+  const followUps = Object.entries(formData.followUps || {})
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ")
   const lines = [
     `Issue: ${formData.issueOther?.trim() || formData.issue || "Not provided"}`,
-    `Duration: ${formData.duration || "Not provided"}`,
-    `Impact: ${formData.impact.join(", ") || "Not provided"}`,
+    `Follow-ups: ${followUps || "Not provided"}`,
+    `Goals: ${formData.goals.join(", ") || "Not provided"}`,
     `Dog: ${formData.dogName} (${formData.dogBreed || "Unknown breed"}, ${formData.dogAge || "Unknown age"})`,
     `Connect method: ${formData.connectMethod}`,
     `Best time to contact: ${formData.contactBestTime || "Not provided"}`,
@@ -63,6 +66,9 @@ export async function createGHLContact(formData: BookingFormData): Promise<strin
     const nameParts = formData.contactName.trim().split(/\s+/)
     const firstName = nameParts[0] || ""
     const lastName = nameParts.slice(1).join(" ") || ""
+    const followUps = Object.entries(formData.followUps || {})
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(", ")
 
     const contactPayload: Record<string, unknown> = {
       firstName,
@@ -83,6 +89,8 @@ export async function createGHLContact(formData: BookingFormData): Promise<strin
         { key: "issue", field_value: formData.issueOther?.trim() || formData.issue || "" },
         { key: "issue_duration", field_value: formData.duration || "" },
         { key: "impact", field_value: formData.impact.join(", ") || "" },
+        { key: "follow_ups", field_value: followUps || "" },
+        { key: "goals", field_value: formData.goals.join(", ") || "" },
         { key: "connect_method", field_value: formData.connectMethod || "" },
         { key: "best_time_to_contact", field_value: formData.contactBestTime || "" },
         { key: "client_notes", field_value: formData.contactNotes || "" },

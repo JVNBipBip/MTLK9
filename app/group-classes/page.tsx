@@ -5,36 +5,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
 import { Button } from "@/components/ui/button"
-import { allowedGroupProgramIdsFromConfig, migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
-import { programLabel } from "@/lib/programs"
-import { getSquareServiceConfig } from "@/lib/square-service-config"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
-
-const PROGRAM_IMAGE: Record<string, string> = {
-  "puppy-training": "/images/Classes images/puppy.webp",
-  puppy: "/images/Classes images/puppy.webp",
-  obedience: "/images/Classes images/obedience.webp",
-  reactivity: "/images/Classes images/reactivity.webp",
-}
-const FALLBACK_IMAGE = "/images/Classes images/obedience.webp"
-
-const GROUP_CLASS_COPY: Record<string, { forText: string; summary: string; bullets: string[] }> = {
-  "puppy-training": {
-    forText: "Puppies & young dogs",
-    summary: "Social skills, engagement, confidence, and the obedience foundations that matter early.",
-    bullets: ["Confident socialization", "Marker & focus games", "Bite inhibition & manners"],
-  },
-  obedience: {
-    forText: "Real-world manners",
-    summary: "Leash skills, reliable obedience, and calm behavior around distractions.",
-    bullets: ["Loose-leash walking", "Sit / down / stay / recall", "Impulse control reps"],
-  },
-  reactivity: {
-    forText: "For dogs who struggle around triggers",
-    summary: "Structured reactivity work with distance management and controlled reps.",
-    bullets: ["Engage–Disengage pattern", "Threshold distance work", "Handler coaching"],
-  },
-}
 
 type GroupOffering = {
   id: string
@@ -43,55 +14,74 @@ type GroupOffering = {
   summary: string
   bullets: string[]
   image: string
+  packagePrice?: string
+  unitPrice?: string
+  packageDetail?: string
+  note?: string
 }
 
-function fallbackOffering(programId: string, label: string): GroupOffering {
-  const known = GROUP_CLASS_COPY[programId]
-  const image = PROGRAM_IMAGE[programId] || FALLBACK_IMAGE
-  if (known) {
-    return { id: programId, label, image, ...known }
-  }
-  return {
-    id: programId,
-    label,
-    image,
-    forText: "Structured group format",
-    summary: "A coached class focused on practical skills, calm repetition, and handler support — available after trainer approval.",
-    bullets: ["Small cohort", "Trainer-led reps", "Real-world scenarios"],
-  }
-}
+const OFFERINGS: GroupOffering[] = [
+  {
+    id: "puppy-socialization-class",
+    label: "Puppy Socialization Class",
+    forText: "Puppies",
+    summary: "Safe early socialization, confidence building, and trainer-guided puppy manners.",
+    bullets: ["Confident socialization", "Body handling", "Early manners"],
+    image: "/images/Classes images/puppy.webp",
+    packagePrice: "$50 + tax",
+  },
+  {
+    id: "teen-puppy-class",
+    label: "Teen Puppy Class",
+    forText: "Teen puppies",
+    summary: "A structured class for adolescent dogs building focus, manners, and engagement around distractions.",
+    bullets: ["Focus around distractions", "Leash and impulse control", "Handler coaching"],
+    image: "/images/Classes images/puppy.webp",
+    unitPrice: "$90 + tax",
+  },
+  {
+    id: "reactivity-group-class",
+    label: "Reactivity Group Class",
+    forText: "For dogs who struggle around triggers",
+    summary: "Structured reactivity work with distance management and controlled reps.",
+    bullets: ["Engage-Disengage pattern", "Threshold distance work", "Handler coaching"],
+    image: "/images/Classes images/reactivity.webp",
+    packagePrice: "$360 + tax",
+    unitPrice: "$95 + tax",
+  },
+  {
+    id: "level-1-obedience-class",
+    label: "Level 1 Obedience Class",
+    forText: "Foundation obedience",
+    summary: "Practical manners, reliable basics, and calm work around distractions.",
+    bullets: ["Loose-leash walking", "Sit / down / stay / recall", "Impulse control"],
+    image: "/images/Classes images/obedience.webp",
+    packagePrice: "$360 + tax",
+    unitPrice: "$95 + tax",
+    packageDetail: "4 classes",
+  },
+  {
+    id: "level-2-obedience-class",
+    label: "Level 2 Obedience Class",
+    forText: "Intermediate obedience",
+    summary: "The next step for dogs ready to build stronger obedience, duration, and distraction work.",
+    bullets: ["More reliability", "Distance and duration", "Proofing around distractions"],
+    image: "/images/Classes images/obedience.webp",
+    packagePrice: "$450 + tax",
+  },
+  {
+    id: "level-3-obedience-class",
+    label: "Level 3 Obedience Class",
+    forText: "Advanced obedience",
+    summary: "Advanced group obedience for teams ready for more challenging skills and proofing.",
+    bullets: ["Advanced proofing", "Handler precision", "Higher-distraction reps"],
+    image: "/images/Classes images/obedience.webp",
+    packagePrice: "$450 + tax",
+    note: "Coming soon",
+  },
+]
 
-async function loadOfferings(): Promise<GroupOffering[]> {
-  const config = await getSquareServiceConfig(null)
-  const slotOrder = migratedGroupProgramSlotOrder(config)
-  const ids = [...allowedGroupProgramIdsFromConfig(config)]
-
-  if (ids.length === 0) {
-    return [
-      fallbackOffering("puppy-training", "Puppy Training"),
-      fallbackOffering("obedience", "Obedience Training"),
-      fallbackOffering("reactivity", "Reactivity Training"),
-    ]
-  }
-
-  return ids
-    .sort((a, b) => {
-      const aIndex = slotOrder.indexOf(a)
-      const bIndex = slotOrder.indexOf(b)
-      if (aIndex === -1 && bIndex === -1) return a.localeCompare(b)
-      if (aIndex === -1) return 1
-      if (bIndex === -1) return -1
-      return aIndex - bIndex
-    })
-    .map((programId) => {
-      const label = config.groupProgramLabels?.[programId]?.trim() || programLabel(programId, slotOrder)
-      return fallbackOffering(programId, label)
-    })
-}
-
-export default async function GroupClassesPage() {
-  const offerings = await loadOfferings()
-
+export default function GroupClassesPage() {
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -117,11 +107,11 @@ export default async function GroupClassesPage() {
               Group Classes
             </div>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              Book the group class your dog is approved for
+              Request the group class your dog is approved for
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Small cohorts. Real coaching. Enter your email to see the classes open to you — or book
-              an assessment and we&apos;ll place you in the right one.
+              Small cohorts. Real coaching. Enter your email to see approved classes and request a spot,
+              or book an assessment and we&apos;ll place your dog in the right program.
             </p>
           </div>
 
@@ -133,7 +123,7 @@ export default async function GroupClassesPage() {
         </div>
       </section>
 
-      <section className="px-6 lg:px-8 -mt-4 lg:-mt-8 pb-20 lg:pb-28">
+      <section id="group-class-availability" className="px-6 lg:px-8 -mt-4 lg:-mt-8 pb-20 lg:pb-28 scroll-mt-24">
         <div className="max-w-4xl mx-auto">
           <Suspense
             fallback={
@@ -162,7 +152,7 @@ export default async function GroupClassesPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {offerings.map((offering) => (
+            {OFFERINGS.map((offering) => (
               <article
                 key={offering.id}
                 className="group flex flex-col rounded-3xl overflow-hidden border border-border/50 bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/25 transition-all duration-300"
@@ -186,6 +176,26 @@ export default async function GroupClassesPage() {
                   </div>
                 </div>
                 <div className="flex flex-col flex-grow p-6">
+                  {(offering.packagePrice || offering.unitPrice || offering.note) ? (
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {offering.packagePrice ? (
+                        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                          Package: {offering.packagePrice}
+                          {offering.packageDetail ? ` · ${offering.packageDetail}` : ""}
+                        </span>
+                      ) : null}
+                      {offering.unitPrice ? (
+                        <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary">
+                          Unit: {offering.unitPrice}
+                        </span>
+                      ) : null}
+                      {offering.note ? (
+                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                          {offering.note}
+                        </span>
+                      ) : null}
+                    </div>
+                  ) : null}
                   <p className="text-muted-foreground leading-relaxed">{offering.summary}</p>
                   <ul className="mt-5 space-y-2">
                     {offering.bullets.map((bullet) => (
@@ -195,6 +205,9 @@ export default async function GroupClassesPage() {
                       </li>
                     ))}
                   </ul>
+                  <Button asChild variant="outline" className="mt-6 rounded-full">
+                    <a href="#group-class-availability">See dates &amp; availability</a>
+                  </Button>
                 </div>
               </article>
             ))}
@@ -224,8 +237,8 @@ export default async function GroupClassesPage() {
                   body: "After the assessment, your trainer enables the group programs your dog is ready for.",
                 },
                 {
-                  title: "Book a class right here",
-                  body: "Come back, enter your email, and pick an upcoming class that fits your schedule.",
+                  title: "Request your spot",
+                  body: "Come back, enter your email, and request an upcoming full-series cohort that fits your schedule.",
                 },
               ].map((step, index) => (
                 <li

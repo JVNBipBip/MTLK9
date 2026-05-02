@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
-import { intakeRequiresNickOnlyConsultation } from "@/lib/consultation-routing"
+import { getVisibleTrainerNamesForIntake, intakeRequiresNickOnlyConsultation } from "@/lib/consultation-routing"
 import { getConsultationServiceVariationIds, getNickTeamMemberIdForConsultation } from "@/lib/square-service-config"
+import { filterSlotsByFacilityRoomCapacity } from "@/lib/facility-room-capacity"
 
 export const runtime = "nodejs"
 
@@ -11,7 +12,13 @@ const HIDDEN_CONSULTATION_TEAM_MEMBER_IDS = new Set<string>([
   "TM32wtl__BW48AwU", // Sam Di Q
 ])
 
-type RawSlot = { slotKey: string; startAt: string; teamMemberId: string }
+type RawSlot = {
+  slotKey: string
+  startAt: string
+  teamMemberId: string
+  serviceVariationId: string
+  durationMinutes?: number
+}
 
 function minLeadMinutes() {
   const raw = Number.parseInt(process.env.SQUARE_CONSULTATION_MIN_LEAD_MINUTES || "", 10)
@@ -41,6 +48,8 @@ async function loadRawConsultationSlots(serviceVariationIds: string[]): Promise<
           slotKey: `${startAtValue}|${serviceVariationId}|${teamMemberId}`,
           startAt: startAtValue,
           teamMemberId,
+          serviceVariationId,
+          durationMinutes: slot.appointment_segments?.[0]?.duration_minutes,
         })
       }
     } catch (err) {
@@ -63,7 +72,11 @@ async function loadRawConsultationSlots(serviceVariationIds: string[]): Promise<
   return rawSlots
 }
 
-type Intake = { issue: string; impact: string[] }
+type Intake = { issue: string; impact: string[]; followUps: Record<string, string> }
+
+function teamMemberMatchesTrainerName(teamMemberName: string | null | undefined, trainerName: string): boolean {
+  return (teamMemberName || "").toLowerCase().includes(trainerName.toLowerCase())
+}
 
 async function respondWithConsultationSlots(intake: Intake) {
   const serviceVariationIds = await getConsultationServiceVariationIds()
@@ -74,7 +87,9 @@ async function respondWithConsultationSlots(intake: Intake) {
     )
   }
 
-  const rawSlotsFromSquare = await loadRawConsultationSlots(serviceVariationIds)
+  const rawSlotsFromSquare = await filterSlotsByFacilityRoomCapacity(
+    await loadRawConsultationSlots(serviceVariationIds),
+  )
   const rawSlots = rawSlotsFromSquare.filter(
     (s) => !HIDDEN_CONSULTATION_TEAM_MEMBER_IDS.has(s.teamMemberId),
   )
@@ -90,29 +105,11 @@ async function respondWithConsultationSlots(intake: Intake) {
     )
   }
 
-  const nickRequired = intakeRequiresNickOnlyConsultation(intake.issue, intake.impact)
+  const trainerNames = getVisibleTrainerNamesForIntake(intake)
+  const nickRequired = intakeRequiresNickOnlyConsultation(intake.issue, intake.impact, intake.followUps)
   const nickId = await getNickTeamMemberIdForConsultation()
 
-  if (nickRequired && !nickId) {
-    return NextResponse.json(
-      {
-        error:
-          "High-risk consultations require a specialist calendar. In Admin → Service Mapping, choose the high-risk consultation staff member (or set SQUARE_NICK_TEAM_MEMBER_ID on the server).",
-        slots: [],
-        nickRoutingActive: true,
-      },
-      { status: 503 },
-    )
-  }
-
-  let filtered = nickRequired && nickId ? rawSlots.filter((s) => s.teamMemberId === nickId) : rawSlots
-
-  const slotsMessage =
-    nickRequired && filtered.length === 0
-      ? "No assessment times are currently available with our specialist for dogs with safety-related concerns. Please call or email us and we will help you schedule."
-      : undefined
-
-  const uniqueTeamIds = [...new Set(filtered.map((s) => s.teamMemberId))]
+  const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId))]
   const teamNames = new Map<string, string | null>()
   await Promise.all(
     uniqueTeamIds.map(async (id) => {
@@ -124,6 +121,23 @@ async function respondWithConsultationSlots(intake: Intake) {
       }
     }),
   )
+
+  const filtered =
+    trainerNames.length === 0
+      ? rawSlots
+      : rawSlots.filter((slot) =>
+          trainerNames.some((trainerName) => {
+            if (trainerName === "Nick" && nickId && slot.teamMemberId === nickId) return true
+            return teamMemberMatchesTrainerName(teamNames.get(slot.teamMemberId), trainerName)
+          }),
+        )
+
+  const slotsMessage =
+    filtered.length === 0
+      ? nickRequired
+        ? "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule."
+        : "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule."
+      : undefined
 
   const slots = filtered.map((slot) => ({
     slotKey: slot.slotKey,
@@ -139,7 +153,7 @@ async function respondWithConsultationSlots(intake: Intake) {
 
   return NextResponse.json({
     slots,
-    recommendedTeamMemberId: nickRequired ? null : nickId,
+    recommendedTeamMemberId: null,
     nickRoutingActive: nickRequired,
     slotsMessage: slotsMessage ?? null,
   })
@@ -148,7 +162,13 @@ async function respondWithConsultationSlots(intake: Intake) {
 function parseIntakeFromSearchParams(searchParams: URLSearchParams): Intake {
   const issue = searchParams.get("issue") ?? ""
   const impact = searchParams.getAll("impact").filter(Boolean)
-  return { issue, impact }
+  const followUps: Record<string, string> = {}
+  for (const raw of searchParams.getAll("followUp")) {
+    const [key, ...rest] = raw.split(":")
+    const value = rest.join(":")
+    if (key && value) followUps[key] = value
+  }
+  return { issue, impact, followUps }
 }
 
 export async function GET(request: Request) {
@@ -169,5 +189,14 @@ export async function POST(request: Request) {
   const impact = Array.isArray(impactRaw)
     ? impactRaw.filter((x): x is string => typeof x === "string")
     : []
-  return respondWithConsultationSlots({ issue, impact })
+  const followUpsRaw = obj.followUps
+  const followUps =
+    followUpsRaw && typeof followUpsRaw === "object" && !Array.isArray(followUpsRaw)
+      ? Object.fromEntries(
+          Object.entries(followUpsRaw).filter(
+            (entry): entry is [string, string] => typeof entry[1] === "string",
+          ),
+        )
+      : {}
+  return respondWithConsultationSlots({ issue, impact, followUps })
 }

@@ -4,6 +4,7 @@ import { BOOKINGS_COLLECTION, CLASS_SESSIONS_COLLECTION } from "@/lib/domain"
 import { programLabel } from "@/lib/programs"
 
 export const GROUP_SERIES_BOOKING_SOURCE = "training-portal-group-series"
+export const GROUP_CLASS_REQUEST_SOURCE = "training-portal-group-class-request"
 
 const HOLD_MS = 30 * 60 * 1000
 
@@ -51,6 +52,78 @@ export async function releaseHoldsForGroupBooking(db: Firestore, bookingId: stri
     t.update(bookingRef, {
       bookingStatus: "cancelled",
       paymentStatus: "cancelled",
+      updatedAt: FieldValue.serverTimestamp(),
+    })
+  })
+}
+
+export async function confirmGroupClassRequest(db: Firestore, bookingId: string) {
+  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  await db.runTransaction(async (t) => {
+    const bSnap = await t.get(bookingRef)
+    if (!bSnap.exists) return
+    const bd = bSnap.data() as {
+      source?: string
+      bookingStatus?: string
+      selectedSessionIds?: string[]
+    }
+    if (bd.source !== GROUP_CLASS_REQUEST_SOURCE) return
+    if (bd.bookingStatus === "confirmed") return
+    if (bd.bookingStatus === "cancelled") return
+
+    const sessionIds = bd.selectedSessionIds || []
+    const sessionRefs = sessionIds.map((sid) => db.collection(CLASS_SESSIONS_COLLECTION).doc(sid))
+    const sessionSnaps = sessionRefs.length > 0 ? await t.getAll(...sessionRefs) : []
+    for (const sSnap of sessionSnaps) {
+      if (!sSnap.exists) continue
+      const sd = sSnap.data() as { bookedCount?: number; reservedCount?: number }
+      const booked = Number(sd.bookedCount ?? 0)
+      const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
+      t.update(sSnap.ref, {
+        bookedCount: booked + 1,
+        reservedCount: reserved,
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+    }
+    t.update(bookingRef, {
+      bookingStatus: "confirmed",
+      paymentStatus: "not_required",
+      requestStatus: "added_to_square",
+      adminActionRequired: false,
+      addedToSquareAtIso: new Date().toISOString(),
+      updatedAt: FieldValue.serverTimestamp(),
+    })
+  })
+}
+
+export async function declineGroupClassRequest(db: Firestore, bookingId: string) {
+  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  await db.runTransaction(async (t) => {
+    const bSnap = await t.get(bookingRef)
+    if (!bSnap.exists) return
+    const bd = bSnap.data() as {
+      source?: string
+      bookingStatus?: string
+      selectedSessionIds?: string[]
+    }
+    if (bd.source !== GROUP_CLASS_REQUEST_SOURCE) return
+    if (bd.bookingStatus === "cancelled") return
+
+    const sessionIds = bd.selectedSessionIds || []
+    const sessionRefs = sessionIds.map((sid) => db.collection(CLASS_SESSIONS_COLLECTION).doc(sid))
+    const sessionSnaps = sessionRefs.length > 0 ? await t.getAll(...sessionRefs) : []
+    for (const sSnap of sessionSnaps) {
+      if (!sSnap.exists) continue
+      const sd = sSnap.data() as { reservedCount?: number }
+      const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
+      t.update(sSnap.ref, { reservedCount: reserved, updatedAt: FieldValue.serverTimestamp() })
+    }
+    t.update(bookingRef, {
+      bookingStatus: "cancelled",
+      paymentStatus: "cancelled",
+      requestStatus: "declined",
+      adminActionRequired: false,
+      declinedAtIso: new Date().toISOString(),
       updatedAt: FieldValue.serverTimestamp(),
     })
   })

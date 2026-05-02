@@ -5,6 +5,7 @@ import {
   retrieveSquareTeamMember,
   searchSquareAvailability,
 } from "@/lib/square"
+import { filterSlotsByFacilityRoomCapacity } from "@/lib/facility-room-capacity"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, loadTrainingPortalContext } from "@/lib/training-portal"
 
@@ -23,6 +24,7 @@ type OneOnOneSlot = {
   teamMemberId: string
   teamMemberName?: string | null
   serviceVariationId: string
+  durationMinutes?: number
 }
 
 function minLeadMinutes() {
@@ -105,6 +107,7 @@ export async function POST(request: Request) {
     if (!serviceVariationId) {
       return NextResponse.json({ error: "Selected private package is not mapped to a Square service variation." }, { status: 500 })
     }
+    const resolvedServiceVariationId = serviceVariationId
 
     const now = new Date()
     const minStartMs = now.getTime() + minLeadMinutes() * 60 * 1000
@@ -139,7 +142,7 @@ export async function POST(request: Request) {
           const windowStart = new Date(now.getTime() + i * WINDOW_DAYS * DAY_MS)
           const windowEnd = new Date(now.getTime() + (i + 1) * WINDOW_DAYS * DAY_MS)
           return searchSquareAvailability({
-            serviceVariationId,
+            serviceVariationId: resolvedServiceVariationId,
             startAt: windowStart.toISOString(),
             endAt: windowEnd.toISOString(),
             ...(teamMemberId ? { teamMemberId } : {}),
@@ -163,7 +166,7 @@ export async function POST(request: Request) {
           console.warn(
             "[one-on-one-slots] Skipping team member for service variation mismatch:",
             bookableTeamIds[index],
-            serviceVariationId,
+            resolvedServiceVariationId,
             result.reason,
           )
         }
@@ -178,7 +181,7 @@ export async function POST(request: Request) {
       } else {
         console.warn(
           "[one-on-one-slots] All per-staff availability searches were skipped; falling back to aggregate availability for service variation:",
-          serviceVariationId,
+          resolvedServiceVariationId,
         )
         availabilityResults = await fetchWindowsForTeam(undefined)
       }
@@ -194,19 +197,24 @@ export async function POST(request: Request) {
         if (Number.isNaN(startMs) || startMs < minStartMs) continue
         const teamMemberId = item.appointment_segments?.[0]?.team_member_id || ""
         if (!teamMemberId) continue
-        const slotKey = `${start}|${ONE_ON_ONE_PROGRAM_ID}|${teamMemberId}|${serviceVariationId}`
+        const slotKey = `${start}|${ONE_ON_ONE_PROGRAM_ID}|${teamMemberId}|${resolvedServiceVariationId}`
         slotMap.set(slotKey, {
           slotKey,
           startAt: start,
           programId: ONE_ON_ONE_PROGRAM_ID,
           programLabel: "1-on-1 Training",
           teamMemberId,
-          serviceVariationId,
+          serviceVariationId: resolvedServiceVariationId,
+          durationMinutes: item.appointment_segments?.[0]?.duration_minutes,
         })
       }
     }
 
-    const slots = Array.from(slotMap.values()).sort((a, b) => a.startAt.localeCompare(b.startAt))
+    const rawSlots = Array.from(slotMap.values()).sort((a, b) => a.startAt.localeCompare(b.startAt))
+    const slots =
+      portal.activePrivatePackage.serviceType === "in_facility"
+        ? await filterSlotsByFacilityRoomCapacity(rawSlots)
+        : rawSlots
     const uniqueTeamIds = [...new Set(slots.map((s) => s.teamMemberId))]
     const teamNames = new Map<string, string | null>()
     await Promise.all(

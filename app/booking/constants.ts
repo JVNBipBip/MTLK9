@@ -1,11 +1,126 @@
 export const ISSUE_OPTIONS = [
-  { value: "puppy-out-of-control", label: "My puppy is out of control", description: "Biting, jumping, not listening" },
-  { value: "pulls-lunges-reacts", label: "My dog pulls, lunges, or reacts on walks", description: "" },
-  { value: "anxiety-fear-separation", label: "My dog has anxiety, fear, or separation issues", description: "" },
-  { value: "aggression-safety", label: "My dog has shown aggression or I have safety concerns", description: "" },
-  { value: "better-obedience", label: "My dog is generally good but I want better obedience and off-leash reliability", description: "" },
-  { value: "something-else", label: "Something else", description: "" },
+  {
+    value: "puppy-out-of-control",
+    label: "Puppy or young dog help",
+    description: "Nipping, crying in the crate, jumping, socialization, or not listening.",
+  },
+  {
+    value: "pulls-lunges-reacts",
+    label: "Pulling, lunging, or reactivity",
+    description: "Walks feel stressful, your dog reacts, or basic commands are hard outside.",
+  },
+  {
+    value: "anxiety-fear-separation",
+    label: "Anxiety, fear, or separation anxiety",
+    description: "Your dog struggles being alone, around triggers, or in public places.",
+  },
+  {
+    value: "aggression-safety",
+    label: "Aggression or safety concerns",
+    description: "Biting, resource guarding, or concerns around people, dogs, family, or the public.",
+  },
+  {
+    value: "better-obedience",
+    label: "Better obedience and off-leash reliability",
+    description: "Your dog is generally good, but you want sharper listening in real life.",
+  },
+  {
+    value: "sport-training",
+    label: "Sport training",
+    description: "Agility, bite sports, active obedience, or other structured sport work.",
+  },
 ]
+
+export type FollowUpQuestion = {
+  value: string
+  label: string
+  kind: "yes-no" | "single-choice"
+  choices?: Array<{ value: string; label: string }>
+}
+
+export const FOLLOW_UP_QUESTIONS_BY_ISSUE: Record<string, FollowUpQuestion[]> = {
+  "puppy-out-of-control": [
+    { value: "crate-trouble", label: "Is your puppy having trouble with their crate?", kind: "yes-no" },
+    { value: "potty-mistakes", label: "Is your puppy making potty mistakes in the house?", kind: "yes-no" },
+    {
+      value: "trouble-in-and-out",
+      label: "Is your puppy causing trouble in the house and outside the house?",
+      kind: "yes-no",
+    },
+  ],
+  "pulls-lunges-reacts": [
+    { value: "reactive-to-humans", label: "My dog pulls, lunges, and is reactive to humans", kind: "yes-no" },
+    { value: "reactive-to-dogs", label: "My dog pulls, lunges, and is reactive to dogs", kind: "yes-no" },
+    { value: "social-with-humans", label: "Is your dog social with humans?", kind: "yes-no" },
+    { value: "social-with-dogs", label: "Is your dog social with dogs?", kind: "yes-no" },
+    { value: "bitten-or-nipped-human", label: "Has your dog ever bitten or nipped at a human?", kind: "yes-no" },
+  ],
+  "anxiety-fear-separation": [
+    {
+      value: "struggles-left-alone",
+      label: "Are you struggling with your dog being left alone at the house?",
+      kind: "yes-no",
+    },
+    { value: "stressed-by-dogs-people", label: "Is your dog stressed or worried about dogs or people?", kind: "yes-no" },
+    { value: "trouble-public-places", label: "Are you having trouble bringing your dog to public places?", kind: "yes-no" },
+  ],
+  "aggression-safety": [
+    { value: "bitten-human", label: "Has your dog bitten a human?", kind: "yes-no" },
+    { value: "bitten-dog", label: "Has your dog bitten another dog?", kind: "yes-no" },
+    {
+      value: "resource-guarding-family-bite",
+      label: "Has your dog bitten you or any family members due to resource guarding?",
+      kind: "yes-no",
+    },
+    { value: "seen-another-trainer", label: "Have you gone to see another trainer in the past?", kind: "yes-no" },
+  ],
+  "better-obedience": [
+    {
+      value: "obedience-public-distractions",
+      label: "Would you like to improve your dog's obedience in public or high distractions?",
+      kind: "yes-no",
+    },
+    { value: "off-leash-training", label: "Would you like to begin off-leash training?", kind: "yes-no" },
+    {
+      value: "group-obedience-class",
+      label: "Would you like to join a basic or advanced obedience group class?",
+      kind: "yes-no",
+    },
+  ],
+  "sport-training": [
+    {
+      value: "sport-interest",
+      label: "Which sport are you interested in?",
+      kind: "single-choice",
+      choices: [
+        { value: "agility", label: "Agility" },
+        { value: "bite-sport", label: "Bite Sport" },
+        { value: "active-obedience", label: "Active Obedience" },
+      ],
+    },
+  ],
+}
+
+export const GOALS_OPTIONS_BY_ISSUE: Record<string, Array<{ value: string; label: string }>> = {
+  "puppy-out-of-control": [
+    { value: "puppy-calm-around-people-dogs", label: "My puppy can learn to be calm around people and dogs" },
+    { value: "puppy-left-alone", label: "My dog can be left alone without any issues" },
+    { value: "puppy-listens-anywhere", label: "My puppy listens regardless of which environment I bring them to" },
+  ],
+  "pulls-lunges-reacts": [
+    { value: "neutral-around-humans-dogs", label: "I would like my dog to be neutral around humans and dogs" },
+    { value: "join-group-class", label: "I would like to see my dog in a group class" },
+    {
+      value: "neutral-and-listens",
+      label: "I would like my dog to be neutral around people and dogs, and listen to my commands",
+    },
+  ],
+  "anxiety-fear-separation": [
+    { value: "calm-confident-around-people-dogs", label: "My dog can learn to be calm and confident around people and dogs" },
+    { value: "left-alone-without-issues", label: "My dog can be left alone without any issues" },
+    { value: "neutral-around-triggers", label: "My dog can be neutral around their triggers" },
+  ],
+}
 
 export const DURATION_OPTIONS = [
   { value: "less-than-month", label: "Less than a month", description: "It's new" },
@@ -76,5 +191,6 @@ export const ISSUE_SERVICE_MAP: Record<string, string> = {
   "anxiety-fear-separation": "Private Classes",
   "aggression-safety": "Private Classes",
   "better-obedience": "Obedience Training",
+  "sport-training": "Sport Training",
   "something-else": "Manual Review",
 }

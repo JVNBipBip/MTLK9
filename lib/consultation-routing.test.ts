@@ -1,9 +1,19 @@
-import { intakeRequiresNickOnlyConsultation, NICK_ROUTING_IMPACT_VALUES } from "./consultation-routing"
+import {
+  getVisibleTrainerNamesForIntake,
+  intakeRequiresNickOnlyConsultation,
+  NICK_ROUTING_IMPACT_VALUES,
+} from "./consultation-routing"
 
 describe("intakeRequiresNickOnlyConsultation", () => {
   it("returns true for aggression-safety issue", () => {
     expect(intakeRequiresNickOnlyConsultation("aggression-safety", [])).toBe(true)
     expect(intakeRequiresNickOnlyConsultation("aggression-safety", ["dread-walking"])).toBe(true)
+  })
+
+  it("returns true for Nick-only sport paths", () => {
+    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "bite-sport" })).toBe(true)
+    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "active-obedience" })).toBe(true)
+    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "agility" })).toBe(false)
   })
 
   it("returns true when impact includes worried-about-safety", () => {
@@ -23,5 +33,35 @@ describe("intakeRequiresNickOnlyConsultation", () => {
   it("documents impact constants used for routing", () => {
     expect(NICK_ROUTING_IMPACT_VALUES).toContain("worried-about-safety")
     expect(NICK_ROUTING_IMPACT_VALUES).not.toContain("thought-about-rehoming")
+  })
+})
+
+describe("getVisibleTrainerNamesForIntake", () => {
+  it("matches puppy clients with Mia and Tyson", () => {
+    expect(getVisibleTrainerNamesForIntake({ issue: "puppy-out-of-control" })).toEqual(["Mia", "Tyson"])
+  })
+
+  it("keeps bite-history leash cases to Nick and Tyson", () => {
+    expect(
+      getVisibleTrainerNamesForIntake({
+        issue: "pulls-lunges-reacts",
+        followUps: { "bitten-or-nipped-human": "yes" },
+      }),
+    ).toEqual(["Nick", "Tyson"])
+  })
+
+  it("routes sports by selected discipline", () => {
+    expect(
+      getVisibleTrainerNamesForIntake({
+        issue: "sport-training",
+        followUps: { "sport-interest": "agility" },
+      }),
+    ).toEqual(["Tyson"])
+    expect(
+      getVisibleTrainerNamesForIntake({
+        issue: "sport-training",
+        followUps: { "sport-interest": "bite-sport" },
+      }),
+    ).toEqual(["Nick"])
   })
 })

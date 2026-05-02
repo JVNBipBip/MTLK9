@@ -116,11 +116,11 @@ export function GroupClassesBookingPanel() {
               Look up your classes
             </p>
             <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-              Find the classes your dog can join
+              Find the group classes your dog can request
             </h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
               Enter the email from your assessment. We&apos;ll check your dog&apos;s approved programs
-              and show you the upcoming classes you can book into.
+              and show you the upcoming classes where you can request a spot.
             </p>
           </div>
 
@@ -201,7 +201,7 @@ export function GroupClassesBookingPanel() {
               <InfoRow
                 icon={<CalendarCheck className="w-4 h-4" />}
                 title="Upcoming scheduled classes"
-                body="Pick an upcoming class and go straight to Square checkout."
+                body="Pick an upcoming full-series cohort and send a request to staff."
               />
               <InfoRow
                 icon={<CheckCircle2 className="w-4 h-4" />}
@@ -345,8 +345,8 @@ function VerifiedView({
     const reason = status.options.groupClasses.blockedReason
     const bodyText =
       reason === "no_group_program_access"
-        ? "No group program is enabled for this dog yet. Your trainer needs to approve a program before you can book a class online."
-        : "Complete your assessment to unlock group class booking online."
+        ? "No group program is enabled for this dog yet. Your trainer needs to approve a program before you can request a class online."
+        : "Complete your assessment to unlock group class requests online."
     return (
       <GatePanel
         onReset={onReset}
@@ -365,11 +365,11 @@ function VerifiedView({
             <CheckCircle2 className="w-5 h-5" />
           </span>
           <div>
-            <p className="font-medium text-emerald-900">You&apos;re signed up!</p>
+            <p className="font-medium text-emerald-900">Request received</p>
             <p className="text-sm text-emerald-800/90 mt-1 leading-relaxed">
               {bookingId
-                ? `We received your class booking. A confirmation will be sent to ${displayEmail} shortly.`
-                : `A confirmation will be sent to ${displayEmail} shortly.`}
+                ? `We received your group class request. Staff will add you to Square and follow up at ${displayEmail}.`
+                : `Staff will add you to Square and follow up at ${displayEmail}.`}
             </p>
           </div>
         </div>

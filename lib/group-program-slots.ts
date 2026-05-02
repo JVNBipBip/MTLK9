@@ -5,6 +5,18 @@ type ConfigSlice = Pick<
   "groupProgramSlotOrder" | "groupProgramLabels" | "groupProgramSquareUrls" | "programs" | "groupClassSeriesVariations"
 >
 
+export const KNOWN_GROUP_PROGRAM_LABELS: Record<string, string> = {
+  "puppy-socialization-class": "Puppy Socialization Class",
+  "teen-puppy-class": "Teen Puppy Class",
+  "reactivity-group-class": "Reactivity Group Class",
+  "level-1-obedience-class": "Level 1 Obedience Class",
+  "level-2-obedience-class": "Level 2 Obedience Class",
+  "level-3-obedience-class": "Level 3 Obedience Class",
+  "puppy-training": "Puppy Socialization Class",
+  reactivity: "Reactivity Group Class",
+  obedience: "Level 1 Obedience Class",
+}
+
 export function migratedGroupProgramSlotOrder(config: ConfigSlice): string[] {
   const stored = (config.groupProgramSlotOrder || [])
     .filter((id) => typeof id === "string" && id.trim())
@@ -21,9 +33,11 @@ export function migratedGroupProgramSlotOrder(config: ConfigSlice): string[] {
 }
 
 export function groupProgramSlotLabel(programId: string, slotOrder: string[]): string {
-  const i = slotOrder.indexOf(programId)
+  const id = programId.trim()
+  if (KNOWN_GROUP_PROGRAM_LABELS[id]) return KNOWN_GROUP_PROGRAM_LABELS[id]
+  const i = slotOrder.indexOf(id)
   if (i >= 0) return `Group class #${i + 1}`
-  return programId
+  return id
 }
 
 export function allowedGroupProgramIdsFromConfig(config: ConfigSlice): Set<string> {

@@ -7,6 +7,7 @@ import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
+import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 
 export const runtime = "nodejs"
 
@@ -24,13 +25,15 @@ function truncate(value: string, max = 220) {
 }
 
 function buildSquareIntakeNote(formData: BookingFormData) {
+  const followUps = Object.entries(formData.followUps || {})
+    .slice(0, 6)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(", ")
   const parts = [
     `Dog: ${formData.dogName || "Unknown"} (${formData.dogBreed || "Unknown"}, ${formData.dogAge || "Unknown"})`,
     `Issue: ${formData.issueOther?.trim() ? formData.issueOther : formData.issue || "Not provided"}`,
-    `Duration: ${formData.duration || "Not provided"}`,
+    `Follow-ups: ${followUps || "Not provided"}`,
     `Goals: ${formData.goals.slice(0, 3).join(", ") || "Not provided"}`,
-    `Tried: ${formData.tried.slice(0, 3).join(", ") || "Not provided"}`,
-    `Impact: ${formData.impact.slice(0, 2).join(", ") || "Not provided"}`,
     `Contact pref: ${formData.contactBestTime || "Not provided"}`,
   ]
   if (formData.contactNotes?.trim()) {
@@ -87,6 +90,16 @@ export async function POST(request: Request) {
       if (!allowedServiceVariationIds.includes(slotServiceVariationId)) {
         return NextResponse.json({ error: "Selected consultation slot is no longer valid." }, { status: 400 })
       }
+      const roomAvailable = await isFacilityRoomAvailable({
+        startAt: new Date(slotStartAt).toISOString(),
+        serviceVariationId: slotServiceVariationId,
+      })
+      if (!roomAvailable) {
+        return NextResponse.json(
+          { error: "That time is no longer available because both facility rooms are booked." },
+          { status: 409 },
+        )
+      }
 
       squareCustomerId = await getOrCreateSquareCustomer({
         name: formData.contactName,
@@ -114,6 +127,7 @@ export async function POST(request: Request) {
       issue: formData.issue,
       issueOther: formData.issueOther,
       connectMethod: formData.connectMethod,
+      followUps: formData.followUps || {},
       duration: formData.duration,
       tried: formData.tried,
       impact: formData.impact,

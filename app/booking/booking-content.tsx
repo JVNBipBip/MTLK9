@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
-import { StepDuration } from "./steps/step-duration"
-import { StepTried } from "./steps/step-tried"
-import { StepImpact } from "./steps/step-impact"
+import { StepFollowUps } from "./steps/step-follow-ups"
 import { StepDogInfo } from "./steps/step-dog-info"
 import { StepGoals } from "./steps/step-goals"
 import { StepContact } from "./steps/step-contact"
@@ -17,32 +15,38 @@ import { StepConfirmation } from "./steps/step-confirmation"
 import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
 import { trackFBLead } from "@/lib/facebook-pixel"
+import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
-const TOTAL_STEPS = 7
+const TOTAL_STEPS = 5
 
 // Single-select steps auto-advance on click — no Continue button needed
-const AUTO_ADVANCE_STEPS = new Set([0, 1])
+const AUTO_ADVANCE_STEPS = new Set([0])
+
+function hasAnsweredFollowUps(formData: BookingFormData): boolean {
+  const questions = FOLLOW_UP_QUESTIONS_BY_ISSUE[formData.issue] || []
+  return questions.every((question) => Boolean(formData.followUps[question.value]))
+}
+
+function hasAnsweredGoals(formData: BookingFormData): boolean {
+  const goals = GOALS_OPTIONS_BY_ISSUE[formData.issue] || []
+  return goals.length === 0 || formData.goals.length > 0
+}
 
 function isStepValid(step: number, formData: BookingFormData): boolean {
   switch (step) {
     case 0:
-      if (formData.issue === "something-else") return formData.issueOther.trim().length > 0
       return formData.issue !== ""
     case 1:
-      return formData.duration !== ""
+      return hasAnsweredFollowUps(formData)
     case 2:
-      return formData.tried.length > 0
+      return hasAnsweredGoals(formData)
     case 3:
-      return formData.impact.length > 0
-    case 4:
       return (
         formData.dogName.trim() !== "" &&
         formData.dogBreed.trim() !== "" &&
         formData.dogAge !== ""
       )
-    case 5:
-      return formData.goals.length > 0
-    case 6:
+    case 4:
       return (
         formData.contactName.trim() !== "" &&
         formData.contactEmail.trim() !== "" &&
@@ -153,6 +157,9 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
         for (const imp of formData.impact) {
           params.append("impact", imp)
         }
+        for (const [key, value] of Object.entries(formData.followUps)) {
+          if (value) params.append("followUp", `${key}:${value}`)
+        }
         const response = await fetch(`/api/consultation-slots?${params.toString()}`)
         const data = (await response.json().catch(() => null)) as {
           slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>
@@ -204,7 +211,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     return () => {
       active = false
     }
-  }, [formData.connectMethod, formData.issue, formData.impact, showSchedulingStep])
+  }, [formData.connectMethod, formData.followUps, formData.impact, formData.issue, showSchedulingStep])
 
   const setTrainerFilterAndClearSlot = useCallback(
     (id: string | null) => {
@@ -388,11 +395,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   {slotsMeta.nickRoutingActive && consultationSlots.length > 0 ? (
                     <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground space-y-1">
                       <p>
-                        Based on your answers, you&apos;re booking with our specialist for dogs with
-                        safety-related concerns.
+                        Based on your answers, you&apos;re booking with the trainer matched to your dog&apos;s needs.
                       </p>
                       <p className="text-muted-foreground">
-                        Please note: the specialist assessment is $165 CAD (our standard assessment is $145 CAD).
+                        Please note: specialist assessments may have different pricing than our standard assessment.
                       </p>
                     </div>
                   ) : null}
@@ -738,12 +744,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
               >
                 {currentStep === 0 && <StepIssue formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 1 && <StepDuration formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 2 && <StepTried formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 3 && <StepImpact formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 4 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 5 && <StepGoals formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 6 && <StepContact formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 1 && <StepFollowUps formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 2 && <StepGoals formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 3 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 4 && <StepContact formData={formData} updateFormData={updateFormData} />}
               </motion.div>
             </AnimatePresence>
           )}
