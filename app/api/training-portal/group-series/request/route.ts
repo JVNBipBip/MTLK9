@@ -7,6 +7,7 @@ import { GROUP_CLASS_REQUEST_SOURCE } from "@/lib/group-class-series"
 import { programLabel } from "@/lib/programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
+import { defaultLocale, getIntlLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 
 export const runtime = "nodejs"
 
@@ -16,14 +17,15 @@ type Payload = {
   clientEmail?: string
   dogName?: string
   seriesId?: string
+  locale?: string
 }
 
 function normalized(value: string) {
   return value.trim().toLowerCase()
 }
 
-function formatTorontoClassDate(isoDateTime: string) {
-  return new Date(isoDateTime).toLocaleString("en-CA", {
+function formatTorontoClassDate(isoDateTime: string, locale: AppLocale) {
+  return new Date(isoDateTime).toLocaleString(getIntlLocale(locale), {
     timeZone: "America/Toronto",
     weekday: "short",
     month: "short",
@@ -42,11 +44,11 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;")
 }
 
-function buildSessionSummary(sessions: Array<Pick<ClassSessionRecord, "startsAtIso" | "locationLabel">>) {
+function buildSessionSummary(sessions: Array<Pick<ClassSessionRecord, "startsAtIso" | "locationLabel">>, locale: AppLocale) {
   return sessions
     .map((session) => {
       const where = String(session.locationLabel || "").trim()
-      return `${escapeHtml(formatTorontoClassDate(session.startsAtIso))}${where ? ` - ${escapeHtml(where)}` : ""}`
+      return `${escapeHtml(formatTorontoClassDate(session.startsAtIso, locale))}${where ? ` - ${escapeHtml(where)}` : ""}`
     })
     .join("<br>")
 }
@@ -59,6 +61,7 @@ async function notifyAdmin(input: {
   programLabel: string
   seriesId: string
   sessions: Array<Pick<ClassSessionRecord, "startsAtIso" | "locationLabel">>
+  locale: AppLocale
 }) {
   const html = `
     <p>A client requested a group class spot and needs to be manually added in Square.</p>
@@ -67,7 +70,7 @@ async function notifyAdmin(input: {
     <p><strong>Dog:</strong> ${escapeHtml(input.dogName)}</p>
     <p><strong>Program:</strong> ${escapeHtml(input.programLabel)}</p>
     <p><strong>Series:</strong> ${escapeHtml(input.seriesId)}</p>
-    <p><strong>Sessions:</strong><br>${buildSessionSummary(input.sessions)}</p>
+    <p><strong>Sessions:</strong><br>${buildSessionSummary(input.sessions, input.locale)}</p>
     <p><strong>Request id:</strong> ${escapeHtml(input.bookingId)}</p>
     <p>After adding the client to the Square class roster, mark the request as added to Square in the admin Group Scheduler.</p>
   `
@@ -90,6 +93,7 @@ export async function POST(request: Request) {
   const clientEmail = String(payload.clientEmail || "").trim().toLowerCase()
   const dogName = String(payload.dogName || "").trim()
   const seriesId = String(payload.seriesId || "").trim()
+  const locale: AppLocale = isAppLocale(payload.locale) ? payload.locale : defaultLocale
   if (!clientEmail || !dogName || !seriesId) {
     return NextResponse.json({ error: "clientEmail, dogName and seriesId are required." }, { status: 400 })
   }
@@ -215,7 +219,10 @@ export async function POST(request: Request) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not reserve seats"
     const status = msg.includes("full") ? 409 : 500
-    return NextResponse.json({ error: msg === "Series is full" ? "This series is full." : msg }, { status })
+    return NextResponse.json(
+      { error: msg === "Series is full" ? (locale === "fr" ? "Cette série est complète." : "This series is full.") : msg },
+      { status },
+    )
   }
 
   const notification = await notifyAdmin({
@@ -226,6 +233,7 @@ export async function POST(request: Request) {
     programLabel: displayName,
     seriesId,
     sessions,
+    locale,
   })
 
   await bookingRef.set(

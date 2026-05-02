@@ -1,5 +1,39 @@
-export function GET() {
-  const content = `# Montreal Canine Training
+import { detectLocaleFromAcceptLanguage } from "@/lib/i18n/config"
+
+export function GET(request: Request) {
+  const locale = detectLocaleFromAcceptLanguage(request.headers.get("accept-language"))
+  const content =
+    locale === "fr"
+      ? `# Entraînement Canin Montréal
+
+> Entraînement canin concret à Montréal. Promenades calmes. Chiens confiants. Plans clairs.
+
+Entraînement Canin Montréal offre des services professionnels d'entraînement canin à Montréal, dans l'Ouest-de-l'Île et à Laval. Nous sommes spécialisés en réactivité, cours privés, obéissance, entraînement des chiots et entraînement à domicile avec des méthodes humaines axées sur la relation.
+
+## Services
+
+- [Entraînement pour la réactivité](https://mtlcaninetraining.com/fr/services/reactivity): Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs. Protocoles structurés pour l'attention, l'engagement, le travail en laisse et la confiance.
+- [Cours privés](https://mtlcaninetraining.com/fr/services/private-classes): Modification du comportement, réactivité en laisse, agressivité, anxiété de séparation et protection des ressources en formule individuelle. Forfaits de 3, 5 ou 7 séances.
+- [Obéissance](https://mtlcaninetraining.com/fr/services/obedience): Pour les chiens de 9 mois et plus qui ont besoin de compétences fiables dans la vraie vie. Cours de groupe et privés niveau 1 et niveau 2.
+- [Entraînement des chiots](https://mtlcaninetraining.com/fr/services/puppy-training): Pour les chiots de 10 à 20 semaines et les adolescents de 5 à 9 mois. Socialisation, confiance, inhibition de la morsure et introduction à l'obéissance.
+- [Entraînement à domicile](https://mtlcaninetraining.com/fr/services/in-home): Entraînement dans votre environnement: comportement, bonnes manières à la porte, anxiété de séparation et propreté.
+
+## Informations clés
+
+- Adresse: 7770 Boul Henri-Bourassa E, Anjou, Montréal, QC
+- Téléphone: 514 826 9558
+- Secteurs servis: Montréal, Ouest-de-l'Île, Laval
+- Site Web: https://mtlcaninetraining.com/fr
+
+## Liens
+
+- [Tous les services](https://mtlcaninetraining.com/fr/services)
+- [Résultats et témoignages](https://mtlcaninetraining.com/fr/results)
+- [FAQ](https://mtlcaninetraining.com/fr/faq)
+- [Réserver un appel découverte gratuit](https://mtlcaninetraining.com/fr/booking)
+- [Contenu complet](https://mtlcaninetraining.com/llms-full.txt)
+`
+      : `# Montreal Canine Training
 
 > Real-world dog training in Montreal. Calm walks. Confident dogs. Clear plans.
 

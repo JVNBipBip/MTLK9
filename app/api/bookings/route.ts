@@ -8,6 +8,7 @@ import { getAdminDb } from "@/lib/firebase-admin"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
+import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 
 export const runtime = "nodejs"
 
@@ -22,6 +23,40 @@ function truncate(value: string, max = 220) {
   const trimmed = value.trim()
   if (trimmed.length <= max) return trimmed
   return `${trimmed.slice(0, max - 1)}…`
+}
+
+const bookingErrors = {
+  en: {
+    invalidPayload: "Invalid booking payload.",
+    emailRequired: "Email is required.",
+    contactRequired: "Contact name is required.",
+    dogRequired: "Dog name is required.",
+    unsupportedType: "Unsupported booking type.",
+    configIncomplete: "Square consultation configuration is incomplete. Set in Admin -> Service Mapping.",
+    slotRequired: "Consultation slot selection is required.",
+    invalidSlot: "Invalid consultation slot selection.",
+    slotExpired: "Selected consultation slot is no longer valid.",
+    roomUnavailable: "That time is no longer available because both facility rooms are booked.",
+    submitFailed: "Failed to submit booking form.",
+  },
+  fr: {
+    invalidPayload: "La demande de réservation est invalide.",
+    emailRequired: "L'adresse courriel est requise.",
+    contactRequired: "Le nom du contact est requis.",
+    dogRequired: "Le nom du chien est requis.",
+    unsupportedType: "Ce type de réservation n'est pas pris en charge.",
+    configIncomplete: "La configuration Square de consultation est incomplète. Configurez-la dans Admin -> Service Mapping.",
+    slotRequired: "La sélection d'un créneau de consultation est requise.",
+    invalidSlot: "La sélection du créneau de consultation est invalide.",
+    slotExpired: "Le créneau de consultation sélectionné n'est plus valide.",
+    roomUnavailable: "Cette heure n'est plus disponible, car les deux salles sont réservées.",
+    submitFailed: "Impossible d'envoyer le formulaire de réservation.",
+  },
+} satisfies Record<AppLocale, Record<string, string>>
+
+function resolvePayloadLocale(value: unknown): AppLocale {
+  const candidate = typeof value === "string" ? value : null
+  return isAppLocale(candidate) ? candidate : defaultLocale
 }
 
 function buildSquareIntakeNote(formData: BookingFormData) {
@@ -43,25 +78,28 @@ function buildSquareIntakeNote(formData: BookingFormData) {
 }
 
 export async function POST(request: Request) {
+  let locale: AppLocale = defaultLocale
   try {
-    const payload = (await request.json()) as { formData?: unknown }
+    const payload = (await request.json()) as { formData?: unknown; locale?: unknown }
+    locale = resolvePayloadLocale(payload.locale)
+    const errorText = bookingErrors[locale]
 
     if (!isBookingFormData(payload.formData)) {
-      return NextResponse.json({ error: "Invalid booking payload." }, { status: 400 })
+      return NextResponse.json({ error: errorText.invalidPayload }, { status: 400 })
     }
 
     const formData = payload.formData
     if (!formData.contactEmail) {
-      return NextResponse.json({ error: "Email is required." }, { status: 400 })
+      return NextResponse.json({ error: errorText.emailRequired }, { status: 400 })
     }
     if (!formData.contactName) {
-      return NextResponse.json({ error: "Contact name is required." }, { status: 400 })
+      return NextResponse.json({ error: errorText.contactRequired }, { status: 400 })
     }
     if (!formData.dogName) {
-      return NextResponse.json({ error: "Dog name is required." }, { status: 400 })
+      return NextResponse.json({ error: errorText.dogRequired }, { status: 400 })
     }
     if (!formData.connectMethod) {
-      return NextResponse.json({ error: "Unsupported booking type." }, { status: 400 })
+      return NextResponse.json({ error: errorText.unsupportedType }, { status: 400 })
     }
 
     const clientId = formData.contactEmail.trim().toLowerCase()
@@ -75,20 +113,20 @@ export async function POST(request: Request) {
       const allowedServiceVariationIds = await getConsultationServiceVariationIds()
       if (allowedServiceVariationIds.length === 0) {
         return NextResponse.json(
-          { error: "Square consultation configuration is incomplete. Set in Admin → Service Mapping." },
+          { error: errorText.configIncomplete },
           { status: 500 },
         )
       }
       const consultationSlotKey = String(formData.consultationSlotKey || "").trim()
       if (!consultationSlotKey) {
-        return NextResponse.json({ error: "Consultation slot selection is required." }, { status: 400 })
+        return NextResponse.json({ error: errorText.slotRequired }, { status: 400 })
       }
       const [slotStartAt, slotServiceVariationId, slotTeamMemberId] = consultationSlotKey.split("|")
       if (!slotStartAt || !slotServiceVariationId || !slotTeamMemberId) {
-        return NextResponse.json({ error: "Invalid consultation slot selection." }, { status: 400 })
+        return NextResponse.json({ error: errorText.invalidSlot }, { status: 400 })
       }
       if (!allowedServiceVariationIds.includes(slotServiceVariationId)) {
-        return NextResponse.json({ error: "Selected consultation slot is no longer valid." }, { status: 400 })
+        return NextResponse.json({ error: errorText.slotExpired }, { status: 400 })
       }
       const roomAvailable = await isFacilityRoomAvailable({
         startAt: new Date(slotStartAt).toISOString(),
@@ -96,7 +134,7 @@ export async function POST(request: Request) {
       })
       if (!roomAvailable) {
         return NextResponse.json(
-          { error: "That time is no longer available because both facility rooms are booked." },
+          { error: errorText.roomUnavailable },
           { status: 409 },
         )
       }
@@ -175,6 +213,6 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("[Booking API] Failed to save booking:", error)
-    return NextResponse.json({ error: "Failed to save booking." }, { status: 500 })
+    return NextResponse.json({ error: bookingErrors[locale].submitFailed }, { status: 500 })
   }
 }

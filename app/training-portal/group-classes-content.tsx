@@ -1,15 +1,15 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
 import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { getIntlLocale } from "@/lib/i18n/config"
 import type { ApprovedGroupProgram, GroupSeriesListItem, StatusResponse } from "./training-portal-types"
 
-const TIMEZONE = "America/Toronto"
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-CA", {
-    timeZone: TIMEZONE,
+function formatDateTime(iso: string, intlLocale: string) {
+  return new Date(iso).toLocaleString(intlLocale, {
+    timeZone: "America/Toronto",
     dateStyle: "medium",
     timeStyle: "short",
   })
@@ -25,6 +25,8 @@ export function GroupClassesContent({
   dogName: string
   redirectPath: string
 }) {
+  const locale = useAppLocale()
+  const intlLocale = getIntlLocale(locale)
   const [groupPrograms, setGroupPrograms] = useState<ApprovedGroupProgram[]>([])
   const [groupLoading, setGroupLoading] = useState(false)
   const [groupErr, setGroupErr] = useState<string | null>(null)
@@ -212,6 +214,7 @@ export function GroupClassesContent({
           clientEmail: clientEmail.trim().toLowerCase(),
           dogName: effectiveDogName,
           seriesId,
+          locale,
         }),
       })
       const data = (await response.json()) as { bookingId?: string; notificationEmailSent?: boolean; error?: string }
@@ -397,9 +400,9 @@ export function GroupClassesContent({
                               <div>
                                 <p className="font-medium text-foreground">
                                   {firstSession && lastSession && firstSession.id !== lastSession.id
-                                    ? `${formatDateTime(firstSession.startsAtIso)} - ${formatDateTime(lastSession.startsAtIso)}`
+                                    ? `${formatDateTime(firstSession.startsAtIso, intlLocale)} - ${formatDateTime(lastSession.startsAtIso, intlLocale)}`
                                     : firstSession
-                                      ? formatDateTime(firstSession.startsAtIso)
+                                      ? formatDateTime(firstSession.startsAtIso, intlLocale)
                                       : series.programLabel}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
@@ -414,7 +417,7 @@ export function GroupClassesContent({
                             <div className="space-y-2 rounded-lg border border-border bg-background/70 p-3">
                               {series.sessions.map((session) => (
                                 <div key={session.id} className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
-                                  <span>{formatDateTime(session.startsAtIso)}</span>
+                                  <span>{formatDateTime(session.startsAtIso, intlLocale)}</span>
                                   <span className="text-muted-foreground">
                                     {session.locationLabel ? `${session.locationLabel} · ` : ""}
                                     {session.spotsRemaining} spot{session.spotsRemaining !== 1 ? "s" : ""} left
@@ -456,7 +459,7 @@ export function GroupClassesContent({
             {pendingGroupRequests.map((request) => (
               <div key={request.id} className="rounded-lg border border-amber-200 bg-white/70 p-3">
                 <p className="font-medium text-amber-950">{request.label}</p>
-                <p className="text-sm text-amber-900/70">{formatDateTime(request.startAt)}</p>
+                <p className="text-sm text-amber-900/70">{formatDateTime(request.startAt, intlLocale)}</p>
                 <p className="mt-1 text-xs text-amber-900/70">Status: waiting for staff review</p>
               </div>
             ))}
@@ -474,7 +477,7 @@ export function GroupClassesContent({
                 <div key={booking.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-medium">{booking.label}</p>
-                    <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt)}</p>
+                    <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt, intlLocale)}</p>
                     <p className="text-xs text-muted-foreground">
                       Status: {booking.bookingStatus || "-"}
                       {booking.squareBookingStatus ? ` (${booking.squareBookingStatus})` : ""}

@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
 
 const footerLinks = {
   training: [
@@ -26,6 +28,8 @@ const footerLinks = {
 }
 
 export function Footer() {
+  const t = useTranslations("common")
+
   return (
     <footer className="bg-foreground text-background py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -37,8 +41,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-background/70 leading-relaxed mb-6 max-w-sm">
-              Real-world training for real Montreal life. Calm walks, confident dogs, and clear
-              plans — through humane methods and a team of specialists who have seen it all before.
+              {t("footer.description")}
             </p>
             <div className="space-y-3 text-sm text-background/70">
               <FreeCallLink className="flex items-center gap-3 hover:text-background transition-colors text-left w-full sm:w-auto cursor-pointer">
@@ -76,10 +79,11 @@ export function Footer() {
                 <Facebook className="w-5 h-5 text-background" />
               </Link>
             </div>
+            <LanguageSwitcher className="mt-6 border-background/20 bg-background/10 [&_a]:text-background/70 [&_a:hover]:text-background [&_a[aria-current=true]]:bg-background [&_a[aria-current=true]]:text-foreground" />
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">Training Programs</h4>
+            <h4 className="font-medium text-background mb-4">{t("footer.trainingPrograms")}</h4>
             <ul className="space-y-3">
               {footerLinks.training.map((link) => (
                 <li key={link.label}>
@@ -92,7 +96,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">Company</h4>
+            <h4 className="font-medium text-background mb-4">{t("footer.company")}</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
@@ -105,7 +109,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">Get Started</h4>
+            <h4 className="font-medium text-background mb-4">{t("footer.getStarted")}</h4>
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
@@ -120,15 +124,15 @@ export function Footer() {
 
         <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-background/50">
-            © {new Date().getFullYear()} Montreal Canine Training. All rights reserved.
+            © {new Date().getFullYear()} Montreal Canine Training. {t("footer.allRightsReserved")}
           </p>
           <div className="flex gap-6 text-sm text-background/50">
             {/* TODO: Add real privacy policy and terms pages before launch */}
             <Link href="/privacy" className="hover:text-background transition-colors">
-              Privacy Policy
+              {t("footer.privacyPolicy")}
             </Link>
             <Link href="/terms" className="hover:text-background transition-colors">
-              Terms of Service
+              {t("footer.termsOfService")}
             </Link>
           </div>
         </div>

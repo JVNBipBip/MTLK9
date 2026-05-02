@@ -1,4 +1,6 @@
-import { Suspense } from "react"
+"use client"
+
+import { Suspense, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ArrowRight, CalendarCheck, ClipboardCheck, Sparkles, Users } from "lucide-react"
 import { Header } from "@/components/header"
@@ -14,6 +16,7 @@ type GroupOffering = {
   summary: string
   bullets: string[]
   image: string
+  imageClassName?: string
   packagePrice?: string
   unitPrice?: string
   packageDetail?: string
@@ -27,7 +30,7 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Puppies",
     summary: "Safe early socialization, confidence building, and trainer-guided puppy manners.",
     bullets: ["Confident socialization", "Body handling", "Early manners"],
-    image: "/images/Classes images/puppy.webp",
+    image: "/images/Classes images/puppy_social.jpg",
     packagePrice: "$50 + tax",
   },
   {
@@ -36,7 +39,7 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Teen puppies",
     summary: "A structured class for adolescent dogs building focus, manners, and engagement around distractions.",
     bullets: ["Focus around distractions", "Leash and impulse control", "Handler coaching"],
-    image: "/images/Classes images/puppy.webp",
+    image: "/images/Classes images/puppy_training.webp",
     unitPrice: "$90 + tax",
   },
   {
@@ -45,7 +48,7 @@ const OFFERINGS: GroupOffering[] = [
     forText: "For dogs who struggle around triggers",
     summary: "Structured reactivity work with distance management and controlled reps.",
     bullets: ["Engage-Disengage pattern", "Threshold distance work", "Handler coaching"],
-    image: "/images/Classes images/reactivity.webp",
+    image: "/images/Classes images/reactivity_group_class.webp",
     packagePrice: "$360 + tax",
     unitPrice: "$95 + tax",
   },
@@ -55,7 +58,8 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Foundation obedience",
     summary: "Practical manners, reliable basics, and calm work around distractions.",
     bullets: ["Loose-leash walking", "Sit / down / stay / recall", "Impulse control"],
-    image: "/images/Classes images/obedience.webp",
+    image: "/images/Classes images/obedience_group_class_1.jpg",
+    imageClassName: "object-[center_30%]",
     packagePrice: "$360 + tax",
     unitPrice: "$95 + tax",
     packageDetail: "4 classes",
@@ -66,7 +70,8 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Intermediate obedience",
     summary: "The next step for dogs ready to build stronger obedience, duration, and distraction work.",
     bullets: ["More reliability", "Distance and duration", "Proofing around distractions"],
-    image: "/images/Classes images/obedience.webp",
+    image: "/images/Classes images/obedience_group_class_2.webp",
+    imageClassName: "object-[center_32%]",
     packagePrice: "$450 + tax",
   },
   {
@@ -82,10 +87,30 @@ const OFFERINGS: GroupOffering[] = [
 ]
 
 export default function GroupClassesPage() {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-fade-up")
+          }
+        })
+      },
+      { threshold: 0.1 },
+    )
+
+    const elements = contentRef.current?.querySelectorAll(".reveal")
+    elements?.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <main className="min-h-screen bg-background">
       <Header />
 
+      <div ref={contentRef}>
       <section className="relative overflow-hidden pt-32 pb-16 lg:pt-40 lg:pb-24 px-6 lg:px-8">
         <div
           className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10"
@@ -102,20 +127,20 @@ export default function GroupClassesPage() {
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-secondary mb-6">
+            <div className="reveal opacity-0 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-secondary mb-6">
               <Sparkles className="w-3.5 h-3.5" />
               Group Classes
             </div>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
+            <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
               Request the group class your dog is approved for
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               Small cohorts. Real coaching. Enter your email to see approved classes and request a spot,
               or book an assessment and we&apos;ll place your dog in the right program.
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
+          <div className="reveal opacity-0 animation-delay-600 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
             <HeroStat icon={<Users className="w-4 h-4" />} label="Small cohorts" />
             <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label="Scheduled series" />
             <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label="Trainer-approved" />
@@ -124,7 +149,7 @@ export default function GroupClassesPage() {
       </section>
 
       <section id="group-class-availability" className="px-6 lg:px-8 -mt-4 lg:-mt-8 pb-20 lg:pb-28 scroll-mt-24">
-        <div className="max-w-4xl mx-auto">
+        <div className="reveal opacity-0 max-w-4xl mx-auto">
           <Suspense
             fallback={
               <div className="rounded-3xl border border-border/60 bg-card p-8 shadow-xl shadow-primary/10 animate-pulse text-muted-foreground text-sm">
@@ -139,7 +164,7 @@ export default function GroupClassesPage() {
 
       <section className="px-6 lg:px-8 pb-20 lg:pb-28">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="reveal opacity-0 text-center max-w-2xl mx-auto mb-12">
             <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
               What we run
             </p>
@@ -152,17 +177,19 @@ export default function GroupClassesPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {OFFERINGS.map((offering) => (
+            {OFFERINGS.map((offering, index) => (
               <article
                 key={offering.id}
-                className="group flex flex-col rounded-3xl overflow-hidden border border-border/50 bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/25 transition-all duration-300"
+                className={`reveal opacity-0 group flex flex-col rounded-3xl overflow-hidden border border-border/50 bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/25 transition-all duration-300 ${
+                  index % 3 === 1 ? "animation-delay-200" : index % 3 === 2 ? "animation-delay-400" : ""
+                }`}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <Image
                     src={offering.image}
                     alt={offering.label}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${offering.imageClassName ?? ""}`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
@@ -217,7 +244,7 @@ export default function GroupClassesPage() {
 
       <section className="px-6 lg:px-8 pb-20 lg:pb-28">
         <div className="max-w-6xl mx-auto">
-          <div className="rounded-[40px] border border-border/60 bg-card p-8 md:p-12 lg:p-16 shadow-lg shadow-primary/5">
+          <div className="reveal opacity-0 rounded-[40px] border border-border/60 bg-card p-8 md:p-12 lg:p-16 shadow-lg shadow-primary/5">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
                 How it works
@@ -243,7 +270,9 @@ export default function GroupClassesPage() {
               ].map((step, index) => (
                 <li
                   key={step.title}
-                  className="relative rounded-3xl border border-border/60 bg-background/60 p-6"
+                  className={`reveal opacity-0 relative rounded-3xl border border-border/60 bg-background/60 p-6 ${
+                    index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""
+                  }`}
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary font-display text-lg font-semibold">
@@ -261,7 +290,7 @@ export default function GroupClassesPage() {
 
       <section className="px-6 lg:px-8 pb-24 lg:pb-32">
         <div className="max-w-7xl mx-auto">
-          <div className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-primary via-primary/90 to-secondary shadow-xl shadow-primary/10">
+          <div className="reveal opacity-0 relative overflow-hidden rounded-[40px] bg-gradient-to-br from-primary via-primary/90 to-secondary shadow-xl shadow-primary/10">
             <div
               className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl"
               aria-hidden="true"
@@ -294,6 +323,7 @@ export default function GroupClassesPage() {
           </div>
         </div>
       </section>
+      </div>
 
       <Footer />
     </main>

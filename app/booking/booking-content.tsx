@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { useAppLocale } from "@/components/locale-provider"
+import { getIntlLocale } from "@/lib/i18n/config"
+import { TORONTO_TIME_ZONE } from "@/lib/i18n/format"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
 import { StepFollowUps } from "./steps/step-follow-ups"
@@ -61,6 +64,8 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
 const CONSULTATION_LOCATION = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
 
 export function BookingContent({ onClose }: { onClose: () => void }) {
+  const locale = useAppLocale()
+  const intlLocale = getIntlLocale(locale)
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState(1)
   const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
@@ -249,7 +254,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData }),
+        body: JSON.stringify({ formData, locale }),
       })
 
       if (!response.ok) {
@@ -287,7 +292,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, showSchedulingStep])
+  }, [formData, locale, showSchedulingStep])
 
   const handleClose = onClose
 
@@ -521,7 +526,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                         isActive ? "text-primary-foreground/80" : "text-muted-foreground",
                                       )}
                                     >
-                                      {d.toLocaleDateString("en-CA", { weekday: "short" })}
+                                      {d.toLocaleDateString(intlLocale, { weekday: "short", timeZone: TORONTO_TIME_ZONE })}
                                     </span>
                                     <span className="text-lg font-bold leading-none mt-1">
                                       {d.getDate()}
@@ -532,7 +537,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                         isActive ? "text-primary-foreground/80" : "text-muted-foreground",
                                       )}
                                     >
-                                      {d.toLocaleDateString("en-CA", { month: "short" })}
+                                      {d.toLocaleDateString(intlLocale, { month: "short", timeZone: TORONTO_TIME_ZONE })}
                                     </span>
                                     <span
                                       className={cn(
@@ -564,8 +569,8 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
                                 Times on{" "}
                                 {new Date(slotsByDay[selectedDay][0].startAt).toLocaleDateString(
-                                  "en-CA",
-                                  { weekday: "long", month: "long", day: "numeric" },
+                                  intlLocale,
+                                  { weekday: "long", month: "long", day: "numeric", timeZone: TORONTO_TIME_ZONE },
                                 )}
                               </p>
                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -603,7 +608,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                       )}
                                     >
                                       <span className="text-sm font-semibold">
-                                        {d.toLocaleTimeString("en-CA", { timeStyle: "short" })}
+                                        {d.toLocaleTimeString(intlLocale, { timeStyle: "short", timeZone: TORONTO_TIME_ZONE })}
                                       </span>
                                       {showTrainerName ? (
                                         <span
@@ -656,7 +661,8 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                       <div>
                         <p className="font-medium text-foreground">Date & Time</p>
                         <p className="text-muted-foreground">
-                          {new Date(formData.consultationDateTime).toLocaleString("en-CA", { 
+                          {new Date(formData.consultationDateTime).toLocaleString(intlLocale, { 
+                            timeZone: TORONTO_TIME_ZONE,
                             dateStyle: "full", 
                             timeStyle: "short" 
                           })}

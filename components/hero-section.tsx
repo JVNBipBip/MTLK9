@@ -166,7 +166,7 @@ export function HeroSection() {
                 size="lg"
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
               >
-                Book a Free Discovery Call
+                Book a Consultation
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>

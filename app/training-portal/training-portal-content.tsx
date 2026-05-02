@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useBookingForm } from "@/components/booking-form-provider"
+import { useAppLocale } from "@/components/locale-provider"
 import { X, Search, CheckCircle2, AlertCircle, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { getIntlLocale } from "@/lib/i18n/config"
 import {
   PLAN_TYPE_LABEL,
   SERVICE_TYPE_LABEL,
@@ -14,8 +16,8 @@ import {
 } from "./training-portal-types"
 import { GroupClassesContent } from "./group-classes-content"
 
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-CA", {
+function formatDateTime(iso: string, intlLocale: string) {
+  return new Date(iso).toLocaleString(intlLocale, {
     timeZone: "America/Toronto",
     dateStyle: "medium",
     timeStyle: "short",
@@ -32,6 +34,8 @@ export function TrainingPortalContent({
   onClose?: () => void
   mode?: TrainingPortalMode
 }) {
+  const locale = useAppLocale()
+  const intlLocale = getIntlLocale(locale)
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -436,7 +440,7 @@ export function TrainingPortalContent({
                           {statusData.privateUpcomingBookings.map((booking) => (
                             <div key={booking.id} className="rounded-lg border border-border p-3">
                               <p className="font-medium">{booking.label}</p>
-                              <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt)}</p>
+                              <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt, intlLocale)}</p>
                               <p className="text-xs text-muted-foreground">
                                 Status: {booking.bookingStatus || "-"} {booking.squareBookingStatus ? `(${booking.squareBookingStatus})` : ""}
                               </p>

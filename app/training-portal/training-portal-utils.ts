@@ -1,5 +1,7 @@
 import { TZDate } from "@date-fns/tz"
 import { addDays, addWeeks, startOfWeek } from "date-fns"
+import type { AppLocale } from "@/lib/i18n/config"
+import { getIntlLocale } from "@/lib/i18n/config"
 import type { Slot } from "./training-portal-types"
 
 export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const
@@ -20,29 +22,30 @@ function torontoYmdString(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-export function formatSlotDate(iso: string) {
+export function formatSlotDate(iso: string, locale: AppLocale = "en") {
+  const intlLocale = getIntlLocale(locale)
   const d = new Date(iso)
   const todayY = torontoYmdString(new TZDate(Date.now(), TORONTO_TZ))
   const slotY = torontoYmdString(d)
   const tomorrowY = torontoYmdString(addDays(new TZDate(Date.now(), TORONTO_TZ), 1))
-  const monthDay = new Intl.DateTimeFormat("en-CA", {
+  const monthDay = new Intl.DateTimeFormat(intlLocale, {
     timeZone: TORONTO_TZ,
     month: "short",
     day: "numeric",
   }).format(d)
-  const fullWeekday = new Intl.DateTimeFormat("en-CA", {
+  const fullWeekday = new Intl.DateTimeFormat(intlLocale, {
     timeZone: TORONTO_TZ,
     weekday: "long",
     month: "short",
     day: "numeric",
   }).format(d)
-  if (slotY === todayY) return `Today, ${monthDay}`
-  if (slotY === tomorrowY) return `Tomorrow, ${monthDay}`
+  if (slotY === todayY) return `${locale === "fr" ? "Aujourd'hui" : "Today"}, ${monthDay}`
+  if (slotY === tomorrowY) return `${locale === "fr" ? "Demain" : "Tomorrow"}, ${monthDay}`
   return fullWeekday
 }
 
-export function formatSlotTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-CA", {
+export function formatSlotTime(iso: string, locale: AppLocale = "en") {
+  return new Date(iso).toLocaleTimeString(getIntlLocale(locale), {
     timeZone: TORONTO_TZ,
     hour: "numeric",
     minute: "2-digit",
@@ -88,32 +91,34 @@ export function slotsByWeekday(slots: Slot[]) {
   return byDay
 }
 
-export function formatWeekLabel(weekOffset: number) {
+export function formatWeekLabel(weekOffset: number, locale: AppLocale = "en") {
   const { start, end } = getWeekRange(weekOffset)
   const isThisWeek = weekOffset === 0
-  const startStr = new Intl.DateTimeFormat("en-CA", {
+  const intlLocale = getIntlLocale(locale)
+  const startStr = new Intl.DateTimeFormat(intlLocale, {
     timeZone: TORONTO_TZ,
     month: "short",
     day: "numeric",
   }).format(start)
-  const endStr = new Intl.DateTimeFormat("en-CA", {
+  const endStr = new Intl.DateTimeFormat(intlLocale, {
     timeZone: TORONTO_TZ,
     month: "short",
     day: "numeric",
   }).format(end)
+  if (locale === "fr") return isThisWeek ? `Cette semaine · ${startStr} – ${endStr}` : `Semaine du ${startStr} – ${endStr}`
   return isThisWeek ? `This week · ${startStr} – ${endStr}` : `Week of ${startStr} – ${endStr}`
 }
 
-export function formatDayHeader(weekOffset: number, dayIndex: number) {
+export function formatDayHeader(weekOffset: number, dayIndex: number, locale: AppLocale = "en") {
   const { start } = getWeekRange(weekOffset)
   const d = addDays(start, dayIndex)
   const nowToronto = new TZDate(Date.now(), TORONTO_TZ)
   const isToday = torontoYmdString(d) === torontoYmdString(nowToronto)
-  const label = new Intl.DateTimeFormat("en-CA", {
+  const label = new Intl.DateTimeFormat(getIntlLocale(locale), {
     timeZone: TORONTO_TZ,
     weekday: "short",
     month: "short",
     day: "numeric",
   }).format(d)
-  return isToday ? `Today · ${label}` : label
+  return isToday ? `${locale === "fr" ? "Aujourd'hui" : "Today"} · ${label}` : label
 }

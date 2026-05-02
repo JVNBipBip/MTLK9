@@ -1,11 +1,15 @@
 "use client"
 
 import { CheckCircle, Phone, Mail } from "lucide-react"
+import { useAppLocale } from "@/components/locale-provider"
+import { getIntlLocale } from "@/lib/i18n/config"
 import type { BookingFormData } from "../types"
 
 export function StepConfirmation({ formData }: { formData: BookingFormData }) {
+  const locale = useAppLocale()
+  const intlLocale = getIntlLocale(locale)
   const formattedConsultationDateTime = formData.consultationDateTime
-    ? new Date(formData.consultationDateTime).toLocaleString("en-CA", {
+    ? new Date(formData.consultationDateTime).toLocaleString(intlLocale, {
         timeZone: "America/Toronto",
         dateStyle: "full",
         timeStyle: "short",

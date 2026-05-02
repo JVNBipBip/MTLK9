@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, User } from "lucide-react"
+import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
 import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
 import {
@@ -30,6 +31,7 @@ export function TrainingPortalBookingContent({
   clientEmail: string
   dogName: string
 }) {
+  const locale = useAppLocale()
   const [statusData, setStatusData] = useState<StatusResponse | null>(null)
   const [slots, setSlots] = useState<Slot[]>([])
   const [selectedSlotKeys, setSelectedSlotKeys] = useState<string[]>([])
@@ -489,7 +491,7 @@ export function TrainingPortalBookingContent({
               <div className="flex flex-col items-stretch sm:items-end gap-2">
                 {oneOnOneUpcoming && (
                   <p className="text-sm text-muted-foreground text-right">
-                    Upcoming: {formatSlotDate(oneOnOneUpcoming.startAt)} at {formatSlotTime(oneOnOneUpcoming.startAt)}
+                    Upcoming: {formatSlotDate(oneOnOneUpcoming.startAt, locale)} at {formatSlotTime(oneOnOneUpcoming.startAt, locale)}
                   </p>
                 )}
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -550,7 +552,7 @@ export function TrainingPortalBookingContent({
                   return (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between gap-4">
-                        <h3 className="font-semibold text-lg">{formatWeekLabel(weekOffset)}</h3>
+                        <h3 className="font-semibold text-lg">{formatWeekLabel(weekOffset, locale)}</h3>
                         <div className="flex items-center gap-2">
                           <Button
                             type="button"
@@ -594,10 +596,10 @@ export function TrainingPortalBookingContent({
                               <div key={dayIdx} className="flex flex-col min-h-[400px]">
                                 <div className="sticky top-0 z-10 p-4 text-center border-b border-border bg-background/95 backdrop-blur shadow-sm">
                                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                    {formatDayHeader(weekOffset, dayIdx).split(" · ")[0]}
+                                    {formatDayHeader(weekOffset, dayIdx, locale).split(" · ")[0]}
                                   </p>
                                   <p className="text-xl font-bold text-foreground mt-1">
-                                    {formatDayHeader(weekOffset, dayIdx).split(" · ")[1]}
+                                    {formatDayHeader(weekOffset, dayIdx, locale).split(" · ")[1]}
                                   </p>
                                 </div>
                                 <div className="p-3 space-y-3 flex-1 bg-muted/5">
@@ -622,7 +624,7 @@ export function TrainingPortalBookingContent({
                                       >
                                         <div className="flex items-center justify-between w-full">
                                           <span className={`text-lg font-bold ${isSelected ? "text-primary" : "text-foreground"}`}>
-                                            {formatSlotTime(slot.startAt)}
+                                            {formatSlotTime(slot.startAt, locale)}
                                           </span>
                                           {isSelected && <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />}
                                         </div>

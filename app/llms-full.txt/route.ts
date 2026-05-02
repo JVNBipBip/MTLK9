@@ -1,13 +1,108 @@
 import { faqData } from "@/lib/faq-data"
+import { detectLocaleFromAcceptLanguage } from "@/lib/i18n/config"
+import { frenchTextTranslations } from "@/lib/i18n/dom-translations"
 
-export function GET() {
+function translateFr(value: string) {
+  return frenchTextTranslations[value] || value
+}
+
+export function GET(request: Request) {
+  const locale = detectLocaleFromAcceptLanguage(request.headers.get("accept-language"))
   const faqSection = faqData
     .flatMap((cat) =>
-      cat.items.map((item) => `Q: ${item.question}\nA: ${item.answer}`)
+      cat.items.map((item) =>
+        locale === "fr"
+          ? `Q: ${translateFr(item.question)}\nR: ${translateFr(item.answer)}`
+          : `Q: ${item.question}\nA: ${item.answer}`,
+      )
     )
     .join("\n\n")
 
-  const content = `# Montreal Canine Training — Full Content
+  const content =
+    locale === "fr"
+      ? `# Entraînement Canin Montréal — Contenu complet
+
+> Entraînement canin concret à Montréal. Promenades calmes. Chiens confiants. Plans clairs.
+
+Entraînement Canin Montréal offre des services professionnels à Montréal, dans l'Ouest-de-l'Île et à Laval. Nous sommes spécialisés en réactivité, cours privés, obéissance, entraînement des chiots et entraînement à domicile. Notre philosophie met l'accent sur la relation humain-chien, l'engagement actif, la motivation, la communication, la confiance et la connexion.
+
+## Méthodes d'entraînement
+
+Nous adaptons la méthode au chien devant nous, aux objectifs du client et au niveau de confort de chacun. Notre objectif est d'utiliser l'approche la plus sécuritaire et efficace selon les besoins du chien, en tenant compte de son état émotionnel.
+
+---
+
+## Services
+
+### Entraînement pour la réactivité
+Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs.
+- Format: cours privés et cours de groupe
+- Travail: distance, durée, distractions, attention, engagement, laisse, stabilité, confiance, scénarios réalistes et socialisation structurée
+- URL: https://mtlcaninetraining.com/fr/services/reactivity
+
+### Cours privés
+Pour les chiens qui ont besoin d'un accompagnement individuel.
+- Format: forfaits de 3, 5 ou 7 séances
+- Travail: modification du comportement, réactivité en laisse, agressivité, confiance, habiletés du maître, anxiété de séparation et protection des ressources
+- URL: https://mtlcaninetraining.com/fr/services/private-classes
+
+### Obéissance
+Pour les chiens de 9 mois et plus qui ont besoin de compétences fiables dans la vraie vie.
+- Format: cours privés et de groupe, niveau 1 et niveau 2
+- Travail: engagement, rappel, contrôle des impulsions, marches en groupe et commandes en contexte stimulant
+- URL: https://mtlcaninetraining.com/fr/services/obedience
+
+### Entraînement des chiots
+Pour les chiots de 10 à 20 semaines et les adolescents de 5 à 9 mois.
+- Format: cours privés et de groupe
+- Travail: confiance, socialisation contrôlée, engagement, commandes de base, marqueur, inhibition de la morsure et contrôle des impulsions
+- URL: https://mtlcaninetraining.com/fr/services/puppy-training
+
+### Entraînement à domicile
+Entraînement dans votre propre environnement.
+- Format: consultation et forfaits de 3, 5 ou 7 séances
+- Travail: comportement à la maison, bonnes manières à la porte, anxiété de séparation, propreté, laisse dans le quartier et coaching du maître
+- URL: https://mtlcaninetraining.com/fr/services/in-home
+
+---
+
+## Comment ça fonctionne
+
+1. **Réserver un appel gratuit** — Dites-nous ce qui se passe. Nous vous aidons à choisir le bon parcours.
+2. **Évaluation** — Nous rencontrons votre chien dans un contexte réel et évaluons le comportement là où il se produit.
+3. **Plan personnalisé** — Vous recevez une feuille de route claire: objectifs, nombre de séances, exercices et critères de réussite.
+4. **Entraînement et soutien** — Nous travaillons dans de vrais environnements avec devoirs, suivis vidéo et soutien entre les séances.
+
+---
+
+## FAQ
+
+${faqSection}
+
+---
+
+## Coordonnées
+
+- Nom: Entraînement Canin Montréal (MTL K9)
+- Adresse: 7770 Boul Henri-Bourassa E, Anjou, Montréal, QC H1E 1P2
+- Téléphone: 514 826 9558
+- Site Web: https://mtlcaninetraining.com/fr
+- Secteurs servis: Montréal, Ouest-de-l'Île, Laval
+
+## Pages
+
+- Accueil: https://mtlcaninetraining.com/fr
+- Tous les services: https://mtlcaninetraining.com/fr/services
+- Réactivité: https://mtlcaninetraining.com/fr/services/reactivity
+- Cours privés: https://mtlcaninetraining.com/fr/services/private-classes
+- Obéissance: https://mtlcaninetraining.com/fr/services/obedience
+- Chiots: https://mtlcaninetraining.com/fr/services/puppy-training
+- À domicile: https://mtlcaninetraining.com/fr/services/in-home
+- Résultats et témoignages: https://mtlcaninetraining.com/fr/results
+- FAQ: https://mtlcaninetraining.com/fr/faq
+- Réserver un appel découverte gratuit: https://mtlcaninetraining.com/fr/booking
+`
+      : `# Montreal Canine Training — Full Content
 
 > Real-world dog training in Montreal. Calm walks. Confident dogs. Clear plans.
 

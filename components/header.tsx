@@ -4,24 +4,29 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Menu, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { stripLocaleFromPathname } from "@/lib/i18n/config"
 
 const navLinks = [
-  { label: "Training Programs", href: "/services" },
-  { label: "Group Classes", href: "/group-classes" },
-  { label: "Results", href: "/results" },
-  { label: "About Us", href: "/about" },
-  { label: "FAQ", href: "/faq" },
+  { labelKey: "trainingPrograms", href: "/services" },
+  { labelKey: "groupClasses", href: "/group-classes" },
+  { labelKey: "results", href: "/results" },
+  { labelKey: "aboutUs", href: "/about" },
+  { labelKey: "faq", href: "/faq" },
   // { label: "Blogs", href: "/blog" },
 ]
 
 export function Header() {
+  const t = useTranslations("common")
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const activePathname = stripLocaleFromPathname(pathname)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -58,17 +63,18 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={`text-base font-medium transition-colors ${
-                  pathname === link.href
+                  activePathname === link.href
                     ? "text-black font-semibold"
                     : "text-black/80 hover:text-black"
                 }`}
               >
-                {link.label}
+                {t(`nav.${link.labelKey}`)}
               </Link>
             ))}
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
+            <LanguageSwitcher />
             <FreeCallLink>
               <button
                 type="button"
@@ -80,7 +86,7 @@ export function Header() {
             </FreeCallLink>
             <FreeCallLink>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
-                Book a Free Call
+                {t("bookFreeCall")}
               </Button>
             </FreeCallLink>
           </div>
@@ -107,17 +113,18 @@ export function Header() {
                         key={link.href}
                         href={link.href}
                         className={`rounded-xl px-3 py-3 text-lg font-medium transition-colors ${
-                          pathname === link.href
+                          activePathname === link.href
                             ? "bg-black/5 text-black font-semibold"
                             : "text-black/80 hover:bg-black/5 hover:text-black"
                         }`}
                         onClick={() => setIsOpen(false)}
                       >
-                        {link.label}
+                        {t(`nav.${link.labelKey}`)}
                       </Link>
                     ))}
                   </div>
                   <div className="pt-5 mt-5 border-t border-black/10 space-y-3">
+                    <LanguageSwitcher className="bg-white/35" />
                     <FreeCallLink onClick={() => setIsOpen(false)}>
                       <button
                         type="button"
@@ -129,7 +136,7 @@ export function Header() {
                     </FreeCallLink>
                     <FreeCallLink onClick={() => setIsOpen(false)}>
                       <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-full h-11">
-                        Book a Free Call
+                        {t("bookFreeCall")}
                       </Button>
                     </FreeCallLink>
                   </div>
