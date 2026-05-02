@@ -11,6 +11,54 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 
 const caseStudies = [
   {
+    name: "Sasha",
+    breed: "[Breed]",
+    age: "",
+    photoDesc: "Sasha's video testimonial about controlling reactivity",
+    wistiaId: "ww92aq0dn9",
+    problem:
+      "I had no control over Sasha. She was so reactive that I couldn't be around other dogs without her going crazy, which made our walks together a nightmare.",
+    plan: "",
+    result:
+      "I can finally enjoy being around other dogs. Sasha is much more manageable, and I've learned the exact techniques to correct her behavior and keep her focused.",
+    quote:
+      "Nick is so experienced and patient. He teaches you exactly how to deal with your dog, and now I actually enjoy our walks again. I recommend him to everybody.",
+    servicePath: "Reactivity Training",
+    serviceHref: "/services/reactivity",
+  },
+  {
+    name: "Mason",
+    breed: "German Shepherd",
+    age: "",
+    photoDesc: "Sabrina's video testimonial about overcoming Mason's severe reactivity",
+    wistiaId: "3a2efylwfy",
+    problem:
+      "Walking Mason was a constant challenge. His reactivity toward other dogs meant we couldn't even walk down the street or through the woods without an incident.",
+    plan: "",
+    result:
+      "Mason has come so far that we've transitioned from private lessons to group classes. He genuinely enjoys the training, and our daily life is completely different.",
+    quote:
+      "We drive an hour each way just to come here because it's so worth it. Working with Nick at Montreal Canine Training has truly changed our lives.",
+    servicePath: "Reactivity Training",
+    serviceHref: "/services/reactivity",
+  },
+  {
+    name: "[Dog Name]",
+    breed: "[Breed]",
+    age: "",
+    photoDesc: "Multi-dog success story video testimonial",
+    wistiaId: "2cytzfcub2",
+    problem:
+      "Life with my first reactive dog was a nightmare. Even a simple walk felt impossible, and the constant stress was overwhelming.",
+    plan: "",
+    result:
+      "The training made such a difference that I didn't hesitate to return with my new puppy. Now, our walks are enjoyable, and I feel confident about my dogs' future.",
+    quote:
+      "My life was a nightmare before we started. Now, it's a pleasure to be out with my dogs. I knew exactly where to go when I got my second puppy to make sure everything stayed on the right track.",
+    servicePath: "Puppy Training",
+    serviceHref: "/services/puppy-training",
+  },
+  {
     name: "Theo",
     breed: "Doberman",
     age: "",
@@ -27,80 +75,34 @@ const caseStudies = [
     serviceHref: "/services/puppy-training",
   },
   {
-    name: "Luna",
-    breed: "German Shepherd Mix",
-    age: "3 years",
-    photoDesc: "Luna walking calmly on leash in a Montreal park",
+    name: "[Dog Name]",
+    breed: "Shiba Inu",
+    age: "",
+    photoDesc: "Video testimonial about raising a social Shiba Inu puppy",
+    wistiaId: "ek2ojttv3i",
     problem:
-      "Every walk was a nightmare. Luna would lunge at every dog we passed — barking, pulling, completely over threshold. I was embarrassed and exhausted. I thought we'd never be able to enjoy a walk again.",
-    plan: "Reactivity program with structured desensitization, threshold management, and counter-conditioning in real-world environments.",
-    result: "Luna now walks calmly through parks. We can pass other dogs at a distance without her losing it. Walks are finally enjoyable.",
-    quote: "I never thought we'd get here. The team gave us a clear plan and stuck with us until it clicked.",
-    servicePath: "Reactivity Training",
-    serviceHref: "/services/reactivity",
-  },
-  {
-    name: "Milo",
-    breed: "French Bulldog",
-    age: "2 years",
-    photoDesc: "Milo heeling on loose leash in the city",
-    problem:
-      "Milo pulled so hard on every walk I thought my arm would fall off. At home, he destroyed furniture when left alone. City life felt impossible with him.",
-    plan: "City Manners program focusing on loose-leash walking, impulse control, and structured management for home alone time.",
-    result: "Milo now heels on a loose leash. He's calmer at home and we can actually enjoy Montreal together.",
-    quote: "From chaos to calm. The difference is night and day.",
-    servicePath: "Obedience Training",
-    serviceHref: "/services/obedience",
-  },
-  {
-    name: "Charlie",
-    breed: "Golden Retriever",
-    age: "5 months",
-    photoDesc: "Charlie playing calmly with other puppies",
-    problem:
-      "Charlie was a land shark — biting everything, jumping on everyone, zero recall. I was overwhelmed and worried we were creating bad habits.",
-    plan: "Puppy Foundations program: bite inhibition, socialization, recall foundations, and building calm routines.",
-    result: "Charlie is now a calm, socialized puppy. He comes when called, greets people politely, and the biting is under control.",
-    quote: "They gave us a roadmap when we had no idea where to start. Best investment we made.",
+      "Shiba Inus are notorious for their independent and sometimes difficult attitudes. We wanted to ensure our puppy started on the right foot and developed into a well-rounded dog.",
+    plan: "",
+    result:
+      "He is now incredibly social and great with other dogs. The training has been so successful that people often joke he's the \"anti-Shiba\" because of how friendly and calm he is.",
+    quote:
+      "The classes and private training have helped shape him into the dog he is now. There's always room to grow, which is why we keep coming back to Montreal Canine Training.",
     servicePath: "Puppy Training",
     serviceHref: "/services/puppy-training",
   },
   {
-    name: "Bella",
-    breed: "Rescue Pit Bull",
-    age: "4 years",
-    photoDesc: "Bella resting gently near a baby",
+    name: "[Dog Name]",
+    breed: "[Breed]",
+    age: "",
+    photoDesc: "Video testimonial about finding comfort and control with a long-reactive dog",
+    wistiaId: "qtdpt5lv7o",
     problem:
-      "Bella had resource guarding and a bite history. We were terrified — we had a baby on the way and didn't know if we could keep her. Other trainers turned us away.",
-    plan: "High-Risk Behaviors program: safety evaluation, resource-guarding protocol, and gradual exposure with our newborn.",
-    result: "Bella is now gentle around our baby. We have clear management in place and she's part of the family again.",
-    quote: "They didn't give up on us when everyone else did. We're forever grateful.",
-    servicePath: "Private Classes",
-    serviceHref: "/services/private-classes",
-  },
-  {
-    name: "Oscar",
-    breed: "Labrador",
-    age: "3 years",
-    photoDesc: "Oscar resting calmly in his crate",
-    problem:
-      "Oscar couldn't be left alone. He destroyed our apartment, barked for hours, and we couldn't leave the house without him. Our lives revolved around his anxiety.",
-    plan: "Separation anxiety protocol with gradual desensitization, settle training, and structured alone-time building.",
-    result: "Oscar now settles calmly when we leave. We can go to work, run errands, and have a life again.",
-    quote: "I cried when we left him alone for the first time without destruction. It felt like a miracle.",
-    servicePath: "Reactivity Training",
-    serviceHref: "/services/reactivity",
-  },
-  {
-    name: "Rosie",
-    breed: "Border Collie Mix",
-    age: "2 years",
-    photoDesc: "Rosie exploring confidently on a trail",
-    problem:
-      "Rosie was shut down and fearful. She wouldn't walk, hid from everything, and we didn't know how to help her. She'd been through so much in rescue.",
-    plan: "Rescue rehabilitation with confidence-building, fear-free exposure, and patience-first approach.",
-    result: "Rosie is now confident and explores. She walks willingly, engages with the world, and finally acts like the dog we knew she could be.",
-    quote: "They met her where she was. No pressure, just patience. She blossomed.",
+      "My dog had been reactive for years. We tried everything, but nothing seemed to stick. Our walks were stressful, and he just couldn't be around other dogs comfortably.",
+    plan: "",
+    result:
+      "The change has been drastic. He can now be around other dogs without feeling pressured or reactive. We've found a place where he truly feels safe and comfortable.",
+    quote:
+      "Nick is such an understanding trainer. My dog has had such a drastic change in such a short amount of time—I'm just amazed at the progress we've had.",
     servicePath: "Reactivity Training",
     serviceHref: "/services/reactivity",
   },
@@ -129,7 +131,12 @@ export default function ResultsPage() {
   return (
     <main className="min-h-screen bg-background">
       <Script src="https://fast.wistia.com/player.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/ww92aq0dn9.js" strategy="lazyOnload" />
       <Script src="https://fast.wistia.com/embed/i0ipeqgj8k.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/3a2efylwfy.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/2cytzfcub2.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/ek2ojttv3i.js" strategy="lazyOnload" />
+      <Script src="https://fast.wistia.com/embed/qtdpt5lv7o.js" strategy="lazyOnload" />
       <Header />
 
       <div ref={contentRef}>
