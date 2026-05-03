@@ -1,18 +1,22 @@
 import {
-  BOOKINGS_COLLECTION,
   CLASS_SESSIONS_COLLECTION,
-  CLIENT_BOOKING_SETTINGS_COLLECTION,
-  CONSULTATIONS_COLLECTION,
-  DOG_CLASS_ACCESS_COLLECTION,
   PRIVATE_TRAINING_PACKAGES_COLLECTION,
   SQUARE_CUSTOMERS_COLLECTION,
-  clientBookingSettingsDocId,
   type PrivateLocationAccess,
   type PrivateTrainingAccess,
 } from "@/lib/domain"
 import { parsePrivateLocationAccess, parsePrivateTrainingAccess } from "@/lib/client-booking-settings"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { allConfiguredGroupProgramTypeIds, isGroupProgramsAllFutureForDog } from "@/lib/group-dog-program-access"
+import {
+  CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION,
+  clientBookingsCollection,
+  clientBookingSettingsRef,
+  clientConsultationsCollection,
+  clientDogRef,
+  clientGroupAccessCollection,
+} from "@/lib/client-records"
+import type { Query } from "firebase-admin/firestore"
 
 export const ONE_ON_ONE_PROGRAM_ID = "one-on-one-training"
 export const ONE_ON_ONE_PROGRAM_LABEL = "1-on-1 Training"
@@ -281,6 +285,16 @@ function pickLatestActivePackage(items: PrivatePackageLookup[]) {
 /** Placeholder dog name when we allow Square clients with past bookings but don't know the dog's name */
 export const SQUARE_CLIENT_PLACEHOLDER_DOG_NAME = "Guest"
 
+async function safeQueryDocs(query: Query) {
+  try {
+    const snap = await query.get()
+    return snap.docs
+  } catch (error) {
+    console.warn("[training-portal] Ignoring unavailable Firestore query:", error instanceof Error ? error.message : error)
+    return []
+  }
+}
+
 export async function loadTrainingPortalContext(input: {
   clientEmail: string
   dogName: string
@@ -290,40 +304,48 @@ export async function loadTrainingPortalContext(input: {
   const dogName = normalized(input.dogName)
   const db = getAdminDb()
 
-  const settingsDocId = clientBookingSettingsDocId(clientId)
-  const [consultationSnap, classAccessSnap, bookingSnap, privatePackageSnap, squareCustomerSnap, clientSettingsSnap] =
+  const [
+    nestedConsultationDocs,
+    nestedClassAccessDocs,
+    nestedBookingDocs,
+    privatePackageDocs,
+    nestedPrivatePackageDocs,
+    squareCustomerDocs,
+    nestedClientSettingsSnap,
+  ] =
     await Promise.all([
-      db.collection(CONSULTATIONS_COLLECTION).where("clientId", "==", clientId).limit(200).get(),
-      db.collection(DOG_CLASS_ACCESS_COLLECTION).where("clientId", "==", clientId).where("status", "==", "allowed").limit(200).get(),
-      db.collection(BOOKINGS_COLLECTION).where("clientId", "==", clientId).limit(300).get(),
-      db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).where("status", "==", "active").limit(50).get(),
-      db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1).get(),
-      db.collection(CLIENT_BOOKING_SETTINGS_COLLECTION).doc(settingsDocId).get(),
+      safeQueryDocs(clientConsultationsCollection(db, clientId).limit(200)),
+      safeQueryDocs(clientGroupAccessCollection(db, clientId, dogName).where("status", "==", "allowed").limit(200)),
+      safeQueryDocs(clientBookingsCollection(db, clientId).limit(300)),
+      safeQueryDocs(db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).limit(50)),
+      safeQueryDocs(clientDogRef(db, clientId, dogName).collection(CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION).limit(50)),
+      safeQueryDocs(db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1)),
+      clientBookingSettingsRef(db, clientId).get(),
     ])
 
-  const privateLocationAccess: PrivateLocationAccess = clientSettingsSnap.exists
-    ? parsePrivateLocationAccess(clientSettingsSnap.data()?.privateLocationAccess)
+  const privateLocationAccess: PrivateLocationAccess = nestedClientSettingsSnap.exists
+    ? parsePrivateLocationAccess(nestedClientSettingsSnap.data()?.privateLocationAccess)
     : parsePrivateLocationAccess(undefined)
 
-  const privateTrainingAccess: PrivateTrainingAccess = clientSettingsSnap.exists
-    ? parsePrivateTrainingAccess(clientSettingsSnap.data()?.privateTrainingAccess)
+  const privateTrainingAccess: PrivateTrainingAccess = nestedClientSettingsSnap.exists
+    ? parsePrivateTrainingAccess(nestedClientSettingsSnap.data()?.privateTrainingAccess)
     : parsePrivateTrainingAccess(undefined)
 
-  let squareCustomerSnapResult = squareCustomerSnap
-  if (squareCustomerSnap.empty) {
-    const fallbackSnap = await db
-      .collection(SQUARE_CUSTOMERS_COLLECTION)
-      .where("email", "==", clientId)
-      .limit(1)
-      .get()
-    squareCustomerSnapResult = fallbackSnap
+  let squareCustomerDocsResult = squareCustomerDocs
+  if (squareCustomerDocs.length === 0) {
+    squareCustomerDocsResult = await safeQueryDocs(
+      db
+        .collection(SQUARE_CUSTOMERS_COLLECTION)
+        .where("email", "==", clientId)
+        .limit(1),
+    )
   }
 
-  const consultations = consultationSnap.docs
+  const consultations = nestedConsultationDocs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ConsultationLookup, "id">) }))
     .filter((item) => normalized(String(item.dogName || "")) === dogName)
 
-  const squareCustomer = squareCustomerSnapResult.empty ? null : (squareCustomerSnapResult.docs[0].data() as SyncedSquareCustomerLookup)
+  const squareCustomer = squareCustomerDocsResult[0]?.data() as SyncedSquareCustomerLookup | undefined
   const squareBookings = squareCustomer?.bookings || []
   const activeSquareBookings = squareBookings.filter((booking) => isActiveSyncedSquareBooking(booking))
 
@@ -344,7 +366,7 @@ export async function loadTrainingPortalContext(input: {
   const effectiveDogNorm = normalized(effectiveDogName)
   const explicitGroupIds = [
     ...new Set(
-      classAccessSnap.docs
+      nestedClassAccessDocs
         .map((doc) => doc.data() as ClassAccessLookup & { dogName?: string; classTypeId?: string })
         .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
         .map((item) => String(item.classTypeId || "").trim())
@@ -352,12 +374,13 @@ export async function loadTrainingPortalContext(input: {
     ),
   ]
   let allowedGroupClassTypeIds = explicitGroupIds
-  if (isGroupProgramsAllFutureForDog(clientSettingsSnap.data(), effectiveDogNorm)) {
+  const settingsData = nestedClientSettingsSnap.data()
+  if (isGroupProgramsAllFutureForDog(settingsData, effectiveDogNorm)) {
     allowedGroupClassTypeIds = [...new Set([...explicitGroupIds, ...(await allConfiguredGroupProgramTypeIds())])]
   }
   const allowedClassCount = allowedGroupClassTypeIds.length
 
-  const bookingRows = bookingSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
+  const bookingRows = nestedBookingDocs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
   const hasMatchingLocalBooking = bookingRows.some((item) => {
     if (isCancelled(item)) return false
     if (!effectiveDogNorm) return false
@@ -390,7 +413,7 @@ export async function loadTrainingPortalContext(input: {
 
   const nowIso = new Date().toISOString()
   const activePrivatePackage = pickLatestActivePackage(
-    privatePackageSnap.docs
+    [...privatePackageDocs, ...nestedPrivatePackageDocs]
       .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
       .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm),
   )

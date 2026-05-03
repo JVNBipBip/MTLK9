@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { GROUP_SERIES_BOOKING_SOURCE, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
+import { GROUP_SERIES_BOOKING_SOURCE, findGroupClassBookingRef, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
 
 export const runtime = "nodejs"
 
@@ -31,7 +30,10 @@ export async function POST(request: Request) {
   }
 
   const db = getAdminDb()
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  const bookingRef = await findGroupClassBookingRef(db, bookingId)
+  if (!bookingRef) {
+    return NextResponse.json({ error: "Booking not found." }, { status: 404 })
+  }
   const snap = await bookingRef.get()
   if (!snap.exists) {
     return NextResponse.json({ error: "Booking not found." }, { status: 404 })

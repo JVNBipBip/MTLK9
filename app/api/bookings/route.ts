@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server"
-import { FieldValue } from "firebase-admin/firestore"
+import { FieldValue, type Firestore } from "firebase-admin/firestore"
 import { getConsultationServiceVariationIds } from "@/lib/square-service-config"
-import { ISSUE_SERVICE_MAP } from "@/app/booking/constants"
+import {
+  ISSUE_SERVICE_MAP,
+  goalLabelsForIssue,
+  intakeResponsesForIssue,
+  issueLabel,
+} from "@/app/booking/constants"
 import type { BookingFormData } from "@/app/booking/types"
-import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
+import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -60,21 +65,57 @@ function resolvePayloadLocale(value: unknown): AppLocale {
 }
 
 function buildSquareIntakeNote(formData: BookingFormData) {
-  const followUps = Object.entries(formData.followUps || {})
+  const followUps = intakeResponsesForIssue(formData.issue, formData.followUps || {})
     .slice(0, 6)
-    .map(([key, value]) => `${key}: ${value}`)
+    .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
     .join(", ")
+  const goals = goalLabelsForIssue(formData.issue, formData.goals || [])
   const parts = [
     `Dog: ${formData.dogName || "Unknown"} (${formData.dogBreed || "Unknown"}, ${formData.dogAge || "Unknown"})`,
-    `Issue: ${formData.issueOther?.trim() ? formData.issueOther : formData.issue || "Not provided"}`,
+    `Issue: ${issueLabel(formData.issue) || "Not provided"}`,
     `Follow-ups: ${followUps || "Not provided"}`,
-    `Goals: ${formData.goals.slice(0, 3).join(", ") || "Not provided"}`,
+    `Goals: ${goals.slice(0, 3).join(", ") || "Not provided"}`,
     `Contact pref: ${formData.contactBestTime || "Not provided"}`,
   ]
   if (formData.contactNotes?.trim()) {
     parts.push(`Client notes: ${truncate(formData.contactNotes, 160)}`)
   }
   return truncate(parts.join(" | "), 900)
+}
+
+function normalizedDogName(value?: string | null) {
+  return String(value || "").trim().toLowerCase()
+}
+
+function isReplaceableConsultationStatus(value: unknown) {
+  const status = String(value || "").trim().toLowerCase()
+  return status === "intake_submitted" || status === "scheduled" || status === "expired"
+}
+
+function consultationActivityTime(data: Record<string, unknown>) {
+  const candidate =
+    data.submittedAtIso ||
+    data.scheduledAtIso ||
+    data.consultationDateTime ||
+    data.updatedAtIso ||
+    data.createdAtIso
+  const time = candidate ? new Date(String(candidate)).getTime() : 0
+  return Number.isFinite(time) ? time : 0
+}
+
+async function findReplaceableConsultationId(db: Firestore, clientId: string, dogName: string) {
+  const targetDogName = normalizedDogName(dogName)
+  if (!clientId || !targetDogName) return null
+
+  const snap = await clientConsultationsCollection(db, clientId).limit(100).get()
+
+  const candidates = snap.docs
+    .map((doc) => ({ id: doc.id, data: doc.data() as Record<string, unknown> }))
+    .filter(({ data }) => normalizedDogName(String(data.dogName || "")) === targetDogName)
+    .filter(({ data }) => isReplaceableConsultationStatus(data.status))
+    .sort((a, b) => consultationActivityTime(b.data) - consultationActivityTime(a.data))
+
+  return candidates[0]?.id || null
 }
 
 export async function POST(request: Request) {
@@ -108,6 +149,10 @@ export async function POST(request: Request) {
     let squareCustomerId: string | null = null
     let squareConsultationBookingId: string | null = null
     let squareConsultationStatus: string | null = null
+    let scheduledAtIso: string | null = null
+    let consultationServiceVariationId: string | null = null
+    let consultationTeamMemberId: string | null = null
+    let consultationTeamMemberName: string | null = null
 
     if (isConsultation && formData.consultationDateTime) {
       const allowedServiceVariationIds = await getConsultationServiceVariationIds()
@@ -128,8 +173,12 @@ export async function POST(request: Request) {
       if (!allowedServiceVariationIds.includes(slotServiceVariationId)) {
         return NextResponse.json({ error: errorText.slotExpired }, { status: 400 })
       }
+      scheduledAtIso = new Date(slotStartAt).toISOString()
+      consultationServiceVariationId = slotServiceVariationId
+      consultationTeamMemberId = slotTeamMemberId
+      consultationTeamMemberName = formData.consultationTeamMemberName?.trim() || null
       const roomAvailable = await isFacilityRoomAvailable({
-        startAt: new Date(slotStartAt).toISOString(),
+        startAt: scheduledAtIso,
         serviceVariationId: slotServiceVariationId,
       })
       if (!roomAvailable) {
@@ -146,7 +195,7 @@ export async function POST(request: Request) {
       })
       const squareBooking = await createSquareBooking({
         customerId: squareCustomerId,
-        startAt: new Date(slotStartAt).toISOString(),
+        startAt: scheduledAtIso,
         serviceVariationId: slotServiceVariationId,
         teamMemberId: slotTeamMemberId,
         idempotencyKey: crypto.randomUUID(),
@@ -156,6 +205,8 @@ export async function POST(request: Request) {
       squareConsultationStatus = squareBooking.booking?.status || null
     }
 
+    const intakeResponses = intakeResponsesForIssue(formData.issue, formData.followUps || {})
+    const goalLabels = goalLabelsForIssue(formData.issue, formData.goals || [])
     const submission = {
       clientId,
       clientName: formData.contactName,
@@ -163,13 +214,18 @@ export async function POST(request: Request) {
       clientPhone: formData.contactPhone,
       dogName: formData.dogName,
       issue: formData.issue,
+      issueLabel: issueLabel(formData.issue),
       issueOther: formData.issueOther,
       connectMethod: formData.connectMethod,
       followUps: formData.followUps || {},
+      intakeQuestionVersion: "2026-05-dynamic-intake-v1",
+      intakeResponses,
+      intakeResponseSummary: intakeResponses.map((response) => `${response.questionLabel}: ${response.answerLabel}`).join("\n"),
       duration: formData.duration,
       tried: formData.tried,
       impact: formData.impact,
       goals: formData.goals,
+      goalLabels,
       dogBreed: formData.dogBreed,
       dogAge: formData.dogAge,
       dogDuration: formData.dogDuration,
@@ -178,10 +234,21 @@ export async function POST(request: Request) {
       contactNotes: formData.contactNotes,
       consultationDateTime: formData.consultationDateTime || null,
       consultationSlotKey: formData.consultationSlotKey || null,
+      scheduledAtIso,
+      locationLabel: formData.consultationLocation || null,
       consultationLocation: formData.consultationLocation || null,
       consultationWhat: formData.consultationWhat || "In-person evaluation (60-75 minutes)",
+      consultationServiceVariationId,
+      consultationTeamMemberId,
+      consultationTeamMemberName,
+      teamMemberId: consultationTeamMemberId,
+      teamMemberName: consultationTeamMemberName,
       suggestedService: ISSUE_SERVICE_MAP[formData.issue] || "Manual Review",
-      highPriority: formData.impact.includes("thought-about-rehoming"),
+      highPriority:
+        formData.impact.includes("thought-about-rehoming") ||
+        formData.followUps["bitten-human"] === "yes" ||
+        formData.followUps["bitten-dog"] === "yes" ||
+        formData.followUps["bitten-or-nipped-human"] === "yes",
       status: consultationStatus,
       recommendedClassTypes: [],
       completedAtIso: null,
@@ -193,13 +260,33 @@ export async function POST(request: Request) {
       squareCustomerId,
       squareConsultationBookingId,
       squareConsultationStatus,
+      preferredLocale: locale,
+      websiteLocale: locale,
       source: "website-booking-form",
       submittedAtIso: new Date().toISOString(),
-      createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     }
 
-    const docRef = await getAdminDb().collection(CONSULTATIONS_COLLECTION).add(submission)
+    const db = getAdminDb()
+    await upsertClientProfile(db, {
+      clientEmail: formData.contactEmail,
+      clientName: formData.contactName,
+      clientPhone: formData.contactPhone,
+      dogName: formData.dogName,
+      squareCustomerId,
+      source: "website-booking-form",
+      preferredLocale: locale,
+    })
+    const replaceConsultationId = await findReplaceableConsultationId(db, clientId, formData.dogName)
+    const docRef = clientConsultationRef(db, clientId, replaceConsultationId || undefined)
+    const writePayload = {
+      ...submission,
+      id: docRef.id,
+      clientCollectionPath: docRef.path,
+      ...(replaceConsultationId ? {} : { createdAt: FieldValue.serverTimestamp() }),
+      ...(replaceConsultationId ? { replacedByLatestSubmissionAtIso: new Date().toISOString() } : {}),
+    }
+    await docRef.set(writePayload, { merge: Boolean(replaceConsultationId) })
 
     // Push lead to GoHighLevel (non-blocking)
     pushLeadToGHL(formData).catch((err) =>
@@ -209,7 +296,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       id: docRef.id,
-      collection: CONSULTATIONS_COLLECTION,
+      collection: docRef.path,
     })
   } catch (error) {
     console.error("[Booking API] Failed to save booking:", error)

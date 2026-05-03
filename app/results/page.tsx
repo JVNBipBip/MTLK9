@@ -75,7 +75,7 @@ const caseStudies = [
     serviceHref: "/services/puppy-training",
   },
   {
-    name: "[Dog Name]",
+    name: "Hunter",
     breed: "Shiba Inu",
     age: "",
     photoDesc: "Video testimonial about raising a social Shiba Inu puppy",
@@ -91,8 +91,8 @@ const caseStudies = [
     serviceHref: "/services/puppy-training",
   },
   {
-    name: "[Dog Name]",
-    breed: "[Breed]",
+    name: "Shilo",
+    breed: "Beagle",
     age: "",
     photoDesc: "Video testimonial about finding comfort and control with a long-reactive dog",
     wistiaId: "qtdpt5lv7o",

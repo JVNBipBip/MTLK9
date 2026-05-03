@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
+import { findClientConsultationByAccessTokenHash } from "@/lib/client-records"
 import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { hashAccessToken } from "@/lib/tokens"
@@ -32,17 +32,12 @@ export async function GET(request: Request) {
 
   const tokenHash = hashAccessToken(token)
   const db = getAdminDb()
-  const consultationSnap = await db
-    .collection(CONSULTATIONS_COLLECTION)
-    .where("bookingAccess.tokenHash", "==", tokenHash)
-    .limit(1)
-    .get()
+  const doc = await findClientConsultationByAccessTokenHash(db, tokenHash)
 
-  if (consultationSnap.empty) {
+  if (!doc) {
     return NextResponse.json({ error: "Invalid or expired booking link." }, { status: 404 })
   }
 
-  const doc = consultationSnap.docs[0]
   const consultation = doc.data() as {
     status?: string
     bookingAccess?: { expiresAtIso?: string; revokedAtIso?: string }

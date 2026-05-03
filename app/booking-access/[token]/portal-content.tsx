@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { User } from "lucide-react"
-import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
-import { getIntlLocale } from "@/lib/i18n/config"
+import { formatTorontoDateTime } from "@/lib/toronto-time"
 
 type ConsultationPayload = {
   id: string
@@ -27,19 +26,12 @@ type ScheduleSlot = {
   serviceVariationId?: string
 }
 
-function formatSlotDisplay(slot: ScheduleSlot, intlLocale: string) {
-  const start = new Date(slot.startAt)
-  const dateStr = start.toLocaleString(intlLocale, {
-    timeZone: "America/Toronto",
-    dateStyle: "medium",
-    timeStyle: "short",
-  })
+function formatSlotDisplay(slot: ScheduleSlot) {
+  const dateStr = formatTorontoDateTime(slot.startAt)
   return `${dateStr} · ${slot.programLabel}`
 }
 
 export function BookingAccessContent({ token }: { token: string }) {
-  const locale = useAppLocale()
-  const intlLocale = getIntlLocale(locale)
   const [consultation, setConsultation] = useState<ConsultationPayload | null>(null)
   const [slots, setSlots] = useState<ScheduleSlot[]>([])
   const [selected, setSelected] = useState<string[]>([])
@@ -150,7 +142,7 @@ export function BookingAccessContent({ token }: { token: string }) {
               <label key={slot.slotKey} className="flex items-start gap-3 rounded-xl border border-border p-4 cursor-pointer">
                 <input type="radio" checked={selected.includes(slot.slotKey)} onChange={() => setSelected([slot.slotKey])} className="mt-1" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium">{formatSlotDisplay(slot, intlLocale)}</p>
+                  <p className="font-medium">{formatSlotDisplay(slot)}</p>
                   <p className="text-sm text-muted-foreground">{slot.programLabel}</p>
                   {staffName && (
                     <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
@@ -171,7 +163,7 @@ export function BookingAccessContent({ token }: { token: string }) {
           <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm space-y-1">
             <p className="font-medium text-foreground">Booking summary</p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">When:</span> {formatSlotDisplay(selectedSlots[0], intlLocale)}
+              <span className="font-medium text-foreground">When:</span> {formatSlotDisplay(selectedSlots[0])}
             </p>
             <p className="text-muted-foreground">
               <span className="font-medium text-foreground">What:</span> {selectedSlots[0].programLabel}

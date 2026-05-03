@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION, CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
+import { CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { GROUP_SERIES_BOOKING_SOURCE, releaseStaleGroupSeriesHolds, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
 import {
@@ -17,6 +17,11 @@ import {
   getSquareServiceConfig,
 } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
+import {
+  clientBookingsCollection,
+  clientBookingRef,
+  upsertClientProfile,
+} from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -30,6 +35,7 @@ type Payload = {
   sessionId?: string
   items?: Array<{ sessionId?: string }>
   redirectPath?: string
+  locale?: string
 }
 
 function normalized(value: string) {
@@ -78,6 +84,7 @@ export async function POST(request: Request) {
   const dogName = String(payload.dogName || "").trim()
   const seriesId = String(payload.seriesId || "").trim()
   const sessionId = String(payload.sessionId || "").trim()
+  const locale = String(payload.locale || "").trim().toLowerCase()
 
   const rawItems = Array.isArray(payload.items) ? payload.items : []
   if (sessionId || rawItems.length > 0) {
@@ -151,7 +158,7 @@ export async function POST(request: Request) {
 
   const sessionIds = sessions.map((s) => s.id)
 
-  const dupSnap = await db.collection(BOOKINGS_COLLECTION).where("clientId", "==", portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
+  const dupSnap = await clientBookingsCollection(db, portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
   for (const d of dupSnap.docs) {
     const row = d.data() as { dogName?: string; bookingStatus?: string; paymentStatus?: string }
     if (normalized(String(row.dogName || "")) !== dogNorm) continue
@@ -169,7 +176,15 @@ export async function POST(request: Request) {
   }
 
   const holdExpiresAtIso = new Date(Date.now() + HOLD_MS).toISOString()
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc()
+  await upsertClientProfile(db, {
+    clientEmail,
+    clientName: portal.latestConsultation?.clientName,
+    clientPhone: portal.latestConsultation?.clientPhone,
+    dogName: portal.dogName,
+    source: GROUP_SERIES_BOOKING_SOURCE,
+    preferredLocale: locale,
+  })
+  const bookingRef = clientBookingRef(db, clientEmail)
   const bookingId = bookingRef.id
 
   const targetSessions = sessions
@@ -232,7 +247,8 @@ export async function POST(request: Request) {
         })
       }
 
-      t.set(bookingRef, {
+      const bookingData = {
+        id: bookingId,
         consultationId: portal.latestConsultation?.id || "training-portal-group-series",
         clientId: portal.clientId,
         clientName: portal.latestConsultation?.clientName || "",
@@ -253,10 +269,13 @@ export async function POST(request: Request) {
         squareServiceVariationId: courseVariationId,
         squareTeamMemberId: null,
         source: GROUP_SERIES_BOOKING_SOURCE,
+        preferredLocale: locale === "en" || locale === "fr" ? locale : null,
+        websiteLocale: locale === "en" || locale === "fr" ? locale : null,
         holdExpiresAtIso,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      })
+      }
+      t.set(bookingRef, { ...bookingData, clientCollectionPath: bookingRef.path })
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not reserve seats"
@@ -299,14 +318,12 @@ export async function POST(request: Request) {
       await releaseHoldsForGroupBooking(db, bookingId)
       return NextResponse.json({ error: "Square did not return a checkout URL." }, { status: 502 })
     }
-    await bookingRef.set(
-      {
-        squarePaymentLinkId: linkId,
-        squarePaymentLinkUrl: url,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    )
+    const linkPatch = {
+      squarePaymentLinkId: linkId,
+      squarePaymentLinkUrl: url,
+      updatedAt: FieldValue.serverTimestamp(),
+    }
+    await bookingRef.set(linkPatch, { merge: true })
     return NextResponse.json({ ok: true, bookingId, checkoutUrl: url })
   } catch (e) {
     await releaseHoldsForGroupBooking(db, bookingId)

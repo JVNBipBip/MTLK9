@@ -1,12 +1,18 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION, PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib/domain"
+import { PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, ONE_ON_ONE_PROGRAM_LABEL, loadTrainingPortalContext } from "@/lib/training-portal"
+import {
+  clientBookingRef,
+  clientBookingsCollection,
+  clientPrivatePackageRef,
+  upsertClientProfile,
+} from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -14,6 +20,7 @@ type Payload = {
   clientEmail?: string
   dogName?: string
   selectedSlotKey?: string
+  locale?: string
 }
 
 export async function POST(request: Request) {
@@ -27,6 +34,7 @@ export async function POST(request: Request) {
   const clientEmail = String(payload.clientEmail || "").trim().toLowerCase()
   const dogName = String(payload.dogName || "").trim()
   const selectedSlotKey = String(payload.selectedSlotKey || "")
+  const locale = String(payload.locale || "").trim().toLowerCase()
   if (!clientEmail || !dogName || !selectedSlotKey) {
     return NextResponse.json({ error: "clientEmail, dogName and selectedSlotKey are required." }, { status: 400 })
   }
@@ -96,14 +104,13 @@ export async function POST(request: Request) {
   }
 
   const db = getAdminDb()
-  const duplicateSlotSnap = await db
-    .collection(BOOKINGS_COLLECTION)
-    .where("clientId", "==", portal.clientId)
+  const duplicateSlotSnap = await clientBookingsCollection(db, portal.clientId)
     .where("selectedSlots", "array-contains", selectedSlotKey)
     .limit(1)
     .get()
-  if (!duplicateSlotSnap.empty) {
-    return NextResponse.json({ ok: true, bookingId: duplicateSlotSnap.docs[0].id, duplicate: true })
+  const duplicateDoc = duplicateSlotSnap.docs[0]
+  if (duplicateDoc) {
+    return NextResponse.json({ ok: true, bookingId: duplicateDoc.id, duplicate: true })
   }
 
   const customerId = await getOrCreateSquareCustomer({
@@ -120,13 +127,28 @@ export async function POST(request: Request) {
     idempotencyKey: crypto.randomUUID(),
     note: `1-on-1 training booking for ${dogName}. Pay in person.`,
   })
+  await upsertClientProfile(db, {
+    clientEmail,
+    clientName: portal.latestConsultation?.clientName,
+    clientPhone: portal.latestConsultation?.clientPhone,
+    dogName,
+    squareCustomerId: customerId,
+    source: "training-portal-one-on-one",
+    preferredLocale: locale,
+  })
+
   const packageRef = db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).doc(portal.activePrivatePackage.id)
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc()
+  const nestedPackageRef = clientPrivatePackageRef(db, clientEmail, dogName, portal.activePrivatePackage.id)
+  const bookingRef = clientBookingRef(db, clientEmail)
   try {
     await db.runTransaction(async (transaction) => {
-      const packageSnap = await transaction.get(packageRef)
-      if (!packageSnap.exists) throw new Error("Private package not found.")
-      const data = packageSnap.data() as { status?: string; sessionsRemaining?: number; sessionsBookedCount?: number }
+      const [packageSnap, nestedPackageSnap] = await Promise.all([
+        transaction.get(packageRef),
+        transaction.get(nestedPackageRef),
+      ])
+      const primaryPackageSnap = nestedPackageSnap.exists ? nestedPackageSnap : packageSnap
+      if (!primaryPackageSnap.exists) throw new Error("Private package not found.")
+      const data = primaryPackageSnap.data() as { status?: string; sessionsRemaining?: number; sessionsBookedCount?: number }
       const remaining = Number(data.sessionsRemaining ?? 0)
       const bookedCount = Number(data.sessionsBookedCount ?? 0)
       const status = String(data.status || "")
@@ -137,13 +159,16 @@ export async function POST(request: Request) {
       const nextRemaining = Math.max(0, remaining - 1)
       const nextStatus = nextRemaining === 0 ? "exhausted" : "active"
 
-      transaction.update(packageRef, {
+      const packagePatch = {
         sessionsBookedCount: nextBookedCount,
         sessionsRemaining: nextRemaining,
         status: nextStatus,
         updatedAt: FieldValue.serverTimestamp(),
-      })
-      transaction.set(bookingRef, {
+      }
+      if (packageSnap.exists) transaction.update(packageRef, packagePatch)
+      if (nestedPackageSnap.exists) transaction.update(nestedPackageRef, packagePatch)
+      const bookingData = {
+        id: bookingRef.id,
         consultationId: portal.latestConsultation?.id || "training-portal-lookup",
         clientId: portal.clientId,
         clientName: portal.latestConsultation?.clientName || "",
@@ -171,9 +196,12 @@ export async function POST(request: Request) {
         privatePlanType: portal.activePrivatePackage?.planType || null,
         sessionNumber: nextBookedCount,
         source: "training-portal-one-on-one",
+        preferredLocale: locale === "en" || locale === "fr" ? locale : null,
+        websiteLocale: locale === "en" || locale === "fr" ? locale : null,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      })
+      }
+      transaction.set(bookingRef, { ...bookingData, clientCollectionPath: bookingRef.path })
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not reserve a session from this package."

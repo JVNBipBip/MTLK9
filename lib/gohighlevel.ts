@@ -1,4 +1,5 @@
 import type { BookingFormData } from "@/app/booking/types"
+import { goalLabelsForIssue, intakeResponsesForIssue, issueLabel } from "@/app/booking/constants"
 
 const GHL_API_KEY = process.env.GHL_API_KEY || ""
 const GHL_BASE_URL = "https://services.leadconnectorhq.com"
@@ -35,13 +36,14 @@ async function ghlFetch(path: string, options: RequestInit = {}) {
 }
 
 function buildIntakeNotes(formData: BookingFormData): string {
-  const followUps = Object.entries(formData.followUps || {})
-    .map(([key, value]) => `${key}: ${value}`)
+  const followUps = intakeResponsesForIssue(formData.issue, formData.followUps || {})
+    .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
     .join(", ")
+  const goals = goalLabelsForIssue(formData.issue, formData.goals || [])
   const lines = [
-    `Issue: ${formData.issueOther?.trim() || formData.issue || "Not provided"}`,
+    `Issue: ${issueLabel(formData.issue) || "Not provided"}`,
     `Follow-ups: ${followUps || "Not provided"}`,
-    `Goals: ${formData.goals.join(", ") || "Not provided"}`,
+    `Goals: ${goals.join(", ") || "Not provided"}`,
     `Dog: ${formData.dogName} (${formData.dogBreed || "Unknown breed"}, ${formData.dogAge || "Unknown age"})`,
     `Connect method: ${formData.connectMethod}`,
     `Best time to contact: ${formData.contactBestTime || "Not provided"}`,

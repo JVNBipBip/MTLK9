@@ -3,6 +3,7 @@ import { getConsultationServiceVariationIds, getSquareServiceConfig } from "@/li
 
 const DEFAULT_FACILITY_ROOM_CAPACITY = 2
 const DEFAULT_APPOINTMENT_DURATION_MINUTES = 60
+const SQUARE_BOOKINGS_MAX_RANGE_MS = 30 * 24 * 60 * 60 * 1000
 const ACTIVE_BOOKING_STATUSES = new Set(["accepted", "pending"])
 
 export type FacilityCapacitySlot = {
@@ -67,6 +68,25 @@ function activeFacilityBookingsOverlapping(
   })
 }
 
+async function listSquareBookingsForRange(startIso: string, endIso: string): Promise<SquareBooking[]> {
+  const startMs = new Date(startIso).getTime()
+  const endMs = new Date(endIso).getTime()
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) return []
+
+  const bookings: SquareBooking[] = []
+  for (let cursorMs = startMs; cursorMs < endMs; cursorMs += SQUARE_BOOKINGS_MAX_RANGE_MS) {
+    const chunkEndMs = Math.min(cursorMs + SQUARE_BOOKINGS_MAX_RANGE_MS, endMs)
+    const response = await listSquareBookings({
+      startAtMin: new Date(cursorMs).toISOString(),
+      startAtMax: new Date(chunkEndMs).toISOString(),
+      limit: 200,
+    })
+    bookings.push(...response.bookings)
+  }
+
+  return bookings
+}
+
 export async function isFacilityRoomAvailable(slot: FacilityCapacitySlot): Promise<boolean> {
   const facilityServiceIds = await getFacilityRoomServiceVariationIds()
   if (!facilityServiceIds.has(slot.serviceVariationId)) return true
@@ -75,11 +95,10 @@ export async function isFacilityRoomAvailable(slot: FacilityCapacitySlot): Promi
   const startMs = new Date(slot.startAt).getTime()
   if (!Number.isFinite(startMs)) return false
   const endMs = startMs + durationMinutes * 60_000
-  const { bookings } = await listSquareBookings({
-    startAtMin: new Date(startMs - DEFAULT_APPOINTMENT_DURATION_MINUTES * 60_000).toISOString(),
-    startAtMax: new Date(endMs).toISOString(),
-    limit: 200,
-  })
+  const bookings = await listSquareBookingsForRange(
+    new Date(startMs - DEFAULT_APPOINTMENT_DURATION_MINUTES * 60_000).toISOString(),
+    new Date(endMs).toISOString(),
+  )
 
   return activeFacilityBookingsOverlapping(bookings, facilityServiceIds, startMs, endMs).length < facilityRoomCapacity()
 }
@@ -107,7 +126,7 @@ export async function filterSlotsByFacilityRoomCapacity<T extends FacilityCapaci
   )
   const rangeStart = new Date(Math.min(...startTimes) - maxDurationMinutes * 60_000).toISOString()
   const rangeEnd = new Date(Math.max(...startTimes) + maxDurationMinutes * 60_000).toISOString()
-  const { bookings } = await listSquareBookings({ startAtMin: rangeStart, startAtMax: rangeEnd, limit: 200 })
+  const bookings = await listSquareBookingsForRange(rangeStart, rangeEnd)
 
   return slots.filter((slot) => {
     if (!facilityServiceIds.has(slot.serviceVariationId)) return true

@@ -1,12 +1,12 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { migratedGroupProgramSlotOrder } from "@/lib/group-program-slots"
 import { programLabel } from "@/lib/programs"
 import { getProgramServiceVariationId, getSquareServiceConfig } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { clientBookingRef, clientBookingsCollection, findClientConsultationByAccessTokenHash, upsertClientProfile } from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -32,9 +32,9 @@ export async function POST(request: Request) {
   }
 
   const db = getAdminDb()
-  const consultationRef = db.collection(CONSULTATIONS_COLLECTION).doc(consultationId)
-  const consultationSnap = await consultationRef.get()
-  if (!consultationSnap.exists) {
+  const tokenHash = hashAccessToken(token)
+  const consultationSnap = await findClientConsultationByAccessTokenHash(db, tokenHash, consultationId)
+  if (!consultationSnap) {
     return NextResponse.json({ error: "Consultation not found." }, { status: 404 })
   }
 
@@ -45,10 +45,11 @@ export async function POST(request: Request) {
     clientName?: string
     clientEmail?: string
     dogName?: string
+    preferredLocale?: string | null
+    websiteLocale?: string | null
     status?: string
   }
 
-  const tokenHash = hashAccessToken(token)
   const access = consultation.bookingAccess
   if (
     !access?.tokenHash ||
@@ -58,6 +59,10 @@ export async function POST(request: Request) {
     consultation.status !== "completed"
   ) {
     return NextResponse.json({ error: "Booking access is invalid or expired." }, { status: 401 })
+  }
+  const bookingClientEmail = String(consultation.clientEmail || consultation.clientId || "").trim().toLowerCase()
+  if (!bookingClientEmail) {
+    return NextResponse.json({ error: "Consultation is missing client email." }, { status: 400 })
   }
 
   const recommendedSet = new Set((consultation.recommendedClassTypes || []).map(String))
@@ -76,8 +81,7 @@ export async function POST(request: Request) {
   const squareCfg = await getSquareServiceConfig(null)
   const groupSlotOrder = migratedGroupProgramSlotOrder(squareCfg)
 
-  const duplicateSnap = await db
-    .collection(BOOKINGS_COLLECTION)
+  const duplicateSnap = await clientBookingsCollection(db, bookingClientEmail)
     .where("consultationId", "==", consultationId)
     .where("selectedSlots", "array-contains", selectedSlotKey)
     .limit(1)
@@ -100,7 +104,17 @@ export async function POST(request: Request) {
     note: `Class booking for ${consultation.dogName || "dog"}.`,
   })
 
-  const bookingRef = await db.collection(BOOKINGS_COLLECTION).add({
+  await upsertClientProfile(db, {
+    clientEmail: bookingClientEmail,
+    clientName: consultation.clientName,
+    dogName: consultation.dogName,
+    squareCustomerId: customerId,
+    source: "booking-access-schedule",
+    preferredLocale: consultation.preferredLocale || consultation.websiteLocale,
+  })
+  const bookingRef = clientBookingRef(db, bookingClientEmail)
+  const bookingData = {
+    id: bookingRef.id,
     consultationId,
     clientId: consultation.clientId || "",
     clientName: consultation.clientName || "",
@@ -123,9 +137,12 @@ export async function POST(request: Request) {
     squareBookingStatus: squareBooking.booking?.status || "ACCEPTED",
     squareServiceVariationId: serviceVariationId,
     squareTeamMemberId: teamMemberId,
+    preferredLocale: consultation.preferredLocale || consultation.websiteLocale || null,
+    websiteLocale: consultation.websiteLocale || consultation.preferredLocale || null,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
-  })
+  }
+  await bookingRef.set({ ...bookingData, clientCollectionPath: bookingRef.path })
 
   return NextResponse.json({
     ok: true,

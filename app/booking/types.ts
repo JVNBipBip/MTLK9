@@ -19,6 +19,9 @@ export interface BookingFormData {
   contactNotes: string
   consultationDateTime: string
   consultationSlotKey: string
+  consultationTeamMemberId: string
+  consultationTeamMemberName: string
+  consultationServiceVariationId: string
   consultationLocation: string
   consultationWhat: string
   fbclid: string
@@ -51,6 +54,9 @@ export const INITIAL_FORM_DATA: BookingFormData = {
   contactNotes: "",
   consultationDateTime: "",
   consultationSlotKey: "",
+  consultationTeamMemberId: "",
+  consultationTeamMemberName: "",
+  consultationServiceVariationId: "",
   consultationLocation: "",
   consultationWhat: "In-person evaluation (60-75 minutes)",
   fbclid: "",

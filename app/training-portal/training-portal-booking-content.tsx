@@ -52,6 +52,7 @@ export function TrainingPortalBookingContent({
 
   const activePackage = statusData?.activePrivatePackage || null
   const oneOnOneUpcoming = statusData?.existingBookings.find((b) => b.type === "one_on_one") || null
+  const packageIsExhausted = Boolean(activePackage && (activePackage.status !== "active" || activePackage.sessionsRemaining <= 0))
 
   const staffOptions = useMemo(() => {
     const map = new Map<string, string>()
@@ -203,6 +204,7 @@ export function TrainingPortalBookingContent({
           dogName: dogName.trim(),
           serviceType: selectedServiceType,
           planType: selectedPlanType,
+          locale,
         }),
       })
       const text = await response.text()
@@ -224,6 +226,7 @@ export function TrainingPortalBookingContent({
               version: CONTRACT_VERSION,
               source: "/training-portal/book",
               dogName: dogName.trim(),
+              locale,
             }),
           })
           setPackageContractAlreadyAccepted(true)
@@ -269,6 +272,7 @@ export function TrainingPortalBookingContent({
             clientEmail: clientEmail.trim(),
             dogName: dogName.trim(),
             selectedSlotKey: slotKey,
+            locale,
           }),
         })
         const text = await response.text()
@@ -365,7 +369,9 @@ export function TrainingPortalBookingContent({
                     {SERVICE_TYPE_LABEL[activePackage.serviceType]} · {PLAN_TYPE_LABEL[activePackage.planType]}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {activePackage.sessionsRemaining} session{activePackage.sessionsRemaining === 1 ? "" : "s"} remaining
+                    {packageIsExhausted
+                      ? "All sessions from this package are booked."
+                      : `${activePackage.sessionsRemaining} session${activePackage.sessionsRemaining === 1 ? "" : "s"} remaining`}
                   </p>
                 </div>
                 <Button
@@ -523,6 +529,15 @@ export function TrainingPortalBookingContent({
                 <Button type="button" variant="outline" size="sm" onClick={() => setStaffFilterId("")}>
                   Show all trainers
                 </Button>
+              </div>
+            ) : packageIsExhausted ? (
+              <div className="py-16 text-center text-muted-foreground bg-muted/10 rounded-xl border border-dashed border-border space-y-2">
+                <p>All sessions from this package are already booked.</p>
+                {oneOnOneUpcoming ? (
+                  <p className="text-sm">
+                    Next upcoming session: {formatSlotDate(oneOnOneUpcoming.startAt, locale)} at {formatSlotTime(oneOnOneUpcoming.startAt, locale)}
+                  </p>
+                ) : null}
               </div>
             ) : slots.length > 0 && activePackage ? (
               <div className="space-y-4">

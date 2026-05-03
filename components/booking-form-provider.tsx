@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useState,
+  type ReactElement,
   type ReactNode,
 } from "react"
 import { Mail, Phone, Calendar } from "lucide-react"
@@ -172,18 +173,19 @@ export function ProgramSignupLink({
   }
 
   if (isValidElement(children)) {
-    const childProps = children.props as {
+    const child = children as ReactElement<{
       className?: string
       onClick?: () => void
       type?: string
-    }
+    }>
+    const childProps = child.props
     const mergedClassName = [childProps.className, className].filter(Boolean).join(" ") || undefined
     const mergedType =
-      typeof children.type === "string" && children.type === "button"
+      typeof child.type === "string" && child.type === "button"
         ? (childProps.type ?? "button")
         : childProps.type
 
-    return cloneElement(children, {
+    return cloneElement(child, {
       className: mergedClassName,
       onClick: () => {
         childProps.onClick?.()
@@ -221,18 +223,19 @@ export function BookingLink({
   }
 
   if (isValidElement(children)) {
-    const childProps = children.props as {
+    const child = children as ReactElement<{
       className?: string
       onClick?: () => void
       type?: string
-    }
+    }>
+    const childProps = child.props
     const mergedClassName = [childProps.className, className].filter(Boolean).join(" ") || undefined
     const mergedType =
-      typeof children.type === "string" && children.type === "button"
+      typeof child.type === "string" && child.type === "button"
         ? (childProps.type ?? "button")
         : childProps.type
 
-    return cloneElement(children, {
+    return cloneElement(child, {
       className: mergedClassName,
       onClick: () => {
         childProps.onClick?.()
@@ -270,18 +273,19 @@ export function FreeCallLink({
   }
 
   if (isValidElement(children)) {
-    const childProps = children.props as {
+    const child = children as ReactElement<{
       className?: string
       onClick?: () => void
       type?: string
-    }
+    }>
+    const childProps = child.props
     const mergedClassName = [childProps.className, className].filter(Boolean).join(" ") || undefined
     const mergedType =
-      typeof children.type === "string" && children.type === "button"
+      typeof child.type === "string" && child.type === "button"
         ? (childProps.type ?? "button")
         : childProps.type
 
-    return cloneElement(children, {
+    return cloneElement(child, {
       className: mergedClassName,
       onClick: () => {
         childProps.onClick?.()
@@ -319,18 +323,19 @@ export function TrainingPortalLink({
   }
 
   if (isValidElement(children)) {
-    const childProps = children.props as {
+    const child = children as ReactElement<{
       className?: string
       onClick?: () => void
       type?: string
-    }
+    }>
+    const childProps = child.props
     const mergedClassName = [childProps.className, className].filter(Boolean).join(" ") || undefined
     const mergedType =
-      typeof children.type === "string" && children.type === "button"
+      typeof child.type === "string" && child.type === "button"
         ? (childProps.type ?? "button")
         : childProps.type
 
-    return cloneElement(children, {
+    return cloneElement(child, {
       className: mergedClassName,
       onClick: () => {
         childProps.onClick?.()

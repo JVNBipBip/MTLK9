@@ -1,7 +1,8 @@
-import { FieldValue, type Firestore } from "firebase-admin/firestore"
+import { FieldValue, type DocumentReference, type Firestore } from "firebase-admin/firestore"
 import type { ClassSessionRecord } from "@/lib/domain"
-import { BOOKINGS_COLLECTION, CLASS_SESSIONS_COLLECTION } from "@/lib/domain"
+import { CLASS_SESSIONS_COLLECTION, CLIENTS_COLLECTION } from "@/lib/domain"
 import { programLabel } from "@/lib/programs"
+import { CLIENT_BOOKINGS_SUBCOLLECTION, listClientSubcollectionDocs, queryClientSubcollectionDocsByField } from "@/lib/client-records"
 
 export const GROUP_SERIES_BOOKING_SOURCE = "training-portal-group-series"
 export const GROUP_CLASS_REQUEST_SOURCE = "training-portal-group-class-request"
@@ -14,11 +15,42 @@ function createdAtMs(data: { createdAt?: { toDate?: () => Date } }): number {
   return ts.getTime()
 }
 
+export async function findGroupClassBookingRef(db: Firestore, bookingId: string) {
+  const docs = await queryClientSubcollectionDocsByField(db, CLIENT_BOOKINGS_SUBCOLLECTION, "id", bookingId, 1)
+  if (docs[0]) return docs[0].ref
+  try {
+    const clientsSnap = await db.collection(CLIENTS_COLLECTION).limit(500).get()
+    const refs = clientsSnap.docs.map((doc) => doc.ref.collection(CLIENT_BOOKINGS_SUBCOLLECTION).doc(bookingId))
+    const snaps = refs.length > 0 ? await db.getAll(...refs) : []
+    const found = snaps.find((doc) => doc.exists)
+    if (found) return found.ref
+  } catch {
+    return null
+  }
+  return null
+}
+
+function mirroredBookingRefs(
+  db: Firestore,
+  primaryPath: string,
+  clientCollectionPath?: string,
+) {
+  const refs = new Map<string, DocumentReference>()
+  refs.set(primaryPath, db.doc(primaryPath))
+  if (clientCollectionPath) refs.set(clientCollectionPath, db.doc(clientCollectionPath))
+  return [...refs.values()]
+}
+
 /** Release reserved seats for abandoned group checkouts (no composite index). */
 export async function releaseStaleGroupSeriesHolds(db: Firestore) {
-  const snap = await db.collection(BOOKINGS_COLLECTION).where("source", "==", GROUP_SERIES_BOOKING_SOURCE).limit(100).get()
+  const nestedDocs = (await listClientSubcollectionDocs(db, CLIENT_BOOKINGS_SUBCOLLECTION, 150))
+    .filter((doc) => doc.data().source === GROUP_SERIES_BOOKING_SOURCE)
+    .slice(0, 100)
   const cutoff = Date.now() - HOLD_MS
-  for (const doc of snap.docs) {
+  const seen = new Set<string>()
+  for (const doc of nestedDocs) {
+    if (seen.has(doc.id)) continue
+    seen.add(doc.id)
     const d = doc.data() as {
       paymentStatus?: string
       selectedSessionIds?: string[]
@@ -31,13 +63,14 @@ export async function releaseStaleGroupSeriesHolds(db: Firestore) {
 }
 
 export async function releaseHoldsForGroupBooking(db: Firestore, bookingId: string) {
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  const bookingRef = await findGroupClassBookingRef(db, bookingId)
+  if (!bookingRef) return
   await db.runTransaction(async (t) => {
     // Firestore requires all reads before any writes in a transaction, so
     // read the booking first, then batch-read every session, then emit writes.
     const bSnap = await t.get(bookingRef)
     if (!bSnap.exists) return
-    const bd = bSnap.data() as { paymentStatus?: string; selectedSessionIds?: string[] }
+    const bd = bSnap.data() as { paymentStatus?: string; selectedSessionIds?: string[]; clientCollectionPath?: string }
     if (bd.paymentStatus !== "pending_payment") return
     const sessionIds = bd.selectedSessionIds || []
     const sessionRefs = sessionIds.map((sid) => db.collection(CLASS_SESSIONS_COLLECTION).doc(sid))
@@ -49,16 +82,20 @@ export async function releaseHoldsForGroupBooking(db: Firestore, bookingId: stri
       const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
       t.update(sSnap.ref, { reservedCount: reserved, updatedAt: FieldValue.serverTimestamp() })
     }
-    t.update(bookingRef, {
+    const patch = {
       bookingStatus: "cancelled",
       paymentStatus: "cancelled",
       updatedAt: FieldValue.serverTimestamp(),
-    })
+    }
+    for (const ref of mirroredBookingRefs(db, bookingRef.path, bd.clientCollectionPath)) {
+      t.set(ref, patch, { merge: true })
+    }
   })
 }
 
 export async function confirmGroupClassRequest(db: Firestore, bookingId: string) {
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  const bookingRef = await findGroupClassBookingRef(db, bookingId)
+  if (!bookingRef) return
   await db.runTransaction(async (t) => {
     const bSnap = await t.get(bookingRef)
     if (!bSnap.exists) return
@@ -66,6 +103,7 @@ export async function confirmGroupClassRequest(db: Firestore, bookingId: string)
       source?: string
       bookingStatus?: string
       selectedSessionIds?: string[]
+      clientCollectionPath?: string
     }
     if (bd.source !== GROUP_CLASS_REQUEST_SOURCE) return
     if (bd.bookingStatus === "confirmed") return
@@ -85,19 +123,23 @@ export async function confirmGroupClassRequest(db: Firestore, bookingId: string)
         updatedAt: FieldValue.serverTimestamp(),
       })
     }
-    t.update(bookingRef, {
+    const patch = {
       bookingStatus: "confirmed",
       paymentStatus: "not_required",
       requestStatus: "added_to_square",
       adminActionRequired: false,
       addedToSquareAtIso: new Date().toISOString(),
       updatedAt: FieldValue.serverTimestamp(),
-    })
+    }
+    for (const ref of mirroredBookingRefs(db, bookingRef.path, bd.clientCollectionPath)) {
+      t.set(ref, patch, { merge: true })
+    }
   })
 }
 
 export async function declineGroupClassRequest(db: Firestore, bookingId: string) {
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(bookingId)
+  const bookingRef = await findGroupClassBookingRef(db, bookingId)
+  if (!bookingRef) return
   await db.runTransaction(async (t) => {
     const bSnap = await t.get(bookingRef)
     if (!bSnap.exists) return
@@ -105,6 +147,7 @@ export async function declineGroupClassRequest(db: Firestore, bookingId: string)
       source?: string
       bookingStatus?: string
       selectedSessionIds?: string[]
+      clientCollectionPath?: string
     }
     if (bd.source !== GROUP_CLASS_REQUEST_SOURCE) return
     if (bd.bookingStatus === "cancelled") return
@@ -118,14 +161,17 @@ export async function declineGroupClassRequest(db: Firestore, bookingId: string)
       const reserved = Math.max(0, Number(sd.reservedCount ?? 0) - 1)
       t.update(sSnap.ref, { reservedCount: reserved, updatedAt: FieldValue.serverTimestamp() })
     }
-    t.update(bookingRef, {
+    const patch = {
       bookingStatus: "cancelled",
       paymentStatus: "cancelled",
       requestStatus: "declined",
       adminActionRequired: false,
       declinedAtIso: new Date().toISOString(),
       updatedAt: FieldValue.serverTimestamp(),
-    })
+    }
+    for (const ref of mirroredBookingRefs(db, bookingRef.path, bd.clientCollectionPath)) {
+      t.set(ref, patch, { merge: true })
+    }
   })
 }
 
@@ -187,7 +233,8 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
   db: Firestore,
   input: { bookingId: string; squareOrderId: string; amountCents?: number; eventId?: string | null; eventType?: string | null },
 ) {
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc(input.bookingId)
+  const bookingRef = await findGroupClassBookingRef(db, input.bookingId)
+  if (!bookingRef) return
   const paidAtIso = new Date().toISOString()
   await db.runTransaction(async (t) => {
     const bSnap = await t.get(bookingRef)
@@ -196,6 +243,7 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
       paymentStatus?: string
       source?: string
       selectedSessionIds?: string[]
+      clientCollectionPath?: string
     }
     if (bd.source !== GROUP_SERIES_BOOKING_SOURCE) return
     if (bd.paymentStatus === "paid") return
@@ -216,7 +264,7 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
         updatedAt: FieldValue.serverTimestamp(),
       })
     }
-    t.update(bookingRef, {
+    const patch = {
       paymentStatus: "paid",
       bookingStatus: "confirmed",
       paidAtIso,
@@ -225,7 +273,10 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
       squareWebhookLastEventId: input.eventId ?? null,
       squareWebhookLastEventType: input.eventType ?? null,
       updatedAt: FieldValue.serverTimestamp(),
-    })
+    }
+    for (const ref of mirroredBookingRefs(db, bookingRef.path, bd.clientCollectionPath)) {
+      t.set(ref, patch, { merge: true })
+    }
   })
 }
 

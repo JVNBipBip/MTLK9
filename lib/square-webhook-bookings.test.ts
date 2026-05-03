@@ -3,7 +3,7 @@ jest.mock("./square-service-config", () => ({
 }))
 
 import type { Firestore } from "firebase-admin/firestore"
-import { BOOKINGS_COLLECTION, CONSULTATIONS_COLLECTION, SQUARE_CUSTOMERS_COLLECTION } from "@/lib/domain"
+import { BOOKINGS_COLLECTION, CLIENTS_COLLECTION, CONSULTATIONS_COLLECTION, SQUARE_CUSTOMERS_COLLECTION } from "@/lib/domain"
 import { reconcileSquareBookingWebhook } from "./square-webhook-bookings"
 
 type DocData = Record<string, unknown>
@@ -29,9 +29,19 @@ function deepMerge(target: DocData, source: DocData): DocData {
 
 class FakeDocRef {
   constructor(
+    private db: FakeFirestore,
+    private collectionPath: string,
     private store: Map<string, DocData>,
     readonly id: string,
   ) {}
+
+  get path() {
+    return `${this.collectionPath}/${this.id}`
+  }
+
+  collection(name: string) {
+    return this.db.collection(`${this.path}/${name}`)
+  }
 
   async set(data: DocData, options?: { merge?: boolean }) {
     const existing = this.store.get(this.id) || {}
@@ -48,7 +58,12 @@ class FakeDocRef {
 }
 
 class FakeQuerySnapshot {
-  constructor(private store: Map<string, DocData>, private entries: Array<[string, DocData]>) {}
+  constructor(
+    private db: FakeFirestore,
+    private collectionPath: string,
+    private store: Map<string, DocData>,
+    private entries: Array<[string, DocData]>,
+  ) {}
 
   get empty() {
     return this.entries.length === 0
@@ -57,7 +72,7 @@ class FakeQuerySnapshot {
   get docs() {
     return this.entries.map(([id, data]) => ({
       id,
-      ref: new FakeDocRef(this.store, id),
+      ref: new FakeDocRef(this.db, this.collectionPath, this.store, id),
       data: () => data,
     }))
   }
@@ -65,6 +80,8 @@ class FakeQuerySnapshot {
 
 class FakeQuery {
   constructor(
+    private db: FakeFirestore,
+    private collectionPath: string,
     private store: Map<string, DocData>,
     private field: string,
     private value: unknown,
@@ -78,29 +95,96 @@ class FakeQuery {
 
   async get() {
     const entries = [...this.store.entries()].filter(([, data]) => data[this.field] === this.value)
-    return new FakeQuerySnapshot(this.store, entries.slice(0, this.max))
+    return new FakeQuerySnapshot(this.db, this.collectionPath, this.store, entries.slice(0, this.max))
   }
 }
 
 class FakeCollection {
-  constructor(private store: Map<string, DocData>, private nextId: () => string) {}
+  constructor(
+    private db: FakeFirestore,
+    private path: string,
+    private store: Map<string, DocData>,
+    private nextId: () => string,
+    private max?: number,
+  ) {}
 
   where(field: string, _op: string, value: unknown) {
-    return new FakeQuery(this.store, field, value)
+    return new FakeQuery(this.db, this.path, this.store, field, value)
   }
 
-  doc(id: string) {
-    return new FakeDocRef(this.store, id)
+  doc(id?: string) {
+    return new FakeDocRef(this.db, this.path, this.store, id || this.nextId())
+  }
+
+  limit(n: number) {
+    return new FakeCollection(this.db, this.path, this.store, this.nextId, n)
+  }
+
+  async get() {
+    const entries = [...this.store.entries()].slice(0, this.max)
+    return new FakeQuerySnapshot(this.db, this.path, this.store, entries)
   }
 
   async add(data: DocData) {
     const id = this.nextId()
     this.store.set(id, data)
-    return new FakeDocRef(this.store, id)
+    return new FakeDocRef(this.db, this.path, this.store, id)
   }
 
   all() {
     return [...this.store.entries()].map(([id, data]) => ({ id, data }))
+  }
+}
+
+class FakeGroupQuerySnapshot {
+  constructor(
+    private db: FakeFirestore,
+    private entries: Array<{ collectionPath: string; id: string; data: DocData }>,
+  ) {}
+
+  get empty() {
+    return this.entries.length === 0
+  }
+
+  get docs() {
+    return this.entries.map(({ collectionPath, id, data }) => ({
+      id,
+      ref: new FakeDocRef(this.db, collectionPath, this.db.storeFor(collectionPath), id),
+      data: () => data,
+    }))
+  }
+}
+
+class FakeGroupQuery {
+  constructor(
+    private db: FakeFirestore,
+    private entries: Array<{ collectionPath: string; id: string; data: DocData }>,
+    private field: string,
+    private value: unknown,
+    private max = 1,
+  ) {}
+
+  limit(n: number) {
+    this.max = n
+    return this
+  }
+
+  async get() {
+    return new FakeGroupQuerySnapshot(
+      this.db,
+      this.entries.filter((entry) => entry.data[this.field] === this.value).slice(0, this.max),
+    )
+  }
+}
+
+class FakeGroupCollection {
+  constructor(
+    private db: FakeFirestore,
+    private entries: Array<{ collectionPath: string; id: string; data: DocData }>,
+  ) {}
+
+  where(field: string, _op: string, value: unknown) {
+    return new FakeGroupQuery(this.db, this.entries, field, value)
   }
 }
 
@@ -113,7 +197,31 @@ class FakeFirestore {
       this.collections.set(name, new Map())
     }
     const store = this.collections.get(name)!
-    return new FakeCollection(store, () => `doc_${++this.idCounter}`)
+    return new FakeCollection(this, name, store, () => `doc_${++this.idCounter}`)
+  }
+
+  collectionGroup(name: string) {
+    const entries = [...this.collections.entries()]
+      .filter(([path]) => path.startsWith(`${CLIENTS_COLLECTION}/`) && path.endsWith(`/${name}`))
+      .flatMap(([collectionPath, store]) => [...store.entries()].map(([id, data]) => ({ collectionPath, id, data })))
+    return new FakeGroupCollection(this, entries)
+  }
+
+  storeFor(collectionPath: string) {
+    if (!this.collections.has(collectionPath)) {
+      this.collections.set(collectionPath, new Map())
+    }
+    return this.collections.get(collectionPath)!
+  }
+
+  doc(path: string) {
+    const parts = path.split("/")
+    const id = parts.pop() || ""
+    const collectionPath = parts.join("/")
+    if (!this.collections.has(collectionPath)) {
+      this.collections.set(collectionPath, new Map())
+    }
+    return new FakeDocRef(this, collectionPath, this.collections.get(collectionPath)!, id)
   }
 
   seed(collectionName: string, id: string, data: DocData) {
@@ -121,14 +229,36 @@ class FakeFirestore {
       this.collections.set(collectionName, new Map())
     }
     this.collections.get(collectionName)!.set(id, data)
+    if (collectionName === BOOKINGS_COLLECTION || collectionName === CONSULTATIONS_COLLECTION) {
+      const clientId = String(data.clientEmail || data.clientId || "client@example.com").trim().toLowerCase()
+      const clientStore = this.collection(CLIENTS_COLLECTION)
+      clientStore.doc(clientId).set({ id: clientId, clientId, clientEmail: clientId })
+      const nestedPath = `${CLIENTS_COLLECTION}/${clientId}/${collectionName}`
+      if (!this.collections.has(nestedPath)) {
+        this.collections.set(nestedPath, new Map())
+      }
+      this.collections.get(nestedPath)!.set(id, data)
+    }
   }
 
   data(collectionName: string, id: string) {
+    if (collectionName === BOOKINGS_COLLECTION || collectionName === CONSULTATIONS_COLLECTION) {
+      return this.nestedRows(collectionName).find((row) => row.id === id)?.data
+    }
     return this.collections.get(collectionName)?.get(id)
   }
 
   all(collectionName: string) {
+    if (collectionName === BOOKINGS_COLLECTION || collectionName === CONSULTATIONS_COLLECTION) {
+      return this.nestedRows(collectionName)
+    }
     return this.collection(collectionName).all()
+  }
+
+  private nestedRows(collectionName: string) {
+    return [...this.collections.entries()]
+      .filter(([path]) => path.startsWith(`${CLIENTS_COLLECTION}/`) && path.endsWith(`/${collectionName}`))
+      .flatMap(([, store]) => [...store.entries()].map(([id, data]) => ({ id, data })))
   }
 }
 
@@ -270,6 +400,37 @@ describe("reconcileSquareBookingWebhook", () => {
       bookingStatus: "cancelled",
       squareBookingStatus: "CANCELLED",
       squareWebhookLastEventId: "evt_cancel",
+    })
+  })
+
+  it("marks seller-cancelled consultations as expired locally", async () => {
+    const db = new FakeFirestore()
+    db.seed(CONSULTATIONS_COLLECTION, "consult_doc", {
+      squareConsultationBookingId: "sq_booking_1",
+      status: "scheduled",
+      scheduledAtIso: "2026-04-20T16:00:00.000Z",
+    })
+
+    await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_1", "booking.updated", "evt_seller_cancel"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            status: "CANCELLED_BY_SELLER",
+            updated_at: "2026-04-11T15:30:00.000Z",
+          }),
+        }),
+      },
+    )
+
+    expect(db.data(CONSULTATIONS_COLLECTION, "consult_doc")).toMatchObject({
+      status: "expired",
+      squareConsultationStatus: "CANCELLED_BY_SELLER",
+      squareWebhookLastEventId: "evt_seller_cancel",
+      cancelledAtIso: "2026-04-11T15:30:00.000Z",
+      cancelledBy: "square-webhook",
+      cancellationReason: "CANCELLED_BY_SELLER",
     })
   })
 

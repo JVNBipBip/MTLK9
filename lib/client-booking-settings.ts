@@ -1,10 +1,6 @@
-import {
-  CLIENT_BOOKING_SETTINGS_COLLECTION,
-  clientBookingSettingsDocId,
-  type PrivateLocationAccess,
-  type PrivateTrainingAccess,
-} from "@/lib/domain"
+import { type PrivateLocationAccess, type PrivateTrainingAccess } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { clientBookingSettingsRef } from "@/lib/client-records"
 
 export function defaultPrivateLocationAccess(): PrivateLocationAccess {
   return "facility_only"
@@ -35,10 +31,9 @@ export function privateTrainingBookingAllowed(access: PrivateTrainingAccess): bo
 export async function getClientPrivateLocationAccess(clientEmail: string): Promise<PrivateLocationAccess> {
   const clientId = clientEmail.trim().toLowerCase()
   if (!clientId) return defaultPrivateLocationAccess()
-  const snap = await getAdminDb()
-    .collection(CLIENT_BOOKING_SETTINGS_COLLECTION)
-    .doc(clientBookingSettingsDocId(clientId))
-    .get()
-  if (!snap.exists) return defaultPrivateLocationAccess()
-  return parsePrivateLocationAccess(snap.data()?.privateLocationAccess)
+  const db = getAdminDb()
+  const snap = await clientBookingSettingsRef(db, clientId).get()
+  const data = snap.data()
+  if (!data) return defaultPrivateLocationAccess()
+  return parsePrivateLocationAccess(data.privateLocationAccess)
 }

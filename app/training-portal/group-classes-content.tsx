@@ -203,6 +203,7 @@ export function GroupClassesContent({
             version: CONTRACT_VERSION,
             source: "/training-portal/group-classes",
             dogName: effectiveDogName,
+            locale,
           }),
         }).catch(() => null)
         setGroupContractAlreadyAccepted(true)
@@ -221,12 +222,13 @@ export function GroupClassesContent({
       if (!response.ok || !data.bookingId) {
         throw new Error(data.error || "Could not request this group class.")
       }
+      const bookingId = data.bookingId
       setRequestMsg("Request sent. Staff will review it and email you once it has been accepted or declined.")
       if (requestedSeries?.sessions[0]) {
         setLocalPendingRequests((prev) => [
           ...prev,
           {
-            id: data.bookingId,
+            id: bookingId,
             startAt: requestedSeries.sessions[0].startsAtIso,
             label: `${requestedSeries.programLabel} request`,
           },

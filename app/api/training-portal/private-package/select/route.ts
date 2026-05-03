@@ -4,6 +4,12 @@ import { PRIVATE_TRAINING_PACKAGES_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import {
+  CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION,
+  clientDogRef,
+  clientPrivatePackageRef,
+  upsertClientProfile,
+} from "@/lib/client-records"
+import {
   PRIVATE_PLAN_TYPES,
   PRIVATE_SERVICE_TYPES,
   loadTrainingPortalContext,
@@ -19,6 +25,7 @@ type Payload = {
   dogName?: string
   serviceType?: string
   planType?: string
+  locale?: string
 }
 
 export async function POST(request: Request) {
@@ -34,6 +41,7 @@ export async function POST(request: Request) {
     const dogName = String(payload.dogName || "").trim()
     const serviceType = String(payload.serviceType || "").trim() as PrivateServiceType
     const planType = String(payload.planType || "").trim() as PrivatePlanType
+    const locale = String(payload.locale || "").trim().toLowerCase()
     if (!clientEmail || !dogName || !serviceType || !planType) {
       return NextResponse.json({ error: "clientEmail, dogName, serviceType and planType are required." }, { status: 400 })
     }
@@ -68,18 +76,34 @@ export async function POST(request: Request) {
     const db = getAdminDb()
     const sessionLimit = privatePlanSessionLimit(planType)
     const selectedAtIso = new Date().toISOString()
-    const activeSnap = await db
-      .collection(PRIVATE_TRAINING_PACKAGES_COLLECTION)
-      .where("clientId", "==", portal.clientId)
-      .where("status", "==", "active")
-      .limit(50)
-      .get()
+    await upsertClientProfile(db, {
+      clientEmail,
+      clientName: portal.latestConsultation?.clientName,
+      clientPhone: portal.latestConsultation?.clientPhone,
+      dogName,
+      source: "training-portal-private-package-selection",
+      preferredLocale: locale,
+    })
+    const [activeSnap, nestedActiveSnap] = await Promise.all([
+      db
+        .collection(PRIVATE_TRAINING_PACKAGES_COLLECTION)
+        .where("clientId", "==", portal.clientId)
+        .where("status", "==", "active")
+        .limit(50)
+        .get(),
+      clientDogRef(db, portal.clientId, portal.dogName)
+        .collection(CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION)
+        .where("status", "==", "active")
+        .limit(50)
+        .get(),
+    ])
 
-    const activeForDog = activeSnap.docs.filter((doc) => {
+    const activeForDog = [...activeSnap.docs, ...nestedActiveSnap.docs].filter((doc) => {
       const data = doc.data() as { dogName?: string }
       return String(data.dogName || "").trim().toLowerCase() === portal.dogName
     })
-    const newPackageRef = db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).doc()
+    const newPackageRef = clientPrivatePackageRef(db, clientEmail, dogName)
+    const legacyPackageRef = db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).doc(newPackageRef.id)
 
     await db.runTransaction(async (transaction) => {
       for (const existing of activeForDog) {
@@ -91,7 +115,8 @@ export async function POST(request: Request) {
           updatedAt: FieldValue.serverTimestamp(),
         })
       }
-      transaction.set(newPackageRef, {
+      const packageData = {
+        id: newPackageRef.id,
         consultationId: portal.latestConsultation?.id || null,
         clientId: portal.clientId,
         clientEmail,
@@ -105,9 +130,13 @@ export async function POST(request: Request) {
         status: "active",
         selectedAtIso,
         source: "training-portal-private-package-selection",
+        preferredLocale: locale === "en" || locale === "fr" ? locale : null,
+        websiteLocale: locale === "en" || locale === "fr" ? locale : null,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      })
+      }
+      transaction.set(newPackageRef, packageData)
+      transaction.set(legacyPackageRef, { ...packageData, clientCollectionPath: newPackageRef.path })
     })
 
     return NextResponse.json({

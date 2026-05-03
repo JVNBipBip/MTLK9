@@ -1,4 +1,5 @@
 export const CONSULTATIONS_COLLECTION = "consultations"
+export const CLIENTS_COLLECTION = "clients"
 export const SQUARE_CUSTOMERS_COLLECTION = "square_customers"
 export const SQUARE_SERVICE_CONFIG_COLLECTION = "square_service_config"
 export const CLASS_SESSIONS_COLLECTION = "class_sessions"
@@ -63,15 +64,33 @@ export type ConsultationRecord = {
   dogDuration?: string
   dogSource?: string
   issue?: string
+  issueLabel?: string
   issueOther?: string
+  intakeQuestionVersion?: string
+  intakeResponses?: Array<{
+    questionKey?: string
+    questionLabel?: string
+    answer?: string
+    answerLabel?: string
+  }>
+  intakeResponseSummary?: string
   duration?: string
   tried?: string[]
   impact?: string[]
   goals?: string[]
+  goalLabels?: string[]
   connectMethod?: string
   scheduledAtIso?: string | null
+  consultationDateTime?: string | null
+  consultationSlotKey?: string | null
+  consultationServiceVariationId?: string | null
+  consultationTeamMemberId?: string | null
+  consultationTeamMemberName?: string | null
+  teamMemberId?: string | null
+  teamMemberName?: string | null
   locationId?: string | null
   locationLabel?: string | null
+  consultationLocation?: string | null
   status: ConsultationStatus
   recommendedClassTypes: string[]
   staffNotes?: string
@@ -79,6 +98,9 @@ export type ConsultationRecord = {
   completedBy?: string | null
   noShowAtIso?: string | null
   noShowReason?: string | null
+  cancelledAtIso?: string | null
+  cancelledBy?: string | null
+  cancellationReason?: string | null
   rescheduleCount?: number
   lastRescheduledAtIso?: string | null
   lastRescheduledBy?: string | null

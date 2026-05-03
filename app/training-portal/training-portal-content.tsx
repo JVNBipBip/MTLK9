@@ -200,6 +200,7 @@ export function TrainingPortalContent({
           dogName: effectiveDogName,
           serviceType: selectedServiceType,
           planType: selectedPlanType,
+          locale,
         }),
       })
       const text = await response.text()
@@ -221,6 +222,7 @@ export function TrainingPortalContent({
               version: CONTRACT_VERSION,
               source: "/training-portal",
               dogName: effectiveDogName,
+              locale,
             }),
           })
           setPrivateContractAlreadyAccepted(true)
@@ -350,10 +352,10 @@ export function TrainingPortalContent({
                     <a href="mailto:mtlcaninetraining@gmail.com" className="hover:underline break-all">mtlcaninetraining@gmail.com</a>
                   </div>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-3 max-w-full">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto rounded-full bg-amber-600 hover:bg-amber-700 text-white border-none"
+                    className="w-full lg:w-auto rounded-full bg-amber-600 hover:bg-amber-700 text-white border-none"
                     onClick={() => {
                       onClose?.()
                       openBookingForm()
@@ -361,11 +363,11 @@ export function TrainingPortalContent({
                   >
                     Book Assessment
                   </Button>
-                  <div className="flex gap-2 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto min-w-0">
                     <Button
                       type="button"
                       variant="outline"
-                      className="flex-1 sm:flex-none w-full rounded-full border-amber-200 text-amber-900 hover:bg-amber-100 hover:text-amber-950"
+                      className="flex-1 min-w-0 w-full rounded-full border-amber-200 text-amber-900 hover:bg-amber-100 hover:text-amber-950"
                       onClick={() => {
                         onClose?.()
                         openFreeCallModal()
@@ -374,12 +376,16 @@ export function TrainingPortalContent({
                       <Phone className="w-4 h-4 mr-2" />
                       Call
                     </Button>
-                    <a href="mailto:mtlcaninetraining@gmail.com" className="flex-1 sm:flex-none">
-                      <Button variant="outline" className="w-full rounded-full border-amber-200 text-amber-900 hover:bg-amber-100 hover:text-amber-950">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="flex-1 min-w-0 w-full rounded-full border-amber-200 text-amber-900 hover:bg-amber-100 hover:text-amber-950"
+                    >
+                      <a href="mailto:mtlcaninetraining@gmail.com">
                         <Mail className="w-4 h-4 mr-2" />
                         Email
-                      </Button>
-                    </a>
+                      </a>
+                    </Button>
                   </div>
                 </div>
               </div>

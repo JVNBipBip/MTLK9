@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { BOOKINGS_COLLECTION, CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
+import { CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { sendEmail } from "@/lib/email"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { GROUP_CLASS_REQUEST_SOURCE } from "@/lib/group-class-series"
@@ -8,6 +8,11 @@ import { programLabel } from "@/lib/programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 import { defaultLocale, getIntlLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
+import {
+  clientBookingsCollection,
+  clientBookingRef,
+  upsertClientProfile,
+} from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -144,7 +149,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "You do not have access to this program.", code: "program_not_allowed" }, { status: 403 })
   }
 
-  const dupSnap = await db.collection(BOOKINGS_COLLECTION).where("clientId", "==", portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
+  const dupSnap = await clientBookingsCollection(db, portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
   for (const d of dupSnap.docs) {
     const row = d.data() as { dogName?: string; bookingStatus?: string; paymentStatus?: string }
     if (normalized(String(row.dogName || "")) !== dogNorm) continue
@@ -161,7 +166,15 @@ export async function POST(request: Request) {
 
   const displayName = programLabel(classType) || classType
   const sessionIds = sessions.map((s) => s.id)
-  const bookingRef = db.collection(BOOKINGS_COLLECTION).doc()
+  await upsertClientProfile(db, {
+    clientEmail,
+    clientName: portal.latestConsultation?.clientName,
+    clientPhone: portal.latestConsultation?.clientPhone,
+    dogName: portal.dogName,
+    source: GROUP_CLASS_REQUEST_SOURCE,
+    preferredLocale: locale,
+  })
+  const bookingRef = clientBookingRef(db, clientEmail)
   const bookingId = bookingRef.id
   const requestCreatedAtIso = new Date().toISOString()
 
@@ -184,7 +197,8 @@ export async function POST(request: Request) {
         })
       }
 
-      t.set(bookingRef, {
+      const bookingData = {
+        id: bookingId,
         consultationId: portal.latestConsultation?.id || "training-portal-group-request",
         clientId: portal.clientId,
         clientName: portal.latestConsultation?.clientName || "",
@@ -211,10 +225,13 @@ export async function POST(request: Request) {
         squareServiceVariationId: null,
         squareTeamMemberId: null,
         source: GROUP_CLASS_REQUEST_SOURCE,
+        preferredLocale: locale,
+        websiteLocale: locale,
         requestedAtIso: requestCreatedAtIso,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
-      })
+      }
+      t.set(bookingRef, { ...bookingData, clientCollectionPath: bookingRef.path })
     })
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not reserve seats"
@@ -236,14 +253,12 @@ export async function POST(request: Request) {
     locale,
   })
 
-  await bookingRef.set(
-    {
-      notificationEmailSent: notification.sent,
-      notificationEmailError: notification.sent ? null : notification.reason || "Email not sent",
-      updatedAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true },
-  )
+  const notificationPatch = {
+    notificationEmailSent: notification.sent,
+    notificationEmailError: notification.sent ? null : notification.reason || "Email not sent",
+    updatedAt: FieldValue.serverTimestamp(),
+  }
+  await bookingRef.set(notificationPatch, { merge: true })
 
   return NextResponse.json({
     ok: true,

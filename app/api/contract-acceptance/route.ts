@@ -1,8 +1,14 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
-import { CONTRACT_ACCEPTANCES_COLLECTION, type ContractKind } from "@/lib/domain"
+import { type ContractKind } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { CONTRACT_VERSION } from "@/lib/contract-terms"
+import {
+  CLIENT_CONTRACT_ACCEPTANCES_SUBCOLLECTION,
+  clientDocRef,
+  clientContractAcceptanceRef,
+  upsertClientProfile,
+} from "@/lib/client-records"
 
 export const runtime = "nodejs"
 
@@ -25,13 +31,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Invalid contractKind." }, { status: 400 })
   }
 
-  const snap = await getAdminDb()
-    .collection(CONTRACT_ACCEPTANCES_COLLECTION)
-    .where("clientEmail", "==", clientEmail)
-    .limit(100)
-    .get()
+  const db = getAdminDb()
+  const nestedSnap = await clientDocRef(db, clientEmail).collection(CLIENT_CONTRACT_ACCEPTANCES_SUBCOLLECTION).limit(100).get()
 
-  const match = snap.docs
+  const match = nestedSnap.docs
     .map((doc) => ({ id: doc.id, ...(doc.data() as { contractKind?: string; version?: string; acceptedAtIso?: string }) }))
     .find((row) => row.contractKind === contractKind && row.version === version)
 
@@ -49,6 +52,7 @@ export async function POST(request: Request) {
     version?: string
     source?: string
     dogName?: string
+    locale?: string
   }
   try {
     body = await request.json()
@@ -67,18 +71,29 @@ export async function POST(request: Request) {
   const version = String(body.version || CONTRACT_VERSION).trim() || CONTRACT_VERSION
   const source = String(body.source || "").trim().slice(0, 500)
   const dogName = String(body.dogName || "").trim().slice(0, 200)
+  const locale = String(body.locale || "").trim().toLowerCase()
 
   const acceptedAtIso = new Date().toISOString()
   const db = getAdminDb()
-  const ref = await db.collection(CONTRACT_ACCEPTANCES_COLLECTION).add({
+  await upsertClientProfile(db, {
+    clientEmail,
+    dogName,
+    source: `contract-${body.contractKind}`,
+    preferredLocale: locale,
+  })
+  const ref = clientContractAcceptanceRef(db, clientEmail)
+  const acceptance = {
+    id: ref.id,
     clientEmail,
     contractKind: body.contractKind,
     version,
     acceptedAtIso,
     source: source || null,
     dogName: dogName || null,
+    preferredLocale: locale === "en" || locale === "fr" ? locale : null,
     createdAt: FieldValue.serverTimestamp(),
-  })
+  }
+  await ref.set({ ...acceptance, clientCollectionPath: ref.path })
 
   return NextResponse.json({ ok: true, id: ref.id })
 }

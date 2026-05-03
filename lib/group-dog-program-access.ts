@@ -1,7 +1,10 @@
-import { CLIENT_BOOKING_SETTINGS_COLLECTION, DOG_CLASS_ACCESS_COLLECTION, clientBookingSettingsDocId } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { currentGroupClassProgramIds } from "@/lib/group-class-programs"
 import { programLabel } from "@/lib/programs"
+import {
+  clientBookingSettingsRef,
+  clientGroupAccessCollection,
+} from "@/lib/client-records"
 
 export function normalizedDogKey(dogName: string) {
   return dogName.trim().toLowerCase()
@@ -49,19 +52,14 @@ export async function buildApprovedGroupClassesForClientDog(
   const db = getAdminDb()
   const dogKey = normalizedDogKey(dogNameExact)
 
-  const [settingsSnap, classAccessSnap] = await Promise.all([
-    db.collection(CLIENT_BOOKING_SETTINGS_COLLECTION).doc(clientBookingSettingsDocId(clientIdNorm)).get(),
-    db
-      .collection(DOG_CLASS_ACCESS_COLLECTION)
-      .where("clientId", "==", clientIdNorm)
-      .where("dogName", "==", dogNameExact)
-      .where("status", "==", "allowed")
-      .get(),
+  const [nestedSettingsSnap, nestedClassAccessSnap] = await Promise.all([
+    clientBookingSettingsRef(db, clientIdNorm).get(),
+    clientGroupAccessCollection(db, clientIdNorm, dogNameExact).where("status", "==", "allowed").get(),
   ])
 
   const fromDoc = new Map<string, { classLabel: string; squareServiceVariationId: string }>()
   const explicitIds: string[] = []
-  for (const doc of classAccessSnap.docs) {
+  for (const doc of nestedClassAccessSnap.docs) {
     const data = doc.data() as { classTypeId?: string; classLabel?: string; squareServiceVariationId?: string }
     const classTypeId = String(data.classTypeId || "").trim()
     if (!classTypeId) continue
@@ -72,7 +70,8 @@ export async function buildApprovedGroupClassesForClientDog(
     })
   }
 
-  const mergedIds = await mergeAllowedGroupProgramIds(explicitIds, settingsSnap.data(), dogKey)
+  const settingsData = nestedSettingsSnap.data()
+  const mergedIds = await mergeAllowedGroupProgramIds(explicitIds, settingsData, dogKey)
   if (mergedIds.length === 0) return []
 
   return mergedIds.map((classTypeId) => {

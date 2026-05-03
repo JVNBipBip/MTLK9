@@ -225,6 +225,9 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
         ...prev,
         consultationSlotKey: "",
         consultationDateTime: "",
+        consultationTeamMemberId: "",
+        consultationTeamMemberName: "",
+        consultationServiceVariationId: "",
       }))
     },
     [],
@@ -272,6 +275,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             version: CONTRACT_VERSION,
             source: "/booking",
             dogName: formData.dogName.trim(),
+            locale,
           }),
         })
       } catch {
@@ -596,6 +600,9 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                         updateFormData({
                                           consultationDateTime: slot.startAt,
                                           consultationSlotKey: slot.slotKey,
+                                          consultationTeamMemberId: slot.teamMemberId || "",
+                                          consultationTeamMemberName: slot.teamMemberName || "",
+                                          consultationServiceVariationId: slot.slotKey.split("|")[1] || "",
                                           consultationLocation: CONSULTATION_LOCATION,
                                           consultationWhat: "In-person assessment",
                                         })

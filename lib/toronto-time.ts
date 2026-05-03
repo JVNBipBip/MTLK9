@@ -9,6 +9,17 @@ const ymdFormatter = new Intl.DateTimeFormat("en-CA", {
   day: "2-digit",
 })
 
+const dateTimeFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: TORONTO_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+})
+
 const weekdayShortFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: TORONTO_TIME_ZONE,
   weekday: "short",
@@ -63,4 +74,28 @@ export function addTorontoDays(date: Date, days: number) {
 export function torontoWeekdayIndex(date: Date) {
   const short = weekdayShortFormatter.format(date)
   return WEEKDAY_INDEX_BY_SHORT[short] ?? 0
+}
+
+function torontoDateTimeParts(date: Date) {
+  const parts = dateTimeFormatter.formatToParts(date)
+  const get = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value)
+  return {
+    year: get("year"),
+    month: get("month"),
+    day: get("day"),
+    hour: get("hour"),
+    minute: get("minute"),
+    second: get("second"),
+  }
+}
+
+export function formatTorontoDateTime(value?: string | null, fallback = "—") {
+  if (!value) return fallback
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return fallback
+  const parts = torontoDateTimeParts(date)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const hour12 = parts.hour % 12 || 12
+  const meridiem = parts.hour < 12 ? "a.m." : "p.m."
+  return `${parts.year}-${pad(parts.month)}-${pad(parts.day)}, ${hour12}:${pad(parts.minute)}:${pad(parts.second)} ${meridiem}`
 }

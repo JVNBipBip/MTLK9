@@ -184,6 +184,49 @@ export const BEST_TIME_OPTIONS = [
   { value: "no-preference", label: "No preference" },
 ]
 
+export type IntakeQuestionAnswer = {
+  questionKey: string
+  questionLabel: string
+  answer: string
+  answerLabel: string
+}
+
+export function optionLabel(options: Array<{ value: string; label: string }>, value: string) {
+  return options.find((option) => option.value === value)?.label || value
+}
+
+export function issueLabel(value: string) {
+  return optionLabel(ISSUE_OPTIONS, value)
+}
+
+export function goalLabelsForIssue(issue: string, values: string[]) {
+  const options = GOALS_OPTIONS_BY_ISSUE[issue] || []
+  return values.map((value) => optionLabel(options, value)).filter(Boolean)
+}
+
+export function intakeResponsesForIssue(issue: string, followUps: Record<string, string>): IntakeQuestionAnswer[] {
+  const questions = FOLLOW_UP_QUESTIONS_BY_ISSUE[issue] || []
+  return questions
+    .map((question) => {
+      const answer = followUps[question.value]
+      if (!answer) return null
+      const choices =
+        question.kind === "yes-no"
+          ? [
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+            ]
+          : question.choices || []
+      return {
+        questionKey: question.value,
+        questionLabel: question.label,
+        answer,
+        answerLabel: optionLabel(choices, answer),
+      }
+    })
+    .filter((response): response is IntakeQuestionAnswer => Boolean(response))
+}
+
 // Internal routing logic for CRM tagging
 export const ISSUE_SERVICE_MAP: Record<string, string> = {
   "puppy-out-of-control": "Puppy Training",
