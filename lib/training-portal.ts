@@ -22,6 +22,7 @@ export const ONE_ON_ONE_PROGRAM_ID = "one-on-one-training"
 export const ONE_ON_ONE_PROGRAM_LABEL = "1-on-1 Training"
 export const PRIVATE_SERVICE_TYPES = ["in_facility", "in_home"] as const
 export const PRIVATE_PLAN_TYPES = ["pack_3", "pack_5", "pack_7", "unit"] as const
+export const SELECTABLE_PRIVATE_PLAN_TYPES = ["pack_3", "pack_5", "pack_7"] as const
 export type PrivateServiceType = (typeof PRIVATE_SERVICE_TYPES)[number]
 export type PrivatePlanType = (typeof PRIVATE_PLAN_TYPES)[number]
 
@@ -412,10 +413,14 @@ export async function loadTrainingPortalContext(input: {
   }
 
   const nowIso = new Date().toISOString()
+  const nestedPrivatePackages = nestedPrivatePackageDocs
+    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
+    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
+  const legacyPrivatePackages = privatePackageDocs
+    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
+    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
   const activePrivatePackage = pickLatestActivePackage(
-    [...privatePackageDocs, ...nestedPrivatePackageDocs]
-      .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
-      .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm),
+    nestedPrivatePackages.length > 0 ? nestedPrivatePackages : legacyPrivatePackages,
   )
   const packageSelectionRequired =
     Boolean(assessmentCompleted) &&

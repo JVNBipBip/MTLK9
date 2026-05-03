@@ -12,6 +12,7 @@ import {
 import {
   PRIVATE_PLAN_TYPES,
   PRIVATE_SERVICE_TYPES,
+  SELECTABLE_PRIVATE_PLAN_TYPES,
   loadTrainingPortalContext,
   privatePlanSessionLimit,
   type PrivatePlanType,
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     if (!PRIVATE_SERVICE_TYPES.includes(serviceType)) {
       return NextResponse.json({ error: "Invalid serviceType." }, { status: 400 })
     }
-    if (!PRIVATE_PLAN_TYPES.includes(planType)) {
+    if (!PRIVATE_PLAN_TYPES.includes(planType) || !SELECTABLE_PRIVATE_PLAN_TYPES.includes(planType as (typeof SELECTABLE_PRIVATE_PLAN_TYPES)[number])) {
       return NextResponse.json({ error: "Invalid planType." }, { status: 400 })
     }
 

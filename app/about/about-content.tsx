@@ -37,17 +37,17 @@ const trainers = [
     photo: "/images/team/tyson.jpg",
   },
   {
-    name: "Jessica Banks",
+    name: "Mia M",
     title: "Trainer",
-    years: "8+ years",
-    specialty: "Confidence-building, reactivity, obedience",
+    years: "Trainer",
+    specialty: "Private training, group classes, client coaching",
     origin:
-      "Animals have always been central to Jessica's life. She owns two dogs — Bones the husky and Fish the chihuahua — both raised from puppyhood. After eight years in dog grooming, she pursued training full-time, completing the MTL Canine Training Program with over 80 hours of hands-on experience.",
-    superpower: "Helps fearful dogs find their confidence without force or flooding.",
+      "Mia is joining the Montreal Canine Training team to support clients through private training, group classes, and day-to-day coaching. Her full bio and team photo are coming soon.",
+    superpower: "Helps owners feel clear, supported, and confident while they build better habits with their dogs.",
     personal:
-      "She specializes in confidence-building, reactivity, and obedience training.",
-    photoDesc: "Jessica sitting calmly with a nervous dog in a quiet, low-stimulus environment",
-    photo: "/images/team/jessica.jpg",
+      "She works with the team to create practical training plans that fit real family routines.",
+    photoDesc: "Placeholder portrait for Mia M",
+    photo: null,
   },
 ]
 
@@ -152,15 +152,22 @@ export function AboutContent() {
                 className="snap-center shrink-0 w-[92%] sm:w-[88%] md:w-auto md:shrink"
               >
                 <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
-                  {/* Photo placeholder */}
                   <div className="relative aspect-[4/3] bg-muted" aria-label={trainer.photoDesc}>
-                    <Image
-                      src={trainer.photo}
-                      alt={trainer.photoDesc}
-                      fill
-                      className={`object-cover ${trainer.photoPosition ?? ""}`}
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
+                    {trainer.photo ? (
+                      <Image
+                        src={trainer.photo}
+                        alt={trainer.photoDesc}
+                        fill
+                        className={`object-cover ${trainer.photoPosition ?? ""}`}
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-secondary/10">
+                        <div className="flex h-24 w-24 items-center justify-center rounded-full border border-border bg-card text-3xl font-semibold text-primary shadow-sm">
+                          MM
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 lg:p-8 flex flex-col flex-grow">
                     <div className="flex items-baseline gap-2 mb-2">

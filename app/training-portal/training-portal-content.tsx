@@ -58,6 +58,7 @@ export function TrainingPortalContent({
 
   const selectionMatchesActive = useMemo(() => {
     if (!activePackage) return false
+    if (activePackage.status !== "active" || activePackage.sessionsRemaining <= 0) return false
     return (
       selectedServiceType === activePackage.serviceType && selectedPlanType === activePackage.planType
     )
@@ -447,9 +448,6 @@ export function TrainingPortalContent({
                             <div key={booking.id} className="rounded-lg border border-border p-3">
                               <p className="font-medium">{booking.label}</p>
                               <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt, intlLocale)}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Status: {booking.bookingStatus || "-"} {booking.squareBookingStatus ? `(${booking.squareBookingStatus})` : ""}
-                              </p>
                             </div>
                           ))}
                         </div>
@@ -472,27 +470,6 @@ export function TrainingPortalContent({
                           <p className="text-sm text-muted-foreground">
                             Choose the package first. Payment is collected in-store, and each booking consumes one session.
                           </p>
-                          {activePackage ? (
-                            <div className="rounded-lg border border-border p-3 space-y-1">
-                              {statusData.inHomeBookingAllowed !== true && activePackage.serviceType === "in_home" ? (
-                                <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-2 mb-2">
-                                  Your package is in-home, but in-home booking is not enabled on your account. Contact us to restore access or ask staff to switch you to in-facility.
-                                </p>
-                              ) : null}
-                              <p className="font-medium">
-                                Active: {SERVICE_TYPE_LABEL[activePackage.serviceType]} · {PLAN_TYPE_LABEL[activePackage.planType]}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                Sessions: {activePackage.sessionsRemaining} remaining / {activePackage.sessionLimit} total
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Payment: {activePackage.paymentStatus === "pending_in_store" ? "Pending in-store" : activePackage.paymentStatus}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No active private package yet.</p>
-                          )}
-
                           <div className="grid gap-3 md:grid-cols-2">
                             <div className="space-y-2">
                               <p className="text-sm font-medium">Service type</p>
@@ -524,7 +501,7 @@ export function TrainingPortalContent({
                             <div className="space-y-2">
                               <p className="text-sm font-medium">Package option</p>
                               <div className="space-y-2">
-                                {(["pack_3", "pack_5", "pack_7", "unit"] as const).map((plan) => (
+                                {(["pack_3", "pack_5", "pack_7"] as const).map((plan) => (
                                   <label key={plan} className="flex items-center gap-2 text-sm">
                                     <input type="radio" checked={selectedPlanType === plan} onChange={() => setSelectedPlanType(plan)} />
                                     {PLAN_TYPE_LABEL[plan]}

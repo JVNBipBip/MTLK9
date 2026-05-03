@@ -24,6 +24,34 @@ import {
   WEEKDAYS,
 } from "./training-portal-utils"
 
+type CalendarBooking = StatusResponse["privateUpcomingBookings"][number]
+
+function bookingsInWeek(bookings: CalendarBooking[], weekOffset: number) {
+  const { start, end } = getWeekRange(weekOffset)
+  const startMs = start.getTime()
+  const endMs = end.getTime()
+  return bookings.filter((booking) => {
+    const ms = new Date(booking.startAt).getTime()
+    return ms >= startMs && ms <= endMs
+  })
+}
+
+function bookingsByWeekday(bookings: CalendarBooking[]) {
+  const byDay: Record<number, CalendarBooking[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+  for (const booking of bookings) {
+    const day = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Toronto",
+      weekday: "short",
+    }).format(new Date(booking.startAt))
+    const idx = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(day)
+    if (idx >= 0) byDay[idx].push(booking)
+  }
+  for (const key of Object.keys(byDay)) {
+    byDay[Number(key)].sort((a, b) => a.startAt.localeCompare(b.startAt))
+  }
+  return byDay
+}
+
 export function TrainingPortalBookingContent({
   clientEmail,
   dogName,
@@ -47,6 +75,7 @@ export function TrainingPortalBookingContent({
   const [staffFilterId, setStaffFilterId] = useState("")
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [bookingResult, setBookingResult] = useState<{ booked: number; duplicates: number } | null>(null)
   const [packageContractAccepted, setPackageContractAccepted] = useState(false)
   const [packageContractAlreadyAccepted, setPackageContractAlreadyAccepted] = useState(false)
 
@@ -145,6 +174,7 @@ export function TrainingPortalBookingContent({
   const loadOneOnOneSlots = useCallback(async () => {
     setError(null)
     setSuccessMessage(null)
+    setBookingResult(null)
     setIsLoadingSlots(true)
     try {
       const response = await fetch("/api/training-portal/one-on-one-slots", {
@@ -194,6 +224,7 @@ export function TrainingPortalBookingContent({
     }
     setError(null)
     setSuccessMessage(null)
+    setBookingResult(null)
     setIsSelectingPackage(true)
     try {
       const response = await fetch("/api/training-portal/private-package/select", {
@@ -260,6 +291,7 @@ export function TrainingPortalBookingContent({
     if (selectedSlotKeys.length === 0) return
     setError(null)
     setSuccessMessage(null)
+    setBookingResult(null)
     setIsBooking(true)
     let booked = 0
     let duplicates = 0
@@ -293,6 +325,7 @@ export function TrainingPortalBookingContent({
       setSlots([])
       setSelectedSlotKeys([])
       await fetchStatus({ silent: true })
+      setBookingResult({ booked, duplicates })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create booking.")
     } finally {
@@ -317,6 +350,51 @@ export function TrainingPortalBookingContent({
         <Link href="/services">
           <Button variant="outline">Back to services</Button>
         </Link>
+      </div>
+    )
+  }
+
+  if (bookingResult) {
+    const total = bookingResult.booked + bookingResult.duplicates
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 py-16">
+        <section className="w-full max-w-xl rounded-2xl border border-border bg-card p-8 shadow-sm text-center space-y-6">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-700">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Private session booked</h1>
+            <p className="text-muted-foreground">
+              {bookingResult.booked > 0
+                ? `${bookingResult.booked} private training session${bookingResult.booked === 1 ? "" : "s"} confirmed.`
+                : `${total} selected session${total === 1 ? "" : "s"} were already booked.`}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Payment is collected in-store. We also saved this booking in your training portal.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {statusData?.activePrivatePackage && statusData.activePrivatePackage.sessionsRemaining > 0 ? (
+              <button
+                type="button"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 font-semibold text-primary-foreground"
+                onClick={() => {
+                  setBookingResult(null)
+                  setSuccessMessage(null)
+                  void loadOneOnOneSlots()
+                }}
+              >
+                Book another session
+              </button>
+            ) : null}
+            <Link
+              href="/"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-border px-6 font-semibold text-foreground"
+            >
+              Back to home
+            </Link>
+          </div>
+        </section>
       </div>
     )
   }
@@ -415,7 +493,7 @@ export function TrainingPortalBookingContent({
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Package option</p>
                       <div className="space-y-2">
-                        {(["pack_3", "pack_5", "pack_7", "unit"] as const).map((plan) => (
+                        {(["pack_3", "pack_5", "pack_7"] as const).map((plan) => (
                           <label key={plan} className="flex items-center gap-2 text-sm p-2 rounded hover:bg-muted/50 cursor-pointer">
                             <input
                               type="radio"
@@ -559,6 +637,9 @@ export function TrainingPortalBookingContent({
                 {(() => {
                   const weekSlots = slotsInWeek(filteredSlots, weekOffset)
                   const byDay = slotsByWeekday(weekSlots)
+                  const bookedByDay = bookingsByWeekday(
+                    bookingsInWeek(statusData.privateUpcomingBookings.filter((booking) => booking.type === "one_on_one"), weekOffset),
+                  )
                   const hasPrev = weekOffset > 0
                   const hasNext = filteredSlots.some((s) => {
                     const { end } = getWeekRange(weekOffset + 1)
@@ -618,6 +699,23 @@ export function TrainingPortalBookingContent({
                                   </p>
                                 </div>
                                 <div className="p-3 space-y-3 flex-1 bg-muted/5">
+                                  {(bookedByDay[dayIdx] || []).map((booking) => (
+                                    <div
+                                      key={`booked-${booking.id}`}
+                                      className="w-full rounded-xl border border-green-200 bg-green-50 p-4 text-left shadow-sm"
+                                    >
+                                      <div className="flex items-center justify-between gap-2">
+                                        <span className="text-lg font-bold text-green-900">
+                                          {formatSlotTime(booking.startAt, locale)}
+                                        </span>
+                                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">
+                                          Booked
+                                        </span>
+                                      </div>
+                                      <p className="mt-1 text-sm font-medium text-green-950">{booking.label}</p>
+                                      <p className="text-xs text-green-800/80">Already scheduled for this dog</p>
+                                    </div>
+                                  ))}
                                   {(byDay[dayIdx] || []).map((slot) => {
                                     const isSelected = selectedSlotKeys.includes(slot.slotKey)
                                     const atLimit = selectedSlotKeys.length >= activePackage.sessionsRemaining
