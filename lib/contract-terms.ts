@@ -135,12 +135,12 @@ export const CONTRACT_LINK_LABEL: Record<AppLocale, Partial<Record<ContractKind,
   en: {
     private_classes: "View private training agreement",
     group_classes: "View group class agreement",
-    assessment_booking: "View evaluation agreement",
+    assessment_booking: "View consultation agreement",
   },
   fr: {
     private_classes: "Voir l'entente d'entraînement privé",
     group_classes: "Voir l'entente de cours de groupe",
-    assessment_booking: "Voir l'entente d'évaluation",
+    assessment_booking: "Voir l'entente de consultation",
   },
 }
 
@@ -148,12 +148,12 @@ export const CONTRACT_ACCEPTANCE_LABEL: Record<AppLocale, Partial<Record<Contrac
   en: {
     private_classes: "I have read and agree to the private training agreement.",
     group_classes: "I have read and agree to the group class agreement.",
-    assessment_booking: "I have read and agree to the evaluation agreement.",
+    assessment_booking: "I have read and agree to the consultation agreement.",
   },
   fr: {
     private_classes: "J'ai lu et j'accepte l'entente d'entraînement privé.",
     group_classes: "J'ai lu et j'accepte l'entente de cours de groupe.",
-    assessment_booking: "J'ai lu et j'accepte l'entente d'évaluation.",
+    assessment_booking: "J'ai lu et j'accepte l'entente de consultation.",
   },
 }
 

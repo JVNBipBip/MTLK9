@@ -397,9 +397,9 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">Pick your assessment time</h3>
+                <h3 className="text-lg font-semibold text-foreground">Pick your consultation slot</h3>
                 <p className="text-sm text-muted-foreground">
-                  Choose your preferred in-house assessment slot. No payment is required on the website.
+                  Pick your consultation slot.
                 </p>
               </div>
 

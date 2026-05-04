@@ -194,7 +194,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       contactBestTime?: string
       contactNotes?: string
     }
-    if (data.initialPaymentStatus === "paid") return
+    if (data.initialPaymentStatus === "paid" && data.squareConsultationBookingId) return
     if (data.initialPaymentProvider !== "square") return
     if (data.initialPaymentAmountCents !== CONSULTATION_DEPOSIT_AMOUNT_CENTS) return
     if (amountCents != null && Number.isFinite(amountCents) && amountCents < CONSULTATION_DEPOSIT_AMOUNT_CENTS) return
@@ -277,7 +277,6 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     const squareCustomerId = await getOrCreateSquareCustomer({
       name: claim.clientName,
       email: claim.clientEmail,
-      phone: claim.clientPhone,
     })
     const idempotencyKey = crypto
       .createHash("sha256")

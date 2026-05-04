@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { CheckCircle2 } from "lucide-react"
 import { noIndexMetadata } from "@/lib/seo"
 import { FacebookCheckoutSuccessEvent } from "./facebook-checkout-success-event"
 
@@ -35,6 +36,9 @@ export default async function CheckoutSuccessPage({ searchParams }: SuccessPageP
     <main className="min-h-screen bg-background text-foreground flex items-center justify-center px-6 py-16">
       <FacebookCheckoutSuccessEvent checkoutType={type} recordId={recordId} />
       <section className="w-full max-w-xl rounded-2xl border border-border bg-card p-8 shadow-sm text-center">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <CheckCircle2 className="h-9 w-9" aria-hidden="true" />
+        </div>
         <h1 className="text-3xl font-bold tracking-tight mb-3">{titleForType(type)}</h1>
         <p className="text-muted-foreground mb-6">{subtitleForType(type)}</p>
 
