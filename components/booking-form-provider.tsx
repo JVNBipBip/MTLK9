@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { BookingContent } from "@/app/booking/booking-content"
 import { ProgramSignupContent } from "@/app/program-signup/program-signup-content"
 import { TrainingPortalContent } from "@/app/training-portal/training-portal-content"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 type BookingFormContextType = {
   openBookingForm: () => void
@@ -33,6 +34,7 @@ export function useBookingForm() {
 }
 
 export function BookingFormProvider({ children }: { children: ReactNode }) {
+  const t = useLocalizedText()
   const [bookingOpen, setBookingOpen] = useState(false)
   const [bookingFormKey, setBookingFormKey] = useState(0)
   const [programSignupOpen, setProgramSignupOpen] = useState(false)
@@ -89,7 +91,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           showCloseButton={false}
           className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
         >
-          <DialogTitle className="sr-only">Book your evaluation</DialogTitle>
+          <DialogTitle className="sr-only">{t("Book your evaluation")}</DialogTitle>
           <BookingContent key={bookingFormKey} onClose={closeBookingForm} />
         </DialogContent>
       </Dialog>
@@ -98,18 +100,18 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           showCloseButton={false}
           className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
         >
-          <DialogTitle className="sr-only">Program sign-up</DialogTitle>
+          <DialogTitle className="sr-only">{t("Program sign-up")}</DialogTitle>
           <ProgramSignupContent key={programSignupKey} onClose={closeProgramSignupForm} />
         </DialogContent>
       </Dialog>
       <Dialog open={freeCallOpen} onOpenChange={setFreeCallOpen}>
         <DialogContent className="w-[95vw] max-w-[520px] rounded-2xl p-0 overflow-hidden">
-          <DialogTitle className="sr-only">Contact us for a free call</DialogTitle>
+          <DialogTitle className="sr-only">{t("Contact us for a free call")}</DialogTitle>
           <div className="p-6 sm:p-7 space-y-5">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight">Contact Us for a Free Call</h3>
+              <h3 className="text-xl font-semibold tracking-tight">{t("Contact Us for a Free Call")}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Reach us directly and we will guide you to the right next step.
+                {t("Reach us directly and we will guide you to the right next step.")}
               </p>
             </div>
             <div className="space-y-3">
@@ -119,7 +121,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
               >
                 <span className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-primary" />
-                  <span className="font-medium">Call us</span>
+                  <span className="font-medium">{t("Call us")}</span>
                 </span>
                 <span className="text-sm text-muted-foreground">514 826 9558</span>
               </a>
@@ -129,7 +131,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
               >
                 <span className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-primary" />
-                  <span className="font-medium">Email us</span>
+                  <span className="font-medium">{t("Email us")}</span>
                 </span>
                 <span className="text-sm text-muted-foreground">mtlcaninetraining@gmail.com</span>
               </a>
@@ -137,7 +139,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
             <div className="pt-2 border-t border-border">
               <Button type="button" className="w-full rounded-full" onClick={handleOpenAssessmentFromFreeCall}>
                 <Calendar className="w-4 h-4 mr-2" />
-                Book your in-person assessment
+                {t("Book your in-person assessment")}
               </Button>
             </div>
           </div>
@@ -148,7 +150,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           showCloseButton={false}
           className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[1400px] sm:h-[90dvh] sm:shadow-2xl"
         >
-          <DialogTitle className="sr-only">Private training portal</DialogTitle>
+          <DialogTitle className="sr-only">{t("Private training portal")}</DialogTitle>
           <TrainingPortalContent key={trainingPortalKey} onClose={closeTrainingPortal} mode="private_only" />
         </DialogContent>
       </Dialog>

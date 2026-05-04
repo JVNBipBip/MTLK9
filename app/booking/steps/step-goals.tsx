@@ -1,11 +1,15 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useAppLocale } from "@/components/locale-provider"
 import { Check } from "lucide-react"
 import { GOALS_OPTIONS_BY_ISSUE } from "../constants"
+import { bookingOptionLabel, bookingStepCopy } from "../translations"
 import type { StepProps } from "../types"
 
 export function StepGoals({ formData, updateFormData }: StepProps) {
+  const locale = useAppLocale()
+  const copy = bookingStepCopy[locale]
   const goalOptions = GOALS_OPTIONS_BY_ISSUE[formData.issue] || []
 
   const toggle = (value: string) => {
@@ -20,14 +24,14 @@ export function StepGoals({ formData, updateFormData }: StepProps) {
     <div className="space-y-3">
       <div>
         <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-1">
-          What would success look like for you?
+          {copy.goalsTitle}
         </h2>
-        <p className="text-sm text-muted-foreground">Check all that apply.</p>
+        <p className="text-sm text-muted-foreground">{copy.checkAllThatApply}</p>
       </div>
 
       {goalOptions.length === 0 ? (
         <div className="rounded-xl border border-border bg-muted/20 p-4 text-sm text-muted-foreground">
-          Thanks, we have the details we need for this category.
+          {copy.goalsComplete}
         </div>
       ) : (
         <div className="space-y-2">
@@ -54,7 +58,9 @@ export function StepGoals({ formData, updateFormData }: StepProps) {
                 >
                   {selected && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
                 </div>
-                <span className="font-medium text-foreground">{option.label}</span>
+                <span className="font-medium text-foreground">
+                  {bookingOptionLabel(locale, option.value, option.label)}
+                </span>
               </button>
             )
           })}

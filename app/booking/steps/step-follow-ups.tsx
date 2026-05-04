@@ -1,10 +1,14 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useAppLocale } from "@/components/locale-provider"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE } from "../constants"
+import { bookingOptionLabel, bookingStepCopy } from "../translations"
 import type { StepProps } from "../types"
 
 export function StepFollowUps({ formData, updateFormData }: StepProps) {
+  const locale = useAppLocale()
+  const copy = bookingStepCopy[locale]
   const questions = FOLLOW_UP_QUESTIONS_BY_ISSUE[formData.issue] || []
 
   const setAnswer = (questionValue: string, answer: string) => {
@@ -20,10 +24,10 @@ export function StepFollowUps({ formData, updateFormData }: StepProps) {
     <div className="space-y-4">
       <div>
         <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-1">
-          A few quick questions
+          {copy.followUpsTitle}
         </h2>
         <p className="text-sm text-muted-foreground">
-          These help us match you with the right trainer for your assessment.
+          {copy.followUpsSubtitle}
         </p>
       </div>
 
@@ -40,7 +44,9 @@ export function StepFollowUps({ formData, updateFormData }: StepProps) {
 
           return (
             <div key={question.value} className="rounded-xl border border-border bg-card p-3 md:p-4 space-y-3">
-              <p className="font-medium text-foreground">{question.label}</p>
+              <p className="font-medium text-foreground">
+                {bookingOptionLabel(locale, question.value, question.label)}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {choices.map((choice) => (
                   <button
@@ -54,7 +60,7 @@ export function StepFollowUps({ formData, updateFormData }: StepProps) {
                         : "bg-background text-muted-foreground border-border hover:border-primary/40",
                     )}
                   >
-                    {choice.label}
+                    {bookingOptionLabel(locale, choice.value, choice.label)}
                   </button>
                 ))}
               </div>

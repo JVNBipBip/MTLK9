@@ -10,6 +10,12 @@ export const frenchTextTranslations: Record<string, string> = {
   "Contact Us for a Free Call": "Contactez-nous pour un appel gratuit",
   "Contact Us for a Free Discovery Call": "Contactez-nous pour un appel découverte gratuit",
   "Book your in-person assessment": "Réserver votre évaluation en personne",
+  "Reach us directly and we will guide you to the right next step.":
+    "Contactez-nous directement et nous vous guiderons vers la prochaine étape appropriée.",
+  "Contact us for a free call": "Contactez-nous pour un appel gratuit",
+  "Book your evaluation": "Réservez votre évaluation",
+  "Program sign-up": "Inscription au programme",
+  "Private training portal": "Portail d'entraînement privé",
   "Book a Consultation": "Réserver une consultation",
   "Call us": "Appelez-nous",
   "Email us": "Envoyez-nous un email",
@@ -164,6 +170,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "The best way to reach us is by submitting a request form through our website. You can also call/text our trainers for information and bookings.":
     "La meilleure façon de nous joindre est de soumettre un formulaire de demande sur notre site Web. Vous pouvez aussi appeler ou texter nos entraîneurs pour obtenir de l'information ou réserver.",
   "5.0 ★★★★★ · 124 Google reviews": "5,0 ★★★★★ · 124 avis Google",
+  "5.0": "5,0",
+  " · 124 Google reviews": " · 124 avis Google",
   "MTL Canine Training": "Entraînement Canin MTL",
   "Open menu": "Ouvrir le menu",
   "10–15+ Years Experience": "10 à 15+ ans d'expérience",

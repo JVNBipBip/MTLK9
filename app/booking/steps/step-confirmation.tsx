@@ -1,17 +1,30 @@
 "use client"
 
 import { CheckCircle, Phone, Mail } from "lucide-react"
-import { formatTorontoDateTime } from "@/lib/toronto-time"
+import { useAppLocale } from "@/components/locale-provider"
+import { getIntlLocale } from "@/lib/i18n/config"
+import { TORONTO_TIME_ZONE } from "@/lib/i18n/format"
+import { bookingStepCopy } from "../translations"
 import type { BookingFormData } from "../types"
 
 export function StepConfirmation({ formData }: { formData: BookingFormData }) {
+  const locale = useAppLocale()
+  const copy = bookingStepCopy[locale]
+  const intlLocale = getIntlLocale(locale)
   const formattedConsultationDateTime = formData.consultationDateTime
-    ? formatTorontoDateTime(formData.consultationDateTime)
-    : "To be confirmed by email"
+    ? new Date(formData.consultationDateTime).toLocaleString(intlLocale, {
+        timeZone: TORONTO_TIME_ZONE,
+        dateStyle: "full",
+        timeStyle: "short",
+      })
+    : copy.toBeConfirmed
   const assessmentSummary = [
-    { label: "When", value: formattedConsultationDateTime },
-    { label: "Where", value: formData.consultationLocation || "To be confirmed by email" },
-    { label: "What", value: formData.consultationWhat || "In-person assessment" },
+    { label: copy.when, value: formattedConsultationDateTime },
+    { label: copy.where, value: formData.consultationLocation || copy.toBeConfirmed },
+    {
+      label: copy.what,
+      value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
+    },
   ]
 
   return (
@@ -24,12 +37,12 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
 
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
-          You&apos;re in. Your assessment is booked.
+          {copy.confirmationTitle}
         </h2>
 
         <div className="space-y-4">
           <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-            You&apos;ll receive a confirmation email shortly with your booking details and a short prep checklist.
+            {copy.confirmationSubtitle}
           </p>
           <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
             {assessmentSummary.map((item) => (
@@ -42,7 +55,7 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
       </div>
 
       <div className="pt-4 border-t border-border max-w-md mx-auto">
-        <p className="text-sm text-muted-foreground mb-3">Questions before then?</p>
+        <p className="text-sm text-muted-foreground mb-3">{copy.questionsBeforeThen}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="tel:+15148269558"

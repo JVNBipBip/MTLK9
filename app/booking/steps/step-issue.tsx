@@ -1,10 +1,15 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useAppLocale } from "@/components/locale-provider"
 import { ISSUE_OPTIONS } from "../constants"
+import { bookingOptionDescription, bookingOptionLabel, bookingStepCopy } from "../translations"
 import type { StepProps } from "../types"
 
 export function StepIssue({ formData, updateFormData, onAutoAdvance }: StepProps) {
+  const locale = useAppLocale()
+  const copy = bookingStepCopy[locale]
+
   const handleSelect = (value: string) => {
     updateFormData({
       issue: value,
@@ -21,13 +26,13 @@ export function StepIssue({ formData, updateFormData, onAutoAdvance }: StepProps
     <div className="space-y-5">
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          Start here
+          {copy.issueKicker}
         </p>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-          What&apos;s going on with your dog?
+          {copy.issueTitle}
         </h2>
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-          Pick the closest match. We&apos;ll use this to ask the right follow-up questions and show the best trainer options.
+          {copy.issueSubtitle}
         </p>
       </div>
 
@@ -62,11 +67,11 @@ export function StepIssue({ formData, updateFormData, onAutoAdvance }: StepProps
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-base md:text-lg font-semibold leading-snug text-foreground">
-                    {option.label}
+                    {bookingOptionLabel(locale, option.value, option.label)}
                   </span>
                   {option.description ? (
                     <span className="mt-1.5 block text-sm leading-relaxed text-muted-foreground">
-                      {option.description}
+                      {bookingOptionDescription(locale, option.value, option.description)}
                     </span>
                   ) : null}
                 </span>

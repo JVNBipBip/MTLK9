@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useAppLocale } from "@/components/locale-provider"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -11,23 +12,27 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DOG_AGE_OPTIONS } from "../constants"
+import { bookingOptionLabel, bookingStepCopy } from "../translations"
 import type { StepProps } from "../types"
 
 export function StepDogInfo({ formData, updateFormData }: StepProps) {
+  const locale = useAppLocale()
+  const copy = bookingStepCopy[locale]
+
   return (
     <div className="space-y-3">
       <div>
         <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground mb-1">
-          Tell us about your dog
+          {copy.dogInfoTitle}
         </h2>
       </div>
 
       <div className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="dogName" className="text-sm font-medium">Dog&apos;s name</Label>
+          <Label htmlFor="dogName" className="text-sm font-medium">{copy.dogName}</Label>
           <Input
             id="dogName"
-            placeholder="e.g. Max"
+            placeholder={copy.dogNamePlaceholder}
             value={formData.dogName}
             onChange={(e) => updateFormData({ dogName: e.target.value })}
             className="rounded-xl h-11 text-base"
@@ -35,10 +40,10 @@ export function StepDogInfo({ formData, updateFormData }: StepProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="dogBreed" className="text-sm font-medium">Breed or mix</Label>
+          <Label htmlFor="dogBreed" className="text-sm font-medium">{copy.dogBreed}</Label>
           <Input
             id="dogBreed"
-            placeholder="e.g. German Shepherd mix"
+            placeholder={copy.dogBreedPlaceholder}
             value={formData.dogBreed}
             onChange={(e) => updateFormData({ dogBreed: e.target.value })}
             className="rounded-xl h-11 text-base"
@@ -46,18 +51,18 @@ export function StepDogInfo({ formData, updateFormData }: StepProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium">Age</Label>
+          <Label className="text-sm font-medium">{copy.dogAge}</Label>
           <Select
             value={formData.dogAge}
             onValueChange={(value) => updateFormData({ dogAge: value })}
           >
             <SelectTrigger className={cn("rounded-xl h-11 text-base w-full")}>
-              <SelectValue placeholder="Select age range" />
+              <SelectValue placeholder={copy.dogAgePlaceholder} />
             </SelectTrigger>
             <SelectContent>
               {DOG_AGE_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
+                  {bookingOptionLabel(locale, opt.value, opt.label)}
                 </SelectItem>
               ))}
             </SelectContent>

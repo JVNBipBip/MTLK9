@@ -63,8 +63,108 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
 
 const CONSULTATION_LOCATION = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
 
+const bookingContentCopy = {
+  en: {
+    close: "Close",
+    closeForm: "Close form",
+    goBack: "Go back",
+    stepProgress: (current: number, total: number) => `Step ${current} of ${total}`,
+    schedulingTitle: "Pick your consultation slot",
+    schedulingSubtitle: "Choose the time that works best, then complete the deposit to confirm your appointment.",
+    loadingTimes: "Loading available times...",
+    specialistMatched:
+      "Based on your answers, you're booking with the trainer matched to your dog's needs.",
+    specialistPricing:
+      "Please note: specialist assessments may have different pricing than our standard assessment.",
+    recommendedSpecialist: "Recommended specialist for your dog's needs",
+    recommendedPricing:
+      "Specialist assessment is $165 CAD (standard is $145 CAD). Look for the dot on the recommended trainer and time slots below.",
+    noSlotsFallback: "No slots available right now. Use the free call option on the site to reach us.",
+    noFilteredSlotsNick:
+      "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule.",
+    noFilteredSlotsMatched:
+      "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule.",
+    trainer: "Trainer",
+    allTrainers: "All trainers",
+    noTimesForTrainer: 'No times for this trainer. Choose "All trainers" to see every opening.',
+    pickADay: "Pick a day",
+    slotCount: (count: number) => `${count} ${count === 1 ? "slot" : "slots"}`,
+    timesOn: "Times on",
+    recommendedSpecialistAria: "Recommended specialist",
+    staff: "Staff",
+    bookingSummary: "Booking Summary",
+    dateTime: "Date & Time",
+    location: "Location",
+    with: "With",
+    service: "Service",
+    inPersonAssessment: "In-person assessment",
+    deposit: "Deposit",
+    depositDescription:
+      "$30 deposit required. Your consultation is confirmed after payment is complete. Late cancellations or no-shows may forfeit the deposit.",
+    openingCheckout: "Opening checkout...",
+    payDeposit: "Pay $30 deposit",
+    submitting: "Submitting...",
+    continueToScheduling: "Continue to scheduling",
+    continue: "Continue",
+    submitErrorFallback: "Could not submit right now. Please try again in a moment.",
+    bookingSubmitFallback: "Failed to submit booking form.",
+    specialistCalendarError: "Specialist calendar is not configured. Please contact us by phone or email.",
+  },
+  fr: {
+    close: "Fermer",
+    closeForm: "Fermer le formulaire",
+    goBack: "Retour",
+    stepProgress: (current: number, total: number) => `Étape ${current} sur ${total}`,
+    schedulingTitle: "Choisissez votre créneau de consultation",
+    schedulingSubtitle:
+      "Choisissez l'heure qui vous convient, puis complétez le dépôt pour confirmer votre rendez-vous.",
+    loadingTimes: "Chargement des disponibilités...",
+    specialistMatched:
+      "Selon vos réponses, vous réservez avec l'entraîneur qui correspond aux besoins de votre chien.",
+    specialistPricing:
+      "Veuillez noter que les évaluations spécialisées peuvent avoir un tarif différent de notre évaluation standard.",
+    recommendedSpecialist: "Spécialiste recommandé pour les besoins de votre chien",
+    recommendedPricing:
+      "L'évaluation spécialisée est de 165 $ CAD (145 $ CAD pour l'évaluation standard). Repérez le point sur l'entraîneur et les créneaux recommandés ci-dessous.",
+    noSlotsFallback:
+      "Aucun créneau n'est disponible pour le moment. Utilisez l'option d'appel gratuit sur le site pour nous joindre.",
+    noFilteredSlotsNick:
+      "Aucun créneau d'évaluation n'est disponible avec l'entraîneur qui correspond aux besoins de votre chien. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
+    noFilteredSlotsMatched:
+      "Aucun créneau d'évaluation n'est disponible avec les entraîneurs qui correspondent à vos réponses. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
+    trainer: "Entraîneur",
+    allTrainers: "Tous les entraîneurs",
+    noTimesForTrainer:
+      "Aucun créneau pour cet entraîneur. Choisissez « Tous les entraîneurs » pour voir toutes les disponibilités.",
+    pickADay: "Choisissez une journée",
+    slotCount: (count: number) => `${count} créneau${count > 1 ? "x" : ""}`,
+    timesOn: "Heures le",
+    recommendedSpecialistAria: "Spécialiste recommandé",
+    staff: "Équipe",
+    bookingSummary: "Résumé de la réservation",
+    dateTime: "Date et heure",
+    location: "Lieu",
+    with: "Avec",
+    service: "Service",
+    inPersonAssessment: "Évaluation en personne",
+    deposit: "Dépôt",
+    depositDescription:
+      "Un dépôt de 30 $ est requis. Votre consultation est confirmée une fois le paiement complété. Les annulations tardives ou les absences peuvent entraîner la perte du dépôt.",
+    openingCheckout: "Ouverture du paiement...",
+    payDeposit: "Payer le dépôt de 30 $",
+    submitting: "Envoi...",
+    continueToScheduling: "Continuer vers la planification",
+    continue: "Continuer",
+    submitErrorFallback: "Impossible d'envoyer pour le moment. Veuillez réessayer dans un instant.",
+    bookingSubmitFallback: "Impossible d'envoyer le formulaire de réservation.",
+    specialistCalendarError:
+      "Le calendrier du spécialiste n'est pas configuré. Veuillez nous contacter par téléphone ou par courriel.",
+  },
+} as const
+
 export function BookingContent({ onClose }: { onClose: () => void }) {
   const locale = useAppLocale()
+  const copy = bookingContentCopy[locale]
   const intlLocale = getIntlLocale(locale)
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState(1)
@@ -112,11 +212,11 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     const map = new Map<string, string>()
     for (const s of consultationSlots) {
       if (!s.teamMemberId) continue
-      const label = (s.teamMemberName || "Staff").trim() || "Staff"
+      const label = (s.teamMemberName || copy.staff).trim() || copy.staff
       if (!map.has(s.teamMemberId)) map.set(s.teamMemberId, label)
     }
     return [...map.entries()].map(([id, name]) => ({ id, name }))
-  }, [consultationSlots])
+  }, [consultationSlots, copy.staff])
 
   const slotsByDay = useMemo(() => {
     const groups: Record<string, typeof displaySlots> = {}
@@ -181,15 +281,23 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             nickRoutingActive: true,
             slotsMessage: null,
           })
-          setSlotsFetchError(data?.error || "Specialist calendar is not configured. Please contact us by phone or email.")
+          setSlotsFetchError(
+            locale === "fr" ? copy.specialistCalendarError : data?.error || copy.specialistCalendarError,
+          )
           return
         }
         if (response.ok && data?.slots) {
+          const localizedSlotsMessage =
+            data.slotsMessage && locale === "fr"
+              ? data.nickRoutingActive
+                ? copy.noFilteredSlotsNick
+                : copy.noFilteredSlotsMatched
+              : data.slotsMessage ?? null
           setConsultationSlots(data.slots)
           setSlotsMeta({
             recommendedTeamMemberId: data.recommendedTeamMemberId ?? null,
             nickRoutingActive: data.nickRoutingActive ?? false,
-            slotsMessage: data.slotsMessage ?? null,
+            slotsMessage: localizedSlotsMessage,
           })
           setSlotsFetchError(null)
         } else {
@@ -216,7 +324,17 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     return () => {
       active = false
     }
-  }, [formData.connectMethod, formData.followUps, formData.impact, formData.issue, showSchedulingStep])
+  }, [
+    copy.noFilteredSlotsMatched,
+    copy.noFilteredSlotsNick,
+    copy.specialistCalendarError,
+    formData.connectMethod,
+    formData.followUps,
+    formData.impact,
+    formData.issue,
+    locale,
+    showSchedulingStep,
+  ])
 
   const setTrainerFilterAndClearSlot = useCallback(
     (id: string | null) => {
@@ -262,7 +380,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
 
       if (!response.ok) {
         const data = (await response.json().catch(() => null)) as { error?: string } | null
-        throw new Error(data?.error || "Failed to submit booking form.")
+        throw new Error(data?.error || copy.bookingSubmitFallback)
       }
       const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null } | null
 
@@ -305,12 +423,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       })
     } catch (error) {
       console.error("[Booking Form] Submission failed:", error)
-      const message = error instanceof Error ? error.message : "Could not submit right now. Please try again in a moment."
+      const message = error instanceof Error ? error.message : copy.submitErrorFallback
       setSubmitError(message)
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, locale, showSchedulingStep])
+  }, [copy, formData, locale, showSchedulingStep])
 
   const handleClose = onClose
 
@@ -335,7 +453,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             <button
               onClick={handleClose}
               className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              aria-label="Close"
+              aria-label={copy.close}
             >
               <X className="w-5 h-5" />
             </button>
@@ -369,7 +487,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     : goBack
                 }
                 className="p-1.5 -ml-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                aria-label="Go back"
+                aria-label={copy.goBack}
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -377,12 +495,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
               <div className="w-8" />
             )}
             <div className="flex-1 text-center text-sm text-muted-foreground">
-              Step {currentStep + 1} of {TOTAL_STEPS}
+              {copy.stepProgress(currentStep + 1, TOTAL_STEPS)}
             </div>
             <button
               onClick={handleClose}
               className="p-1.5 -mr-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              aria-label="Close form"
+              aria-label={copy.closeForm}
             >
               <X className="w-5 h-5" />
             </button>
@@ -397,16 +515,16 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">Pick your consultation slot</h3>
+                <h3 className="text-lg font-semibold text-foreground">{copy.schedulingTitle}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Pick your consultation slot.
+                  {copy.schedulingSubtitle}
                 </p>
               </div>
 
               {isLoadingSlots ? (
                 <div className="p-12 flex flex-col items-center justify-center gap-4 border rounded-xl bg-muted/20">
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Loading available times…</p>
+                  <p className="text-sm text-muted-foreground">{copy.loadingTimes}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -418,10 +536,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   {slotsMeta.nickRoutingActive && consultationSlots.length > 0 ? (
                     <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground space-y-1">
                       <p>
-                        Based on your answers, you&apos;re booking with the trainer matched to your dog&apos;s needs.
+                        {copy.specialistMatched}
                       </p>
                       <p className="text-muted-foreground">
-                        Please note: specialist assessments may have different pricing than our standard assessment.
+                        {copy.specialistPricing}
                       </p>
                     </div>
                   ) : null}
@@ -434,11 +552,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                           aria-hidden="true"
                           className="w-2 h-2 rounded-full bg-primary"
                         />
-                        Recommended specialist for your dog&apos;s needs
+                        {copy.recommendedSpecialist}
                       </p>
                       <p className="text-muted-foreground pl-4">
-                        Specialist assessment is $165 CAD (standard is $145 CAD). Look for the dot on
-                        the recommended trainer and time slots below.
+                        {copy.recommendedPricing}
                       </p>
                     </div>
                   ) : null}
@@ -446,7 +563,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     <div className="p-8 text-center border rounded-xl bg-muted/20 space-y-2">
                       <p className="text-muted-foreground">
                         {slotsMeta.slotsMessage ||
-                          "No slots available right now. Use the free call option on the site to reach us."}
+                          copy.noSlotsFallback}
                       </p>
                     </div>
                   ) : (
@@ -454,7 +571,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                       {uniqueTrainers.length > 1 && !slotsMeta.nickRoutingActive ? (
                         <div>
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                            Trainer
+                            {copy.trainer}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             <button
@@ -467,7 +584,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                   : "bg-background text-muted-foreground border-border hover:border-primary/40",
                               )}
                             >
-                              All trainers
+                              {copy.allTrainers}
                             </button>
                             {uniqueTrainers.map((t) => {
                               const isRecommendedTrainer =
@@ -504,13 +621,13 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                       ) : null}
                       {displaySlots.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-6 border rounded-xl bg-muted/10">
-                          No times for this trainer. Choose &quot;All trainers&quot; to see every opening.
+                          {copy.noTimesForTrainer}
                         </p>
                       ) : (
                         <div className="space-y-4">
                           <div>
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                              Pick a day
+                              {copy.pickADay}
                             </p>
                             <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 no-scrollbar snap-x">
                               {dayKeys.map((dayKey) => {
@@ -565,7 +682,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                           : "text-muted-foreground/80",
                                       )}
                                     >
-                                      {count} {count === 1 ? "slot" : "slots"}
+                                      {copy.slotCount(count)}
                                     </span>
                                     {hasRecommended ? (
                                       <span
@@ -585,7 +702,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                           {selectedDay && slotsByDay[selectedDay]?.length ? (
                             <div>
                               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                                Times on{" "}
+                                {copy.timesOn}{" "}
                                 {new Date(slotsByDay[selectedDay][0].startAt).toLocaleDateString(
                                   intlLocale,
                                   { weekday: "long", month: "long", day: "numeric", timeZone: TORONTO_TIME_ZONE },
@@ -640,12 +757,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                               : "text-muted-foreground",
                                           )}
                                         >
-                                          {slot.teamMemberName || "Staff"}
+                                          {slot.teamMemberName || copy.staff}
                                         </span>
                                       ) : null}
                                       {isRecommended ? (
                                         <span
-                                          aria-label="Recommended specialist"
+                                          aria-label={copy.recommendedSpecialistAria}
                                           className={cn(
                                             "absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full",
                                             isSelected ? "bg-primary-foreground" : "bg-primary",
@@ -673,14 +790,14 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 >
                   <div className="bg-muted/50 px-4 py-3 border-b border-border/50">
                     <h4 className="font-medium text-sm flex items-center gap-2">
-                      Booking Summary
+                      {copy.bookingSummary}
                     </h4>
                   </div>
                   <div className="p-4 space-y-3 text-sm">
                     <div className="flex items-start gap-3">
                       <Calendar className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium text-foreground">Date & Time</p>
+                        <p className="font-medium text-foreground">{copy.dateTime}</p>
                         <p className="text-muted-foreground">
                           {new Date(formData.consultationDateTime).toLocaleString(intlLocale, { 
                             timeZone: TORONTO_TIME_ZONE,
@@ -694,19 +811,19 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium text-foreground">Location</p>
+                        <p className="font-medium text-foreground">{copy.location}</p>
                         <p className="text-muted-foreground">{CONSULTATION_LOCATION}</p>
                       </div>
                     </div>
 
                     {(() => {
                       const selectedSlot = consultationSlots.find((s) => s.slotKey === formData.consultationSlotKey)
-                      const staffName = selectedSlot?.teamMemberName || (selectedSlot?.teamMemberId ? "Staff" : null)
+                      const staffName = selectedSlot?.teamMemberName || (selectedSlot?.teamMemberId ? copy.staff : null)
                       return staffName ? (
                         <div className="flex items-start gap-3">
                           <User className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                           <div>
-                            <p className="font-medium text-foreground">With</p>
+                            <p className="font-medium text-foreground">{copy.with}</p>
                             <p className="text-muted-foreground">{staffName}</p>
                           </div>
                         </div>
@@ -716,17 +833,17 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium text-foreground">Service</p>
-                        <p className="text-muted-foreground">In-person assessment</p>
+                        <p className="font-medium text-foreground">{copy.service}</p>
+                        <p className="text-muted-foreground">{copy.inPersonAssessment}</p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-medium text-foreground">Deposit</p>
+                        <p className="font-medium text-foreground">{copy.deposit}</p>
                         <p className="text-muted-foreground">
-                          $30 deposit required. Your consultation is confirmed after payment is complete. Late cancellations or no-shows may forfeit the deposit.
+                          {copy.depositDescription}
                         </p>
                       </div>
                     </div>
@@ -765,10 +882,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Opening checkout...
+                      {copy.openingCheckout}
                     </>
                   ) : (
-                    "Pay $30 deposit"
+                    copy.payDeposit
                   )}
                 </Button>
               </div>
@@ -810,13 +927,13 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Submitting...
+                  {copy.submitting}
                 </>
               ) : currentStep === TOTAL_STEPS - 1 ? (
-                "Continue to scheduling"
+                copy.continueToScheduling
               ) : (
                 <>
-                  Continue
+                  {copy.continue}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
