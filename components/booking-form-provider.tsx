@@ -107,7 +107,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           <DialogTitle className="sr-only">Contact us for a free call</DialogTitle>
           <div className="p-6 sm:p-7 space-y-5">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight">Book a Free Call</h3>
+              <h3 className="text-xl font-semibold tracking-tight">Contact Us for a Free Call</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Reach us directly and we will guide you to the right next step.
               </p>
@@ -135,7 +135,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
               </a>
             </div>
             <div className="pt-2 border-t border-border">
-              <Button type="button" variant="outline" className="w-full rounded-full" onClick={handleOpenAssessmentFromFreeCall}>
+              <Button type="button" className="w-full rounded-full" onClick={handleOpenAssessmentFromFreeCall}>
                 <Calendar className="w-4 h-4 mr-2" />
                 Book your in-person assessment
               </Button>

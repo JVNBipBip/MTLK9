@@ -1,11 +1,20 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Reactivity Training",
-  description:
-    "Private and group reactivity training in Montreal. Structured protocols for lunging, barking, fear, and shutting down — using humane, evidence-guided methods.",
-  alternates: { canonical: "https://mtlcaninetraining.com/services/reactivity" },
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/services/reactivity",
+    title: {
+      en: "Reactive Dog Training in Montreal",
+      fr: "Entraînement pour chiens réactifs à Montréal",
+    },
+    description: {
+      en: "Reactivity dog training in Montreal for barking, lunging, fear, and calmer walks.",
+      fr: "Programmes privés et de groupe pour les chiens qui jappent, se lancent ou figent face aux déclencheurs.",
+    },
+    image: "/images/Classes images/reactivity.webp",
+  })
 }
 
 export default function ReactivityLayout({

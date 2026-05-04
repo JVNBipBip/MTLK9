@@ -5,7 +5,8 @@ import Link from "next/link"
 import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, User } from "lucide-react"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { trackFBCompleteRegistration, trackFBSchedule } from "@/lib/facebook-pixel"
 import {
   PLAN_TYPE_LABEL,
   SERVICE_TYPE_LABEL,
@@ -246,6 +247,12 @@ export function TrainingPortalBookingContent({
         throw new Error(response.ok ? "Invalid response." : `Server error: ${response.status}`)
       }
       if (!response.ok) throw new Error(data.error || "Could not save package.")
+      trackFBCompleteRegistration({
+        content_name: "Private Training Package Update",
+        content_category: "Dog Training Package",
+        service_type: selectedServiceType,
+        plan_type: selectedPlanType,
+      })
       if (!packageContractAlreadyAccepted) {
         try {
           await fetch("/api/contract-acceptance", {
@@ -326,6 +333,13 @@ export function TrainingPortalBookingContent({
       setSelectedSlotKeys([])
       await fetchStatus({ silent: true })
       setBookingResult({ booked, duplicates })
+      if (booked > 0) {
+        trackFBSchedule({
+          content_name: "Private Training Session",
+          content_category: "Dog Training Booking",
+          num_items: booked,
+        })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create booking.")
     } finally {
@@ -509,16 +523,18 @@ export function TrainingPortalBookingContent({
                   </div>
                   {packageContractAlreadyAccepted ? (
                     <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                      Private training agreement already accepted for this version.
+                      {CONTRACT_ACCEPTED_LABEL[locale].private_classes}
                     </p>
                   ) : (
                     <>
-                      <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                        <summary className="cursor-pointer font-medium">
-                          {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
-                        </summary>
-                        <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
-                      </details>
+                      <a
+                        href={contractUrl("private_classes", locale)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                      >
+                        {CONTRACT_LINK_LABEL[locale].private_classes}
+                      </a>
                       <label className="flex items-start gap-2 text-sm">
                         <input
                           type="checkbox"
@@ -526,7 +542,7 @@ export function TrainingPortalBookingContent({
                           onChange={(e) => setPackageContractAccepted(e.target.checked)}
                           className="mt-1"
                         />
-                        <span>I have read and agree to the private training agreement ({CONTRACT_VERSION}).</span>
+                        <span>{CONTRACT_ACCEPTANCE_LABEL[locale].private_classes}</span>
                       </label>
                     </>
                   )}

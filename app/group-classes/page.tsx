@@ -7,6 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
 import { Button } from "@/components/ui/button"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
 
 type GroupOffering = {
@@ -87,6 +88,7 @@ const OFFERINGS: GroupOffering[] = [
 ]
 
 export default function GroupClassesPage() {
+  const t = useLocalizedText()
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -129,21 +131,20 @@ export default function GroupClassesPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="reveal opacity-0 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-secondary mb-6">
               <Sparkles className="w-3.5 h-3.5" />
-              Group Classes
+              {t("Group Classes")}
             </div>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              Request the group class your dog is approved for
+              {t("Request the group class your dog is approved for")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Small cohorts. Real coaching. Enter your email to see approved classes and request a spot,
-              or book an assessment and we&apos;ll place your dog in the right program.
+              {t("Small cohorts. Real coaching. Enter your email to see approved classes and request a spot, or book an assessment and we'll place your dog in the right program.")}
             </p>
           </div>
 
           <div className="reveal opacity-0 animation-delay-600 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-            <HeroStat icon={<Users className="w-4 h-4" />} label="Small cohorts" />
-            <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label="Scheduled series" />
-            <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label="Trainer-approved" />
+            <HeroStat icon={<Users className="w-4 h-4" />} label={t("Small cohorts")} />
+            <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label={t("Scheduled series")} />
+            <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label={t("Trainer-approved")} />
           </div>
         </div>
       </section>
@@ -153,7 +154,7 @@ export default function GroupClassesPage() {
           <Suspense
             fallback={
               <div className="rounded-3xl border border-border/60 bg-card p-8 shadow-xl shadow-primary/10 animate-pulse text-muted-foreground text-sm">
-                Loading group classes…
+                {t("Loading group classes…")}
               </div>
             }
           >
@@ -166,13 +167,13 @@ export default function GroupClassesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="reveal opacity-0 text-center max-w-2xl mx-auto mb-12">
             <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
-              What we run
+              {t("What we run")}
             </p>
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance">
-              Group programs we offer
+              {t("Group programs we offer")}
             </h2>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              Your trainer matches your dog to the right program and level during the assessment.
+              {t("Your trainer matches your dog to the right program and level during the assessment.")}
             </p>
           </div>
 
@@ -187,7 +188,7 @@ export default function GroupClassesPage() {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <Image
                     src={offering.image}
-                    alt={offering.label}
+                    alt={t(offering.label)}
                     fill
                     className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${offering.imageClassName ?? ""}`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -195,10 +196,10 @@ export default function GroupClassesPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
-                      {offering.forText}
+                      {t(offering.forText)}
                     </p>
                     <h3 className="font-display text-2xl font-semibold tracking-tight text-white mt-1">
-                      {offering.label}
+                      {t(offering.label)}
                     </h3>
                   </div>
                 </div>
@@ -207,33 +208,33 @@ export default function GroupClassesPage() {
                     <div className="mb-4 flex flex-wrap gap-2">
                       {offering.packagePrice ? (
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                          Package: {offering.packagePrice}
-                          {offering.packageDetail ? ` · ${offering.packageDetail}` : ""}
+                          {t("Package")}: {offering.packagePrice}
+                          {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                         </span>
                       ) : null}
                       {offering.unitPrice ? (
                         <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary">
-                          Unit: {offering.unitPrice}
+                          {t("Unit")}: {offering.unitPrice}
                         </span>
                       ) : null}
                       {offering.note ? (
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                          {offering.note}
+                          {t(offering.note)}
                         </span>
                       ) : null}
                     </div>
                   ) : null}
-                  <p className="text-muted-foreground leading-relaxed">{offering.summary}</p>
+                  <p className="text-muted-foreground leading-relaxed">{t(offering.summary)}</p>
                   <ul className="mt-5 space-y-2">
                     {offering.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-start gap-2 text-sm text-foreground/85">
                         <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                        <span>{bullet}</span>
+                        <span>{t(bullet)}</span>
                       </li>
                     ))}
                   </ul>
                   <Button asChild variant="outline" className="mt-6 rounded-full">
-                    <a href="#group-class-availability">See dates &amp; availability</a>
+                    <a href="#group-class-availability">{t("See dates & availability")}</a>
                   </Button>
                 </div>
               </article>

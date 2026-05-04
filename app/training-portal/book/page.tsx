@@ -1,4 +1,11 @@
+import type { Metadata } from "next"
+import { noIndexMetadata } from "@/lib/seo"
 import { TrainingPortalBookingContent } from "../training-portal-booking-content"
+
+export const metadata: Metadata = noIndexMetadata(
+  "Training Portal Booking — Montreal Canine Training",
+  "Private booking flow for Montreal Canine Training clients.",
+)
 
 type Props = {
   searchParams: Promise<{ email?: string; dog?: string }>

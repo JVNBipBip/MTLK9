@@ -122,3 +122,7 @@ export const transformationStories: TransformationStory[] = [
 export function getTransformationStory(slug: string) {
   return transformationStories.find((story) => story.slug === slug)
 }
+
+export function isPublishableTransformationStory(story: TransformationStory) {
+  return !story.dogName.includes("[") && !story.breed.includes("[")
+}

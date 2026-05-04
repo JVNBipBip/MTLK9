@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
-import { stripLocaleFromPathname } from "@/lib/i18n/config"
+import { useAppLocale } from "@/components/locale-provider"
+import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
 
 const navLinks = [
   { labelKey: "trainingPrograms", href: "/services" },
@@ -26,7 +27,9 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
+  const locale = useAppLocale()
   const activePathname = stripLocaleFromPathname(pathname)
+  const localeHref = (href: string) => addLocaleToPathname(href, locale)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -46,7 +49,7 @@ export function Header() {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/35 via-white/10 to-transparent" />
         <div className="pointer-events-none absolute -top-16 left-10 h-28 w-56 rounded-full bg-white/20 blur-2xl" />
         <div className="flex items-center justify-between h-16 md:h-20 px-5 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href={localeHref("/")} className="flex items-center gap-2">
             <Image
               src="/images/MTLK9_Logo.webp"
               alt="MTL Canine Training"
@@ -61,7 +64,7 @@ export function Header() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={localeHref(link.href)}
                 className={`text-base font-medium transition-colors ${
                   activePathname === link.href
                     ? "text-black font-semibold"
@@ -111,7 +114,7 @@ export function Header() {
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
-                        href={link.href}
+                        href={localeHref(link.href)}
                         className={`rounded-xl px-3 py-3 text-lg font-medium transition-colors ${
                           activePathname === link.href
                             ? "bg-black/5 text-black font-semibold"

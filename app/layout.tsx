@@ -7,7 +7,6 @@ import { GeistMono } from "geist/font/mono"
 import { NextIntlClientProvider } from "next-intl"
 import { BookingFormProvider } from "@/components/booking-form-provider"
 import { ClientLocaleEffects } from "@/components/client-locale-effects"
-import { FacebookPixel } from "@/components/facebook-pixel"
 import { JsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import { LocaleProvider } from "@/components/locale-provider"
 import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
@@ -59,6 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
       languages: {
         en: "/en",
         fr: "/fr",
+        "x-default": "/en",
       },
     },
     openGraph: {
@@ -112,7 +112,6 @@ export default async function RootLayout({
         <NextIntlClientProvider locale={locale} messages={localeMessages}>
           <LocaleProvider locale={locale}>
             <ClientLocaleEffects locale={locale} />
-            <FacebookPixel />
             <JsonLd
               data={{
                 ...localBusinessJsonLd,

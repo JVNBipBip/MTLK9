@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
 import { AnimatedText } from "@/components/animated-text"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const HERO_FALLBACK = "/images/hero-fallback.png"
 
 export function HeroSection() {
+  const t = useLocalizedText()
   const sectionRef = useRef<HTMLElement>(null)
   const desktopVideoRef = useRef<HTMLVideoElement>(null)
   const mobileVideoRef = useRef<HTMLVideoElement>(null)
@@ -142,23 +144,22 @@ export function HeroSection() {
       <div className="relative max-w-7xl mx-auto px-5 md:px-6 lg:px-8 pb-12 pt-16 md:py-20 lg:py-32 w-full">
         <div className="max-w-2xl">
           <p className="reveal opacity-0 text-sm md:text-base text-background/95 font-semibold mb-2">
-            5.0 <span className="text-yellow-400">★★★★★</span> · 124 Google reviews
+            {t("5.0 ★★★★★ · 124 Google reviews")}
           </p>
           <p className="reveal opacity-0 text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
-            Montreal #1 Dog School
+            {t("Montreal #1 Dog School")}
           </p>
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
-            <AnimatedText text="Get your life" delay={0.3} />
+            <AnimatedText text={t("Get your life")} delay={0.3} />
             <br />
-            <AnimatedText text="back" delay={0.6} />
+            <AnimatedText text={t("back")} delay={0.6} />
             <br />
             <span className="text-accent">
-              <AnimatedText text="with your dog." delay={1.0} />
+              <AnimatedText text={t("with your dog.")} delay={1.0} />
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
-            Real-World training for leash pulling, reactivity, behaviour and everyday manners —
-            built to deliver effective, lasting results.
+            {t("Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.")}
           </p>
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
             <FreeCallLink className="w-full sm:w-auto">
@@ -166,7 +167,7 @@ export function HeroSection() {
                 size="lg"
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
               >
-                Book a Consultation
+                {t("Book a Consultation")}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>
@@ -177,7 +178,7 @@ export function HeroSection() {
                 className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-background text-foreground border-background backdrop-blur-sm transition-all duration-300 hover:bg-transparent hover:text-background hover:border-background/30"
               >
                 <Phone className="mr-2 w-4 h-4" />
-                Call Now
+                {t("Call Now")}
               </Button>
             </Link>
           </div>

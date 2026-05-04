@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl"
 import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { useAppLocale } from "@/components/locale-provider"
+import { addLocaleToPathname } from "@/lib/i18n/config"
 
 const footerLinks = {
   training: [
@@ -21,7 +23,7 @@ const footerLinks = {
     { label: "Contact", href: "/booking" },
   ],
   resources: [
-    { label: "Book a Free Call", href: "/booking" },
+    { label: "Contact Us for a Free Call", href: "/booking" },
     { label: "Book an Evaluation", href: "/booking" },
     { label: "Google Reviews", href: "https://www.google.com/search?sca_esv=1a51245140343e35&sxsrf=ANbL-n4nQ46KR0EQfRE-u1As-F01VkoYUw:1775574475054&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOZXcx_tuXme6UQ3vKDNMy0AG9EXyiX1efheageUu9Z4EdlGsRiMepkUE-rmCGlXbqZRLPZBHXVGMoIWBOw8SkWIPKgGjIKJd2NyDLmZjnI_fD6LrgZCLBk_o-Mfe_EZ-GvPMr7O2rupdmQ0mdMfdmPSHw6tQ0t1QJbx4WCN64IQFgOHGag%3D%3D&q=Montreal+Canine+Training+Inc.+/+Entra%C3%AEnement+Canin+Montr%C3%A9al+Inc.+Reviews&sa=X&ved=2ahUKEwi4lO6ugtyTAxUrETQIHUpNHjkQ0bkNegQIMhAH&biw=2400&bih=1161&dpr=0.8" },
   ],
@@ -29,13 +31,15 @@ const footerLinks = {
 
 export function Footer() {
   const t = useTranslations("common")
+  const locale = useAppLocale()
+  const hrefFor = (href: string) => (href.startsWith("/") ? addLocaleToPathname(href, locale) : href)
 
   return (
     <footer className="bg-foreground text-background py-16 lg:py-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-6">
+            <Link href={hrefFor("/")} className="flex items-center gap-2 mb-6">
               <span className="font-display text-xl font-semibold text-background tracking-tight">
                 Montreal Canine Training
               </span>
@@ -87,7 +91,7 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.training.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-background/70 hover:text-background transition-colors">
+                  <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -100,7 +104,7 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-background/70 hover:text-background transition-colors">
+                  <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -113,7 +117,7 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.resources.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-background/70 hover:text-background transition-colors">
+                  <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -128,10 +132,10 @@ export function Footer() {
           </p>
           <div className="flex gap-6 text-sm text-background/50">
             {/* TODO: Add real privacy policy and terms pages before launch */}
-            <Link href="/privacy" className="hover:text-background transition-colors">
+            <Link href={hrefFor("/privacy")} className="hover:text-background transition-colors">
               {t("footer.privacyPolicy")}
             </Link>
-            <Link href="/terms" className="hover:text-background transition-colors">
+            <Link href={hrefFor("/terms")} className="hover:text-background transition-colors">
               {t("footer.termsOfService")}
             </Link>
           </div>

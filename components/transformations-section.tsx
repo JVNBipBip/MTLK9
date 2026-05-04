@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Script from "next/script"
 import Link from "next/link"
 import { ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -77,13 +76,6 @@ export function TransformationsSection() {
 
   return (
     <section ref={sectionRef} className="py-24 lg:py-32 bg-background">
-      <Script src="https://fast.wistia.com/player.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/ww92aq0dn9.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/i0ipeqgj8k.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/3a2efylwfy.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/2cytzfcub2.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/ek2ojttv3i.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/qtdpt5lv7o.js" strategy="lazyOnload" />
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
@@ -113,8 +105,14 @@ export function TransformationsSection() {
                   {/* Video/Image */}
                   {story.wistiaId ? (
                     <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
-                      {/* @ts-expect-error - Wistia web component */}
-                      <wistia-player media-id={story.wistiaId} aspect="0.5625" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "177.78%", height: "100%" }} />
+                      <iframe
+                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}`}
+                        title={story.mediaAlt}
+                        allow="autoplay; fullscreen"
+                        allowFullScreen
+                        loading="lazy"
+                        className="absolute left-1/2 top-1/2 h-full w-[177.78%] -translate-x-1/2 -translate-y-1/2 border-0"
+                      />
                     </div>
                   ) : (
                     <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">

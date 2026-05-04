@@ -4,9 +4,15 @@ export const frenchTextTranslations: Record<string, string> = {
   Results: "Résultats",
   "About Us": "À propos",
   Contact: "Contact",
-  "Book a Free Call": "Réserver un appel gratuit",
-  "Book a Free Discovery Call": "Réserver un appel découverte gratuit",
+  "Book a Free Call": "Contactez-nous pour un appel gratuit",
+  "Book a Free Discovery Call": "Contactez-nous pour un appel découverte gratuit",
+  "Contact Us": "Contactez-nous",
+  "Contact Us for a Free Call": "Contactez-nous pour un appel gratuit",
+  "Contact Us for a Free Discovery Call": "Contactez-nous pour un appel découverte gratuit",
+  "Book your in-person assessment": "Réserver votre évaluation en personne",
   "Book a Consultation": "Réserver une consultation",
+  "Call us": "Appelez-nous",
+  "Email us": "Envoyez-nous un email",
   "Call Now": "Appelez maintenant",
   "Privacy Policy": "Politique de confidentialité",
   "Terms of Service": "Conditions d'utilisation",
@@ -58,7 +64,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "Learn More": "En savoir plus",
   "Success Stories": "Histoires de réussite",
   "Real dogs. Real progress.": "De vrais chiens. De vrais progrès.",
-  "Book Your Free Call": "Réserver votre appel gratuit",
+  "Book Your Free Call": "Contactez-nous pour un appel gratuit",
   "Tell us about your dog": "Parlez-nous de votre chien",
   "Next": "Suivant",
   "Back": "Retour",
@@ -207,7 +213,10 @@ export const frenchTextTranslations: Record<string, string> = {
   "Everything you need to know before getting started.": "Tout ce que vous devez savoir avant de commencer.",
   "View All FAQs": "Voir toutes les FAQ",
   "Ready to Start?": "Prêt à commencer?",
-  "Book a free 15-minute discovery call": "Réservez un appel découverte gratuit de 15 minutes",
+  "Book a free 15-minute discovery call": "Commencez par un appel découverte gratuit de 15 minutes",
+  "Start with a free 15-minute discovery call": "Commencez par un appel découverte gratuit de 15 minutes",
+  "Tell us what's going on with your dog. We'll listen, answer your questions, and figure out the right path together. No pressure, no commitment.":
+    "Parlez-nous de votre chien. Nous écouterons, répondrons à vos questions et trouverons le bon parcours ensemble. Sans pression ni engagement.",
   "Not sure yet?": "Pas encore certain?",
   "Take a look at our training programs": "Découvrez nos entraînements",
   "Choose Your Training Path": "Choisissez votre parcours d'entraînement",
@@ -243,7 +252,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Need Guidance?": "Besoin d'aide?",
   "Not Sure Where to Start?": "Vous ne savez pas par où commencer?",
   "Book a free 15-minute discovery call. Tell us about your dog, and we'll help you find the right training path — no pressure, no commitment.":
-    "Réservez un appel découverte gratuit de 15 minutes. Parlez-nous de votre chien et nous vous aiderons à trouver le bon parcours, sans pression ni engagement.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Parlez-nous de votre chien et nous vous aiderons à trouver le bon parcours, sans pression ni engagement.",
+  "Start with a free 15-minute discovery call. Tell us about your dog, and we'll help you find the right training path — no pressure, no commitment.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Parlez-nous de votre chien et nous vous aiderons à trouver le bon parcours, sans pression ni engagement.",
   "Choose your format": "Choisissez votre format",
   "How would you like to start": "Comment voulez-vous commencer",
   "If you already know the format you want, choose it below. If not, book an assessment and we'll recommend the right path for your dog.":
@@ -283,6 +294,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "Training Focus": "Objectif d'entraînement",
   "Clear steps, real-world reps, and measurable progress — built around your dog.":
     "Des étapes claires, des répétitions réelles et des progrès mesurables, adaptés à votre chien.",
+  "Clear steps, real-world reps, and practical homework to build lasting behavior.":
+    "Des étapes claires, des répétitions concrètes et des devoirs pratiques pour bâtir un comportement durable.",
   "Previous goal": "Objectif précédent",
   "Next goal": "Objectif suivant",
   "Go to goal": "Aller à l'objectif",
@@ -302,7 +315,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Structured socialization": "Socialisation structurée",
   "Ready to take back your walks?": "Prêt à reprendre vos promenades?",
   "Book a free 15-minute discovery call. We'll talk about your dog's triggers, your goals, and which format — private or group — makes the most sense.":
-    "Réservez un appel découverte gratuit de 15 minutes. Nous parlerons des déclencheurs de votre chien, de vos objectifs et du format privé ou de groupe qui convient le mieux.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous parlerons des déclencheurs de votre chien, de vos objectifs et du format privé ou de groupe qui convient le mieux.",
+  "Start with a free 15-minute discovery call. We'll talk about your dog's triggers, your goals, and which format — private or group — makes the most sense.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous parlerons des déclencheurs de votre chien, de vos objectifs et du format privé ou de groupe qui convient le mieux.",
   "Your dog's issues don't fit neatly into a group class.":
     "Les difficultés de votre chien ne rentrent pas facilement dans un cours de groupe.",
   "You want a trainer's full attention on your specific situation.":
@@ -322,7 +337,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Resource guarding": "Protection des ressources",
   "Your dog deserves a plan built for them.": "Votre chien mérite un plan fait pour lui.",
   "Book a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.":
-    "Réservez un appel découverte gratuit de 15 minutes. Dites-nous ce qui se passe et nous recommanderons le bon forfait, sans pression ni engagement.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Dites-nous ce qui se passe et nous recommanderons le bon forfait, sans pression ni engagement.",
+  "Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Dites-nous ce qui se passe et nous recommanderons le bon forfait, sans pression ni engagement.",
   "Your dog knows 'sit' at home but ignores you everywhere else.":
     "Votre chien connaît « assis » à la maison, mais vous ignore partout ailleurs.",
   "You want a well-mannered dog you can take anywhere in Montreal.":
@@ -340,7 +357,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Advanced commands in high-distraction settings": "Commandes avancées dans des contextes très stimulants",
   "Ready for a dog that actually listens?": "Prêt pour un chien qui écoute vraiment?",
   "Book a free 15-minute discovery call. We'll help you pick the right level and format — group or private — for where your dog is right now.":
-    "Réservez un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le bon niveau et le bon format, groupe ou privé, selon où en est votre chien.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le bon niveau et le bon format, groupe ou privé, selon où en est votre chien.",
+  "Start with a free 15-minute discovery call. We'll help you pick the right level and format — group or private — for where your dog is right now.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le bon niveau et le bon format, groupe ou privé, selon où en est votre chien.",
   "Your puppy is biting everything — hands, furniture, ankles.":
     "Votre chiot mord tout : les mains, les meubles, les chevilles.",
   "You're not sure how to socialise safely without overwhelming them.":
@@ -360,7 +379,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Bite inhibition and impulse control": "Inhibition de la morsure et contrôle des impulsions",
   "Start your puppy off right.": "Donnez un bon départ à votre chiot.",
   "Book a free 15-minute discovery call. We'll help you figure out which class — socialisation, teen group, or private — is the right fit for your puppy's age and needs.":
-    "Réservez un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le cours qui convient à l'âge et aux besoins de votre chiot : socialisation, groupe ado ou privé.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le cours qui convient à l'âge et aux besoins de votre chiot : socialisation, groupe ado ou privé.",
+  "Start with a free 15-minute discovery call. We'll help you figure out which class — socialisation, teen group, or private — is the right fit for your puppy's age and needs.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le cours qui convient à l'âge et aux besoins de votre chiot : socialisation, groupe ado ou privé.",
   "Your dog's biggest issues happen at home — door manners, guests, anxiety.":
     "Les plus grands défis de votre chien se produisent à la maison : porte, invités, anxiété.",
   "You want training in the exact environment where behaviour breaks down.":
@@ -379,7 +400,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Handler coaching and follow-through": "Coaching du maître et suivi",
   "Training that comes to you.": "L'entraînement qui vient à vous.",
   "Book a free 15-minute discovery call. We'll learn about your dog, your home, and your goals — then recommend the right package to get started.":
-    "Réservez un appel découverte gratuit de 15 minutes. Nous apprendrons à connaître votre chien, votre maison et vos objectifs, puis recommanderons le bon forfait pour commencer.",
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous apprendrons à connaître votre chien, votre maison et vos objectifs, puis recommanderons le bon forfait pour commencer.",
+  "Start with a free 15-minute discovery call. We'll learn about your dog, your home, and your goals — then recommend the right package to get started.":
+    "Commencez par un appel découverte gratuit de 15 minutes. Nous apprendrons à connaître votre chien, votre maison et vos objectifs, puis recommanderons le bon forfait pour commencer.",
   "Request the group class your dog is approved for": "Demandez le cours de groupe pour lequel votre chien est approuvé",
   "Small cohorts. Real coaching. Enter your email to see approved classes and request a spot, or book an assessment and we'll place your dog in the right program.":
     "Petits groupes. Vrai coaching. Entrez votre courriel pour voir les cours approuvés et demander une place, ou réservez une évaluation et nous placerons votre chien dans le bon programme.",
@@ -618,7 +641,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Dog training is unregulated in Canada. Anyone can call themselves a trainer. We hold ourselves to a higher standard: our methods are transparent, our credentials are verifiable, and we're committed to continuing education in animal behavior science.":
     "L'entraînement canin n'est pas réglementé au Canada. N'importe qui peut se dire entraîneur. Nous nous imposons un standard plus élevé : nos méthodes sont transparentes, nos qualifications vérifiables et nous sommes engagés dans la formation continue en science du comportement animal.",
   "Ready to Meet Us?": "Prêt à nous rencontrer?",
-  "Book a free discovery call and start your dog's plan": "Réservez un appel découverte gratuit et commencez le plan de votre chien",
+  "Book a free discovery call and start your dog's plan": "Contactez-nous pour un appel découverte gratuit et commencez le plan de votre chien",
+  "Contact us for a free discovery call and start your dog's plan":
+    "Contactez-nous pour un appel découverte gratuit et commencez le plan de votre chien",
   "Tell us about your dog. We'll listen, answer your questions, and figure out the right path together.":
     "Parlez-nous de votre chien. Nous écouterons, répondrons à vos questions et trouverons ensemble le bon parcours.",
   "Real Advice for Real Dog Owners": "De vrais conseils pour de vrais propriétaires",
@@ -678,7 +703,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "Book Free Evaluation": "Réserver une évaluation gratuite",
   "Your dog's story could be next.": "L'histoire de votre chien pourrait être la prochaine.",
   "Book a free discovery call and start your dog's transformation.":
-    "Réservez un appel découverte gratuit et commencez la transformation de votre chien.",
+    "Contactez-nous pour un appel découverte gratuit et commencez la transformation de votre chien.",
+  "Contact us for a free discovery call and start your dog's transformation.":
+    "Contactez-nous pour un appel découverte gratuit et commencez la transformation de votre chien.",
   "Program payment confirmed": "Paiement du programme confirmé",
   "Evaluation payment confirmed": "Paiement de l'évaluation confirmé",
   "Your program signup is confirmed. Our team will contact you with next steps.":
@@ -687,7 +714,8 @@ export const frenchTextTranslations: Record<string, string> = {
     "Votre évaluation en personne est confirmée. Notre équipe vous contactera bientôt pour planifier votre séance.",
   "Reference ID:": "Numéro de référence :",
   "Back to homepage": "Retour à l'accueil",
-  "Book another call": "Réserver un autre appel",
+  "Book another call": "Contactez-nous à nouveau",
+  "Contact us again": "Contactez-nous à nouveau",
   "Checkout cancelled": "Paiement annulé",
   "No payment was processed for your program signup.":
     "Aucun paiement n'a été traité pour votre inscription au programme.",

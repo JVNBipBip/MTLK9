@@ -1,11 +1,19 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata = {
-  title: "Privacy Policy",
-  description:
-    "How Montreal Canine Training collects, uses, and protects your personal information.",
-  alternates: { canonical: "https://mtlcaninetraining.com/privacy" },
+export function generateMetadata() {
+  return buildLocalizedMetadata({
+    path: "/privacy",
+    title: {
+      en: "Privacy Policy",
+      fr: "Politique de confidentialité",
+    },
+    description: {
+      en: "How Montreal Canine Training collects, uses, and protects your personal information.",
+      fr: "Comment nous recueillons, utilisons et protégeons vos renseignements personnels.",
+    },
+  })
 }
 
 export default function PrivacyPage() {

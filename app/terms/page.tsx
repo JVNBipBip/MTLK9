@@ -1,11 +1,19 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata = {
-  title: "Terms of Service",
-  description:
-    "Terms and conditions for using Montreal Canine Training services and website.",
-  alternates: { canonical: "https://mtlcaninetraining.com/terms" },
+export function generateMetadata() {
+  return buildLocalizedMetadata({
+    path: "/terms",
+    title: {
+      en: "Terms of Service",
+      fr: "Conditions d'utilisation",
+    },
+    description: {
+      en: "Terms and conditions for using Montreal Canine Training services and website.",
+      fr: "Conditions applicables à l'utilisation du site et des services d'Entraînement Canin Montréal.",
+    },
+  })
 }
 
 export default function TermsPage() {

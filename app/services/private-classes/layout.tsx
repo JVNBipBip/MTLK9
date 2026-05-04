@@ -1,11 +1,20 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Private Classes",
-  description:
-    "One-on-one dog training in Montreal. Flexible private class packages for behaviour modification, leash reactivity, aggression, separation anxiety, and more.",
-  alternates: { canonical: "https://mtlcaninetraining.com/services/private-classes" },
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/services/private-classes",
+    title: {
+      en: "Private Dog Training in Montreal",
+      fr: "Cours privés pour chiens à Montréal",
+    },
+    description: {
+      en: "One-on-one dog training in Montreal for reactivity, anxiety, aggression, confidence, and custom goals.",
+      fr: "Coaching individuel pour le comportement, la réactivité, l'anxiété, l'agressivité et les objectifs personnalisés.",
+    },
+    image: "/images/Classes images/private.webp",
+  })
 }
 
 export default function PrivateClassesLayout({

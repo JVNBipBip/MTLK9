@@ -6,7 +6,7 @@ import { useBookingForm } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { X, Search, CheckCircle2, AlertCircle, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
 import { getIntlLocale } from "@/lib/i18n/config"
 import {
   PLAN_TYPE_LABEL,
@@ -15,6 +15,7 @@ import {
   type StatusResponse,
 } from "./training-portal-types"
 import { GroupClassesContent } from "./group-classes-content"
+import { trackFBCompleteRegistration, trackFBLead } from "@/lib/facebook-pixel"
 
 function formatDateTime(iso: string, intlLocale: string) {
   return new Date(iso).toLocaleString(intlLocale, {
@@ -212,6 +213,16 @@ export function TrainingPortalContent({
         throw new Error(response.ok ? "Invalid response from server." : `Server error: ${response.status}`)
       }
       if (!response.ok) throw new Error(data.error || "Could not save private package.")
+      trackFBLead({
+        content_name: "Private Training Package",
+        content_category: "Dog Training Lead",
+      })
+      trackFBCompleteRegistration({
+        content_name: "Private Training Package",
+        content_category: "Dog Training Package",
+        service_type: selectedServiceType,
+        plan_type: selectedPlanType,
+      })
       if (!privateContractAlreadyAccepted) {
         try {
           await fetch("/api/contract-acceptance", {
@@ -512,16 +523,18 @@ export function TrainingPortalContent({
                           </div>
                           {privateContractAlreadyAccepted ? (
                             <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                              Private training agreement already accepted for this version.
+                              {CONTRACT_ACCEPTED_LABEL[locale].private_classes}
                             </p>
                           ) : (
                             <>
-                              <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                                <summary className="cursor-pointer font-medium">
-                                  {CONTRACT_LABEL.private_classes} ({CONTRACT_VERSION})
-                                </summary>
-                                <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("private_classes")}</p>
-                              </details>
+                              <a
+                                href={contractUrl("private_classes", locale)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                              >
+                                {CONTRACT_LINK_LABEL[locale].private_classes}
+                              </a>
                               <label className="flex items-start gap-2 text-sm">
                                 <input
                                   type="checkbox"
@@ -529,7 +542,7 @@ export function TrainingPortalContent({
                                   onChange={(e) => setPrivateContractAccepted(e.target.checked)}
                                   className="mt-1"
                                 />
-                                <span>I have read and agree to the private training agreement (version {CONTRACT_VERSION}).</span>
+                                <span>{CONTRACT_ACCEPTANCE_LABEL[locale].private_classes}</span>
                               </label>
                             </>
                           )}

@@ -7,8 +7,8 @@ export const messages = {
       switchToEnglish: "English",
       switchToFrench: "Français",
       callNow: "Call Now",
-      bookFreeCall: "Book a Free Call",
-      bookFreeDiscoveryCall: "Book a Free Discovery Call",
+      bookFreeCall: "Contact Us for a Free Call",
+      bookFreeDiscoveryCall: "Contact Us for a Free Discovery Call",
       nav: {
         trainingPrograms: "Training Programs",
         groupClasses: "Group Classes",
@@ -29,10 +29,10 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Montreal Canine Training — Real-World Dog Training in Montreal",
+      title: "Dog Training Montreal — Montreal Canine Training",
       template: "%s — Montreal Canine Training",
       description:
-        "Calm walks. Confident dogs. Clear plans. Montreal Canine Training delivers real-world behavioral coaching for leash reactivity, anxiety, puppy training, and more — using humane, evidence-guided methods.",
+        "Real-world dog training in Montreal for reactivity, anxiety, puppy skills, and calmer walks.",
       ogTitle: "Montreal Canine Training — Real-World Dog Training",
       ogDescription:
         "Real-world behavioral coaching for Montreal dog owners. Calm walks, confident dogs, and clear plans.",
@@ -45,8 +45,8 @@ export const messages = {
       switchToEnglish: "English",
       switchToFrench: "Français",
       callNow: "Appelez maintenant",
-      bookFreeCall: "Réserver un appel gratuit",
-      bookFreeDiscoveryCall: "Réserver un appel découverte gratuit",
+      bookFreeCall: "Contactez-nous pour un appel gratuit",
+      bookFreeDiscoveryCall: "Contactez-nous pour un appel découverte gratuit",
       nav: {
         trainingPrograms: "Entraînement",
         groupClasses: "Cours de groupe",
@@ -67,10 +67,10 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Entraînement Canin Montréal — Entraînement concret à Montréal",
+      title: "Entraînement canin Montréal — Entraînement Canin Montréal",
       template: "%s — Entraînement Canin Montréal",
       description:
-        "Promenades calmes. Chiens confiants. Plans clairs. Entraînement Canin Montréal offre du coaching comportemental concret pour la réactivité en laisse, l'anxiété, l'entraînement des chiots et plus encore, avec des méthodes humaines et fondées sur les données.",
+        "Entraînement canin à Montréal pour la réactivité, l'anxiété, les chiots et les promenades calmes.",
       ogTitle: "Entraînement Canin Montréal — Entraînement concret",
       ogDescription:
         "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Promenades calmes, chiens confiants et plans clairs.",

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { trackFBLead } from "@/lib/facebook-pixel"
 import { getIntlLocale } from "@/lib/i18n/config"
 import type { ApprovedGroupProgram, GroupSeriesListItem, StatusResponse } from "./training-portal-types"
 
@@ -223,6 +224,10 @@ export function GroupClassesContent({
         throw new Error(data.error || "Could not request this group class.")
       }
       const bookingId = data.bookingId
+      trackFBLead({
+        content_name: requestedSeries?.programLabel || "Group Class Request",
+        content_category: "Group Class Lead",
+      })
       setRequestMsg("Request sent. Staff will review it and email you once it has been accepted or declined.")
       if (requestedSeries?.sessions[0]) {
         setLocalPendingRequests((prev) => [
@@ -370,16 +375,18 @@ export function GroupClassesContent({
                       </p>
                       {groupContractAlreadyAccepted ? (
                         <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                          Group class agreement already accepted for this version.
+                          {CONTRACT_ACCEPTED_LABEL[locale].group_classes}
                         </p>
                       ) : (
                         <div className="space-y-3">
-                          <details className="rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                            <summary className="cursor-pointer font-medium">
-                              {CONTRACT_LABEL.group_classes} ({CONTRACT_VERSION})
-                            </summary>
-                            <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("group_classes")}</p>
-                          </details>
+                          <a
+                            href={contractUrl("group_classes", locale)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                          >
+                            {CONTRACT_LINK_LABEL[locale].group_classes}
+                          </a>
                           <label className="flex items-start gap-2 text-sm">
                             <input
                               type="checkbox"
@@ -387,7 +394,7 @@ export function GroupClassesContent({
                               onChange={(e) => setGroupContractAccepted(e.target.checked)}
                               className="mt-1"
                             />
-                            <span>I have read and agree to the group class agreement ({CONTRACT_VERSION}).</span>
+                            <span>{CONTRACT_ACCEPTANCE_LABEL[locale].group_classes}</span>
                           </label>
                         </div>
                       )}

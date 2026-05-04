@@ -1,3 +1,5 @@
+import type { AppLocale } from "@/lib/i18n/config"
+
 export interface FaqItem {
   question: string
   answer: string
@@ -55,3 +57,55 @@ export const faqData: FaqCategory[] = [
     ],
   },
 ]
+
+export const faqDataFr: FaqCategory[] = [
+  {
+    title: "Méthodes et approche d'entraînement",
+    items: [
+      {
+        question: "Quels types de méthodes d'entraînement utilisez-vous?",
+        answer:
+          "Nous offrons différentes méthodes. Tout dépend du chien devant nous, de ce qui lui convient le mieux et de ce qui met le client à l'aise. Notre objectif est d'utiliser la méthode la plus sécuritaire et efficace selon les besoins du chien, en accordant une grande importance à son état émotionnel. Le développement d'une relation solide est une priorité pour nous.",
+      },
+      {
+        question: "Quel est l'objectif principal de votre entraînement?",
+        answer:
+          "Notre philosophie d'entraînement diffère des méthodes traditionnelles. Nous nous concentrons d'abord sur le développement d'une relation solide entre l'humain et le chien. Nous travaillons l'engagement actif avant tout entraînement d'obéissance. L'engagement, la motivation, la communication, la connexion, la confiance et la relation sont nos priorités.",
+      },
+    ],
+  },
+  {
+    title: "Services et cours",
+    items: [
+      {
+        question: "À quoi peut-on s'attendre dans les cours privés?",
+        answer:
+          "Les cours privés sont notre option de choix et nous les recommandons fortement à tous les clients. Pendant ces cours, nous prenons le temps d'éduquer les propriétaires et de les aider à améliorer leurs habiletés de manipulation. Nous nous assurons de stimuler le maître et le chien à chaque cours tout en contrôlant l'environnement pour eux. Des chiens de démonstration et d'autres distractions peuvent être introduits pendant ces séances. Lorsque vous et votre chien aurez les outils nécessaires pour progresser, nous poursuivrons les séances dans différents environnements afin de vous montrer comment gérer et travailler avec votre chien en public. Nous croyons fortement que c'est une façon réaliste et efficace d'aider les propriétaires de chiens.",
+      },
+      {
+        question: "Quels types de services offrez-vous?",
+        answer:
+          "Nous offrons des consultations, de l'obéissance pour animaux de compagnie, de la modification du comportement, une introduction aux sports canins et des cours d'apprentissage. Nos services sont principalement des cours privés et des cours de groupe. Les cours d'obéissance en groupe comprennent différents niveaux adaptés à l'âge du chien, à son niveau d'entraînement et aux habiletés du maître.",
+      },
+    ],
+  },
+  {
+    title: "Pour commencer",
+    items: [
+      {
+        question: "Comment inscrire mon chien à un cours de groupe?",
+        answer:
+          "La première étape consiste à planifier une évaluation avec l'un de nos entraîneurs. Cette évaluation déterminera quel programme convient le mieux à vous et à votre chien. Une fois l'évaluation terminée, un entraîneur vous expliquera comment vous préparer à votre premier cours de groupe ou cours privé et quoi apporter.",
+      },
+      {
+        question: "Comment puis-je joindre un entraîneur et en savoir plus sur les services?",
+        answer:
+          "La meilleure façon de nous joindre est de soumettre un formulaire de demande sur notre site Web. Vous pouvez aussi appeler ou texter nos entraîneurs pour obtenir de l'information ou réserver.",
+      },
+    ],
+  },
+]
+
+export function getFaqData(locale: AppLocale = "en") {
+  return locale === "fr" ? faqDataFr : faqData
+}

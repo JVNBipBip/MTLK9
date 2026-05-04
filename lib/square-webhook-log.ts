@@ -8,6 +8,8 @@ export type WebhookLogStage =
   | "payload_parse_failed"
   | "reconcile_ok"
   | "reconcile_error"
+  | "consultation_deposit_finalize_ok"
+  | "consultation_deposit_finalize_error"
   | "order_finalize_ok"
   | "order_finalize_error"
   | "class_sync_triggered"

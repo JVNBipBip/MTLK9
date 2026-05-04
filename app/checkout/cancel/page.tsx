@@ -1,10 +1,8 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { noIndexMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Checkout Cancelled — Montreal Canine Training",
-  description: "Your checkout was cancelled.",
-}
+export const metadata: Metadata = noIndexMetadata("Checkout Cancelled — Montreal Canine Training", "Your checkout was cancelled.")
 
 type CancelPageProps = {
   searchParams: Promise<{

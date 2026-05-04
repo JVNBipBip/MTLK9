@@ -1,11 +1,20 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "In-Home Training",
-  description:
-    "In-home dog training in Montreal. Starts with a consultation, then 3, 5, or 7 session packages — behaviour modification, flexible scheduling, and one-on-one expert attention in your home.",
-  alternates: { canonical: "https://mtlcaninetraining.com/services/in-home" },
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/services/in-home",
+    title: {
+      en: "In-Home Dog Training in Montreal",
+      fr: "Entraînement canin à domicile à Montréal",
+    },
+    description: {
+      en: "In-home dog training in Montreal for behaviour, door manners, leash skills, and routines at home.",
+      fr: "Entraînement à domicile à Montréal pour le comportement, la laisse et les routines familiales.",
+    },
+    image: "/images/Classes images/in-home.webp",
+  })
 }
 
 export default function InHomeLayout({

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { trackFBSchedule } from "@/lib/facebook-pixel"
 import { formatTorontoDateTime } from "@/lib/toronto-time"
 
 type ConsultationPayload = {
@@ -93,13 +94,18 @@ export function BookingAccessContent({ token }: { token: string }) {
       if (!response.ok || !data.bookingId) {
         throw new Error(data.error || "Could not create booking.")
       }
+      const selectedSlot = slots.find((slot) => slot.slotKey === selected[0])
+      trackFBSchedule({
+        content_name: selectedSlot?.programLabel || "Recommended Class",
+        content_category: "Dog Training Booking",
+      })
       setIsComplete(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create booking.")
     } finally {
       setIsSubmitting(false)
     }
-  }, [consultation, selected, token])
+  }, [consultation, selected, slots, token])
 
   if (loading) {
     return <main className="mx-auto max-w-3xl px-6 py-12">Loading secure booking access...</main>

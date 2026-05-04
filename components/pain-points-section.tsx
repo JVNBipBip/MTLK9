@@ -5,6 +5,7 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 import Image from "next/image"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const painPoints = [
   {
@@ -30,6 +31,7 @@ const painPoints = [
 ]
 
 export function PainPointsSection() {
+  const t = useLocalizedText()
   const sectionRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -90,22 +92,21 @@ export function PainPointsSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            Sound Familiar?
+            {t("Sound Familiar?")}
           </p>
           <ScrollAnimatedText
-            text="Does your dog..."
+            text={t("Does your dog...")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            You&apos;re not a bad owner. These are the most common reasons Montreal dog owners reach
-            out to us.
+            {t("You're not a bad owner. These are the most common reasons Montreal dog owners reach out to us.")}
           </p>
         </div>
 
         <div className="reveal opacity-0">
           <div className="mb-4 flex items-center justify-between gap-4">
             <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-muted-foreground/80">
-              Swipe/Scroll to see each challenge
+              {t("Swipe/Scroll to see each challenge")}
             </p>
             <div className="hidden lg:flex items-center gap-2">
               <button
@@ -113,7 +114,7 @@ export function PainPointsSection() {
                 onClick={() => goToSlide(Math.max(0, activeIndex - 1))}
                 disabled={activeIndex === 0}
                 className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground transition-colors hover:bg-muted disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Previous challenge"
+                aria-label={t("Previous challenge")}
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
@@ -122,7 +123,7 @@ export function PainPointsSection() {
                 onClick={() => goToSlide(Math.min(painPoints.length - 1, activeIndex + 1))}
                 disabled={activeIndex === painPoints.length - 1}
                 className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground transition-colors hover:bg-muted disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Next challenge"
+                aria-label={t("Next challenge")}
               >
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -138,7 +139,7 @@ export function PainPointsSection() {
                   <div className="relative h-64 sm:h-80 lg:h-full overflow-hidden">
                     <Image
                       src={point.image}
-                      alt={point.question}
+                      alt={t(point.question)}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 1024px) 100vw, 50vw"
@@ -147,17 +148,17 @@ export function PainPointsSection() {
                   </div>
                   <div className="flex flex-col justify-center p-7 md:p-10 lg:p-12">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
-                      Common Challenge
+                      {t("Common Challenge")}
                     </p>
                     <h3 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground mb-4">
-                      {point.question}
+                      {t(point.question)}
                     </h3>
                     <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 max-w-xl">
-                      {point.description}
+                      {t(point.description)}
                     </p>
                     <FreeCallLink className="mt-auto inline-flex">
                       <span className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3.5 text-sm font-semibold transition-colors group-hover:bg-primary/90 cursor-pointer">
-                        Find your training path
+                        {t("Find your training path")}
                         <ArrowRight className="w-4 h-4" />
                       </span>
                     </FreeCallLink>
@@ -175,7 +176,7 @@ export function PainPointsSection() {
                 className={`h-2.5 rounded-full transition-all ${
                   index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
                 }`}
-                aria-label={`Go to slide ${index + 1}`}
+                aria-label={`${t("Go to slide")} ${index + 1}`}
               />
             ))}
             <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">

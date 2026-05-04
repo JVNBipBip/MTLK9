@@ -1,10 +1,19 @@
 import type { Metadata } from "next"
 import { BookingPageRedirect } from "./booking-page-redirect"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Book Your Assessment — Montreal Canine Training",
-  description:
-    "Book a free discovery call or assessment session. We respond within 1 business day. Real-world training in Montreal.",
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/booking",
+    title: {
+      en: "Book a Dog Training Assessment",
+      fr: "Réserver une évaluation d'entraînement canin",
+    },
+    description: {
+      en: "Contact us for a free dog training discovery call or assessment in Montreal.",
+      fr: "Appelez-nous ou écrivez-nous pour parler de votre chien et trouver le bon parcours d'entraînement.",
+    },
+  })
 }
 
 export default function BookingPage() {

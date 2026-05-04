@@ -15,9 +15,9 @@ import { StepDogInfo } from "./steps/step-dog-info"
 import { StepGoals } from "./steps/step-goals"
 import { StepContact } from "./steps/step-contact"
 import { StepConfirmation } from "./steps/step-confirmation"
-import { CONTRACT_LABEL, CONTRACT_VERSION, contractBody } from "@/lib/contract-terms"
+import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
-import { trackFBLead } from "@/lib/facebook-pixel"
+import { trackFBInitiateCheckout, trackFBLead } from "@/lib/facebook-pixel"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
 const TOTAL_STEPS = 5
@@ -264,6 +264,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
         const data = (await response.json().catch(() => null)) as { error?: string } | null
         throw new Error(data?.error || "Failed to submit booking form.")
       }
+      const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null } | null
 
       try {
         await fetch("/api/contract-acceptance", {
@@ -280,6 +281,19 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
         })
       } catch {
         /* non-blocking */
+      }
+
+      if (data?.checkoutUrl) {
+        trackFBLead({
+          content_name: "In-Person Evaluation Deposit",
+          content_category: "Dog Training Lead",
+        })
+        trackFBInitiateCheckout({
+          content_name: "In-Person Evaluation Deposit",
+          content_category: "Dog Training Checkout",
+        })
+        window.location.assign(data.checkoutUrl)
+        return
       }
 
       setIsComplete(true)
@@ -706,15 +720,29 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                         <p className="text-muted-foreground">In-person assessment</p>
                       </div>
                     </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">Deposit</p>
+                        <p className="text-muted-foreground">
+                          $30 deposit required. Your consultation is confirmed after payment is complete. Late cancellations or no-shows may forfeit the deposit.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
 
               <div className="space-y-3 pt-2">
-                <details className="rounded-xl border border-border bg-muted/20 p-4 text-sm text-left">
-                  <summary className="cursor-pointer font-medium">{CONTRACT_LABEL.assessment_booking} ({CONTRACT_VERSION})</summary>
-                  <p className="mt-2 text-muted-foreground leading-relaxed">{contractBody("assessment_booking")}</p>
-                </details>
+                <a
+                  href={contractUrl("assessment_booking", locale)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                >
+                  {CONTRACT_LINK_LABEL[locale].assessment_booking}
+                </a>
                 <label className="flex items-start gap-2 text-sm text-left">
                   <input
                     type="checkbox"
@@ -722,7 +750,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     onChange={(e) => setIntakeContractAccepted(e.target.checked)}
                     className="mt-1"
                   />
-                  <span>I have read and agree to this agreement ({CONTRACT_VERSION}).</span>
+                  <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
                 </label>
               </div>
 
@@ -737,10 +765,10 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Scheduling...
+                      Opening checkout...
                     </>
                   ) : (
-                    "Confirm assessment booking"
+                    "Pay $30 deposit"
                   )}
                 </Button>
               </div>

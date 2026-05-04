@@ -1,11 +1,17 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ArrowRight, Play } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { getTransformationStory, transformationStories } from "@/lib/transformation-stories"
+import { buildLocalizedMetadata, noIndexMetadata } from "@/lib/seo"
+import {
+  getTransformationStory,
+  isPublishableTransformationStory,
+  transformationStories,
+} from "@/lib/transformation-stories"
 
 type StoryPageProps = {
   params: Promise<{ slug: string }>
@@ -13,6 +19,34 @@ type StoryPageProps = {
 
 export function generateStaticParams() {
   return transformationStories.map((story) => ({ slug: story.slug }))
+}
+
+export async function generateMetadata({ params }: StoryPageProps): Promise<Metadata> {
+  const { slug } = await params
+  const story = getTransformationStory(slug)
+
+  if (!story) {
+    return noIndexMetadata("Story Not Found", "This transformation story could not be found.")
+  }
+
+  if (!isPublishableTransformationStory(story)) {
+    return noIndexMetadata(
+      `${story.dogName}: Transformation Story`,
+      "This transformation story is not ready for search indexing.",
+    )
+  }
+
+  return buildLocalizedMetadata({
+    path: `/results/${story.slug}`,
+    title: {
+      en: `${story.dogName}'s Dog Training Result`,
+      fr: `Résultat d'entraînement de ${story.dogName}`,
+    },
+    description: {
+      en: `${story.dogName}, a ${story.breed}, made real progress through ${story.path.toLowerCase()} at Montreal Canine Training.`,
+      fr: `${story.dogName}, ${story.breed}, a fait de vrais progrès grâce à l'entraînement chez Entraînement Canin Montréal.`,
+    },
+  })
 }
 
 export default async function StoryPage({ params }: StoryPageProps) {
@@ -85,7 +119,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
             <div className="pt-2">
               <FreeCallLink>
                 <Button size="lg" className="rounded-full px-8 py-6 text-base group">
-                  Book a Free Discovery Call
+                  Contact Us for a Free Discovery Call
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </FreeCallLink>

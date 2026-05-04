@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const stats = [
   {
@@ -30,6 +31,7 @@ const stats = [
 const studySource = "Texas A&M, 43,517 dogs studied"
 
 export function StatsSection() {
+  const t = useLocalizedText()
   const sectionRef = useRef<HTMLElement>(null)
   const [animatedValues, setAnimatedValues] = useState<{ [key: string]: number }>({})
   const [hasAnimated, setHasAnimated] = useState(false)
@@ -77,10 +79,10 @@ export function StatsSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/90 font-medium mb-4">
-            You&apos;re Not Alone
+            {t("You're Not Alone")}
           </p>
           <ScrollAnimatedText
-            text="The numbers tell the story"
+            text={t("The numbers tell the story")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-primary-foreground text-balance mb-6 font-semibold tracking-tight"
           />
         </div>
@@ -88,7 +90,7 @@ export function StatsSection() {
         <div className="reveal opacity-0 animation-delay-400 mb-16 rounded-3xl border border-white/30 bg-white/10 backdrop-blur-sm shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <div className="px-6 py-4 border-b border-white/20 text-center">
             <p className="text-primary-foreground/95 text-sm md:text-base font-medium tracking-wide">
-              Study source: <span className="font-semibold">{studySource}</span>
+              {t("Study source:")} <span className="font-semibold">{t(studySource)}</span>
             </p>
           </div>
 
@@ -99,7 +101,7 @@ export function StatsSection() {
                   {animatedValues[stat.label] ?? 0}
                   {stat.suffix}
                 </div>
-                <p className="text-primary-foreground text-lg mb-2">{stat.label}</p>
+                <p className="text-primary-foreground text-lg mb-2">{t(stat.label)}</p>
               </div>
             ))}
           </div>
@@ -107,7 +109,7 @@ export function StatsSection() {
 
         <div className="reveal opacity-0 animation-delay-600 text-center border-t border-primary-foreground/35 pt-12">
           <p className="font-display text-2xl md:text-3xl tracking-tight text-primary-foreground max-w-2xl mx-auto leading-relaxed">
-            You don&apos;t have a bad dog. You have a dog that needs a plan.
+            {t("You don't have a bad dog. You have a dog that needs a plan.")}
           </p>
         </div>
       </div>

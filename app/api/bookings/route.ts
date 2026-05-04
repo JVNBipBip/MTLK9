@@ -9,7 +9,7 @@ import {
 } from "@/app/booking/constants"
 import type { BookingFormData } from "@/app/booking/types"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { createSquarePaymentLinkForItems } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
@@ -17,17 +17,14 @@ import { clientConsultationRef, clientConsultationsCollection, upsertClientProfi
 
 export const runtime = "nodejs"
 
+const CONSULTATION_DEPOSIT_AMOUNT_CENTS = 3000
+const CONSULTATION_DEPOSIT_CURRENCY = "CAD"
+
 function isBookingFormData(value: unknown): value is BookingFormData {
   if (!value || typeof value !== "object") return false
 
   const data = value as Partial<BookingFormData>
   return typeof data.connectMethod === "string" && data.connectMethod.length > 0
-}
-
-function truncate(value: string, max = 220) {
-  const trimmed = value.trim()
-  if (trimmed.length <= max) return trimmed
-  return `${trimmed.slice(0, max - 1)}…`
 }
 
 const bookingErrors = {
@@ -64,32 +61,17 @@ function resolvePayloadLocale(value: unknown): AppLocale {
   return isAppLocale(candidate) ? candidate : defaultLocale
 }
 
-function buildSquareIntakeNote(formData: BookingFormData) {
-  const followUps = intakeResponsesForIssue(formData.issue, formData.followUps || {})
-    .slice(0, 6)
-    .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
-    .join(", ")
-  const goals = goalLabelsForIssue(formData.issue, formData.goals || [])
-  const parts = [
-    `Dog: ${formData.dogName || "Unknown"} (${formData.dogBreed || "Unknown"}, ${formData.dogAge || "Unknown"})`,
-    `Issue: ${issueLabel(formData.issue) || "Not provided"}`,
-    `Follow-ups: ${followUps || "Not provided"}`,
-    `Goals: ${goals.slice(0, 3).join(", ") || "Not provided"}`,
-    `Contact pref: ${formData.contactBestTime || "Not provided"}`,
-  ]
-  if (formData.contactNotes?.trim()) {
-    parts.push(`Client notes: ${truncate(formData.contactNotes, 160)}`)
-  }
-  return truncate(parts.join(" | "), 900)
-}
-
 function normalizedDogName(value?: string | null) {
   return String(value || "").trim().toLowerCase()
 }
 
 function isReplaceableConsultationStatus(value: unknown) {
   const status = String(value || "").trim().toLowerCase()
-  return status === "intake_submitted" || status === "scheduled" || status === "expired"
+  return (
+    status === "intake_submitted" ||
+    status === "payment_failed" ||
+    status === "expired"
+  )
 }
 
 function consultationActivityTime(data: Record<string, unknown>) {
@@ -103,6 +85,19 @@ function consultationActivityTime(data: Record<string, unknown>) {
   return Number.isFinite(time) ? time : 0
 }
 
+function buildConsultationCheckoutRedirectUrl(request: Request, consultationId: string): string | undefined {
+  const origin =
+    request.headers.get("origin") ||
+    (process.env.NEXT_PUBLIC_SITE_URL?.trim() ? process.env.NEXT_PUBLIC_SITE_URL.trim() : "") ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "")
+  if (!origin) return undefined
+  const params = new URLSearchParams({
+    type: "evaluation",
+    bookingId: consultationId,
+  })
+  return `${origin}/checkout/success?${params.toString()}`
+}
+
 async function findReplaceableConsultationId(db: Firestore, clientId: string, dogName: string) {
   const targetDogName = normalizedDogName(dogName)
   if (!clientId || !targetDogName) return null
@@ -113,6 +108,7 @@ async function findReplaceableConsultationId(db: Firestore, clientId: string, do
     .map((doc) => ({ id: doc.id, data: doc.data() as Record<string, unknown> }))
     .filter(({ data }) => normalizedDogName(String(data.dogName || "")) === targetDogName)
     .filter(({ data }) => isReplaceableConsultationStatus(data.status))
+    .filter(({ data }) => String(data.initialPaymentStatus || "") !== "paid")
     .sort((a, b) => consultationActivityTime(b.data) - consultationActivityTime(a.data))
 
   return candidates[0]?.id || null
@@ -144,8 +140,10 @@ export async function POST(request: Request) {
     }
 
     const clientId = formData.contactEmail.trim().toLowerCase()
-    const consultationStatus = formData.connectMethod === "in-person-evaluation" ? "scheduled" : "intake_submitted"
     const isConsultation = formData.connectMethod === "in-person-evaluation"
+    const consultationStatus = isConsultation ? "pending_payment" : "intake_submitted"
+    const db = getAdminDb()
+    const replaceConsultationId = await findReplaceableConsultationId(db, clientId, formData.dogName)
     let squareCustomerId: string | null = null
     let squareConsultationBookingId: string | null = null
     let squareConsultationStatus: string | null = null
@@ -187,24 +185,9 @@ export async function POST(request: Request) {
           { status: 409 },
         )
       }
-
-      squareCustomerId = await getOrCreateSquareCustomer({
-        name: formData.contactName,
-        email: formData.contactEmail,
-        phone: formData.contactPhone,
-      })
-      const squareBooking = await createSquareBooking({
-        customerId: squareCustomerId,
-        startAt: scheduledAtIso,
-        serviceVariationId: slotServiceVariationId,
-        teamMemberId: slotTeamMemberId,
-        idempotencyKey: crypto.randomUUID(),
-        note: buildSquareIntakeNote(formData),
-      })
-      squareConsultationBookingId = squareBooking.booking?.id || null
-      squareConsultationStatus = squareBooking.booking?.status || null
     }
 
+    const requiresConsultationDeposit = isConsultation && Boolean(scheduledAtIso)
     const intakeResponses = intakeResponsesForIssue(formData.issue, formData.followUps || {})
     const goalLabels = goalLabelsForIssue(formData.issue, formData.goals || [])
     const submission = {
@@ -256,7 +239,14 @@ export async function POST(request: Request) {
       staffNotes: "",
       bookingAccess: null,
       initialPaymentIntentId: null,
-      initialPaymentStatus: "not_required",
+      initialPaymentStatus: requiresConsultationDeposit ? "pending_payment" : "not_required",
+      initialPaymentProvider: requiresConsultationDeposit ? "square" : null,
+      initialPaymentAmountCents: requiresConsultationDeposit ? CONSULTATION_DEPOSIT_AMOUNT_CENTS : 0,
+      initialPaymentCurrency: requiresConsultationDeposit ? CONSULTATION_DEPOSIT_CURRENCY.toLowerCase() : null,
+      initialPaymentPaidAtIso: null,
+      squarePaymentLinkId: null,
+      squarePaymentLinkUrl: null,
+      squareOrderId: null,
       squareCustomerId,
       squareConsultationBookingId,
       squareConsultationStatus,
@@ -267,7 +257,6 @@ export async function POST(request: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     }
 
-    const db = getAdminDb()
     await upsertClientProfile(db, {
       clientEmail: formData.contactEmail,
       clientName: formData.contactName,
@@ -277,7 +266,6 @@ export async function POST(request: Request) {
       source: "website-booking-form",
       preferredLocale: locale,
     })
-    const replaceConsultationId = await findReplaceableConsultationId(db, clientId, formData.dogName)
     const docRef = clientConsultationRef(db, clientId, replaceConsultationId || undefined)
     const writePayload = {
       ...submission,
@@ -288,6 +276,54 @@ export async function POST(request: Request) {
     }
     await docRef.set(writePayload, { merge: Boolean(replaceConsultationId) })
 
+    let checkoutUrl: string | null = null
+    if (requiresConsultationDeposit) {
+      try {
+        const link = await createSquarePaymentLinkForItems({
+          items: [
+            {
+              name: "Consultation reservation deposit",
+              amountCents: CONSULTATION_DEPOSIT_AMOUNT_CENTS,
+              currency: CONSULTATION_DEPOSIT_CURRENCY,
+              quantity: "1",
+            },
+          ],
+          buyerEmail: formData.contactEmail,
+          note: `Consultation deposit - ${formData.dogName} - ${formData.contactName}`,
+          redirectUrl: buildConsultationCheckoutRedirectUrl(request, docRef.id),
+          orderReferenceId: docRef.id,
+        })
+        checkoutUrl = link.payment_link?.url || null
+        const linkId = link.payment_link?.id || null
+        if (!checkoutUrl) {
+          throw new Error("Square did not return a checkout URL.")
+        }
+        await docRef.set(
+          {
+            squarePaymentLinkId: linkId,
+            squarePaymentLinkUrl: checkoutUrl,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        )
+      } catch (err) {
+        console.error("[Booking API] Failed to create consultation deposit checkout:", err)
+        await docRef.set(
+          {
+            initialPaymentStatus: "link_failed",
+            status: "payment_failed",
+            initialPaymentError: err instanceof Error ? err.message : "Payment link failed.",
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        )
+        return NextResponse.json(
+          { error: "Payment checkout could not be created. Please try again or contact us to complete the deposit." },
+          { status: 502 },
+        )
+      }
+    }
+
     // Push lead to GoHighLevel (non-blocking)
     pushLeadToGHL(formData).catch((err) =>
       console.error("[Booking API] GHL push failed (non-blocking):", err)
@@ -297,6 +333,7 @@ export async function POST(request: Request) {
       ok: true,
       id: docRef.id,
       collection: docRef.path,
+      checkoutUrl,
     })
   } catch (error) {
     console.error("[Booking API] Failed to save booking:", error)

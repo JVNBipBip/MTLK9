@@ -1,13 +1,20 @@
-import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { buildLocalizedMetadata } from "@/lib/seo"
 import { BlogContent } from "./blog-content"
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "Tips, stories, and science-backed guidance for Montreal dog owners. Real advice from real trainers.",
-  alternates: { canonical: "https://mtlcaninetraining.com/blog" },
+export function generateMetadata() {
+  return buildLocalizedMetadata({
+    path: "/blog",
+    title: {
+      en: "Dog Training Blog",
+      fr: "Conseils d'entraînement canin",
+    },
+    description: {
+      en: "Tips, stories, and science-backed guidance for Montreal dog owners. Real advice from real trainers.",
+      fr: "Conseils, histoires et explications fondées sur la science pour les propriétaires de chiens à Montréal.",
+    },
+  })
 }
 
 export default function BlogPage() {

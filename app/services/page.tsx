@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import Image from "next/image"
 import { ArrowRight, HelpCircle, Users, UserRound } from "lucide-react"
 import { BookingLink, ProgramSignupLink, TrainingPortalLink } from "@/components/booking-form-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 type ServiceFormat = "private" | "group"
 type ServiceCard = {
@@ -84,6 +85,7 @@ const services: ServiceCard[] = [
 ]
 
 export default function ServicesPage() {
+  const t = useLocalizedText()
   const contentRef = useRef<HTMLDivElement>(null)
   const [selectedService, setSelectedService] = useState<ServiceCard | null>(null)
 
@@ -113,10 +115,10 @@ export default function ServicesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
             <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              Choose Your Training Path
+              {t("Choose Your Training Path")}
             </h1>
             <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Every dog is different. Every path starts with understanding yours.
+              {t("Every dog is different. Every path starts with understanding yours.")}
             </p>
           </div>
 
@@ -154,22 +156,22 @@ export default function ServicesPage() {
 
                     <div className={`p-8 lg:p-10 flex flex-col ${index % 2 === 1 ? "lg:order-1" : ""}`}>
                       <h2 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-2">
-                        {service.title}
+                        {t(service.title)}
                       </h2>
-                      <p className="text-sm font-medium text-primary mb-4">{service.for}</p>
+                      <p className="text-sm font-medium text-primary mb-4">{t(service.for)}</p>
                       <p className="text-muted-foreground leading-relaxed mb-4 flex-grow">
-                        {service.solves}
+                        {t(service.solves)}
                       </p>
-                      <p className="text-sm text-muted-foreground mb-6">{service.format}</p>
+                      <p className="text-sm text-muted-foreground mb-6">{t(service.format)}</p>
                       {service.formats.includes("group") ? (
                         <Button className="w-full rounded-full group/btn" onClick={() => setSelectedService(service)}>
-                          {service.cta}
+                          {t(service.cta)}
                           <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </Button>
                       ) : (
                         <ProgramSignupLink>
                           <Button className="w-full rounded-full group/btn">
-                            {service.cta}
+                            {t(service.cta)}
                             <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                           </Button>
                         </ProgramSignupLink>
@@ -178,7 +180,7 @@ export default function ServicesPage() {
                         href={service.href}
                         className="mt-3 inline-flex items-center justify-center w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                       >
-                        Learn More
+                        {t("Learn More")}
                         <ArrowRight className="ml-1.5 w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -195,14 +197,13 @@ export default function ServicesPage() {
           <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-lg bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10">
             <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
               <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-                Need Guidance?
+                {t("Need Guidance?")}
               </p>
               <h2 className="reveal opacity-0 animation-delay-200 font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance mb-6 max-w-3xl mx-auto">
-                Not Sure Where to Start?
+                {t("Not Sure Where to Start?")}
               </h2>
               <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
-                Book a free 15-minute discovery call. Tell us about your dog, and we&apos;ll help you
-                find the right training path — no pressure, no commitment.
+                {t("Start with a free 15-minute discovery call. Tell us about your dog, and we'll help you find the right training path — no pressure, no commitment.")}
               </p>
               <div className="reveal opacity-0 animation-delay-600">
                 <TrainingPortalLink>
@@ -210,7 +211,7 @@ export default function ServicesPage() {
                     size="lg"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                   >
-                    Book Private Training
+                    {t("Book Private Training")}
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </TrainingPortalLink>
@@ -226,14 +227,13 @@ export default function ServicesPage() {
           <div className="p-6 sm:p-8 space-y-6">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
-                Choose your format
+                {t("Choose your format")}
               </p>
               <DialogTitle className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-                How would you like to start {selectedService?.title.toLowerCase()}?
+                {t("How would you like to start")} {selectedService ? t(selectedService.title).toLowerCase() : ""}?
               </DialogTitle>
               <DialogDescription className="mt-3 leading-relaxed">
-                If you already know the format you want, choose it below. If not, book an assessment and
-                we&apos;ll recommend the right path for your dog.
+                {t("If you already know the format you want, choose it below. If not, book an assessment and we'll recommend the right path for your dog.")}
               </DialogDescription>
             </div>
 
@@ -247,9 +247,9 @@ export default function ServicesPage() {
                     <UserRound className="h-5 w-5" />
                   </span>
                   <span className="flex-1">
-                    <span className="block font-medium text-foreground">Private training</span>
+                    <span className="block font-medium text-foreground">{t("Private training")}</span>
                     <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                      One-on-one coaching for behaviour work, custom goals, or dogs who need a quieter setup.
+                      {t("One-on-one coaching for behaviour work, custom goals, or dogs who need a quieter setup.")}
                     </span>
                   </span>
                   <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -265,9 +265,9 @@ export default function ServicesPage() {
                   <Users className="h-5 w-5" />
                 </span>
                 <span className="flex-1">
-                  <span className="block font-medium text-foreground">Group class</span>
+                  <span className="block font-medium text-foreground">{t("Group class")}</span>
                   <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                    Small scheduled cohorts for approved dogs. Check availability or request a spot.
+                    {t("Small scheduled cohorts for approved dogs. Check availability or request a spot.")}
                   </span>
                 </span>
                 <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
@@ -282,9 +282,9 @@ export default function ServicesPage() {
                     <HelpCircle className="h-5 w-5" />
                   </span>
                   <span className="flex-1">
-                    <span className="block font-medium text-foreground">I&apos;m not sure yet</span>
+                    <span className="block font-medium text-foreground">{t("I'm not sure yet")}</span>
                     <span className="mt-1 block text-sm leading-relaxed text-muted-foreground">
-                      Book an assessment and we&apos;ll place your dog in the right private or group path.
+                      {t("Book an assessment and we'll place your dog in the right private or group path.")}
                     </span>
                   </span>
                   <ArrowRight className="mt-1 h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />

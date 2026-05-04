@@ -30,7 +30,7 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 - [Tous les services](https://mtlcaninetraining.com/fr/services)
 - [Résultats et témoignages](https://mtlcaninetraining.com/fr/results)
 - [FAQ](https://mtlcaninetraining.com/fr/faq)
-- [Réserver un appel découverte gratuit](https://mtlcaninetraining.com/fr/booking)
+- [Contactez-nous pour un appel découverte gratuit](https://mtlcaninetraining.com/fr/booking)
 - [Contenu complet](https://mtlcaninetraining.com/llms-full.txt)
 `
       : `# Montreal Canine Training
@@ -59,7 +59,7 @@ Montreal Canine Training provides professional dog training services in Montreal
 - [All Services](https://mtlcaninetraining.com/services)
 - [Results & Testimonials](https://mtlcaninetraining.com/results)
 - [FAQ](https://mtlcaninetraining.com/faq)
-- [Book a Free Discovery Call](https://mtlcaninetraining.com/booking)
+- [Contact Us for a Free Discovery Call](https://mtlcaninetraining.com/booking)
 - [Full Content](https://mtlcaninetraining.com/llms-full.txt)
 `
 

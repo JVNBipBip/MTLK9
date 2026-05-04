@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 type ServiceForYouSectionProps = {
   items: string[]
@@ -53,6 +54,7 @@ function AnimatedCheck({ active }: { active: boolean }) {
 }
 
 export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
+  const t = useLocalizedText()
   const itemsRef = useRef<Array<HTMLElement | null>>([])
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({})
 
@@ -80,7 +82,7 @@ export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
     <section className="py-20 lg:py-28 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-10">
-          This is for you if…
+          {t("This is for you if…")}
         </h2>
 
         <div className="space-y-10 md:space-y-12">
@@ -111,7 +113,7 @@ export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
                   <AnimatedCheck active={isActive} />
                 </div>
                 <p className="font-display text-2xl md:text-3xl lg:text-4xl tracking-tight leading-tight text-foreground max-w-3xl">
-                  {item}
+                  {t(item)}
                 </p>
                 <div
                   className={`mt-5 h-[2px] bg-primary w-24 md:w-48 transition-transform duration-600 ease-out ${
@@ -127,7 +129,7 @@ export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
         <div className="reveal opacity-0 animation-delay-600 mt-12 text-center">
           <ProgramSignupLink>
             <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-              Start Program Sign-Up
+              {t("Start Program Sign-Up")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </ProgramSignupLink>

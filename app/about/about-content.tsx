@@ -7,8 +7,28 @@ import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Heart } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { useAppLocale } from "@/components/locale-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
-const trainers = [
+type Trainer = {
+  name: string
+  title: string
+  titleFr?: string
+  years: string
+  yearsFr?: string
+  specialty: string
+  origin: string
+  originFr?: string
+  superpower: string
+  superpowerFr?: string
+  personal: string
+  personalFr?: string
+  photoDesc: string
+  photo: string | null
+  photoPosition?: string
+}
+
+const trainers: Trainer[] = [
   {
     name: "Nick Azzuolo",
     title: "Owner, Founder & Head Trainer",
@@ -39,19 +59,29 @@ const trainers = [
   {
     name: "Mia M",
     title: "Trainer",
+    titleFr: "Entraîneuse",
     years: "Trainer",
+    yearsFr: "Entraîneuse",
     specialty: "Private training, group classes, client coaching",
     origin:
       "Mia is joining the Montreal Canine Training team to support clients through private training, group classes, and day-to-day coaching. Her full bio and team photo are coming soon.",
+    originFr:
+      "Mia se joint à l'équipe d'Entraînement Canin Montréal pour accompagner les clients en entraînement privé, en cours de groupe et dans le coaching au quotidien. Sa biographie complète et sa photo d'équipe arriveront bientôt.",
     superpower: "Helps owners feel clear, supported, and confident while they build better habits with their dogs.",
+    superpowerFr:
+      "Elle aide les propriétaires à se sentir clairs, soutenus et confiants pendant qu'ils développent de meilleures habitudes avec leur chien.",
     personal:
       "She works with the team to create practical training plans that fit real family routines.",
+    personalFr:
+      "Elle travaille avec l'équipe pour créer des plans d'entraînement pratiques qui s'intègrent aux vraies routines familiales.",
     photoDesc: "Placeholder portrait for Mia M",
     photo: null,
   },
 ]
 
 export function AboutContent() {
+  const locale = useAppLocale()
+  const t = useLocalizedText()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const teamScrollerRef = useRef<HTMLDivElement>(null)
   const [activeTeamIndex, setActiveTeamIndex] = useState(0)
@@ -115,10 +145,10 @@ export function AboutContent() {
       <section className="pt-32 pb-16 lg:pt-40 lg:pb-24 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-            Training That Protects the Bond
+            {t("Training That Protects the Bond")}
           </h1>
           <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Who we are, what we believe, and why we train the way we do.
+            {t("Who we are, what we believe, and why we train the way we do.")}
           </p>
         </div>
       </section>
@@ -128,16 +158,16 @@ export function AboutContent() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 lg:mb-20">
             <h2 className="font-display text-2xl md:text-4xl font-semibold tracking-tight text-foreground mb-4">
-              Meet the Team
+              {t("Meet the Team")}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Three specialists. One mission: help you and your dog thrive together.
+              {t("Three specialists. One mission: help you and your dog thrive together.")}
             </p>
           </div>
 
           <div className="mb-4 md:hidden">
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground/80">
-              Swipe to meet each trainer
+              {t("Swipe to meet each trainer")}
             </p>
           </div>
 
@@ -145,52 +175,61 @@ export function AboutContent() {
             ref={teamScrollerRef}
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-8 lg:gap-10 md:overflow-visible"
           >
-            {trainers.map((trainer) => (
-              <div
-                key={trainer.name}
-                data-team-card
-                className="snap-center shrink-0 w-[92%] sm:w-[88%] md:w-auto md:shrink"
-              >
-                <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
-                  <div className="relative aspect-[4/3] bg-muted" aria-label={trainer.photoDesc}>
-                    {trainer.photo ? (
-                      <Image
-                        src={trainer.photo}
-                        alt={trainer.photoDesc}
-                        fill
-                        className={`object-cover ${trainer.photoPosition ?? ""}`}
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-secondary/10">
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full border border-border bg-card text-3xl font-semibold text-primary shadow-sm">
-                          MM
+            {trainers.map((trainer) => {
+              const title = locale === "fr" && trainer.titleFr ? trainer.titleFr : t(trainer.title)
+              const years = locale === "fr" && trainer.yearsFr ? trainer.yearsFr : t(trainer.years)
+              const origin = locale === "fr" && trainer.originFr ? trainer.originFr : t(trainer.origin)
+              const superpower = locale === "fr" && trainer.superpowerFr ? trainer.superpowerFr : t(trainer.superpower)
+              const personal = locale === "fr" && trainer.personalFr ? trainer.personalFr : t(trainer.personal)
+              const photoDesc = t(trainer.photoDesc)
+
+              return (
+                <div
+                  key={trainer.name}
+                  data-team-card
+                  className="snap-center shrink-0 w-[92%] sm:w-[88%] md:w-auto md:shrink"
+                >
+                  <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
+                    <div className="relative aspect-[4/3] bg-muted" aria-label={photoDesc}>
+                      {trainer.photo ? (
+                        <Image
+                          src={trainer.photo}
+                          alt={photoDesc}
+                          fill
+                          className={`object-cover ${trainer.photoPosition ?? ""}`}
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 via-muted to-secondary/10">
+                          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-border bg-card text-3xl font-semibold text-primary shadow-sm">
+                            MM
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6 lg:p-8 flex flex-col flex-grow">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-                        {trainer.name}
-                      </h3>
-                      <span className="text-sm text-primary font-medium">{trainer.years}</span>
+                      )}
                     </div>
-                    <p className="text-sm font-medium text-secondary mb-4">{trainer.title}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                      {trainer.origin}
-                    </p>
-                    <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
-                      <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      {trainer.superpower}
-                    </p>
-                    <p className="text-muted-foreground text-sm leading-relaxed mt-auto">
-                      {trainer.personal}
-                    </p>
+                    <div className="p-6 lg:p-8 flex flex-col flex-grow">
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground">
+                          {trainer.name}
+                        </h3>
+                        <span className="text-sm text-primary font-medium">{years}</span>
+                      </div>
+                      <p className="text-sm font-medium text-secondary mb-4">{title}</p>
+                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                        {origin}
+                      </p>
+                      <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
+                        <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        {superpower}
+                      </p>
+                      <p className="text-muted-foreground text-sm leading-relaxed mt-auto">
+                        {personal}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           <div className="mt-6 flex items-center justify-center gap-2.5 md:hidden">
@@ -218,27 +257,17 @@ export function AboutContent() {
       <section className="py-16 lg:py-24 px-6 lg:px-8 bg-muted/30">
         <div className="max-w-3xl mx-auto">
           <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-10">
-            Our Philosophy
+            {t("Our Philosophy")}
           </h2>
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p className="reveal opacity-0 animation-delay-200">
-              At Montreal Canine Training, we help build strong, healthy relationships between dogs
-              and their owners. With a proven track record, we consistently deliver real,
-              professional, and effective training solutions.
+              {t("At Montreal Canine Training, we help build strong, healthy relationships between dogs and their owners. With a proven track record, we consistently deliver real, professional, and effective training solutions.")}
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              Every dog is assessed individually to create a personalized training plan. From
-              basic/advanced obedience to severe behavioral issues, our experienced team delivers
-              real results. We believe training is about the human, not the dog. Your dog is already
-              doing what makes sense to them. We help you understand why and give you the tools to
-              guide them without breaking trust. We train in the real world, not just at our
-              facility — progressing into everyday environments like parks, cafés, hardware stores
-              and markets.
+              {t("Every dog is assessed individually to create a personalized training plan. From basic/advanced obedience to severe behavioral issues, our experienced team delivers real results. We believe training is about the human, not the dog. Your dog is already doing what makes sense to them. We help you understand why and give you the tools to guide them without breaking trust. We train in the real world, not just at our facility — progressing into everyday environments like parks, cafés, hardware stores and markets.")}
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              We don&apos;t just hand you techniques. We give you a plan, ongoing support between
-              sessions, and stay in your corner until you see results — because training isn&apos;t
-              a one-off, it&apos;s a partnership.
+              {t("We don't just hand you techniques. We give you a plan, ongoing support between sessions, and stay in your corner until you see results — because training isn't a one-off, it's a partnership.")}
             </p>
           </div>
         </div>
@@ -248,37 +277,26 @@ export function AboutContent() {
       <section className="py-16 lg:py-24 px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="reveal opacity-0 font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-6">
-            Our Methods
+            {t("Our Methods")}
           </h2>
           <p className="reveal opacity-0 animation-delay-200 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-8">
-            Positive reinforcement training, motivation and reward based training
+            {t("Positive reinforcement training, motivation and reward based training")}
           </p>
           <div className="space-y-6 text-muted-foreground leading-relaxed">
             <p className="reveal opacity-0 animation-delay-200">
-              <strong className="text-foreground">Our approach:</strong> We build and shape
-              behaviours using positive reinforcement, clear communication, and motivation, creating
-              confident, engaged dogs. We don&apos;t use fear or pain. We adapt our approach to their
-              needs, perception and understanding. Our expertise in a variety of proven training
-              methods allows us to support a wider range of dogs, resulting in high success rates,
-              from early puppy development to severe behavioral problems.
+              <strong className="text-foreground">{t("Our approach:")}</strong>{" "}
+              {t("We build and shape behaviours using positive reinforcement, clear communication, and motivation, creating confident, engaged dogs. We don't use fear or pain. We adapt our approach to their needs, perception and understanding. Our expertise in a variety of proven training methods allows us to support a wider range of dogs, resulting in high success rates, from early puppy development to severe behavioral problems.")}
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              <strong className="text-foreground">What to expect in a session:</strong> We meet you
-              and your dog where you are — literally and figuratively. Sessions happen in real
-              environments: your neighborhood, a park, your home. We observe, we teach, we practice.
-              You leave with homework, and we support you between sessions with check-ins and
-              guidance.
+              <strong className="text-foreground">{t("What to expect in a session:")}</strong>{" "}
+              {t("We meet you and your dog where you are — literally and figuratively. Sessions happen in real environments: your neighborhood, a park, your home. We observe, we teach, we practice. You leave with homework, and we support you between sessions with check-ins and guidance.")}
             </p>
             <p className="reveal opacity-0 animation-delay-200">
-              <strong className="text-foreground">Your dog&apos;s emotional wellbeing:</strong> We
-              believe a dog who feels safe learns faster and bonds deeper. We never push a dog past
-              their threshold. We work at their pace, and we prioritize their emotional state in
-              every decision we make.
+              <strong className="text-foreground">{t("Your dog's emotional wellbeing:")}</strong>{" "}
+              {t("We believe a dog who feels safe learns faster and bonds deeper. We never push a dog past their threshold. We work at their pace, and we prioritize their emotional state in every decision we make.")}
             </p>
             <p className="reveal opacity-0 animation-delay-200 text-sm text-muted-foreground/90">
-              Dog training is unregulated in Canada. Anyone can call themselves a trainer. We hold
-              ourselves to a higher standard: our methods are transparent, our credentials are
-              verifiable, and we&apos;re committed to continuing education in animal behavior science.
+              {t("Dog training is unregulated in Canada. Anyone can call themselves a trainer. We hold ourselves to a higher standard: our methods are transparent, our credentials are verifiable, and we're committed to continuing education in animal behavior science.")}
             </p>
           </div>
         </div>
@@ -292,14 +310,13 @@ export function AboutContent() {
           <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-lg bg-gradient-to-br from-primary via-primary/90 to-secondary">
             <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
               <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-                Ready to Meet Us?
+                {t("Ready to Meet Us?")}
               </p>
               <h2 className="reveal opacity-0 animation-delay-200 font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-primary-foreground text-balance mb-6 max-w-3xl mx-auto">
-                Book a free discovery call and start your dog&apos;s plan
+                {t("Contact us for a free discovery call and start your dog's plan")}
               </h2>
               <p className="reveal opacity-0 animation-delay-400 text-lg text-primary-foreground/80 max-w-xl mx-auto leading-relaxed mb-10">
-                Tell us about your dog. We&apos;ll listen, answer your questions, and figure out the
-                right path together.
+                {t("Tell us about your dog. We'll listen, answer your questions, and figure out the right path together.")}
               </p>
               <div className="reveal opacity-0 animation-delay-600">
                 <FreeCallLink>
@@ -307,7 +324,7 @@ export function AboutContent() {
                     size="lg"
                     className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
                   >
-                    Book Your Free Call
+                    {t("Contact Us for a Free Call")}
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </FreeCallLink>

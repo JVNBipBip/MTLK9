@@ -1,18 +1,18 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Script from "next/script"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Play } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const caseStudies = [
   {
     name: "Sasha",
-    breed: "[Breed]",
+    breed: "German Shepherd",
     age: "",
     photoDesc: "Sasha's video testimonial about controlling reactivity",
     wistiaId: "ww92aq0dn9",
@@ -43,8 +43,8 @@ const caseStudies = [
     serviceHref: "/services/reactivity",
   },
   {
-    name: "[Dog Name]",
-    breed: "[Breed]",
+    name: "Lilou",
+    breed: " GSD Mix",
     age: "",
     photoDesc: "Multi-dog success story video testimonial",
     wistiaId: "2cytzfcub2",
@@ -109,6 +109,7 @@ const caseStudies = [
 ]
 
 export default function ResultsPage() {
+  const t = useLocalizedText()
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -130,13 +131,6 @@ export default function ResultsPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <Script src="https://fast.wistia.com/player.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/ww92aq0dn9.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/i0ipeqgj8k.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/3a2efylwfy.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/2cytzfcub2.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/ek2ojttv3i.js" strategy="lazyOnload" />
-      <Script src="https://fast.wistia.com/embed/qtdpt5lv7o.js" strategy="lazyOnload" />
       <Header />
 
       <div ref={contentRef}>
@@ -144,10 +138,10 @@ export default function ResultsPage() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16 lg:mb-20">
               <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-                Real Dogs. Real Results.
+                {t("Real Dogs. Real Results.")}
               </h1>
               <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Every dog on this page started exactly where yours is now.
+                {t("Every dog on this page started exactly where yours is now.")}
               </p>
             </div>
 
@@ -172,13 +166,19 @@ export default function ResultsPage() {
                     {/* Photo/Video */}
                     {study.wistiaId ? (
                       <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
-                        {/* @ts-expect-error - Wistia web component */}
-                        <wistia-player media-id={study.wistiaId} aspect="0.5625" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "177.78%", height: "100%" }} />
+                        <iframe
+                          src={`https://fast.wistia.net/embed/iframe/${study.wistiaId}`}
+                          title={t(study.photoDesc)}
+                          allow="autoplay; fullscreen"
+                          allowFullScreen
+                          loading="lazy"
+                          className="absolute left-1/2 top-1/2 h-full w-[177.78%] -translate-x-1/2 -translate-y-1/2 border-0"
+                        />
                       </div>
                     ) : (
                       <div
                         className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center relative group cursor-pointer"
-                        aria-label={study.photoDesc}
+                        aria-label={t(study.photoDesc)}
                       >
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="w-14 h-14 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -186,7 +186,7 @@ export default function ResultsPage() {
                           </div>
                         </div>
                         <span className="absolute bottom-2 left-2 right-2 text-xs text-muted-foreground italic text-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 py-1 px-2 rounded">
-                          {study.photoDesc}
+                          {t(study.photoDesc)}
                         </span>
                       </div>
                     )}
@@ -204,33 +204,33 @@ export default function ResultsPage() {
                       <div className="space-y-4 text-sm leading-relaxed flex-grow">
                         <div>
                           <p className="font-medium text-foreground mb-1">
-                            The Problem
+                            {t("The Problem")}
                           </p>
-                          <p className="text-muted-foreground">{study.problem}</p>
+                          <p className="text-muted-foreground">{t(study.problem)}</p>
                         </div>
                         {study.plan && (
                           <div>
                             <p className="font-medium text-foreground mb-1">
-                              The Plan
+                              {t("The Plan")}
                             </p>
-                            <p className="text-muted-foreground">{study.plan}</p>
+                            <p className="text-muted-foreground">{t(study.plan)}</p>
                           </div>
                         )}
                         <div>
                           <p className="font-medium text-foreground mb-1">
-                            The Result
+                            {t("The Result")}
                           </p>
-                          <p className="text-muted-foreground">{study.result}</p>
+                          <p className="text-muted-foreground">{t(study.result)}</p>
                         </div>
                       </div>
 
                       <blockquote className="mt-4 pt-4 border-t border-border/50 text-sm italic text-muted-foreground">
-                        &ldquo;{study.quote}&rdquo;
+                        &ldquo;{t(study.quote)}&rdquo;
                       </blockquote>
 
                       <FreeCallLink>
                         <button type="button" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
-                          Book Free Evaluation
+                          {t("Book Free Evaluation")}
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </FreeCallLink>
@@ -248,10 +248,10 @@ export default function ResultsPage() {
             <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-lg bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10">
               <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
                 <h2 className="reveal opacity-0 font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance mb-6 max-w-3xl mx-auto">
-                  Your dog&apos;s story could be next.
+                  {t("Your dog's story could be next.")}
                 </h2>
                 <p className="reveal opacity-0 animation-delay-200 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
-                  Book a free discovery call and start your dog&apos;s transformation.
+                  {t("Contact us for a free discovery call and start your dog's transformation.")}
                 </p>
                 <div className="reveal opacity-0 animation-delay-400">
                   <FreeCallLink>
@@ -259,7 +259,7 @@ export default function ResultsPage() {
                       size="lg"
                       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                     >
-                      Book a Free Discovery Call
+                      {t("Contact Us for a Free Discovery Call")}
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </FreeCallLink>

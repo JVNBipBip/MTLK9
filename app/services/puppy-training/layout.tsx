@@ -1,11 +1,20 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Puppy Training",
-  description:
-    "Puppy training in Montreal — group socialization for 10–20 weeks, teen puppy classes for 5–9 months, and private one-on-one sessions. Build confidence, manners, and a strong foundation.",
-  alternates: { canonical: "https://mtlcaninetraining.com/services/puppy-training" },
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/services/puppy-training",
+    title: {
+      en: "Puppy Training Classes in Montreal",
+      fr: "Cours d'entraînement pour chiots à Montréal",
+    },
+    description: {
+      en: "Puppy training in Montreal for socialization, confidence, manners, bite inhibition, and focus.",
+      fr: "Socialisation, confiance, inhibition de la morsure et bonnes bases pour chiots et jeunes chiens.",
+    },
+    image: "/images/Classes images/puppy.webp",
+  })
 }
 
 export default function PuppyTrainingLayout({

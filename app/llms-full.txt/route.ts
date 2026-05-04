@@ -1,18 +1,13 @@
-import { faqData } from "@/lib/faq-data"
+import { getFaqData } from "@/lib/faq-data"
 import { detectLocaleFromAcceptLanguage } from "@/lib/i18n/config"
-import { frenchTextTranslations } from "@/lib/i18n/dom-translations"
-
-function translateFr(value: string) {
-  return frenchTextTranslations[value] || value
-}
 
 export function GET(request: Request) {
   const locale = detectLocaleFromAcceptLanguage(request.headers.get("accept-language"))
-  const faqSection = faqData
+  const faqSection = getFaqData(locale)
     .flatMap((cat) =>
       cat.items.map((item) =>
         locale === "fr"
-          ? `Q: ${translateFr(item.question)}\nR: ${translateFr(item.answer)}`
+          ? `Q: ${item.question}\nR: ${item.answer}`
           : `Q: ${item.question}\nA: ${item.answer}`,
       )
     )
@@ -68,7 +63,7 @@ Entraînement dans votre propre environnement.
 
 ## Comment ça fonctionne
 
-1. **Réserver un appel gratuit** — Dites-nous ce qui se passe. Nous vous aidons à choisir le bon parcours.
+1. **Contactez-nous pour un appel gratuit** — Dites-nous ce qui se passe. Nous vous aidons à choisir le bon parcours.
 2. **Évaluation** — Nous rencontrons votre chien dans un contexte réel et évaluons le comportement là où il se produit.
 3. **Plan personnalisé** — Vous recevez une feuille de route claire: objectifs, nombre de séances, exercices et critères de réussite.
 4. **Entraînement et soutien** — Nous travaillons dans de vrais environnements avec devoirs, suivis vidéo et soutien entre les séances.
@@ -100,7 +95,7 @@ ${faqSection}
 - À domicile: https://mtlcaninetraining.com/fr/services/in-home
 - Résultats et témoignages: https://mtlcaninetraining.com/fr/results
 - FAQ: https://mtlcaninetraining.com/fr/faq
-- Réserver un appel découverte gratuit: https://mtlcaninetraining.com/fr/booking
+- Contactez-nous pour un appel découverte gratuit: https://mtlcaninetraining.com/fr/booking
 `
       : `# Montreal Canine Training — Full Content
 
@@ -155,7 +150,7 @@ Training in your own environment.
 
 ## How It Works
 
-1. **Book a Free Call** — Tell us what's going on. We'll figure out the right path together. 15 minutes, no commitment.
+1. **Contact Us for a Free Call** — Tell us what's going on. We'll figure out the right path together. 15 minutes, no commitment.
 2. **Evaluation Session** — We meet you and your dog in the real world — a park, your neighborhood — and assess behavior where it actually happens.
 3. **Your Custom Training Plan** — You get a clear roadmap: what we'll work on, how many sessions, what you'll practice between sessions, and what success looks like.
 4. **Training + Ongoing Support** — We train together in real environments. You get homework, video check-ins, and support between sessions. We're with you until it clicks.
@@ -187,7 +182,7 @@ ${faqSection}
 - In-Home Training: https://mtlcaninetraining.com/services/in-home
 - Results & Testimonials: https://mtlcaninetraining.com/results
 - FAQ: https://mtlcaninetraining.com/faq
-- Book a Free Discovery Call: https://mtlcaninetraining.com/booking
+- Contact Us for a Free Discovery Call: https://mtlcaninetraining.com/booking
 `
 
   return new Response(content, {

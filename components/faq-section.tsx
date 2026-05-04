@@ -1,53 +1,54 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FaqAccordion } from "@/components/faq-accordion"
-import { ScrollAnimatedText } from "@/components/scroll-animated-text"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 export function FaqSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("animate-fade-up")
-        })
-      },
-      { threshold: 0.1 },
-    )
-    const elements = sectionRef.current?.querySelectorAll(".reveal")
-    elements?.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [])
+  const t = useLocalizedText()
 
   return (
-    <section ref={sectionRef} className="pt-24 lg:pt-32 pb-8 lg:pb-12 bg-background">
+    <section className="pt-24 lg:pt-32 pb-8 lg:pb-12 bg-background">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
-          <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            Common Questions
-          </p>
-          <ScrollAnimatedText
-            text="FAQ"
+          <motion.p
+            className="text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8% 0px" }}
+            transition={{ duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
+          >
+            {t("Common Questions")}
+          </motion.p>
+          <motion.h2
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
-          />
-          <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Everything you need to know before getting started.
-          </p>
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8% 0px" }}
+            transition={{ duration: 0.5, delay: 0.08, ease: [0.21, 0.47, 0.32, 0.98] }}
+          >
+            FAQ
+          </motion.h2>
+          <motion.p
+            className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-8% 0px" }}
+            transition={{ duration: 0.45, delay: 0.16, ease: [0.21, 0.47, 0.32, 0.98] }}
+          >
+            {t("Everything you need to know before getting started.")}
+          </motion.p>
         </div>
 
-        <div className="reveal opacity-0">
-          <FaqAccordion />
-        </div>
+        <FaqAccordion />
 
         <div className="text-center mt-12">
           <Link href="/faq">
             <Button variant="outline" className="rounded-full px-8 group">
-              View All FAQs
+              {t("View All FAQs")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

@@ -5,12 +5,13 @@ import { Phone, MapPin, ClipboardList, Handshake, ArrowRight } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const steps = [
   {
     icon: Phone,
     number: "01",
-    title: "Book a Free Call",
+    title: "Contact Us for a Free Call",
     description:
       "Tell us what's going on. We'll figure out the right path together. 15 minutes, no commitment.",
   },
@@ -38,6 +39,7 @@ const steps = [
 ]
 
 export function HowItWorksSection() {
+  const t = useLocalizedText()
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -59,14 +61,14 @@ export function HowItWorksSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            Simple Process
+            {t("Simple Process")}
           </p>
           <ScrollAnimatedText
-            text="How it works"
+            text={t("How it works")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            From your first call to a stable, trained and confident dog, here&apos;s how to start.
+            {t("From your first call to a stable, trained and confident dog, here's how to start.")}
           </p>
         </div>
 
@@ -84,9 +86,9 @@ export function HowItWorksSection() {
                   {step.number}
                 </span>
                 <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-3">
-                  {step.title}
+                  {t(step.title)}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                <p className="text-muted-foreground leading-relaxed">{t(step.description)}</p>
               </div>
             </div>
           ))}
@@ -95,7 +97,7 @@ export function HowItWorksSection() {
         <div className="text-center mt-16">
           <FreeCallLink>
             <Button className="rounded-full px-8 py-6 text-base group bg-primary text-primary-foreground hover:bg-primary/90">
-              Get Started
+              {t("Get Started")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </FreeCallLink>

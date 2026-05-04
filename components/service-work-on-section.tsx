@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 type ServiceWorkOnSectionProps = {
   goals: string[]
 }
 
 export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
+  const t = useLocalizedText()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -54,13 +56,13 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
     <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-8">
-          What we&apos;ll work on
+          {t("What we'll work on")}
         </h2>
 
         <div className="reveal opacity-0">
           <div className="mb-4 flex items-center justify-between gap-4">
             <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-muted-foreground/80">
-              Swipe/Scroll to see each focus area
+              {t("Swipe/Scroll to see each focus area")}
             </p>
             <div className="hidden lg:flex items-center gap-2">
               <button
@@ -68,7 +70,7 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
                 onClick={() => goToSlide(Math.max(0, activeIndex - 1))}
                 disabled={activeIndex === 0}
                 className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground transition-colors hover:bg-muted disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Previous goal"
+                aria-label={t("Previous goal")}
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
@@ -77,7 +79,7 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
                 onClick={() => goToSlide(Math.min(goals.length - 1, activeIndex + 1))}
                 disabled={activeIndex === goals.length - 1}
                 className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground transition-colors hover:bg-muted disabled:opacity-45 disabled:cursor-not-allowed"
-                aria-label="Next goal"
+                aria-label={t("Next goal")}
               >
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -93,13 +95,13 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
               >
                 <div className="p-7 md:p-8 min-h-[220px] flex flex-col">
                   <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
-                    Training Focus
+                    {t("Training Focus")}
                   </p>
                   <h3 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-4">
-                    {goal}
+                    {t(goal)}
                   </h3>
                   <p className="text-muted-foreground text-base leading-relaxed mt-auto">
-                    Clear steps, real-world reps, and practical homework to build lasting behavior.
+                    {t("Clear steps, real-world reps, and practical homework to build lasting behavior.")}
                   </p>
                   <Check className="w-5 h-5 text-primary mt-5" />
                 </div>
@@ -116,7 +118,7 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
                 className={`h-2.5 rounded-full transition-all ${
                   index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
                 }`}
-                aria-label={`Go to goal ${index + 1}`}
+                aria-label={`${t("Go to goal")} ${index + 1}`}
               />
             ))}
             <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
@@ -128,7 +130,7 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
         <div className="reveal opacity-0 animation-delay-600 mt-10 text-center">
           <ProgramSignupLink>
             <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-              Start Program Sign-Up
+              {t("Start Program Sign-Up")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </ProgramSignupLink>

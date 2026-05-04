@@ -1,11 +1,20 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
+import { buildLocalizedMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-  title: "Obedience Training",
-  description:
-    "Private and group obedience training in Montreal. Level 1 and Level 2 group classes, plus private one-on-one sessions for specialized obedience work.",
-  alternates: { canonical: "https://mtlcaninetraining.com/services/obedience" },
+export function generateMetadata(): Promise<Metadata> {
+  return buildLocalizedMetadata({
+    path: "/services/obedience",
+    title: {
+      en: "Obedience Dog Training in Montreal",
+      fr: "Obéissance canine à Montréal",
+    },
+    description: {
+      en: "Private and group obedience training in Montreal for reliable recall, leash skills, and focus.",
+      fr: "Compétences fiables dans la vraie vie : rappel, marche en laisse, impulsions et distractions.",
+    },
+    image: "/images/Classes images/obedience.webp",
+  })
 }
 
 export default function ObedienceLayout({

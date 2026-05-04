@@ -1,12 +1,20 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { buildLocalizedMetadata } from "@/lib/seo"
 import { AboutContent } from "./about-content"
 
-export const metadata = {
-  title: "About Us",
-  description:
-    "Meet the team behind Montreal Canine Training. We believe training is about the human, not the dog — force-free, science-based methods, real-world sessions, and support until it clicks.",
-  alternates: { canonical: "https://mtlcaninetraining.com/about" },
+export function generateMetadata() {
+  return buildLocalizedMetadata({
+    path: "/about",
+    title: {
+      en: "About Montreal Canine Training",
+      fr: "À propos d'Entraînement Canin Montréal",
+    },
+    description: {
+      en: "Meet the Montreal Canine Training team and our practical, relationship-first approach to dog training.",
+      fr: "Découvrez notre équipe, notre philosophie et nos méthodes d'entraînement canin humaines et concrètes.",
+    },
+  })
 }
 
 export default function AboutPage() {

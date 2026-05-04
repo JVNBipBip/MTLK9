@@ -1,6 +1,13 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import { Header } from "@/components/header"
+import { noIndexMetadata } from "@/lib/seo"
 import { TrainingPortalContent } from "./training-portal-content"
+
+export const metadata: Metadata = noIndexMetadata(
+  "Training Portal — Montreal Canine Training",
+  "Private training portal for Montreal Canine Training clients.",
+)
 
 export default function TrainingPortalPage() {
   return (
