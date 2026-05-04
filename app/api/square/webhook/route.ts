@@ -46,6 +46,7 @@ function tryGetOrderCheckoutHints(payload: WebhookPayload): {
   orderId?: string
   referenceId?: string
   state?: string
+  paid?: boolean
   amountCents?: number
 } {
   const obj = payload.data?.object
@@ -59,6 +60,7 @@ function tryGetOrderCheckoutHints(payload: WebhookPayload): {
       orderId: order.id,
       referenceId: typeof order.reference_id === "string" ? order.reference_id : undefined,
       state: typeof order.state === "string" ? order.state : undefined,
+      paid: order.state === "COMPLETED",
       amountCents: amt != null ? Number(amt) : undefined,
     }
   }
@@ -68,6 +70,7 @@ function tryGetOrderCheckoutHints(payload: WebhookPayload): {
     return {
       orderId: ou.order_id,
       state: typeof ou.state === "string" ? ou.state : undefined,
+      paid: ou.state === "COMPLETED",
     }
   }
 
@@ -76,6 +79,7 @@ function tryGetOrderCheckoutHints(payload: WebhookPayload): {
     return {
       orderId: payment.order_id,
       state: typeof payment.status === "string" ? payment.status : undefined,
+      paid: payment.status === "COMPLETED",
     }
   }
 
@@ -122,15 +126,17 @@ async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: 
   let referenceId = hints.referenceId
   let state = hints.state
   let amountCents = hints.amountCents
+  let isPaid = hints.paid === true
 
-  const hasInlinePaidOrder = Boolean(referenceId && state === "COMPLETED")
+  const hasInlinePaidOrder = Boolean(referenceId && isPaid)
   if (!hasInlinePaidOrder) {
     try {
       const full = await retrieveSquareOrder(hints.orderId)
       const ord = full.order
       if (!ord) return
       referenceId = referenceId || ord.reference_id || undefined
-      state = ord.state || state
+      state = state || ord.state
+      isPaid = isPaid || ord.state === "COMPLETED"
       if (ord.total_money?.amount != null) {
         amountCents = Number(ord.total_money.amount)
       }
@@ -139,7 +145,7 @@ async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: 
     }
   }
 
-  if (!referenceId || state !== "COMPLETED") return
+  if (!referenceId || !isPaid) return
 
   const bookingId = referenceId.trim()
   if (!bookingId || bookingId.length > 40) return
@@ -162,14 +168,16 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     squareOrderId: hints.orderId,
     hintedReferenceId: hints.referenceId ?? null,
     hintedState: hints.state ?? null,
+    hintedPaid: hints.paid === true,
     hintedAmountCents: hints.amountCents ?? null,
   })
 
   let referenceId = hints.referenceId
   let state = hints.state
   let amountCents = hints.amountCents
+  let isPaid = hints.paid === true
 
-  const hasInlinePaidOrder = Boolean(referenceId && state === "COMPLETED")
+  const hasInlinePaidOrder = Boolean(referenceId && isPaid)
   if (!hasInlinePaidOrder) {
     try {
       const full = await retrieveSquareOrder(hints.orderId)
@@ -182,7 +190,8 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
         return
       }
       referenceId = referenceId || ord.reference_id || undefined
-      state = ord.state || state
+      state = state || ord.state
+      isPaid = isPaid || ord.state === "COMPLETED"
       if (ord.total_money?.amount != null) {
         amountCents = Number(ord.total_money.amount)
       }
@@ -191,6 +200,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
         squareOrderId: hints.orderId,
         referenceId: referenceId ?? null,
         state: state ?? null,
+        paid: isPaid,
         amountCents: amountCents ?? null,
       })
     } catch (err) {
@@ -208,12 +218,13 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     }
   }
 
-  if (!referenceId || state !== "COMPLETED") {
+  if (!referenceId || !isPaid) {
     await logConsultationDepositStep(db, payload, {
       step: "ignored_unpaid_or_unreferenced_order",
       squareOrderId: hints.orderId,
       referenceId: referenceId ?? null,
       state: state ?? null,
+      paid: isPaid,
       amountCents: amountCents ?? null,
     })
     return

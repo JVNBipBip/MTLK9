@@ -76,6 +76,10 @@ function withoutUndefined<T>(value: T): T | null {
   return value
 }
 
+function cleanDoc<T extends Record<string, unknown>>(doc: T): T {
+  return withoutUndefined(doc) as T
+}
+
 /**
  * Write a single webhook event log to Firestore. Never throws — logging failures are
  * swallowed and console.error'd so they can't break the webhook response.
@@ -84,7 +88,7 @@ export async function logSquareWebhookEvent(
   db: Firestore,
   entry: Omit<WebhookLogEntry, "receivedAtIso" | "rawBodyPreview"> & { rawBody?: string | null },
 ) {
-  const doc = {
+  const doc = cleanDoc({
     stage: entry.stage,
     eventId: entry.eventId,
     eventType: entry.eventType,
@@ -97,7 +101,7 @@ export async function logSquareWebhookEvent(
     rawBodyPreview: trimBody(entry.rawBody),
     receivedAtIso: new Date().toISOString(),
     createdAt: FieldValue.serverTimestamp(),
-  }
+  })
   try {
     await db.collection(SQUARE_WEBHOOK_EVENTS_COLLECTION).add(doc)
   } catch (err) {

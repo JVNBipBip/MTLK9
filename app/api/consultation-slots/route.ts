@@ -74,6 +74,19 @@ async function loadRawConsultationSlots(serviceVariationIds: string[]): Promise<
 
 type Intake = { issue: string; impact: string[]; followUps: Record<string, string> }
 
+function dedupeSlotsByTimeAndTeam(slots: RawSlot[]) {
+  const seen = new Set<string>()
+  const unique: RawSlot[] = []
+  for (const slot of slots) {
+    const startMs = new Date(slot.startAt).getTime()
+    const key = `${Number.isFinite(startMs) ? startMs : slot.startAt}|${slot.teamMemberId}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    unique.push(slot)
+  }
+  return unique
+}
+
 function teamMemberMatchesTrainerName(teamMemberName: string | null | undefined, trainerName: string): boolean {
   return (teamMemberName || "").toLowerCase().includes(trainerName.toLowerCase())
 }
@@ -131,15 +144,16 @@ async function respondWithConsultationSlots(intake: Intake) {
             return teamMemberMatchesTrainerName(teamNames.get(slot.teamMemberId), trainerName)
           }),
         )
+  const deduped = dedupeSlotsByTimeAndTeam(filtered)
 
   const slotsMessage =
-    filtered.length === 0
+    deduped.length === 0
       ? nickRequired
         ? "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule."
         : "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule."
       : undefined
 
-  const slots = filtered.map((slot) => ({
+  const slots = deduped.map((slot) => ({
     slotKey: slot.slotKey,
     startAt: slot.startAt,
     teamMemberId: slot.teamMemberId,
@@ -149,6 +163,9 @@ async function respondWithConsultationSlots(intake: Intake) {
   const staffSummary = Object.fromEntries(
     [...new Set(slots.map((s) => s.teamMemberId))].map((id) => [id, teamNames.get(id) ?? "(unknown)"])
   )
+  if (filtered.length !== deduped.length) {
+    console.log("[consultation-slots] Deduped", filtered.length - deduped.length, "duplicate time/staff slot(s)")
+  }
   console.log("[consultation-slots] Returning", slots.length, "slots. Staff in response:", staffSummary)
 
   return NextResponse.json({
