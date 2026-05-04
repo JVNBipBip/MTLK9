@@ -18,7 +18,9 @@ import { clientConsultationRef, clientConsultationsCollection, upsertClientProfi
 export const runtime = "nodejs"
 
 const CONSULTATION_DEPOSIT_AMOUNT_CENTS = 3000
+const TEST_CONSULTATION_DEPOSIT_AMOUNT_CENTS = 100
 const CONSULTATION_DEPOSIT_CURRENCY = "CAD"
+const TEST_CONSULTATION_DEPOSIT_EMAIL = "sam.diquinz@gmail.com"
 
 function isBookingFormData(value: unknown): value is BookingFormData {
   if (!value || typeof value !== "object") return false
@@ -59,6 +61,12 @@ const bookingErrors = {
 function resolvePayloadLocale(value: unknown): AppLocale {
   const candidate = typeof value === "string" ? value : null
   return isAppLocale(candidate) ? candidate : defaultLocale
+}
+
+function consultationDepositAmountCentsForEmail(email: string) {
+  return email.trim().toLowerCase() === TEST_CONSULTATION_DEPOSIT_EMAIL
+    ? TEST_CONSULTATION_DEPOSIT_AMOUNT_CENTS
+    : CONSULTATION_DEPOSIT_AMOUNT_CENTS
 }
 
 function normalizedDogName(value?: string | null) {
@@ -140,6 +148,7 @@ export async function POST(request: Request) {
     }
 
     const clientId = formData.contactEmail.trim().toLowerCase()
+    const consultationDepositAmountCents = consultationDepositAmountCentsForEmail(clientId)
     const isConsultation = formData.connectMethod === "in-person-evaluation"
     const consultationStatus = isConsultation ? "pending_payment" : "intake_submitted"
     const db = getAdminDb()
@@ -241,7 +250,7 @@ export async function POST(request: Request) {
       initialPaymentIntentId: null,
       initialPaymentStatus: requiresConsultationDeposit ? "pending_payment" : "not_required",
       initialPaymentProvider: requiresConsultationDeposit ? "square" : null,
-      initialPaymentAmountCents: requiresConsultationDeposit ? CONSULTATION_DEPOSIT_AMOUNT_CENTS : 0,
+      initialPaymentAmountCents: requiresConsultationDeposit ? consultationDepositAmountCents : 0,
       initialPaymentCurrency: requiresConsultationDeposit ? CONSULTATION_DEPOSIT_CURRENCY.toLowerCase() : null,
       initialPaymentPaidAtIso: null,
       squarePaymentLinkId: null,
@@ -283,7 +292,7 @@ export async function POST(request: Request) {
           items: [
             {
               name: "Consultation reservation deposit",
-              amountCents: CONSULTATION_DEPOSIT_AMOUNT_CENTS,
+              amountCents: consultationDepositAmountCents,
               currency: CONSULTATION_DEPOSIT_CURRENCY,
               quantity: "1",
             },

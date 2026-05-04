@@ -20,8 +20,6 @@ export const runtime = "nodejs"
 
 type WebhookPayload = SquareWebhookPayload
 
-const CONSULTATION_DEPOSIT_AMOUNT_CENTS = 3000
-
 type ConsultationBookingClaim = {
   consultationId: string
   clientName: string
@@ -34,6 +32,7 @@ type ConsultationBookingClaim = {
   consultationTeamMemberId: string
   contactBestTime?: string
   contactNotes?: string
+  depositAmountCents: number
 }
 
 function isValidSignature(input: { signature: string; body: string; url: string; signatureKey: string }) {
@@ -86,12 +85,34 @@ function tryGetOrderCheckoutHints(payload: WebhookPayload): {
 function buildPaidConsultationSquareNote(claim: ConsultationBookingClaim) {
   const parts = [
     `Dog: ${claim.dogName}`,
-    `Deposit paid: $30`,
+    `Deposit paid: $${(claim.depositAmountCents / 100).toFixed(2)}`,
     claim.issueLabel ? `Issue: ${claim.issueLabel}` : null,
     claim.contactBestTime ? `Contact pref: ${claim.contactBestTime}` : null,
     claim.contactNotes ? `Client notes: ${String(claim.contactNotes).slice(0, 180)}` : null,
   ].filter(Boolean)
   return parts.join(" | ").slice(0, 900)
+}
+
+async function logConsultationDepositStep(
+  db: Firestore,
+  payload: WebhookPayload,
+  details: Record<string, unknown>,
+  error?: string | null,
+) {
+  console.info("[square webhook] consultation deposit:", {
+    eventId: payload.event_id ?? null,
+    eventType: payload.type ?? null,
+    ...details,
+    ...(error ? { error } : {}),
+  })
+  await logSquareWebhookEvent(db, {
+    stage: error ? "consultation_deposit_finalize_error" : "consultation_deposit_finalize_ok",
+    eventId: payload.event_id ?? null,
+    eventType: payload.type ?? null,
+    signatureValid: true,
+    details,
+    error: error ?? null,
+  })
 }
 
 async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: WebhookPayload) {
@@ -136,6 +157,14 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
   const hints = tryGetOrderCheckoutHints(payload)
   if (!hints.orderId) return
 
+  await logConsultationDepositStep(db, payload, {
+    step: "payment_event_detected",
+    squareOrderId: hints.orderId,
+    hintedReferenceId: hints.referenceId ?? null,
+    hintedState: hints.state ?? null,
+    hintedAmountCents: hints.amountCents ?? null,
+  })
+
   let referenceId = hints.referenceId
   let state = hints.state
   let amountCents = hints.amountCents
@@ -145,24 +174,78 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     try {
       const full = await retrieveSquareOrder(hints.orderId)
       const ord = full.order
-      if (!ord) return
+      if (!ord) {
+        await logConsultationDepositStep(db, payload, {
+          step: "order_lookup_empty",
+          squareOrderId: hints.orderId,
+        })
+        return
+      }
       referenceId = referenceId || ord.reference_id || undefined
       state = ord.state || state
       if (ord.total_money?.amount != null) {
         amountCents = Number(ord.total_money.amount)
       }
-    } catch {
+      await logConsultationDepositStep(db, payload, {
+        step: "order_loaded",
+        squareOrderId: hints.orderId,
+        referenceId: referenceId ?? null,
+        state: state ?? null,
+        amountCents: amountCents ?? null,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not retrieve Square order."
+      await logConsultationDepositStep(
+        db,
+        payload,
+        {
+          step: "order_lookup_failed",
+          squareOrderId: hints.orderId,
+        },
+        message,
+      )
       return
     }
   }
 
-  if (!referenceId || state !== "COMPLETED") return
+  if (!referenceId || state !== "COMPLETED") {
+    await logConsultationDepositStep(db, payload, {
+      step: "ignored_unpaid_or_unreferenced_order",
+      squareOrderId: hints.orderId,
+      referenceId: referenceId ?? null,
+      state: state ?? null,
+      amountCents: amountCents ?? null,
+    })
+    return
+  }
 
   const consultationId = referenceId.trim()
-  if (!consultationId || consultationId.length > 40) return
+  if (!consultationId || consultationId.length > 40) {
+    await logConsultationDepositStep(db, payload, {
+      step: "invalid_reference_id",
+      squareOrderId: hints.orderId,
+      referenceId,
+    })
+    return
+  }
 
   const consultationSnap = await findClientConsultationById(db, consultationId)
-  if (!consultationSnap?.exists) return
+  if (!consultationSnap?.exists) {
+    await logConsultationDepositStep(db, payload, {
+      step: "consultation_not_found",
+      squareOrderId: hints.orderId,
+      consultationId,
+    })
+    return
+  }
+
+  await logConsultationDepositStep(db, payload, {
+    step: "consultation_matched",
+    squareOrderId: hints.orderId,
+    consultationId,
+    consultationPath: consultationSnap.ref.path,
+    amountCents: amountCents ?? null,
+  })
 
   const paidAtIso = new Date().toISOString()
   const paymentPatch = {
@@ -175,9 +258,13 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     updatedAt: FieldValue.serverTimestamp(),
   }
   const claimBox: { value?: ConsultationBookingClaim } = {}
+  let transactionOutcome: Record<string, unknown> | null = null
   await db.runTransaction(async (t) => {
     const snap = await t.get(consultationSnap.ref)
-    if (!snap.exists) return
+    if (!snap.exists) {
+      transactionOutcome = { step: "consultation_missing_in_transaction" }
+      return
+    }
     const data = snap.data() as {
       initialPaymentStatus?: string
       initialPaymentProvider?: string | null
@@ -194,10 +281,44 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       contactBestTime?: string
       contactNotes?: string
     }
-    if (data.initialPaymentStatus === "paid" && data.squareConsultationBookingId) return
-    if (data.initialPaymentProvider !== "square") return
-    if (data.initialPaymentAmountCents !== CONSULTATION_DEPOSIT_AMOUNT_CENTS) return
-    if (amountCents != null && Number.isFinite(amountCents) && amountCents < CONSULTATION_DEPOSIT_AMOUNT_CENTS) return
+    if (data.initialPaymentStatus === "paid" && data.squareConsultationBookingId) {
+      transactionOutcome = {
+        step: "already_finalized",
+        consultationId,
+        squareOrderId: hints.orderId,
+        squareConsultationBookingId: data.squareConsultationBookingId,
+      }
+      return
+    }
+    if (data.initialPaymentProvider !== "square") {
+      transactionOutcome = {
+        step: "ignored_non_square_payment",
+        consultationId,
+        squareOrderId: hints.orderId,
+        initialPaymentProvider: data.initialPaymentProvider ?? null,
+      }
+      return
+    }
+    const expectedDepositAmountCents = Number(data.initialPaymentAmountCents ?? NaN)
+    if (!Number.isFinite(expectedDepositAmountCents) || expectedDepositAmountCents <= 0) {
+      transactionOutcome = {
+        step: "invalid_expected_deposit_amount",
+        consultationId,
+        squareOrderId: hints.orderId,
+        expectedDepositAmountCents: data.initialPaymentAmountCents ?? null,
+      }
+      return
+    }
+    if (amountCents != null && Number.isFinite(amountCents) && amountCents < expectedDepositAmountCents) {
+      transactionOutcome = {
+        step: "paid_amount_too_low",
+        consultationId,
+        squareOrderId: hints.orderId,
+        amountCents,
+        expectedDepositAmountCents,
+      }
+      return
+    }
 
     if (data.squareConsultationBookingId) {
       t.set(
@@ -208,10 +329,23 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
         },
         { merge: true },
       )
+      transactionOutcome = {
+        step: "payment_marked_paid_existing_square_booking",
+        consultationId,
+        squareOrderId: hints.orderId,
+        squareConsultationBookingId: data.squareConsultationBookingId,
+      }
       return
     }
 
-    if (data.initialPaymentStatus === "booking_creation_processing") return
+    if (data.initialPaymentStatus === "booking_creation_processing") {
+      transactionOutcome = {
+        step: "booking_creation_already_processing",
+        consultationId,
+        squareOrderId: hints.orderId,
+      }
+      return
+    }
 
     const required = {
       clientName: String(data.clientName || "").trim(),
@@ -239,6 +373,17 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
         },
         { merge: true },
       )
+      transactionOutcome = {
+        step: "missing_required_consultation_details",
+        consultationId,
+        squareOrderId: hints.orderId,
+        hasClientName: Boolean(required.clientName),
+        hasClientEmail: Boolean(required.clientEmail),
+        hasDogName: Boolean(required.dogName),
+        hasScheduledAtIso: Boolean(required.scheduledAtIso),
+        hasServiceVariationId: Boolean(required.consultationServiceVariationId),
+        hasTeamMemberId: Boolean(required.consultationTeamMemberId),
+      }
       return
     }
 
@@ -249,6 +394,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       issueLabel: data.issueLabel,
       contactBestTime: data.contactBestTime,
       contactNotes: data.contactNotes,
+      depositAmountCents: expectedDepositAmountCents,
     }
     t.set(
       consultationSnap.ref,
@@ -260,10 +406,37 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       },
       { merge: true },
     )
+    transactionOutcome = {
+      step: "booking_claim_prepared",
+      consultationId,
+      squareOrderId: hints.orderId,
+      scheduledAtIso: required.scheduledAtIso,
+      consultationServiceVariationId: required.consultationServiceVariationId,
+      consultationTeamMemberId: required.consultationTeamMemberId,
+      expectedDepositAmountCents,
+      amountCents: amountCents ?? null,
+    }
   })
 
   const claim = claimBox.value
-  if (!claim) return
+  if (!claim) {
+    await logConsultationDepositStep(db, payload, {
+      consultationId,
+      squareOrderId: hints.orderId,
+      ...(transactionOutcome || { step: "no_booking_claim_created" }),
+    })
+    return
+  }
+
+  await logConsultationDepositStep(db, payload, {
+    step: "creating_square_booking",
+    consultationId: claim.consultationId,
+    squareOrderId: hints.orderId,
+    scheduledAtIso: claim.scheduledAtIso,
+    consultationServiceVariationId: claim.consultationServiceVariationId,
+    consultationTeamMemberId: claim.consultationTeamMemberId,
+    depositAmountCents: claim.depositAmountCents,
+  })
 
   try {
     const roomAvailable = await isFacilityRoomAvailable({
@@ -273,10 +446,23 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     if (!roomAvailable) {
       throw new Error("Facility room is no longer available for the paid consultation slot.")
     }
+    await logConsultationDepositStep(db, payload, {
+      step: "facility_room_available",
+      consultationId: claim.consultationId,
+      squareOrderId: hints.orderId,
+      scheduledAtIso: claim.scheduledAtIso,
+      consultationServiceVariationId: claim.consultationServiceVariationId,
+    })
 
     const squareCustomerId = await getOrCreateSquareCustomer({
       name: claim.clientName,
       email: claim.clientEmail,
+    })
+    await logConsultationDepositStep(db, payload, {
+      step: "square_customer_ready",
+      consultationId: claim.consultationId,
+      squareOrderId: hints.orderId,
+      squareCustomerId,
     })
     const idempotencyKey = crypto
       .createHash("sha256")
@@ -295,6 +481,14 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     if (!squareConsultationBookingId) {
       throw new Error("Square did not return a consultation booking id.")
     }
+    await logConsultationDepositStep(db, payload, {
+      step: "square_booking_created",
+      consultationId: claim.consultationId,
+      squareOrderId: hints.orderId,
+      squareCustomerId,
+      squareConsultationBookingId,
+      squareConsultationStatus: squareBooking.booking?.status || null,
+    })
     await consultationSnap.ref.set(
       {
         ...paymentPatch,
@@ -308,6 +502,19 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : "Square booking creation failed after payment."
+    await logConsultationDepositStep(
+      db,
+      payload,
+      {
+        step: "square_booking_creation_failed",
+        consultationId: claim.consultationId,
+        squareOrderId: hints.orderId,
+        scheduledAtIso: claim.scheduledAtIso,
+        consultationServiceVariationId: claim.consultationServiceVariationId,
+        consultationTeamMemberId: claim.consultationTeamMemberId,
+      },
+      message,
+    )
     await consultationSnap.ref.set(
       {
         ...paymentPatch,

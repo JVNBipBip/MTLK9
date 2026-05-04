@@ -40,6 +40,8 @@ export type WebhookLogEntry = {
   reconcile?: ReconcileOutcome | null
   /** Structured outcome of the class-sync trigger, if it ran. */
   classSync?: WebhookLogClassSyncInfo | null
+  /** Extra structured context for stage-specific debugging. */
+  details?: Record<string, unknown> | null
   /** Error message if a stage threw. */
   error?: string | null
   /** Truncated raw body for debugging — capped to keep doc size reasonable. */
@@ -58,6 +60,22 @@ function trimBody(body: string | null | undefined): string | undefined {
   return `${body.slice(0, MAX_RAW_BODY_PREVIEW)}…`
 }
 
+function withoutUndefined<T>(value: T): T | null {
+  if (value === undefined) return null
+  if (value === null) return null
+  if (Array.isArray(value)) {
+    return value.map((item) => withoutUndefined(item)) as T
+  }
+  if (typeof value === "object") {
+    const cleaned: Record<string, unknown> = {}
+    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+      if (child !== undefined) cleaned[key] = withoutUndefined(child)
+    }
+    return cleaned as T
+  }
+  return value
+}
+
 /**
  * Write a single webhook event log to Firestore. Never throws — logging failures are
  * swallowed and console.error'd so they can't break the webhook response.
@@ -71,8 +89,9 @@ export async function logSquareWebhookEvent(
     eventId: entry.eventId,
     eventType: entry.eventType,
     signatureValid: entry.signatureValid,
-    reconcile: entry.reconcile ?? null,
-    classSync: entry.classSync ?? null,
+    reconcile: withoutUndefined(entry.reconcile),
+    classSync: withoutUndefined(entry.classSync),
+    details: withoutUndefined(entry.details),
     error: entry.error ?? null,
     requestUrl: entry.requestUrl,
     rawBodyPreview: trimBody(entry.rawBody),
