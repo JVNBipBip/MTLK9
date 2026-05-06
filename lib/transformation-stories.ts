@@ -51,8 +51,8 @@ export const transformationStories: TransformationStory[] = [
   },
   {
     slug: "multi-dog",
-    dogName: "[Dog Name]",
-    breed: "[Breed]",
+    dogName: "Lilou",
+    breed: "GSD Mix",
     path: "Puppy Training",
     before:
       "Life with my first reactive dog was a nightmare. Even a simple walk felt impossible, and the constant stress was overwhelming.",
@@ -85,7 +85,7 @@ export const transformationStories: TransformationStory[] = [
   },
   {
     slug: "shiba",
-    dogName: "[Dog Name]",
+    dogName: "Hunter",
     breed: "Shiba Inu",
     path: "Puppy Training",
     before:
@@ -102,7 +102,7 @@ export const transformationStories: TransformationStory[] = [
   },
   {
     slug: "story-6",
-    dogName: "[Dog Name]",
+    dogName: "Shilo",
     breed: "[Breed]",
     path: "Reactivity Training",
     before:

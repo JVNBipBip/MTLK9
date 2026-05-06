@@ -7,7 +7,7 @@ export const messages = {
       switchToEnglish: "English",
       switchToFrench: "Français",
       callNow: "Call Now",
-      bookFreeCall: "Contact Us for a Free Call",
+      bookFreeCall: "Contact Us",
       bookFreeDiscoveryCall: "Contact Us for a Free Discovery Call",
       nav: {
         trainingPrograms: "Training Programs",
@@ -45,7 +45,7 @@ export const messages = {
       switchToEnglish: "English",
       switchToFrench: "Français",
       callNow: "Appelez maintenant",
-      bookFreeCall: "Contactez-nous pour un appel gratuit",
+      bookFreeCall: "Contactez-nous",
       bookFreeDiscoveryCall: "Contactez-nous pour un appel découverte gratuit",
       nav: {
         trainingPrograms: "Entraînement",
