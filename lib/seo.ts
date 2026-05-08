@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { headers } from "next/headers"
 import { defaultLocale, isAppLocale, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 
-export const SITE_URL = "https://mtlcaninetraining.com"
+export const SITE_URL = "https://www.mtlcaninetraining.com"
 
 type LocalizedValue = string | Record<AppLocale, string>
 

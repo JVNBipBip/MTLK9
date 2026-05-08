@@ -7,7 +7,7 @@ import { useAppLocale } from "@/components/locale-provider"
 import { X, Search, CheckCircle2, AlertCircle, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
-import { getIntlLocale } from "@/lib/i18n/config"
+import { addLocaleToPathname, getIntlLocale } from "@/lib/i18n/config"
 import {
   PLAN_TYPE_LABEL,
   SERVICE_TYPE_LABEL,
@@ -40,6 +40,8 @@ export function TrainingPortalContent({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const trainingPortalPath = addLocaleToPathname("/training-portal", locale)
+  const trainingPortalBookPath = addLocaleToPathname("/training-portal/book", locale)
   const { openBookingForm, openFreeCallModal } = useBookingForm()
   const privateOnly = mode === "private_only"
   const groupExperience = mode !== "private_only"
@@ -70,7 +72,7 @@ export function TrainingPortalContent({
     params.set("email", clientEmail.trim().toLowerCase())
     params.set("dog", (statusData?.lookup?.dogName || dogName).trim() || "Guest")
     onClose?.()
-    router.push(`/training-portal/book?${params.toString()}`)
+    router.push(`${trainingPortalBookPath}?${params.toString()}`)
   }
 
   const oneOnOneUpcoming = useMemo(
@@ -114,7 +116,7 @@ export function TrainingPortalContent({
     )
     if (email) setClientEmail(email)
     if (dog) setDogName(dog)
-    router.replace(pathname || "/training-portal", { scroll: false })
+    router.replace(pathname || trainingPortalPath, { scroll: false })
     if (!email) return
     void (async () => {
       setIsLoadingStatus(true)
@@ -443,7 +445,7 @@ export function TrainingPortalContent({
                     statusData={statusData}
                     clientEmail={clientEmail}
                     dogName={dogName}
-                    redirectPath={pathname || "/training-portal"}
+                    redirectPath={pathname || trainingPortalPath}
                   />
                 ) : null}
 

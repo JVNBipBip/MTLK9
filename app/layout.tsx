@@ -14,7 +14,7 @@ import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLoc
 import { getMessages } from "@/lib/i18n/messages"
 import "./globals.css"
 
-const BASE_URL = "https://mtlcaninetraining.com"
+const BASE_URL = "https://www.mtlcaninetraining.com"
 
 const inter = Inter({
   subsets: ["latin"],

@@ -15,8 +15,10 @@ import {
   Sparkles,
 } from "lucide-react"
 import { BookingLink } from "@/components/booking-form-provider"
+import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
 import { GroupClassesContent } from "@/app/training-portal/group-classes-content"
+import { addLocaleToPathname } from "@/lib/i18n/config"
 import type { StatusResponse } from "@/app/training-portal/training-portal-types"
 
 type VerifyState = "idle" | "loading" | "error"
@@ -24,6 +26,8 @@ type VerifyState = "idle" | "loading" | "error"
 export function GroupClassesBookingPanel() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const locale = useAppLocale()
+  const groupClassesPath = addLocaleToPathname("/group-classes", locale)
 
   const emailFromUrl = searchParams.get("email") || ""
   const dogFromUrl = searchParams.get("dog") || ""
@@ -79,7 +83,7 @@ export function GroupClassesBookingPanel() {
     setErrorMessage(null)
     setState("idle")
     if (searchParams.get("group") || searchParams.get("booking")) {
-      router.replace("/group-classes")
+      router.replace(groupClassesPath)
     }
   }
 
@@ -91,6 +95,7 @@ export function GroupClassesBookingPanel() {
         dogName={dogName}
         justBooked={justBooked}
         bookingId={searchParams.get("booking")}
+        groupClassesPath={groupClassesPath}
         onReset={handleReset}
       />
     )
@@ -289,6 +294,7 @@ function VerifiedView({
   dogName,
   justBooked,
   bookingId,
+  groupClassesPath,
   onReset,
 }: {
   status: StatusResponse
@@ -296,6 +302,7 @@ function VerifiedView({
   dogName: string
   justBooked: boolean
   bookingId: string | null
+  groupClassesPath: string
   onReset: () => void
 }) {
   const resolvedDog = (status.lookup.dogName || dogName).trim() || "your dog"
@@ -416,7 +423,7 @@ function VerifiedView({
             statusData={status}
             clientEmail={email}
             dogName={dogName}
-            redirectPath="/group-classes"
+            redirectPath={groupClassesPath}
           />
         </div>
       </div>
