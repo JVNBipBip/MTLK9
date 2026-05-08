@@ -46,7 +46,7 @@ function rememberLocale(response: NextResponse, locale: string) {
   })
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
   if (shouldSkip(pathname)) return NextResponse.next()
@@ -82,5 +82,8 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|images|videos|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)"],
+  matcher: [
+    "/",
+    "/((?!api|_next|_vercel|images|videos|favicon.ico|robots.txt|sitemap.xml|.*\\..*).+)",
+  ],
 }
