@@ -90,22 +90,22 @@ const caseStudies = [
     servicePath: "Puppy Training",
     serviceHref: "/services/puppy-training",
   },
-  {
-    name: "Shilo",
-    breed: "Beagle",
-    age: "",
-    photoDesc: "Video testimonial about finding comfort and control with a long-reactive dog",
-    wistiaId: "qtdpt5lv7o",
-    problem:
-      "My dog had been reactive for years. We tried everything, but nothing seemed to stick. Our walks were stressful, and he just couldn't be around other dogs comfortably.",
-    plan: "",
-    result:
-      "The change has been drastic. He can now be around other dogs without feeling pressured or reactive. We've found a place where he truly feels safe and comfortable.",
-    quote:
-      "Nick is such an understanding trainer. My dog has had such a drastic change in such a short amount of time—I'm just amazed at the progress we've had.",
-    servicePath: "Reactivity Training",
-    serviceHref: "/services/reactivity",
-  },
+  // {
+  //   name: "Shilo",
+  //   breed: "Beagle",
+  //   age: "",
+  //   photoDesc: "Video testimonial about finding comfort and control with a long-reactive dog",
+  //   wistiaId: "qtdpt5lv7o",
+  //   problem:
+  //     "My dog had been reactive for years. We tried everything, but nothing seemed to stick. Our walks were stressful, and he just couldn't be around other dogs comfortably.",
+  //   plan: "",
+  //   result:
+  //     "The change has been drastic. He can now be around other dogs without feeling pressured or reactive. We've found a place where he truly feels safe and comfortable.",
+  //   quote:
+  //     "Nick is such an understanding trainer. My dog has had such a drastic change in such a short amount of time—I'm just amazed at the progress we've had.",
+  //   servicePath: "Reactivity Training",
+  //   serviceHref: "/services/reactivity",
+  // },
 ]
 
 export default function ResultsPage() {

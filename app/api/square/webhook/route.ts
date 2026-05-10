@@ -453,6 +453,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
     const roomAvailable = await isFacilityRoomAvailable({
       startAt: claim.scheduledAtIso,
       serviceVariationId: claim.consultationServiceVariationId,
+      teamMemberId: claim.consultationTeamMemberId,
     })
     if (!roomAvailable) {
       throw new Error("Facility room is no longer available for the paid consultation slot.")

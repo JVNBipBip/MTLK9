@@ -33,9 +33,13 @@ const trainers: Trainer[] = [
     name: "Nick Azzuolo",
     title: "Owner, Founder & Head Trainer",
     years: "15+ years",
-    specialty: "Pet obedience, canine sports, behavioral rehab",
-    origin:
-      "Nick has been handling dogs since a young age and always had a natural skill working with them. With an engineering degree and mentorship from professional trainers in canine sports and rehabilitation, he built Montreal Canine Training to combine pet obedience with sport-level techniques.",
+    specialty:
+      "High-drive dogs, serious rehabilitation, advanced obedience, reactivity",
+    origin: [
+      "Nick has been handling dogs from a young age and has always had a natural ability working with them.",
+      "With over 10 years of experience, a growing list of successful cases, and a strong reputation for rehabilitating dogs, he built Montreal Canine Training into what has become one of the leading dog training companies in Montreal. Today, his focus is on building a strong team of professionals, continuing to teach and educate people about their dogs, and offering dog trainer courses for individuals looking to pursue a career in the industry.",
+      "He specializes in working with high drive dogs, serious rehabilitation cases, advanced obedience and reactivity training.",
+    ].join("\n\n"),
     superpower: "Prioritizes engagement, motivation, communication, confidence, and relationship-building above all.",
     personal:
       "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.",
@@ -47,9 +51,14 @@ const trainers: Trainer[] = [
     name: "Tyson Jerome White",
     title: "Trainer",
     years: "10+ years",
-    specialty: "Obedience, behavior modification, relationship building",
-    origin:
-      "Tyson's journey began with his first dog, Winston, an Australian Shepherd. He believes structure and consistency are essential for coexistence. He specializes in obedience training, behavior modification, and relationship building through private sessions and group classes.",
+    specialty:
+      "Puppy training & development, behaviour modification, reactivity, obedience",
+    origin: [
+      "Tyson's journey began with his first dog, Winston, an Australian Shepherd. Through his experience, hard work, and proven results, he has demonstrated the qualities and skills needed to help people better understand, manage, and build stronger relationships with their dogs.",
+      "He works closely with clients to problem-solve and create clear, customized training programs tailored to fit each client's lifestyle and goals. So far, he has achieved excellent results and built an impressive track record of customer satisfaction.",
+      "With Tyson, clients can feel confident, supported, and in good hands during every single session.",
+      "He specializes in puppy training and development, behaviour modification, reactivity and obedience training.",
+    ].join("\n\n"),
     superpower: "Makes high-distraction urban walks feel manageable — and even enjoyable.",
     personal:
       "He has two dogs of his own and lives by the philosophy that structure creates freedom.",
@@ -62,11 +71,13 @@ const trainers: Trainer[] = [
     titleFr: "Entraîneuse",
     years: "Trainer",
     yearsFr: "Entraîneuse",
-    specialty: "Private training, group classes, client coaching",
-    origin:
-      "Mia is joining the Montreal Canine Training team to support clients through private training, group classes, and day-to-day coaching. Her full bio and team photo are coming soon.",
-    originFr:
-      "Mia se joint à l'équipe d'Entraînement Canin Montréal pour accompagner les clients en entraînement privé, en cours de groupe et dans le coaching au quotidien. Sa biographie complète et sa photo d'équipe arriveront bientôt.",
+    specialty: "Puppy training, reactivity training, pet obedience",
+    origin: [
+      "Mia successfully completed Montreal Canine Training's apprenticeship program two years ago and has completed over 100 hours of stage work, along with many additional hours working in our day training program.",
+      "She began her dog training journey with her personal dog, Appa, and quickly discovered a true passion for helping dogs and their owners.",
+      "Mia is an exceptional trainer who genuinely enjoys helping others and building strong relationships between dogs and their families.",
+      "She specializes in puppy training, reactivity training, and pet obedience training.",
+    ].join("\n\n"),
     superpower: "Helps owners feel clear, supported, and confident while they build better habits with their dogs.",
     superpowerFr:
       "Elle aide les propriétaires à se sentir clairs, soutenus et confiants pendant qu'ils développent de meilleures habitudes avec leur chien.",
@@ -215,9 +226,15 @@ export function AboutContent() {
                         <span className="text-sm text-primary font-medium">{years}</span>
                       </div>
                       <p className="text-sm font-medium text-secondary mb-4">{title}</p>
-                      <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                        {origin}
-                      </p>
+                      <div className="mb-4 space-y-3 text-muted-foreground text-sm leading-relaxed">
+                        {origin
+                          .split(/\n\n+/)
+                          .map((p) => p.trim())
+                          .filter(Boolean)
+                          .map((paragraph, index) => (
+                            <p key={index}>{paragraph}</p>
+                          ))}
+                      </div>
                       <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
                         <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                         {superpower}

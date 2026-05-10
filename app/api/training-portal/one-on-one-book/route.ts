@@ -94,6 +94,7 @@ export async function POST(request: Request) {
     const roomAvailable = await isFacilityRoomAvailable({
       startAt: new Date(startAt).toISOString(),
       serviceVariationId,
+      teamMemberId,
     })
     if (!roomAvailable) {
       return NextResponse.json(

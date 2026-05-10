@@ -3,6 +3,7 @@ import { getConsultationServiceVariationIds, getSquareServiceConfig } from "@/li
 
 const DEFAULT_FACILITY_ROOM_CAPACITY = 2
 const DEFAULT_APPOINTMENT_DURATION_MINUTES = 60
+const DEFAULT_TEAM_APPOINTMENT_BUFFER_MINUTES = 30
 const SQUARE_BOOKINGS_MAX_RANGE_MS = 30 * 24 * 60 * 60 * 1000
 const ACTIVE_BOOKING_STATUSES = new Set(["accepted", "pending"])
 
@@ -10,6 +11,14 @@ export type FacilityCapacitySlot = {
   startAt: string
   serviceVariationId: string
   durationMinutes?: number
+  /** When set, enforces TEAM_APPOINTMENT_BUFFER_MINUTES gaps vs this staff member's other Square bookings. */
+  teamMemberId?: string
+}
+
+function teamAppointmentBufferMinutes() {
+  const raw = Number.parseInt(process.env.TEAM_APPOINTMENT_BUFFER_MINUTES || "", 10)
+  if (Number.isNaN(raw) || raw < 0) return DEFAULT_TEAM_APPOINTMENT_BUFFER_MINUTES
+  return raw
 }
 
 function facilityRoomCapacity() {
@@ -68,6 +77,35 @@ function activeFacilityBookingsOverlapping(
   })
 }
 
+function bookingInvolvesTeamMember(booking: SquareBooking, teamMemberId: string) {
+  const id = teamMemberId.trim()
+  if (!id) return false
+  return (booking.appointment_segments || []).some((seg) => seg.team_member_id?.trim() === id)
+}
+
+/** True if an active booking for this staff overlaps [startMs, endMs], extended by buffer on both sides of the booking. */
+function teamMemberBufferViolated(
+  bookings: SquareBooking[],
+  teamMemberId: string,
+  startMs: number,
+  endMs: number,
+  bufferMs: number,
+) {
+  if (!teamMemberId.trim() || bufferMs <= 0) return false
+  for (const booking of bookings) {
+    const status = String(booking.status || "").toLowerCase()
+    if (!ACTIVE_BOOKING_STATUSES.has(status)) continue
+    if (!bookingInvolvesTeamMember(booking, teamMemberId)) continue
+    const bookingStartMs = booking.start_at ? new Date(booking.start_at).getTime() : Number.NaN
+    if (!Number.isFinite(bookingStartMs)) continue
+    const bookingEndMs = bookingStartMs + bookingDurationMinutes(booking) * 60_000
+    const blockStart = bookingStartMs - bufferMs
+    const blockEnd = bookingEndMs + bufferMs
+    if (timeRangesOverlap(startMs, endMs, blockStart, blockEnd)) return true
+  }
+  return false
+}
+
 async function listSquareBookingsForRange(startIso: string, endIso: string): Promise<SquareBooking[]> {
   const startMs = new Date(startIso).getTime()
   const endMs = new Date(endIso).getTime()
@@ -95,12 +133,26 @@ export async function isFacilityRoomAvailable(slot: FacilityCapacitySlot): Promi
   const startMs = new Date(slot.startAt).getTime()
   if (!Number.isFinite(startMs)) return false
   const endMs = startMs + durationMinutes * 60_000
+
+  const bufferMin = teamAppointmentBufferMinutes()
+  const bufferMs = bufferMin * 60_000
+  const padMs = Math.max(DEFAULT_APPOINTMENT_DURATION_MINUTES, bufferMin) * 60_000
+
   const bookings = await listSquareBookingsForRange(
-    new Date(startMs - DEFAULT_APPOINTMENT_DURATION_MINUTES * 60_000).toISOString(),
-    new Date(endMs).toISOString(),
+    new Date(startMs - padMs).toISOString(),
+    new Date(endMs + padMs).toISOString(),
   )
 
-  return activeFacilityBookingsOverlapping(bookings, facilityServiceIds, startMs, endMs).length < facilityRoomCapacity()
+  if (activeFacilityBookingsOverlapping(bookings, facilityServiceIds, startMs, endMs).length >= facilityRoomCapacity()) {
+    return false
+  }
+
+  const teamId = slot.teamMemberId?.trim()
+  if (teamId && teamMemberBufferViolated(bookings, teamId, startMs, endMs, bufferMs)) {
+    return false
+  }
+
+  return true
 }
 
 export async function filterSlotsByFacilityRoomCapacity<T extends FacilityCapacitySlot>(slots: T[]): Promise<T[]> {
@@ -124,8 +176,10 @@ export async function filterSlotsByFacilityRoomCapacity<T extends FacilityCapaci
     DEFAULT_APPOINTMENT_DURATION_MINUTES,
     ...facilitySlots.map((slot) => slot.durationMinutes || durationByServiceId.get(slot.serviceVariationId) || 0),
   )
-  const rangeStart = new Date(Math.min(...startTimes) - maxDurationMinutes * 60_000).toISOString()
-  const rangeEnd = new Date(Math.max(...startTimes) + maxDurationMinutes * 60_000).toISOString()
+  const bufferMin = teamAppointmentBufferMinutes()
+  const bufferMs = bufferMin * 60_000
+  const rangeStart = new Date(Math.min(...startTimes) - maxDurationMinutes * 60_000 - bufferMs).toISOString()
+  const rangeEnd = new Date(Math.max(...startTimes) + maxDurationMinutes * 60_000 + bufferMs).toISOString()
   const bookings = await listSquareBookingsForRange(rangeStart, rangeEnd)
 
   return slots.filter((slot) => {
@@ -137,6 +191,11 @@ export async function filterSlotsByFacilityRoomCapacity<T extends FacilityCapaci
       slot.durationMinutes || durationByServiceId.get(slot.serviceVariationId) || DEFAULT_APPOINTMENT_DURATION_MINUTES
     const endMs = startMs + durationMinutes * 60_000
     const overlapping = activeFacilityBookingsOverlapping(bookings, facilityServiceIds, startMs, endMs)
-    return overlapping.length < facilityRoomCapacity()
+    if (overlapping.length >= facilityRoomCapacity()) return false
+
+    const teamId = slot.teamMemberId?.trim()
+    if (teamId && teamMemberBufferViolated(bookings, teamId, startMs, endMs, bufferMs)) return false
+
+    return true
   })
 }
