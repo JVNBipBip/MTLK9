@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { FieldValue, type Firestore } from "firebase-admin/firestore"
-import { getConsultationServiceVariationIds } from "@/lib/square-service-config"
+import {
+  getConsultationServiceVariationId,
+  getConsultationServiceVariationIds,
+} from "@/lib/square-service-config"
 import {
   ISSUE_SERVICE_MAP,
   goalLabelsForIssue,
@@ -180,13 +183,18 @@ export async function POST(request: Request) {
       if (!allowedServiceVariationIds.includes(slotServiceVariationId)) {
         return NextResponse.json({ error: errorText.slotExpired }, { status: 400 })
       }
+      const primaryConsultationVariationId = (await getConsultationServiceVariationId())?.trim() || null
+      if (!primaryConsultationVariationId) {
+        return NextResponse.json({ error: errorText.configIncomplete }, { status: 500 })
+      }
       scheduledAtIso = new Date(slotStartAt).toISOString()
-      consultationServiceVariationId = slotServiceVariationId
+      // Slot may come from any merged evaluation variation (capacity visibility); Square booking uses primary consult SKU only.
+      consultationServiceVariationId = primaryConsultationVariationId
       consultationTeamMemberId = slotTeamMemberId
       consultationTeamMemberName = formData.consultationTeamMemberName?.trim() || null
       const roomAvailable = await isFacilityRoomAvailable({
         startAt: scheduledAtIso,
-        serviceVariationId: slotServiceVariationId,
+        serviceVariationId: primaryConsultationVariationId,
         teamMemberId: slotTeamMemberId,
       })
       if (!roomAvailable) {

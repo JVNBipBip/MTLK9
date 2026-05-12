@@ -733,7 +733,6 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                                           consultationSlotKey: slot.slotKey,
                                           consultationTeamMemberId: slot.teamMemberId || "",
                                           consultationTeamMemberName: slot.teamMemberName || "",
-                                          consultationServiceVariationId: slot.slotKey.split("|")[1] || "",
                                           consultationLocation: CONSULTATION_LOCATION,
                                           consultationWhat: "In-person assessment",
                                         })

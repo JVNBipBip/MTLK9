@@ -6,6 +6,7 @@ import { getAdminDb } from "@/lib/firebase-admin"
 import { GROUP_CLASS_REQUEST_SOURCE } from "@/lib/group-class-series"
 import { programLabel } from "@/lib/programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
+import { STAFF_BOOKING_NOTIFY_EMAIL } from "@/lib/staff-booking-notify"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 import { defaultLocale, getIntlLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import {
@@ -15,8 +16,6 @@ import {
 } from "@/lib/client-records"
 
 export const runtime = "nodejs"
-
-const ADMIN_GROUP_CLASS_EMAIL = "mtlcaninetraining@gmail.com"
 
 type Payload = {
   clientEmail?: string
@@ -81,7 +80,7 @@ async function notifyAdmin(input: {
   `
 
   return sendEmail({
-    to: ADMIN_GROUP_CLASS_EMAIL,
+    to: STAFF_BOOKING_NOTIFY_EMAIL,
     subject: `Group class request: ${input.programLabel} for ${input.dogName}`,
     html,
   })

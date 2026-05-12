@@ -3,6 +3,7 @@ import type { ClassSessionRecord } from "@/lib/domain"
 import { CLASS_SESSIONS_COLLECTION, CLIENTS_COLLECTION } from "@/lib/domain"
 import { programLabel } from "@/lib/programs"
 import { CLIENT_BOOKINGS_SUBCOLLECTION, listClientSubcollectionDocs, queryClientSubcollectionDocsByField } from "@/lib/client-records"
+import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 
 export const GROUP_SERIES_BOOKING_SOURCE = "training-portal-group-series"
 export const GROUP_CLASS_REQUEST_SOURCE = "training-portal-group-class-request"
@@ -236,18 +237,24 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
   const bookingRef = await findGroupClassBookingRef(db, input.bookingId)
   if (!bookingRef) return
   const paidAtIso = new Date().toISOString()
-  await db.runTransaction(async (t) => {
+  const outcome = await db.runTransaction(async (t) => {
     const bSnap = await t.get(bookingRef)
-    if (!bSnap.exists) return
+    if (!bSnap.exists) return { finalized: false as const }
     const bd = bSnap.data() as {
       paymentStatus?: string
       source?: string
       selectedSessionIds?: string[]
       clientCollectionPath?: string
+      clientId?: string
+      clientName?: string
+      clientEmail?: string
+      dogName?: string
+      groupSeriesId?: string
+      summary?: { when?: string[]; where?: string[]; what?: string[] }
     }
-    if (bd.source !== GROUP_SERIES_BOOKING_SOURCE) return
-    if (bd.paymentStatus === "paid") return
-    if (bd.paymentStatus !== "pending_payment" && bd.paymentStatus !== "processing") return
+    if (bd.source !== GROUP_SERIES_BOOKING_SOURCE) return { finalized: false as const }
+    if (bd.paymentStatus === "paid") return { finalized: false as const }
+    if (bd.paymentStatus !== "pending_payment" && bd.paymentStatus !== "processing") return { finalized: false as const }
     const sessionIds = bd.selectedSessionIds || []
     // Firestore requires all reads before any writes in a transaction, so
     // batch-read every session up front before emitting any updates.
@@ -277,7 +284,32 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
     for (const ref of mirroredBookingRefs(db, bookingRef.path, bd.clientCollectionPath)) {
       t.set(ref, patch, { merge: true })
     }
+    const clientEmail =
+      String(bd.clientEmail || "")
+        .trim()
+        .toLowerCase() ||
+      String(bd.clientId || "")
+        .trim()
+        .toLowerCase()
+    return {
+      finalized: true as const,
+      notify: {
+        kind: "group_series_paid" as const,
+        bookingId: input.bookingId,
+        clientName: String(bd.clientName || ""),
+        clientEmail,
+        dogName: String(bd.dogName || ""),
+        groupSeriesId: String(bd.groupSeriesId || ""),
+        summaryWhen: (bd.summary?.when || []).map(String),
+        summaryWhere: (bd.summary?.where || []).map(String),
+        summaryWhat: (bd.summary?.what || []).map(String),
+      },
+    }
   })
+
+  if (outcome.finalized) {
+    notifyStaffOfBooking(outcome.notify)
+  }
 }
 
 export function groupSessionsIntoSeriesList(

@@ -7,6 +7,7 @@ import { getProgramServiceVariationId, getSquareServiceConfig } from "@/lib/squa
 import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { clientBookingRef, clientBookingsCollection, findClientConsultationByAccessTokenHash, upsertClientProfile } from "@/lib/client-records"
+import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 
 export const runtime = "nodejs"
 
@@ -143,6 +144,17 @@ export async function POST(request: Request) {
     updatedAt: FieldValue.serverTimestamp(),
   }
   await bookingRef.set({ ...bookingData, clientCollectionPath: bookingRef.path })
+
+  notifyStaffOfBooking({
+    kind: "group_class_post_assessment",
+    bookingId: bookingRef.id,
+    clientName: bookingData.clientName,
+    clientEmail: bookingData.clientEmail,
+    dogName: bookingData.dogName,
+    programLabel: bookingData.summary.what[0] || programId,
+    slotStartAtIso: new Date(startAt).toISOString(),
+    squareBookingId: squareBooking.booking?.id || null,
+  })
 
   return NextResponse.json({
     ok: true,

@@ -13,6 +13,7 @@ import {
   clientPrivatePackageRef,
   upsertClientProfile,
 } from "@/lib/client-records"
+import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 
 export const runtime = "nodejs"
 
@@ -141,6 +142,7 @@ export async function POST(request: Request) {
   const packageRef = db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).doc(portal.activePrivatePackage.id)
   const nestedPackageRef = clientPrivatePackageRef(db, clientEmail, dogName, portal.activePrivatePackage.id)
   const bookingRef = clientBookingRef(db, clientEmail)
+  let privateSessionNumber: number | null = null
   try {
     await db.runTransaction(async (transaction) => {
       const [packageSnap, nestedPackageSnap] = await Promise.all([
@@ -157,6 +159,7 @@ export async function POST(request: Request) {
         throw new Error("Private package has no remaining sessions.")
       }
       const nextBookedCount = bookedCount + 1
+      privateSessionNumber = nextBookedCount
       const nextRemaining = Math.max(0, remaining - 1)
       const nextStatus = nextRemaining === 0 ? "exhausted" : "active"
 
@@ -211,6 +214,19 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ error: message }, { status: 500 })
   }
+
+  notifyStaffOfBooking({
+    kind: "private_session",
+    bookingId: bookingRef.id,
+    clientName: portal.latestConsultation?.clientName || "",
+    clientEmail,
+    dogName,
+    sessionLabel: ONE_ON_ONE_PROGRAM_LABEL,
+    slotStartAtIso: new Date(startAt).toISOString(),
+    privateServiceType: portal.activePrivatePackage?.serviceType ?? null,
+    sessionNumber: privateSessionNumber,
+    squareBookingId: squareBooking.booking?.id || null,
+  })
 
   return NextResponse.json({
     ok: true,

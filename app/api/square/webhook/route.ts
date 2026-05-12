@@ -15,6 +15,7 @@ import {
 import { logSquareWebhookEvent } from "@/lib/square-webhook-log"
 import { findClientConsultationById } from "@/lib/client-records"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
+import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 
 export const runtime = "nodejs"
 
@@ -512,6 +513,17 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       },
       { merge: true },
     )
+    notifyStaffOfBooking({
+      kind: "consultation",
+      consultationId: claim.consultationId,
+      clientName: claim.clientName,
+      clientEmail: claim.clientEmail,
+      clientPhone: claim.clientPhone,
+      dogName: claim.dogName,
+      scheduledAtIso: claim.scheduledAtIso,
+      squareBookingId: squareConsultationBookingId,
+      issueLabel: claim.issueLabel,
+    })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Square booking creation failed after payment."
     await logConsultationDepositStep(
