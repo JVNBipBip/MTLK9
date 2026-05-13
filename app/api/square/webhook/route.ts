@@ -19,6 +19,26 @@ import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 
 export const runtime = "nodejs"
 
+const WEBHOOK_LOG_PREFIX = "[square webhook]"
+
+function squareWebhookLog(
+  level: "info" | "warn" | "error",
+  stage: string,
+  ctx: { eventId?: string | null; eventType?: string | null },
+  extra?: Record<string, unknown>,
+) {
+  const payload = {
+    stage,
+    eventId: ctx.eventId ?? null,
+    eventType: ctx.eventType ?? null,
+    ...extra,
+  }
+  const line = `${WEBHOOK_LOG_PREFIX} ${stage}`
+  if (level === "error") console.error(line, payload)
+  else if (level === "warn") console.warn(line, payload)
+  else console.info(line, payload)
+}
+
 type WebhookPayload = SquareWebhookPayload
 
 type ConsultationBookingClaim = {
@@ -121,8 +141,17 @@ async function logConsultationDepositStep(
 }
 
 async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: WebhookPayload) {
+  const ctx = { eventId: payload.event_id ?? null, eventType: payload.type ?? null }
   const hints = tryGetOrderCheckoutHints(payload)
   if (!hints.orderId) return
+
+  squareWebhookLog("info", "group_series:payment_event", ctx, {
+    squareOrderId: hints.orderId,
+    hintedReferenceId: hints.referenceId ?? null,
+    hintedState: hints.state ?? null,
+    hintedPaid: hints.paid === true,
+    hintedAmountCents: hints.amountCents ?? null,
+  })
 
   let referenceId = hints.referenceId
   let state = hints.state
@@ -134,22 +163,59 @@ async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: 
     try {
       const full = await retrieveSquareOrder(hints.orderId)
       const ord = full.order
-      if (!ord) return
+      if (!ord) {
+        squareWebhookLog("info", "group_series:order_lookup_empty", ctx, { squareOrderId: hints.orderId })
+        return
+      }
       referenceId = referenceId || ord.reference_id || undefined
       state = state || ord.state
       isPaid = isPaid || ord.state === "COMPLETED"
       if (ord.total_money?.amount != null) {
         amountCents = Number(ord.total_money.amount)
       }
-    } catch {
+      squareWebhookLog("info", "group_series:order_loaded", ctx, {
+        squareOrderId: hints.orderId,
+        referenceId: referenceId ?? null,
+        state: state ?? null,
+        paid: isPaid,
+        amountCents: amountCents ?? null,
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      squareWebhookLog("warn", "group_series:order_lookup_failed", ctx, {
+        squareOrderId: hints.orderId,
+        error: message,
+      })
       return
     }
   }
 
-  if (!referenceId || !isPaid) return
+  if (!referenceId || !isPaid) {
+    squareWebhookLog("info", "group_series:ignored_unpaid_or_unreferenced", ctx, {
+      squareOrderId: hints.orderId,
+      referenceId: referenceId ?? null,
+      state: state ?? null,
+      paid: isPaid,
+      amountCents: amountCents ?? null,
+    })
+    return
+  }
 
   const bookingId = referenceId.trim()
-  if (!bookingId || bookingId.length > 40) return
+  if (!bookingId || bookingId.length > 40) {
+    squareWebhookLog("info", "group_series:invalid_reference_id", ctx, {
+      squareOrderId: hints.orderId,
+      referenceId,
+      bookingIdLen: bookingId.length,
+    })
+    return
+  }
+
+  squareWebhookLog("info", "group_series:finalize_start", ctx, {
+    bookingId,
+    squareOrderId: hints.orderId,
+    amountCents: amountCents ?? null,
+  })
 
   await finalizeGroupSeriesPaymentFromWebhook(db, {
     bookingId,
@@ -157,6 +223,11 @@ async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: 
     amountCents,
     eventId: payload.event_id ?? null,
     eventType: payload.type ?? null,
+  })
+
+  squareWebhookLog("info", "group_series:finalize_done", ctx, {
+    bookingId,
+    squareOrderId: hints.orderId,
   })
 }
 
@@ -557,8 +628,15 @@ export async function POST(request: Request) {
   const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY
   const rawBody = await request.text()
   const db = getAdminDb()
+  const emptyCtx = { eventId: null as string | null, eventType: null as string | null }
 
   if (!signature || !signatureKey) {
+    squareWebhookLog("warn", "signature_config_missing", emptyCtx, {
+      hasSignatureHeader: Boolean(signature),
+      hasSignatureKeyEnv: Boolean(signatureKey),
+      requestUrl: request.url,
+      bodyChars: rawBody.length,
+    })
     await logSquareWebhookEvent(db, {
       stage: "signature_failed",
       eventId: null,
@@ -572,6 +650,10 @@ export async function POST(request: Request) {
   }
   const signatureValid = isValidSignature({ signature, body: rawBody, signatureKey, url: request.url })
   if (!signatureValid) {
+    squareWebhookLog("warn", "signature_invalid", emptyCtx, {
+      requestUrl: request.url,
+      bodyChars: rawBody.length,
+    })
     await logSquareWebhookEvent(db, {
       stage: "signature_failed",
       eventId: null,
@@ -588,6 +670,10 @@ export async function POST(request: Request) {
   try {
     payload = JSON.parse(rawBody) as WebhookPayload
   } catch {
+    squareWebhookLog("warn", "payload_json_parse_failed", emptyCtx, {
+      requestUrl: request.url,
+      bodyChars: rawBody.length,
+    })
     await logSquareWebhookEvent(db, {
       stage: "payload_parse_failed",
       eventId: null,
@@ -602,6 +688,16 @@ export async function POST(request: Request) {
 
   const eventId = payload.event_id ?? null
   const eventType = payload.type ?? null
+  const ctx = { eventId, eventType }
+  const merchantId =
+    typeof (payload as Record<string, unknown>).merchant_id === "string"
+      ? ((payload as Record<string, unknown>).merchant_id as string)
+      : null
+
+  squareWebhookLog("info", "event_received", ctx, {
+    merchantId,
+    bodyChars: rawBody.length,
+  })
 
   await logSquareWebhookEvent(db, {
     stage: "received",
@@ -617,6 +713,7 @@ export async function POST(request: Request) {
       retrieveBooking: retrieveSquareBooking,
       retrieveCustomer: retrieveSquareCustomer,
     })
+    squareWebhookLog("info", "booking_reconcile_ok", ctx, { reconcile })
     await logSquareWebhookEvent(db, {
       stage: "reconcile_ok",
       eventId,
@@ -628,7 +725,10 @@ export async function POST(request: Request) {
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Booking reconcile failed."
-    console.error("[square webhook] booking reconcile:", err)
+    squareWebhookLog("error", "booking_reconcile_error", ctx, {
+      error: message,
+      stack: err instanceof Error ? err.stack : undefined,
+    })
     await logSquareWebhookEvent(db, {
       stage: "reconcile_error",
       eventId,
@@ -641,7 +741,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    squareWebhookLog("info", "consultation_deposit_pipeline_start", ctx, {})
     await maybeFinalizeConsultationDepositFromOrderWebhook(db, payload)
+    squareWebhookLog("info", "consultation_deposit_pipeline_done", ctx, {})
     await logSquareWebhookEvent(db, {
       stage: "consultation_deposit_finalize_ok",
       eventId,
@@ -652,7 +754,10 @@ export async function POST(request: Request) {
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Consultation deposit finalize failed."
-    console.error("[square webhook] consultation deposit finalize:", err)
+    squareWebhookLog("error", "consultation_deposit_pipeline_error", ctx, {
+      error: message,
+      stack: err instanceof Error ? err.stack : undefined,
+    })
     await logSquareWebhookEvent(db, {
       stage: "consultation_deposit_finalize_error",
       eventId,
@@ -665,7 +770,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    squareWebhookLog("info", "group_series_pipeline_start", ctx, {})
     await maybeFinalizeGroupSeriesFromOrderWebhook(db, payload)
+    squareWebhookLog("info", "group_series_pipeline_done", ctx, {})
     await logSquareWebhookEvent(db, {
       stage: "order_finalize_ok",
       eventId,
@@ -676,7 +783,10 @@ export async function POST(request: Request) {
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Order finalize failed."
-    console.error("[square webhook] group series finalize:", err)
+    squareWebhookLog("error", "group_series_pipeline_error", ctx, {
+      error: message,
+      stack: err instanceof Error ? err.stack : undefined,
+    })
     await logSquareWebhookEvent(db, {
       stage: "order_finalize_error",
       eventId,
@@ -693,8 +803,12 @@ export async function POST(request: Request) {
   // the admin app's class-sync endpoint so Firestore stays in sync without staff having
   // to click "Run sync now". The admin endpoint debounces bursts internally.
   if (shouldTriggerClassSync(eventType)) {
+    squareWebhookLog("info", "class_sync:eligible_event", ctx, { eventType })
     const outcome = await triggerClassSync({ eventType, eventId })
     if (outcome.triggered) {
+      squareWebhookLog("info", outcome.skipped ? "class_sync:skipped_debounce" : "class_sync:triggered", ctx, {
+        lastRunAtIso: outcome.lastRunAtIso,
+      })
       await logSquareWebhookEvent(db, {
         stage: outcome.skipped ? "class_sync_skipped" : "class_sync_triggered",
         eventId,
@@ -711,7 +825,10 @@ export async function POST(request: Request) {
       })
     } else {
       const error = "error" in outcome ? outcome.error : undefined
-      console.error("[square webhook] class sync trigger failed:", outcome.reason, error)
+      squareWebhookLog("error", "class_sync:trigger_failed", ctx, {
+        reason: outcome.reason,
+        error: error ?? null,
+      })
       await logSquareWebhookEvent(db, {
         stage: "class_sync_error",
         eventId,
@@ -728,5 +845,6 @@ export async function POST(request: Request) {
     }
   }
 
+  squareWebhookLog("info", "response_ok", ctx, {})
   return NextResponse.json({ ok: true })
 }

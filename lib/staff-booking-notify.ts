@@ -160,6 +160,8 @@ export function notifyStaffOfBooking(payload: StaffBookingNotifyPayload): void {
   }).then((r) => {
     if (!r.sent) {
       console.error("[notifyStaffOfBooking]", payload.kind, r.reason)
+    } else {
+      console.info("[notifyStaffOfBooking] sent", payload.kind, { to })
     }
   })
 }
