@@ -45,7 +45,7 @@ const trainers: Trainer[] = [
       "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.",
     photoDesc: "Nick working with a dog on a calm loose-leash walk in a Montreal park",
     photo: "/images/team/nick.png",
-    photoPosition: "object-[50%_18%]",
+    photoPosition: "object-[50%_8%]",
   },
   {
     name: "Tyson Jerome White",
@@ -85,8 +85,10 @@ const trainers: Trainer[] = [
       "She works with the team to create practical training plans that fit real family routines.",
     personalFr:
       "Elle travaille avec l'équipe pour créer des plans d'entraînement pratiques qui s'intègrent aux vraies routines familiales.",
-    photoDesc: "Placeholder portrait for Mia M",
-    photo: null,
+    photoDesc:
+      "Portrait of Mia M smiling in a Montreal Canine Training hoodie outdoors",
+    photo: "/images/team/mia.jpeg",
+    photoPosition: "object-[50%_30%]",
   },
 ]
 
