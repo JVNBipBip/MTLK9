@@ -9,6 +9,7 @@ import {
   clientContractAcceptanceRef,
   upsertClientProfile,
 } from "@/lib/client-records"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -94,6 +95,19 @@ export async function POST(request: Request) {
     createdAt: FieldValue.serverTimestamp(),
   }
   await ref.set({ ...acceptance, clientCollectionPath: ref.path })
+
+  captureServerEvent({
+    distinctId: clientEmail,
+    event: "contract_accepted",
+    properties: {
+      contractKind: body.contractKind,
+      version,
+      clientEmail,
+      dogName: dogName || null,
+      source: source || null,
+      locale,
+    },
+  }).catch(() => {})
 
   return NextResponse.json({ ok: true, id: ref.id })
 }

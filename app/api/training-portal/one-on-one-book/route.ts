@@ -14,6 +14,7 @@ import {
   upsertClientProfile,
 } from "@/lib/client-records"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -227,6 +228,23 @@ export async function POST(request: Request) {
     sessionNumber: privateSessionNumber,
     squareBookingId: squareBooking.booking?.id || null,
   })
+
+  captureServerEvent({
+    distinctId: clientEmail,
+    event: "one_on_one_session_booked",
+    properties: {
+      bookingId: bookingRef.id,
+      squareBookingId: squareBooking.booking?.id || null,
+      clientEmail,
+      dogName,
+      slotStartAtIso: new Date(startAt).toISOString(),
+      privateServiceType: portal.activePrivatePackage?.serviceType ?? null,
+      privatePlanType: portal.activePrivatePackage?.planType ?? null,
+      sessionNumber: privateSessionNumber,
+      privatePackageId: portal.activePrivatePackage?.id ?? null,
+      locale,
+    },
+  }).catch(() => {})
 
   return NextResponse.json({
     ok: true,

@@ -20,6 +20,7 @@ function hasPublicFileExtension(pathname: string) {
 function shouldSkip(pathname: string) {
   return (
     pathname.startsWith("/api") ||
+    pathname.startsWith("/ingest") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/_vercel") ||
     pathname.startsWith("/images") ||

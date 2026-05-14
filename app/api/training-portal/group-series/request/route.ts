@@ -15,6 +15,7 @@ import {
   clientBookingRef,
   upsertClientProfile,
 } from "@/lib/client-records"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -260,6 +261,22 @@ export async function POST(request: Request) {
     updatedAt: FieldValue.serverTimestamp(),
   }
   await bookingRef.set(notificationPatch, { merge: true })
+
+  captureServerEvent({
+    distinctId: clientEmail,
+    event: "group_series_requested",
+    properties: {
+      bookingId,
+      seriesId,
+      classType,
+      programLabel: displayName,
+      sessionCount: sessions.length,
+      clientEmail,
+      dogName: portal.dogName,
+      locale,
+      notificationEmailSent: notification.sent,
+    },
+  }).catch(() => {})
 
   return NextResponse.json({
     ok: true,

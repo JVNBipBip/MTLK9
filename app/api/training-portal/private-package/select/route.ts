@@ -18,6 +18,7 @@ import {
   type PrivatePlanType,
   type PrivateServiceType,
 } from "@/lib/training-portal"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -139,6 +140,20 @@ export async function POST(request: Request) {
       transaction.set(newPackageRef, packageData)
       transaction.set(legacyPackageRef, { ...packageData, clientCollectionPath: newPackageRef.path })
     })
+
+    captureServerEvent({
+      distinctId: clientEmail,
+      event: "private_package_selected",
+      properties: {
+        packageId: newPackageRef.id,
+        serviceType,
+        planType,
+        sessionLimit,
+        clientEmail,
+        dogName,
+        locale,
+      },
+    }).catch(() => {})
 
     return NextResponse.json({
       ok: true,

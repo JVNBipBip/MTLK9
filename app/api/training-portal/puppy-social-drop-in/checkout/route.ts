@@ -19,6 +19,7 @@ import { canonicalGroupClassTypeId } from "@/lib/group-class-programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 import { clientBookingRef, clientBookingsCollection, upsertClientProfile } from "@/lib/client-records"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -264,6 +265,21 @@ export async function POST(request: Request) {
       },
       { merge: true },
     )
+    captureServerEvent({
+      distinctId: clientEmail,
+      event: "puppy_social_drop_in_checkout_started",
+      properties: {
+        bookingId,
+        seriesId,
+        sessionCount: sessions.length,
+        depositAmountCents: PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS,
+        clientEmail,
+        clientName: intake.clientName,
+        dogName: portal.dogName,
+        dogAge: intake.dogAge,
+        locale,
+      },
+    }).catch(() => {})
     return NextResponse.json({ ok: true, bookingId, checkoutUrl: url })
   } catch (e) {
     await releaseHoldsForGroupBooking(db, bookingId)

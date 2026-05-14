@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
+import posthog from "posthog-js"
 import { useAppLocale } from "@/components/locale-provider"
 import type { GroupSeriesListItem } from "@/app/training-portal/training-portal-types"
 import { getIntlLocale } from "@/lib/i18n/config"
@@ -187,6 +188,14 @@ export function PuppySocialDropInPanel({
       if (!response.ok || !data.checkoutUrl) {
         throw new Error(data.error || "Could not start checkout.")
       }
+      if (emailNorm) {
+        posthog.identify(emailNorm, { email: emailNorm, name: intake.clientName, dogName: intake.dogName })
+      }
+      posthog.capture("puppy_drop_in_checkout_redirect", {
+        seriesId: selectedSeriesId,
+        dogAge: intake.dogAge,
+        locale,
+      })
       window.location.href = data.checkoutUrl
     } catch (e) {
       setCheckoutErr(e instanceof Error ? e.message : "Could not start checkout.")

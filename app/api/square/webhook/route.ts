@@ -16,6 +16,7 @@ import { logSquareWebhookEvent } from "@/lib/square-webhook-log"
 import { findClientConsultationById } from "@/lib/client-records"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -229,6 +230,16 @@ async function maybeFinalizeGroupSeriesFromOrderWebhook(db: Firestore, payload: 
     bookingId,
     squareOrderId: hints.orderId,
   })
+
+  captureServerEvent({
+    distinctId: bookingId,
+    event: "group_series_payment_completed",
+    properties: {
+      bookingId,
+      squareOrderId: hints.orderId,
+      amountCents: amountCents ?? null,
+    },
+  }).catch(() => {})
 }
 
 async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, payload: WebhookPayload) {
@@ -595,6 +606,21 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       squareBookingId: squareConsultationBookingId,
       issueLabel: claim.issueLabel,
     })
+    captureServerEvent({
+      distinctId: claim.clientEmail.toLowerCase(),
+      event: "consultation_deposit_paid",
+      properties: {
+        consultationId: claim.consultationId,
+        squareOrderId: hints.orderId,
+        squareConsultationBookingId,
+        scheduledAtIso: claim.scheduledAtIso,
+        depositAmountCents: claim.depositAmountCents,
+        clientEmail: claim.clientEmail,
+        clientName: claim.clientName,
+        dogName: claim.dogName,
+        issueLabel: claim.issueLabel,
+      },
+    }).catch(() => {})
   } catch (err) {
     const message = err instanceof Error ? err.message : "Square booking creation failed after payment."
     await logConsultationDepositStep(

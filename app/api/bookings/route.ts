@@ -18,6 +18,7 @@ import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
 import { notifyConsultationInquiryStaffAndClient } from "@/lib/staff-booking-notify"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -395,6 +396,32 @@ export async function POST(request: Request) {
     pushLeadToGHL(formData).catch((err) =>
       console.error("[Booking API] GHL push failed (non-blocking):", err)
     )
+
+    captureServerEvent({
+      distinctId: clientId,
+      event: isConsultationInquiry
+        ? "consultation_inquiry_submitted"
+        : requiresConsultationDeposit
+          ? "consultation_deposit_initiated"
+          : "booking_submitted",
+      properties: {
+        consultationId: docRef.id,
+        connectMethod: formData.connectMethod,
+        issue: formData.issue,
+        issueLabel: issueLabel(formData.issue),
+        dogName: formData.dogName,
+        clientEmail: formData.contactEmail,
+        clientName: formData.contactName,
+        locale,
+        bookingSource,
+        highPriority: submission.highPriority,
+        consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
+        preferredTrainerLabel,
+        scheduledAtIso,
+        depositAmountCents: requiresConsultationDeposit ? consultationDepositAmountCents : 0,
+        replacedExisting: Boolean(replaceConsultationId),
+      },
+    }).catch(() => {})
 
     return NextResponse.json({
       ok: true,

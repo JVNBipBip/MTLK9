@@ -19,6 +19,7 @@ import { StepConfirmation } from "./steps/step-confirmation"
 import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
 import { trackFBInitiateCheckout, trackFBLead } from "@/lib/facebook-pixel"
+import posthog from "posthog-js"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
 const TOTAL_STEPS = 5
@@ -496,6 +497,17 @@ export function BookingContent({
           }
         }
 
+        const phEmail = formData.contactEmail.trim().toLowerCase()
+        if (phEmail) {
+          posthog.identify(phEmail, {
+            email: phEmail,
+            name: formData.contactName,
+            phone: formData.contactPhone,
+            dogName: formData.dogName,
+            locale,
+          })
+        }
+
         if (submissionMode === "inquiry") {
           await recordContractAcceptance()
           setCompletionKind("inquiry")
@@ -503,6 +515,11 @@ export function BookingContent({
           trackFBLead({
             content_name: "Consultation Inquiry",
             content_category: "Dog Training Lead",
+          })
+          posthog.capture("consultation_inquiry_completed", {
+            connectMethod: formData.connectMethod,
+            issue: formData.issue,
+            locale,
           })
           return
         }
@@ -518,6 +535,11 @@ export function BookingContent({
             content_name: "In-Person Evaluation Deposit",
             content_category: "Dog Training Checkout",
           })
+          posthog.capture("consultation_deposit_checkout_redirect", {
+            connectMethod: formData.connectMethod,
+            issue: formData.issue,
+            locale,
+          })
           window.location.assign(data.checkoutUrl)
           return
         }
@@ -529,6 +551,11 @@ export function BookingContent({
               ? "In-Person Evaluation"
               : "Free Discovery Call",
           content_category: "Dog Training Lead",
+        })
+        posthog.capture("booking_form_completed", {
+          connectMethod: formData.connectMethod,
+          issue: formData.issue,
+          locale,
         })
       } catch (error) {
         console.error("[Booking Form] Submission failed:", error)

@@ -28,6 +28,7 @@ import {
   clientBookingRef,
   upsertClientProfile,
 } from "@/lib/client-records"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -328,6 +329,21 @@ export async function POST(request: Request) {
       updatedAt: FieldValue.serverTimestamp(),
     }
     await bookingRef.set(linkPatch, { merge: true })
+    captureServerEvent({
+      distinctId: clientEmail,
+      event: "group_series_checkout_started",
+      properties: {
+        bookingId,
+        seriesId,
+        classType,
+        sessionCount: sessions.length,
+        amountCents: courseVariationId ? null : fallbackTotalAmountCents,
+        currency: courseVariationId ? "cad" : fallbackCurrency.toLowerCase(),
+        dogName: portal.dogName,
+        clientEmail,
+        locale,
+      },
+    }).catch(() => {})
     return NextResponse.json({ ok: true, bookingId, checkoutUrl: url })
   } catch (e) {
     await releaseHoldsForGroupBooking(db, bookingId)

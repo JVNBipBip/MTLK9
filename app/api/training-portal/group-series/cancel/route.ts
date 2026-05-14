@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { GROUP_SERIES_BOOKING_SOURCE, findGroupClassBookingRef, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -62,5 +63,10 @@ export async function POST(request: Request) {
   }
 
   await releaseHoldsForGroupBooking(db, bookingId)
+  captureServerEvent({
+    distinctId: clientEmail,
+    event: "group_series_checkout_cancelled",
+    properties: { bookingId, clientEmail, dogName },
+  }).catch(() => {})
   return NextResponse.json({ ok: true })
 }

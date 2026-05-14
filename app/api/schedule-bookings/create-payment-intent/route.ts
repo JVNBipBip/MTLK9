@@ -8,6 +8,7 @@ import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
 import { clientBookingRef, clientBookingsCollection, findClientConsultationByAccessTokenHash, upsertClientProfile } from "@/lib/client-records"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
 
@@ -155,6 +156,20 @@ export async function POST(request: Request) {
     slotStartAtIso: new Date(startAt).toISOString(),
     squareBookingId: squareBooking.booking?.id || null,
   })
+
+  captureServerEvent({
+    distinctId: bookingClientEmail,
+    event: "post_consultation_class_booked",
+    properties: {
+      bookingId: bookingRef.id,
+      squareBookingId: squareBooking.booking?.id || null,
+      consultationId,
+      programId,
+      clientEmail: bookingClientEmail,
+      dogName: consultation.dogName || "",
+      slotStartAtIso: new Date(startAt).toISOString(),
+    },
+  }).catch(() => {})
 
   return NextResponse.json({
     ok: true,

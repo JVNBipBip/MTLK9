@@ -16,6 +16,7 @@ import {
 } from "./training-portal-types"
 import { GroupClassesContent } from "./group-classes-content"
 import { trackFBCompleteRegistration, trackFBLead } from "@/lib/facebook-pixel"
+import posthog from "posthog-js"
 
 function formatDateTime(iso: string, intlLocale: string) {
   return new Date(iso).toLocaleString(intlLocale, {
@@ -203,6 +204,14 @@ export function TrainingPortalContent({
       }
       if (data.inHomeBookingAllowed !== true) {
         setSelectedServiceType((prev) => (prev === "in_home" ? "in_facility" : prev))
+      }
+      const phEmail = clientEmail.trim().toLowerCase()
+      if (phEmail) {
+        posthog.identify(phEmail, { email: phEmail, dogName: dogName.trim() || null })
+        posthog.capture("training_portal_lookup_succeeded", {
+          assessmentCompleted: Boolean(data.assessmentCompleted),
+          hasActivePrivatePackage: Boolean(data.activePrivatePackage),
+        })
       }
     } catch (err) {
       setStatusData(null)

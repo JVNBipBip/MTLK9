@@ -3,6 +3,7 @@ import { findClientConsultationByAccessTokenHash } from "@/lib/client-records"
 import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { hashAccessToken } from "@/lib/tokens"
+import { captureServerEvent } from "@/lib/posthog-server"
 
 type RouteContext = {
   params: Promise<{ token: string }>
@@ -37,6 +38,19 @@ export async function GET(_request: Request, context: RouteContext) {
   const clientId = String((doc.data().clientId as string) || (doc.data().clientEmail as string) || "").trim().toLowerCase()
   const dogName = String((doc.data().dogName as string) || "")
   const approvedClasses = await buildApprovedGroupClassesForClientDog(clientId, dogName)
+
+  if (clientId) {
+    captureServerEvent({
+      distinctId: clientId,
+      event: "booking_access_link_opened",
+      properties: {
+        consultationId: consultation.id,
+        clientEmail: clientId,
+        dogName,
+        approvedClassesCount: approvedClasses.length,
+      },
+    }).catch(() => {})
+  }
 
   return NextResponse.json({
     ok: true,
