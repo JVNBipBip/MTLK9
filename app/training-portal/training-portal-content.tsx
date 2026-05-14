@@ -28,12 +28,21 @@ function formatDateTime(iso: string, intlLocale: string) {
 /** `private_only`: service-page sign-up modal — private packages & sessions only (no group enrollment UI). */
 export type TrainingPortalMode = "full" | "private_only" | "group_only"
 
+/** When embedded in a dialog launched from `/booking/[slug]`, URLs may lack trainer params — pass them here instead. */
+export type TrainingPortalEmbeddedTrainer = {
+  trainerTeamMemberId?: string | null
+  trainerSlug?: string | null
+  trainerName?: string | null
+}
+
 export function TrainingPortalContent({
   onClose,
   mode = "full",
+  embeddedTrainer = null,
 }: {
   onClose?: () => void
   mode?: TrainingPortalMode
+  embeddedTrainer?: TrainingPortalEmbeddedTrainer | null
 }) {
   const locale = useAppLocale()
   const intlLocale = getIntlLocale(locale)
@@ -67,10 +76,24 @@ export function TrainingPortalContent({
     )
   }, [activePackage, selectedServiceType, selectedPlanType])
 
+  const trainerTeamMemberIdMerged =
+    embeddedTrainer?.trainerTeamMemberId?.trim() ||
+    searchParams.get("trainerTeamMemberId")?.trim() ||
+    ""
+  const trainerSlugMerged =
+    embeddedTrainer?.trainerSlug?.trim().toLowerCase() ||
+    searchParams.get("trainerSlug")?.trim().toLowerCase() ||
+    ""
+  const trainerNameMerged =
+    embeddedTrainer?.trainerName?.trim() ||
+    decodeURIComponent(searchParams.get("trainerName") || "").trim() ||
+    ""
+
   const goToBookingPage = () => {
     const params = new URLSearchParams()
     params.set("email", clientEmail.trim().toLowerCase())
     params.set("dog", (statusData?.lookup?.dogName || dogName).trim() || "Guest")
+    if (trainerTeamMemberIdMerged) params.set("trainerTeamMemberId", trainerTeamMemberIdMerged)
     onClose?.()
     router.push(`${trainingPortalBookPath}?${params.toString()}`)
   }
@@ -86,6 +109,15 @@ export function TrainingPortalContent({
     if (emailFromUrl && !clientEmail) setClientEmail(emailFromUrl)
     if (dogFromUrl && !dogName) setDogName(dogFromUrl)
   }, [searchParams, clientEmail, dogName])
+
+  useEffect(() => {
+    if (searchParams.get("focus") !== "group") return
+    if (!statusData?.assessmentCompleted) return
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("portal-group-classes")?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [searchParams, statusData?.assessmentCompleted])
 
   async function loadPrivateContractAccepted(email: string) {
     const cleanedEmail = email.trim().toLowerCase()
@@ -285,15 +317,21 @@ export function TrainingPortalContent({
           </div>
               <p className="text-muted-foreground text-lg">
                 {privateOnly
-                  ? "Verify your profile to choose a private training package and book one-on-one sessions."
+                  ? "Private sessions are reserved for clients after a completed behavioral assessment with us. Enter your assessment details below so we can confirm you’re cleared to choose a package and book."
                   : "Verify your profile to see the group classes your dog has been approved for."}
               </p>
             </section>
 
             <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
           <div className="space-y-1">
-            <h2 className="font-semibold text-foreground">Find your profile</h2>
-            <p className="text-sm text-muted-foreground">Enter the email (and dog name if known) used for your assessment.</p>
+            <h2 className="font-semibold text-foreground">
+              {privateOnly ? "Verify your assessment is completed" : "Find your profile"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {privateOnly
+                ? "We’ll match this to our records and only continue if there’s an assessment already on file. Use the same email (optionally your dog’s name) from when you completed your assessment."
+                : "Enter the email (and dog name if known) used for your assessment."}
+            </p>
           </div>
           
           <form className="grid gap-4 sm:grid-cols-2" onSubmit={handleLookup}>
@@ -320,7 +358,13 @@ export function TrainingPortalContent({
             </div>
             <div className="sm:col-span-2 pt-2">
               <Button type="submit" disabled={isLoadingStatus} className="w-full sm:w-auto rounded-full px-8">
-                {isLoadingStatus ? "Searching..." : "Find Profile"}
+                {isLoadingStatus
+                  ? privateOnly
+                    ? "Checking assessment…"
+                    : "Searching…"
+                  : privateOnly
+                    ? "Check assessment on file"
+                    : "Find Profile"}
                 {!isLoadingStatus && <Search className="ml-2 w-4 h-4" />}
               </Button>
             </div>
@@ -372,7 +416,11 @@ export function TrainingPortalContent({
                     className="w-full lg:w-auto rounded-full bg-amber-600 hover:bg-amber-700 text-white border-none"
                     onClick={() => {
                       onClose?.()
-                      openBookingForm()
+                      if (trainerSlugMerged) {
+                        router.push(addLocaleToPathname(`/booking/${trainerSlugMerged}`, locale))
+                      } else {
+                        openBookingForm()
+                      }
                     }}
                   >
                     Book Assessment
@@ -446,6 +494,8 @@ export function TrainingPortalContent({
                     clientEmail={clientEmail}
                     dogName={dogName}
                     redirectPath={pathname || trainingPortalPath}
+                    preferredCoachId={trainerTeamMemberIdMerged || null}
+                    preferredCoachLabel={trainerNameMerged || null}
                   />
                 ) : null}
 

@@ -3,14 +3,19 @@
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ProgramSignupLink } from "@/components/booking-form-provider"
+import { BookingLink, ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+
+export type ServiceDetailCtaMode = "program_signup" | "book_consultation"
 
 type ServiceWorkOnSectionProps = {
   goals: string[]
+  ctaMode?: ServiceDetailCtaMode
+  /** i18n key; when omitted, uses the default private-training carousel body. */
+  goalCardBodyText?: string
 }
 
-export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
+export function ServiceWorkOnSection({ goals, ctaMode = "program_signup", goalCardBodyText }: ServiceWorkOnSectionProps) {
   const t = useLocalizedText()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -101,7 +106,9 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
                     {t(goal)}
                   </h3>
                   <p className="text-muted-foreground text-base leading-relaxed mt-auto">
-                    {t("Clear steps, real-world reps, and practical homework to build lasting behavior.")}
+                    {goalCardBodyText
+                      ? t(goalCardBodyText)
+                      : t("Clear steps, real-world reps, and practical homework to build lasting behavior.")}
                   </p>
                   <Check className="w-5 h-5 text-primary mt-5" />
                 </div>
@@ -128,12 +135,21 @@ export function ServiceWorkOnSection({ goals }: ServiceWorkOnSectionProps) {
         </div>
 
         <div className="reveal opacity-0 animation-delay-600 mt-10 text-center">
-          <ProgramSignupLink>
-            <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-              {t("Start Program Sign-Up")}
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </ProgramSignupLink>
+          {ctaMode === "book_consultation" ? (
+            <BookingLink>
+              <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
+                {t("Book a Consultation")}
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </BookingLink>
+          ) : (
+            <ProgramSignupLink>
+              <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
+                {t("Start Program Sign-Up")}
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </ProgramSignupLink>
+          )}
         </div>
       </div>
     </section>

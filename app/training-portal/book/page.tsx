@@ -8,13 +8,14 @@ export const metadata: Metadata = noIndexMetadata(
 )
 
 type Props = {
-  searchParams: Promise<{ email?: string; dog?: string }>
+  searchParams: Promise<{ email?: string; dog?: string; trainerTeamMemberId?: string }>
 }
 
 export default async function TrainingPortalBookPage({ searchParams }: Props) {
   const params = await searchParams
   const email = (params.email || "").trim().toLowerCase()
   const dog = (params.dog || "").trim()
+  const trainerTeamMemberId = (params.trainerTeamMemberId || "").trim() || null
 
   if (!email || !dog) {
     return (
@@ -31,7 +32,11 @@ export default async function TrainingPortalBookPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <TrainingPortalBookingContent clientEmail={email} dogName={dog} />
+      <TrainingPortalBookingContent
+        clientEmail={email}
+        dogName={dog}
+        preferredTeamMemberId={trainerTeamMemberId}
+      />
     </div>
   )
 }

@@ -14,6 +14,8 @@ export const runtime = "nodejs"
 type Payload = {
   clientEmail?: string
   dogName?: string
+  /** When set, only return slots for this Square team_member_id. */
+  preferredTeamMemberId?: string
 }
 
 type OneOnOneSlot = {
@@ -231,15 +233,20 @@ export async function POST(request: Request) {
       ...s,
       teamMemberName: teamNames.get(s.teamMemberId) ?? null,
     }))
+    const preferredTeamMemberId = String(payload.preferredTeamMemberId || "").trim()
+    const filteredSlots = preferredTeamMemberId
+      ? slotsWithNames.filter((s) => s.teamMemberId === preferredTeamMemberId)
+      : slotsWithNames
+    const uniqueTeamIdsFiltered = [...new Set(filteredSlots.map((s) => s.teamMemberId))]
     const staffSummary = Object.fromEntries(
-      uniqueTeamIds.map((id) => [id, teamNames.get(id) ?? "(unknown)"])
+      uniqueTeamIdsFiltered.map((id) => [id, teamNames.get(id) ?? "(unknown)"])
     )
-    console.log("[one-on-one-slots] Returning", slotsWithNames.length, "slots. Staff in response:", staffSummary)
+    console.log("[one-on-one-slots] Returning", filteredSlots.length, "slots. Staff in response:", staffSummary)
 
     return NextResponse.json({
       ok: true,
       package: portal.activePrivatePackage,
-      slots: slotsWithNames,
+      slots: filteredSlots,
     })
   } catch (err) {
     console.error("[one-on-one-slots]", err)

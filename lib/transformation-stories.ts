@@ -18,7 +18,7 @@ export const transformationStories: TransformationStory[] = [
   {
     slug: "sasha",
     dogName: "Sasha",
-    breed: "[Breed]",
+    breed: "German Shepherd",
     path: "Reactivity Training",
     before:
       "I had no control over Sasha. She was so reactive that I couldn't be around other dogs without her going crazy, which made our walks together a nightmare.",

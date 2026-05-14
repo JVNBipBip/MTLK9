@@ -5,12 +5,15 @@ import { groupSessionsIntoSeriesList, releaseStaleGroupSeriesHolds, type Session
 import { programLabel } from "@/lib/programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
+import { PUPPY_SOCIALIZATION_CLASS_TYPE_ID } from "@/lib/puppy-social-drop-in"
 
 export const runtime = "nodejs"
 
 type Payload = {
   clientEmail?: string
   dogName?: string
+  /** When true, skip assessment and list only puppy socialization cohorts (drop-in path). */
+  dropInPuppySocialization?: boolean
 }
 
 export async function POST(request: Request) {
@@ -41,24 +44,38 @@ export async function POST(request: Request) {
     oneOnOneServiceVariationIds,
   })
 
-  if (!portal.assessmentCompleted) {
-    return NextResponse.json({
-      ok: true,
-      eligible: false,
-      blockedReason: "assessment_required",
-      series: [] as ReturnType<typeof groupSessionsIntoSeriesList>,
-    })
-  }
+  const dropIn = Boolean(payload.dropInPuppySocialization)
 
-  const allowedClassTypes = new Set(portal.allowedGroupClassTypeIds)
+  let allowedClassTypes: Set<string>
+  let eligible: boolean
+  let blockedReason: string | null
 
-  if (allowedClassTypes.size === 0) {
-    return NextResponse.json({
-      ok: true,
-      eligible: false,
-      blockedReason: "no_group_program_access",
-      series: [],
-    })
+  if (dropIn) {
+    allowedClassTypes = new Set([PUPPY_SOCIALIZATION_CLASS_TYPE_ID])
+    eligible = true
+    blockedReason = null
+  } else {
+    if (!portal.assessmentCompleted) {
+      return NextResponse.json({
+        ok: true,
+        eligible: false,
+        blockedReason: "assessment_required",
+        series: [] as ReturnType<typeof groupSessionsIntoSeriesList>,
+      })
+    }
+
+    allowedClassTypes = new Set(portal.allowedGroupClassTypeIds)
+
+    if (allowedClassTypes.size === 0) {
+      return NextResponse.json({
+        ok: true,
+        eligible: false,
+        blockedReason: "no_group_program_access",
+        series: [],
+      })
+    }
+    eligible = true
+    blockedReason = null
   }
 
   const sessionsSnap = await db.collection(CLASS_SESSIONS_COLLECTION).orderBy("startsAtIso", "asc").limit(400).get()
@@ -76,9 +93,10 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    eligible: true,
-    blockedReason: null as string | null,
+    eligible,
+    blockedReason,
     series: seriesWithLabels,
     lookup: { clientEmail, dogName: portal.dogName },
+    dropInPuppySocialization: dropIn,
   })
 }

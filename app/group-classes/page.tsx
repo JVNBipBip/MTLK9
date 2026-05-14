@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef } from "react"
 import Image from "next/image"
-import { ArrowRight, CalendarCheck, ClipboardCheck, Sparkles, Users } from "lucide-react"
+import { ArrowRight, CalendarCheck, ClipboardCheck, Users } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
@@ -40,7 +40,7 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Teen puppies",
     summary: "A structured class for adolescent dogs building focus, manners, and engagement around distractions.",
     bullets: ["Focus around distractions", "Leash and impulse control", "Handler coaching"],
-    image: "/images/Classes images/puppy_training.webp",
+    image: "/images/Classes images/teen_puppy.png",
     unitPrice: "$90 + tax",
   },
   {
@@ -129,19 +129,17 @@ export default function GroupClassesPage() {
 
         <div className="max-w-5xl mx-auto">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="reveal opacity-0 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 backdrop-blur px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-secondary mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              {t("Group Classes")}
-            </div>
-            <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              {t("Request the group class your dog is approved for")}
+            <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
+              {t("Group programs for pups, teens, reactivity, and obedience")}
             </h1>
-            <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              {t("Small cohorts. Real coaching. Enter your email to see approved classes and request a spot, or book an assessment and we'll place your dog in the right program.")}
+            <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              {t(
+                "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right cohort.",
+              )}
             </p>
           </div>
 
-          <div className="reveal opacity-0 animation-delay-600 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
+          <div className="reveal opacity-0 animation-delay-400 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
             <HeroStat icon={<Users className="w-4 h-4" />} label={t("Small cohorts")} />
             <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label={t("Scheduled series")} />
             <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label={t("Trainer-approved")} />
@@ -149,34 +147,54 @@ export default function GroupClassesPage() {
         </div>
       </section>
 
-      <section id="group-class-availability" className="px-6 lg:px-8 -mt-4 lg:-mt-8 pb-20 lg:pb-28 scroll-mt-24">
-        <div className="reveal opacity-0 max-w-4xl mx-auto">
-          <Suspense
-            fallback={
-              <div className="rounded-3xl border border-border/60 bg-card p-8 shadow-xl shadow-primary/10 animate-pulse text-muted-foreground text-sm">
-                {t("Loading group classes…")}
-              </div>
-            }
-          >
-            <GroupClassesBookingPanel />
-          </Suspense>
+      <section className="px-6 lg:px-8 pt-4 lg:pt-6 pb-8 lg:pb-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="reveal opacity-0 rounded-3xl border border-border/60 bg-card p-6 md:p-8 lg:p-10 shadow-lg shadow-primary/5">
+            <div className="text-center max-w-xl mx-auto mb-6">
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-2">
+                How it works
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground text-balance">
+                Three steps to the right class
+              </h2>
+            </div>
+            <ol className="grid gap-4 md:grid-cols-3 md:gap-5">
+              {[
+                {
+                  title: "Complete an assessment",
+                  body: "We meet you and your dog first so we can understand goals, behavior, and the right path.",
+                },
+                {
+                  title: "Your trainer approves a program",
+                  body: "After the assessment, your trainer enables the group programs your dog is ready for.",
+                },
+                {
+                  title: "Request your spot",
+                  body: "Come back, enter your email, and request an upcoming full-series cohort that fits your schedule.",
+                },
+              ].map((step, index) => (
+                <li
+                  key={step.title}
+                  className={`reveal opacity-0 relative rounded-2xl border border-border/60 bg-background/60 p-4 md:p-5 ${
+                    index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary font-display text-base font-semibold">
+                      {index + 1}
+                    </span>
+                    <h3 className="text-sm font-medium text-foreground leading-snug">{step.title}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 
-      <section className="px-6 lg:px-8 pb-20 lg:pb-28">
+      <section className="px-6 lg:px-8 pb-20 lg:pb-28 pt-2">
         <div className="max-w-7xl mx-auto">
-          <div className="reveal opacity-0 text-center max-w-2xl mx-auto mb-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
-              {t("What we run")}
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance">
-              {t("Group programs we offer")}
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mt-4">
-              {t("Your trainer matches your dog to the right program and level during the assessment.")}
-            </p>
-          </div>
-
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {OFFERINGS.map((offering, index) => (
               <article
@@ -243,49 +261,17 @@ export default function GroupClassesPage() {
         </div>
       </section>
 
-      <section className="px-6 lg:px-8 pb-20 lg:pb-28">
-        <div className="max-w-6xl mx-auto">
-          <div className="reveal opacity-0 rounded-[40px] border border-border/60 bg-card p-8 md:p-12 lg:p-16 shadow-lg shadow-primary/5">
-            <div className="text-center max-w-2xl mx-auto mb-10">
-              <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-3">
-                How it works
-              </p>
-              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance">
-                Three steps to the right class
-              </h2>
-            </div>
-            <ol className="grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  title: "Complete an assessment",
-                  body: "We meet you and your dog first so we can understand goals, behavior, and the right path.",
-                },
-                {
-                  title: "Your trainer approves a program",
-                  body: "After the assessment, your trainer enables the group programs your dog is ready for.",
-                },
-                {
-                  title: "Request your spot",
-                  body: "Come back, enter your email, and request an upcoming full-series cohort that fits your schedule.",
-                },
-              ].map((step, index) => (
-                <li
-                  key={step.title}
-                  className={`reveal opacity-0 relative rounded-3xl border border-border/60 bg-background/60 p-6 ${
-                    index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary font-display text-lg font-semibold">
-                      {index + 1}
-                    </span>
-                    <h3 className="font-medium text-foreground">{step.title}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
+      <section id="group-class-availability" className="px-6 lg:px-8 pb-20 lg:pb-28 scroll-mt-24">
+        <div className="reveal opacity-0 max-w-4xl mx-auto">
+          <Suspense
+            fallback={
+              <div className="rounded-3xl border border-border/60 bg-card p-8 shadow-xl shadow-primary/10 animate-pulse text-muted-foreground text-sm">
+                {t("Loading group classes…")}
+              </div>
+            }
+          >
+            <GroupClassesBookingPanel />
+          </Suspense>
         </div>
       </section>
 

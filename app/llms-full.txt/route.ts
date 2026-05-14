@@ -29,6 +29,12 @@ Nous adaptons la méthode au chien devant nous, aux objectifs du client et au ni
 
 ## Services
 
+### Consultation en entraînement
+Premier pas recommandé : rencontrez un entraîneur pour faire le point sur les objectifs, le comportement et la meilleure orientation (privé, groupe ou les deux).
+
+- Format: consultation / évaluation en personne via le calendrier de réservation
+- URL: https://mtlcaninetraining.com/fr/services/consultation
+
 ### Entraînement pour la réactivité
 Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs.
 - Format: cours privés et cours de groupe
@@ -88,6 +94,7 @@ ${faqSection}
 
 - Accueil: https://mtlcaninetraining.com/fr
 - Tous les services: https://mtlcaninetraining.com/fr/services
+- Consultation: https://mtlcaninetraining.com/fr/services/consultation
 - Réactivité: https://mtlcaninetraining.com/fr/services/reactivity
 - Cours privés: https://mtlcaninetraining.com/fr/services/private-classes
 - Obéissance: https://mtlcaninetraining.com/fr/services/obedience
@@ -110,6 +117,12 @@ We offer a variety of different methods. It all depends on the dog in front of u
 ---
 
 ## Services
+
+### Training Consultation
+Recommended first step: meet a trainer to review goals and behaviour and get a personalised recommendation toward private lessons, group classes, or both.
+
+- Format: in-person consultation / evaluation through the booking calendar
+- URL: https://mtlcaninetraining.com/services/consultation
 
 ### Reactivity Training
 For dogs who lunge, bark, or shut down around triggers.
@@ -175,6 +188,7 @@ ${faqSection}
 
 - Home: https://mtlcaninetraining.com
 - All Services: https://mtlcaninetraining.com/services
+- Consultation: https://mtlcaninetraining.com/services/consultation
 - Reactivity Training: https://mtlcaninetraining.com/services/reactivity
 - Private Classes: https://mtlcaninetraining.com/services/private-classes
 - Obedience Training: https://mtlcaninetraining.com/services/obedience

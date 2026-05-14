@@ -2,7 +2,13 @@ import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
 import { CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { GROUP_SERIES_BOOKING_SOURCE, releaseStaleGroupSeriesHolds, releaseHoldsForGroupBooking } from "@/lib/group-class-series"
+import {
+  GROUP_SERIES_BOOKING_SOURCE,
+  fetchClassSessionsForSeriesId,
+  releaseStaleGroupSeriesHolds,
+  releaseHoldsForGroupBooking,
+} from "@/lib/group-class-series"
+import { canonicalGroupClassTypeId, dogHasAccessToGroupClassType } from "@/lib/group-class-programs"
 import {
   createSquarePaymentLinkForItems,
   createSquarePaymentLinkForVariation,
@@ -126,16 +132,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No group program access for this dog.", code: "no_group_program_access" }, { status: 403 })
   }
 
-  const sessionsSnap = await db.collection(CLASS_SESSIONS_COLLECTION).where("seriesId", "==", seriesId).limit(80).get()
-  if (sessionsSnap.empty) {
+  const loaded = await fetchClassSessionsForSeriesId(db, seriesId)
+  if (loaded.length === 0) {
     return NextResponse.json({ error: "Series not found.", code: "series_not_found" }, { status: 404 })
   }
 
   const nowIso = new Date().toISOString()
-  const sessions = sessionsSnap.docs.map((doc) => {
-    const d = doc.data() as Omit<ClassSessionRecord, "id">
-    return { id: doc.id, ...d }
-  })
+  const sessions = loaded
     .filter((row) => {
       const active = row.isActive !== false
       const starts = String(row.startsAtIso || "")
@@ -147,12 +150,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "This series has no upcoming sessions.", code: "series_not_available" }, { status: 400 })
   }
 
-  const classTypes = new Set(sessions.map((s) => String(s.classType || "").trim()))
+  const classTypes = new Set(sessions.map((s) => canonicalGroupClassTypeId(String(s.classType || "").trim())).filter(Boolean))
   if (classTypes.size !== 1) {
     return NextResponse.json({ error: "Series has mixed class types; fix sessions in admin.", code: "series_invalid" }, { status: 500 })
   }
-  const classType = [...classTypes][0]
-  if (!allowedClassTypes.has(classType)) {
+  const classType = [...classTypes][0]!
+  const sampleRawClassType = String(sessions[0]?.classType || "").trim()
+  if (!dogHasAccessToGroupClassType(allowedClassTypes, sampleRawClassType)) {
     return NextResponse.json({ error: "You do not have access to this program.", code: "program_not_allowed" }, { status: 403 })
   }
 

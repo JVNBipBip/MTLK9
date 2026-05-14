@@ -3,7 +3,7 @@ import { PROGRAM_LABEL_BY_ID, programLabel } from "./programs"
 describe("programs", () => {
   describe("PROGRAM_LABEL_BY_ID", () => {
     it("includes the currently offered programs", () => {
-      expect(PROGRAM_LABEL_BY_ID["reactivity"]).toBe("Reactivity Training")
+      expect(PROGRAM_LABEL_BY_ID["reactivity"]).toBe("Reactivity Group Class")
       expect(PROGRAM_LABEL_BY_ID["in-home"]).toBe("In-Home Training")
     })
   })

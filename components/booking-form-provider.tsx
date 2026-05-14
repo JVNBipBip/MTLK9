@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  Suspense,
   cloneElement,
   createContext,
   isValidElement,
@@ -10,19 +11,57 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react"
-import { Mail, Phone, Calendar } from "lucide-react"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Mail, Phone, Calendar, X } from "lucide-react"
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { BookingContent } from "@/app/booking/booking-content"
+import { GroupClassesBookingPanel } from "@/app/group-classes/group-classes-booking-panel"
 import { ProgramSignupContent } from "@/app/program-signup/program-signup-content"
-import { TrainingPortalContent } from "@/app/training-portal/training-portal-content"
+import {
+  TrainingPortalContent,
+  type TrainingPortalEmbeddedTrainer,
+  type TrainingPortalMode,
+} from "@/app/training-portal/training-portal-content"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+
+type OpenTrainingPortalOptions = {
+  mode?: TrainingPortalMode
+  trainerTeamMemberId?: string
+  trainerSlug?: string
+  trainerName?: string
+}
+
+type OpenGroupClassesBookingOptions = {
+  preferredCoachId?: string
+  preferredCoachLabel?: string
+}
+
+const defaultPortalLaunch: {
+  mode: TrainingPortalMode
+  embeddedTrainer: TrainingPortalEmbeddedTrainer | null
+} = {
+  mode: "private_only",
+  embeddedTrainer: null,
+}
+
+function buildEmbeddedTrainer(opts?: OpenTrainingPortalOptions): TrainingPortalEmbeddedTrainer | null {
+  const id = opts?.trainerTeamMemberId?.trim()
+  const slug = opts?.trainerSlug?.trim().toLowerCase()
+  const name = opts?.trainerName?.trim()
+  if (!id && !slug && !name) return null
+  return {
+    trainerTeamMemberId: id || null,
+    trainerSlug: slug || null,
+    trainerName: name || null,
+  }
+}
 
 type BookingFormContextType = {
   openBookingForm: () => void
   openProgramSignupForm: () => void
   openFreeCallModal: () => void
-  openTrainingPortal: () => void
+  openTrainingPortal: (opts?: OpenTrainingPortalOptions) => void
+  openGroupClassesBooking: (opts?: OpenGroupClassesBookingOptions) => void
 }
 
 const BookingFormContext = createContext<BookingFormContextType | null>(null)
@@ -42,6 +81,10 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [freeCallOpen, setFreeCallOpen] = useState(false)
   const [trainingPortalOpen, setTrainingPortalOpen] = useState(false)
   const [trainingPortalKey, setTrainingPortalKey] = useState(0)
+  const [portalLaunch, setPortalLaunch] = useState(defaultPortalLaunch)
+  const [groupClassesOpen, setGroupClassesOpen] = useState(false)
+  const [groupClassesKey, setGroupClassesKey] = useState(0)
+  const [groupClassesCoach, setGroupClassesCoach] = useState<OpenGroupClassesBookingOptions | undefined>(undefined)
 
   const openBookingForm = useCallback(() => {
     setBookingFormKey((k) => k + 1) // reset form state on each open
@@ -65,13 +108,42 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
     setFreeCallOpen(true)
   }, [])
 
-  const openTrainingPortal = useCallback(() => {
+  const openTrainingPortal = useCallback((opts?: OpenTrainingPortalOptions) => {
+    const mode = opts?.mode ?? "private_only"
+    setPortalLaunch({
+      mode,
+      embeddedTrainer: buildEmbeddedTrainer(opts),
+    })
     setTrainingPortalKey((k) => k + 1)
     setTrainingPortalOpen(true)
   }, [])
 
+  const resetPortalLaunch = useCallback(() => {
+    setPortalLaunch(defaultPortalLaunch)
+  }, [])
+
+  const handleTrainingPortalOpenChange = useCallback(
+    (open: boolean) => {
+      setTrainingPortalOpen(open)
+      if (!open) resetPortalLaunch()
+    },
+    [resetPortalLaunch],
+  )
+
   const closeTrainingPortal = useCallback(() => {
     setTrainingPortalOpen(false)
+    resetPortalLaunch()
+  }, [resetPortalLaunch])
+
+  const openGroupClassesBooking = useCallback((opts?: OpenGroupClassesBookingOptions) => {
+    setGroupClassesCoach(opts)
+    setGroupClassesKey((k) => k + 1)
+    setGroupClassesOpen(true)
+  }, [])
+
+  const handleGroupClassesOpenChange = useCallback((open: boolean) => {
+    setGroupClassesOpen(open)
+    if (!open) setGroupClassesCoach(undefined)
   }, [])
 
   const closeFreeCallModal = useCallback(() => {
@@ -84,7 +156,15 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   }, [closeFreeCallModal, openBookingForm])
 
   return (
-    <BookingFormContext.Provider value={{ openBookingForm, openProgramSignupForm, openFreeCallModal, openTrainingPortal }}>
+    <BookingFormContext.Provider
+      value={{
+        openBookingForm,
+        openProgramSignupForm,
+        openFreeCallModal,
+        openTrainingPortal,
+        openGroupClassesBooking,
+      }}
+    >
       {children}
       <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
         <DialogContent
@@ -145,13 +225,55 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog open={trainingPortalOpen} onOpenChange={setTrainingPortalOpen}>
+      <Dialog open={trainingPortalOpen} onOpenChange={handleTrainingPortalOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[1400px] sm:h-[90dvh] sm:shadow-2xl"
+          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
         >
-          <DialogTitle className="sr-only">{t("Private training portal")}</DialogTitle>
-          <TrainingPortalContent key={trainingPortalKey} onClose={closeTrainingPortal} mode="private_only" />
+          <DialogTitle className="sr-only">
+            {portalLaunch.mode === "private_only"
+              ? t("Private training portal")
+              : t("Group Classes")}
+          </DialogTitle>
+          <TrainingPortalContent
+            key={trainingPortalKey}
+            onClose={closeTrainingPortal}
+            mode={portalLaunch.mode}
+            embeddedTrainer={portalLaunch.embeddedTrainer}
+          />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={groupClassesOpen} onOpenChange={handleGroupClassesOpenChange}>
+        <DialogContent
+          showCloseButton={false}
+          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[960px] sm:h-[85dvh] sm:shadow-2xl"
+        >
+          <DialogTitle className="sr-only">{t("Group Classes")}</DialogTitle>
+          <div className="flex shrink-0 items-center justify-end border-b border-border/45 px-4 py-3 sm:px-6">
+            <DialogClose
+              type="button"
+              className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label={t("Close")}
+            >
+              <X className="size-5" aria-hidden />
+              <span className="sr-only">{t("Close")}</span>
+            </DialogClose>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6 pt-2 sm:px-6">
+            <Suspense
+              fallback={
+                <div className="rounded-3xl border border-border/60 bg-card p-8 text-muted-foreground text-sm animate-pulse">
+                  {t("Loading group classes…")}
+                </div>
+              }
+            >
+              <GroupClassesBookingPanel
+                key={groupClassesKey}
+                preferredCoachId={groupClassesCoach?.preferredCoachId?.trim() || null}
+                preferredCoachLabel={groupClassesCoach?.preferredCoachLabel?.trim() || null}
+              />
+            </Suspense>
+          </div>
         </DialogContent>
       </Dialog>
     </BookingFormContext.Provider>

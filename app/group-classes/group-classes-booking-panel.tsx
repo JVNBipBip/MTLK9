@@ -20,10 +20,17 @@ import { Button } from "@/components/ui/button"
 import { GroupClassesContent } from "@/app/training-portal/group-classes-content"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import type { StatusResponse } from "@/app/training-portal/training-portal-types"
+import { PuppySocialDropInPanel } from "@/app/group-classes/puppy-social-drop-in-panel"
 
 type VerifyState = "idle" | "loading" | "error"
 
-export function GroupClassesBookingPanel() {
+export function GroupClassesBookingPanel({
+  preferredCoachId = null,
+  preferredCoachLabel = null,
+}: {
+  preferredCoachId?: string | null
+  preferredCoachLabel?: string | null
+} = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const locale = useAppLocale()
@@ -32,6 +39,7 @@ export function GroupClassesBookingPanel() {
   const emailFromUrl = searchParams.get("email") || ""
   const dogFromUrl = searchParams.get("dog") || ""
   const justBooked = searchParams.get("group") === "success"
+  const puppyDropInSuccess = searchParams.get("dropin") === "puppy-social"
 
   const [email, setEmail] = useState(emailFromUrl)
   const [dogName, setDogName] = useState(dogFromUrl)
@@ -45,7 +53,7 @@ export function GroupClassesBookingPanel() {
     const cleanedEmail = targetEmail.trim().toLowerCase()
     const cleanedDog = targetDog.trim()
     if (!cleanedEmail) {
-      setErrorMessage("Please enter the email you used for your assessment.")
+      setErrorMessage("Please enter your email.")
       setState("error")
       return
     }
@@ -94,9 +102,12 @@ export function GroupClassesBookingPanel() {
         email={email}
         dogName={dogName}
         justBooked={justBooked}
+        puppyDropInSuccess={puppyDropInSuccess}
         bookingId={searchParams.get("booking")}
         groupClassesPath={groupClassesPath}
         onReset={handleReset}
+        preferredCoachId={preferredCoachId}
+        preferredCoachLabel={preferredCoachLabel}
       />
     )
   }
@@ -124,8 +135,8 @@ export function GroupClassesBookingPanel() {
               Find the group classes your dog can request
             </h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              Enter the email from your assessment. We&apos;ll check your dog&apos;s approved programs
-              and show you the upcoming classes where you can request a spot.
+              Enter your email to look up approved programs and puppy socialization drop-ins. Puppy socialization does
+              not require an assessment; other group programs do after your trainer approves them.
             </p>
           </div>
 
@@ -293,22 +304,29 @@ function VerifiedView({
   email,
   dogName,
   justBooked,
+  puppyDropInSuccess,
   bookingId,
   groupClassesPath,
   onReset,
+  preferredCoachId = null,
+  preferredCoachLabel = null,
 }: {
   status: StatusResponse
   email: string
   dogName: string
   justBooked: boolean
+  puppyDropInSuccess: boolean
   bookingId: string | null
   groupClassesPath: string
   onReset: () => void
+  preferredCoachId?: string | null
+  preferredCoachLabel?: string | null
 }) {
   const resolvedDog = (status.lookup.dogName || dogName).trim() || "your dog"
   const displayEmail = (status.lookup.clientEmail || email).trim()
+  const dropIn = status.options.groupClasses.dropInPuppySocialization
 
-  if (!status.hasConsultation) {
+  if (!dropIn?.available && !status.hasConsultation) {
     return (
       <GatePanel
         onReset={onReset}
@@ -331,7 +349,7 @@ function VerifiedView({
     )
   }
 
-  if (!status.assessmentCompleted) {
+  if (!dropIn?.available && !status.assessmentCompleted) {
     return (
       <GatePanel
         onReset={onReset}
@@ -348,7 +366,7 @@ function VerifiedView({
     )
   }
 
-  if (!status.options.groupClasses.eligible) {
+  if (!dropIn?.available && !status.options.groupClasses.eligible) {
     const reason = status.options.groupClasses.blockedReason
     const bodyText =
       reason === "no_group_program_access"
@@ -372,61 +390,87 @@ function VerifiedView({
             <CheckCircle2 className="w-5 h-5" />
           </span>
           <div>
-            <p className="font-medium text-emerald-900">Request received</p>
+            <p className="font-medium text-emerald-900">
+              {puppyDropInSuccess ? "Deposit checkout started" : "Request received"}
+            </p>
             <p className="text-sm text-emerald-800/90 mt-1 leading-relaxed">
-              {bookingId
-                ? `We received your group class request. Staff will add you to Square and follow up at ${displayEmail}.`
-                : `Staff will add you to Square and follow up at ${displayEmail}.`}
+              {puppyDropInSuccess ? (
+                <>
+                  Complete payment on the next screen to reserve your puppy socialization spot. If anything goes wrong,
+                  reach out and reference booking{" "}
+                  {bookingId ? <span className="font-medium">{bookingId}</span> : "ID from your email"}.
+                </>
+              ) : bookingId ? (
+                `We received your group class request. Staff will add you to Square and follow up at ${displayEmail}.`
+              ) : (
+                `Staff will add you to Square and follow up at ${displayEmail}.`
+              )}
             </p>
           </div>
         </div>
       ) : null}
 
-      <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
-          aria-hidden="true"
+      {dropIn?.available ? (
+        <PuppySocialDropInPanel
+          clientEmail={email}
+          dogNameHint={dogName}
+          redirectPath={groupClassesPath}
+          depositCents={dropIn.depositCents}
+          currency={dropIn.currency}
+          eligibleForAssessedPrograms={status.options.groupClasses.eligible}
+          onReset={onReset}
         />
-        <div className="p-6 sm:p-8 lg:p-10 border-b border-border/60 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Dog className="w-5 h-5" />
-              </span>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium">
-                  Welcome back
-                </p>
-                <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-1">
-                  Classes for {resolvedDog}
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Linked to{" "}
-                  <span className="font-medium text-foreground">{displayEmail}</span>
-                </p>
+      ) : null}
+
+      {status.options.groupClasses.eligible ? (
+        <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
+            aria-hidden="true"
+          />
+          <div className="p-6 sm:p-8 lg:p-10 border-b border-border/60 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Dog className="w-5 h-5" />
+                </span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium">
+                    Welcome back
+                  </p>
+                  <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-1">
+                    Classes for {resolvedDog}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Linked to{" "}
+                    <span className="font-medium text-foreground">{displayEmail}</span>
+                  </p>
+                </div>
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full"
+                onClick={onReset}
+              >
+                Use a different email
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="rounded-full"
-              onClick={onReset}
-            >
-              Use a different email
-            </Button>
+          </div>
+
+          <div className="p-6 sm:p-8 lg:p-10 bg-muted/20 space-y-5">
+            <GroupClassesContent
+              statusData={status}
+              clientEmail={email}
+              dogName={dogName}
+              redirectPath={groupClassesPath}
+              preferredCoachId={preferredCoachId}
+              preferredCoachLabel={preferredCoachLabel}
+            />
           </div>
         </div>
-
-        <div className="p-6 sm:p-8 lg:p-10 bg-muted/20 space-y-5">
-          <GroupClassesContent
-            statusData={status}
-            clientEmail={email}
-            dogName={dogName}
-            redirectPath={groupClassesPath}
-          />
-        </div>
-      </div>
+      ) : null}
     </div>
   )
 }

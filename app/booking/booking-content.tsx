@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, User } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, User, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { useAppLocale } from "@/components/locale-provider"
 import { getIntlLocale } from "@/lib/i18n/config"
@@ -109,6 +110,24 @@ const bookingContentCopy = {
     submitErrorFallback: "Could not submit right now. Please try again in a moment.",
     bookingSubmitFallback: "Failed to submit booking form.",
     specialistCalendarError: "Specialist calendar is not configured. Please contact us by phone or email.",
+    schedulingChooseTitle: "How would you like to proceed?",
+    schedulingChooseSubtitle:
+      "Book a time with a deposit, or send us an inquiry and we'll follow up by email.",
+    optionBookTitle: "Pick a time & pay deposit",
+    optionBookDesc: "Choose an available assessment slot and complete the $30 deposit to confirm.",
+    optionInquiryTitle: "Send an inquiry first",
+    optionInquiryDesc:
+      "Share questions or context and we'll reply by email before you commit to a time.",
+    inquirySectionTitle: "Almost done",
+    inquirySectionSubtitle:
+      "Optional details below — we'll email you and notify our team.",
+    inquiryNotesLabel: "Your message (optional)",
+    inquiryNotesPlaceholder:
+      "Questions, scheduling preferences, or anything else we should know…",
+    sendInquiry: "Send inquiry",
+    inquirySending: "Sending…",
+    noSlotsForPinnedTrainer:
+      "No assessment times are currently available with this trainer. Please contact us and we will help you schedule.",
   },
   fr: {
     close: "Fermer",
@@ -159,13 +178,43 @@ const bookingContentCopy = {
     bookingSubmitFallback: "Impossible d'envoyer le formulaire de réservation.",
     specialistCalendarError:
       "Le calendrier du spécialiste n'est pas configuré. Veuillez nous contacter par téléphone ou par courriel.",
+    schedulingChooseTitle: "Comment souhaitez-vous procéder?",
+    schedulingChooseSubtitle:
+      "Réservez un créneau avec dépôt, ou envoyez une demande et nous vous répondrons par courriel.",
+    optionBookTitle: "Choisir une heure et payer le dépôt",
+    optionBookDesc:
+      "Choisissez un créneau d'évaluation disponible et complétez le dépôt de 30 $ pour confirmer.",
+    optionInquiryTitle: "Envoyer une demande d'abord",
+    optionInquiryDesc:
+      "Posez vos questions ou donnez du contexte — nous répondrons par courriel avant de fixer un rendez-vous.",
+    inquirySectionTitle: "Presque terminé",
+    inquirySectionSubtitle:
+      "Détails facultatifs ci-dessous — nous vous enverrons un courriel et aviserons notre équipe.",
+    inquiryNotesLabel: "Votre message (optionnel)",
+    inquiryNotesPlaceholder:
+      "Questions, préférences d'horaire ou tout autre détail utile…",
+    sendInquiry: "Envoyer la demande",
+    inquirySending: "Envoi…",
+    noSlotsForPinnedTrainer:
+      "Aucun créneau d'évaluation n'est disponible avec cet entraîneur pour le moment. Contactez-nous et nous vous aiderons à planifier.",
   },
 } as const
 
-export function BookingContent({ onClose }: { onClose: () => void }) {
+export function BookingContent({
+  onClose,
+  pinnedTeamMemberId = null,
+  trainerPageSlug = null,
+  layout = "modal",
+}: {
+  onClose: () => void
+  pinnedTeamMemberId?: string | null
+  trainerPageSlug?: string | null
+  layout?: "modal" | "page"
+}) {
   const locale = useAppLocale()
   const copy = bookingContentCopy[locale]
   const intlLocale = getIntlLocale(locale)
+  const shellClass = cn(layout === "page" ? "min-h-[100dvh]" : "h-full", "flex flex-col")
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState(1)
   const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
@@ -197,11 +246,19 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     recommendedTeamMemberId: string | null
     nickRoutingActive: boolean
     slotsMessage: string | null
+    forcedTrainerFilter: boolean
   }>({
     recommendedTeamMemberId: null,
     nickRoutingActive: false,
     slotsMessage: null,
+    forcedTrainerFilter: false,
   })
+
+  type ConsultationSchedulingKind = "unset" | "deposit" | "inquiry"
+  const [consultationSchedulingKind, setConsultationSchedulingKind] =
+    useState<ConsultationSchedulingKind>("unset")
+  const [pinnedTrainerDisplayName, setPinnedTrainerDisplayName] = useState<string | null>(null)
+  const [completionKind, setCompletionKind] = useState<"inquiry" | null>(null)
 
   const displaySlots = useMemo(() => {
     if (!trainerFilterId) return consultationSlots
@@ -247,11 +304,29 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     if (!showSchedulingStep) {
       setTrainerFilterId(null)
       setSlotsFetchError(null)
+      setConsultationSchedulingKind("unset")
     }
   }, [showSchedulingStep])
 
   useEffect(() => {
+    if (!pinnedTeamMemberId || consultationSlots.length === 0) {
+      setPinnedTrainerDisplayName(null)
+      return
+    }
+    const match = consultationSlots.find((s) => s.teamMemberId === pinnedTeamMemberId)
+    const label = match?.teamMemberName?.trim()
+    setPinnedTrainerDisplayName(label || null)
+  }, [pinnedTeamMemberId, consultationSlots])
+
+  useEffect(() => {
+    if (pinnedTeamMemberId && showSchedulingStep && consultationSchedulingKind === "deposit") {
+      setTrainerFilterId(pinnedTeamMemberId)
+    }
+  }, [pinnedTeamMemberId, showSchedulingStep, consultationSchedulingKind])
+
+  useEffect(() => {
     if (!showSchedulingStep || formData.connectMethod !== "in-person-evaluation") return
+    if (consultationSchedulingKind !== "deposit") return
     let active = true
     setIsLoadingSlots(true)
     setSlotsFetchError(null)
@@ -265,11 +340,13 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
         for (const [key, value] of Object.entries(formData.followUps)) {
           if (value) params.append("followUp", `${key}:${value}`)
         }
+        if (pinnedTeamMemberId) params.set("teamMemberId", pinnedTeamMemberId)
         const response = await fetch(`/api/consultation-slots?${params.toString()}`)
         const data = (await response.json().catch(() => null)) as {
           slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>
           recommendedTeamMemberId?: string | null
           nickRoutingActive?: boolean
+          forcedTrainerFilter?: boolean
           slotsMessage?: string | null
           error?: string
         } | null
@@ -280,6 +357,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             recommendedTeamMemberId: null,
             nickRoutingActive: true,
             slotsMessage: null,
+            forcedTrainerFilter: false,
           })
           setSlotsFetchError(
             locale === "fr" ? copy.specialistCalendarError : data?.error || copy.specialistCalendarError,
@@ -287,17 +365,21 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
           return
         }
         if (response.ok && data?.slots) {
+          const forced = data.forcedTrainerFilter ?? false
           const localizedSlotsMessage =
             data.slotsMessage && locale === "fr"
-              ? data.nickRoutingActive
-                ? copy.noFilteredSlotsNick
-                : copy.noFilteredSlotsMatched
+              ? forced
+                ? copy.noSlotsForPinnedTrainer
+                : data.nickRoutingActive
+                  ? copy.noFilteredSlotsNick
+                  : copy.noFilteredSlotsMatched
               : data.slotsMessage ?? null
           setConsultationSlots(data.slots)
           setSlotsMeta({
             recommendedTeamMemberId: data.recommendedTeamMemberId ?? null,
             nickRoutingActive: data.nickRoutingActive ?? false,
             slotsMessage: localizedSlotsMessage,
+            forcedTrainerFilter: forced,
           })
           setSlotsFetchError(null)
         } else {
@@ -306,6 +388,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             recommendedTeamMemberId: null,
             nickRoutingActive: false,
             slotsMessage: null,
+            forcedTrainerFilter: false,
           })
         }
       } catch {
@@ -315,6 +398,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
           recommendedTeamMemberId: null,
           nickRoutingActive: false,
           slotsMessage: null,
+          forcedTrainerFilter: false,
         })
       } finally {
         if (active) setIsLoadingSlots(false)
@@ -327,12 +411,15 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   }, [
     copy.noFilteredSlotsMatched,
     copy.noFilteredSlotsNick,
+    copy.noSlotsForPinnedTrainer,
     copy.specialistCalendarError,
+    consultationSchedulingKind,
     formData.connectMethod,
     formData.followUps,
     formData.impact,
     formData.issue,
     locale,
+    pinnedTeamMemberId,
     showSchedulingStep,
   ])
 
@@ -361,6 +448,99 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     setCurrentStep((s) => Math.max(0, s - 1))
   }, [])
 
+  const postBooking = useCallback(
+    async (submissionMode: "deposit" | "inquiry") => {
+      setSubmitError(null)
+      setIsSubmitting(true)
+      try {
+        const response = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            formData,
+            locale,
+            consultationSubmissionKind: submissionMode === "inquiry" ? "inquiry" : "deposit",
+            bookingSource: trainerPageSlug
+              ? `website-booking-form/trainer/${trainerPageSlug}`
+              : "website-booking-form",
+            ...(submissionMode === "inquiry"
+              ? { preferredTrainerLabel: pinnedTrainerDisplayName?.trim() || null }
+              : {}),
+          }),
+        })
+
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as { error?: string } | null
+          throw new Error(data?.error || copy.bookingSubmitFallback)
+        }
+        const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null } | null
+
+        const contractSource = trainerPageSlug ? `/booking/${trainerPageSlug}` : "/booking"
+
+        const recordContractAcceptance = async () => {
+          try {
+            await fetch("/api/contract-acceptance", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                clientEmail: formData.contactEmail.trim().toLowerCase(),
+                contractKind: "assessment_booking",
+                version: CONTRACT_VERSION,
+                source: contractSource,
+                dogName: formData.dogName.trim(),
+                locale,
+              }),
+            })
+          } catch {
+            /* non-blocking */
+          }
+        }
+
+        if (submissionMode === "inquiry") {
+          await recordContractAcceptance()
+          setCompletionKind("inquiry")
+          setIsComplete(true)
+          trackFBLead({
+            content_name: "Consultation Inquiry",
+            content_category: "Dog Training Lead",
+          })
+          return
+        }
+
+        await recordContractAcceptance()
+
+        if (data?.checkoutUrl) {
+          trackFBLead({
+            content_name: "In-Person Evaluation Deposit",
+            content_category: "Dog Training Lead",
+          })
+          trackFBInitiateCheckout({
+            content_name: "In-Person Evaluation Deposit",
+            content_category: "Dog Training Checkout",
+          })
+          window.location.assign(data.checkoutUrl)
+          return
+        }
+
+        setIsComplete(true)
+        trackFBLead({
+          content_name:
+            formData.connectMethod === "in-person-evaluation"
+              ? "In-Person Evaluation"
+              : "Free Discovery Call",
+          content_category: "Dog Training Lead",
+        })
+      } catch (error) {
+        console.error("[Booking Form] Submission failed:", error)
+        const message = error instanceof Error ? error.message : copy.submitErrorFallback
+        setSubmitError(message)
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [copy, formData, locale, pinnedTrainerDisplayName, trainerPageSlug],
+  )
+
   const handleSubmit = useCallback(async () => {
     setSubmitError(null)
     const isInPerson = formData.connectMethod === "in-person-evaluation"
@@ -369,66 +549,12 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
       return
     }
 
-    setIsSubmitting(true)
-    try {
+    await postBooking("deposit")
+  }, [formData.connectMethod, postBooking, showSchedulingStep])
 
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formData, locale }),
-      })
-
-      if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as { error?: string } | null
-        throw new Error(data?.error || copy.bookingSubmitFallback)
-      }
-      const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null } | null
-
-      try {
-        await fetch("/api/contract-acceptance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            clientEmail: formData.contactEmail.trim().toLowerCase(),
-            contractKind: "assessment_booking",
-            version: CONTRACT_VERSION,
-            source: "/booking",
-            dogName: formData.dogName.trim(),
-            locale,
-          }),
-        })
-      } catch {
-        /* non-blocking */
-      }
-
-      if (data?.checkoutUrl) {
-        trackFBLead({
-          content_name: "In-Person Evaluation Deposit",
-          content_category: "Dog Training Lead",
-        })
-        trackFBInitiateCheckout({
-          content_name: "In-Person Evaluation Deposit",
-          content_category: "Dog Training Checkout",
-        })
-        window.location.assign(data.checkoutUrl)
-        return
-      }
-
-      setIsComplete(true)
-      trackFBLead({
-        content_name: formData.connectMethod === "in-person-evaluation"
-          ? "In-Person Evaluation"
-          : "Free Discovery Call",
-        content_category: "Dog Training Lead",
-      })
-    } catch (error) {
-      console.error("[Booking Form] Submission failed:", error)
-      const message = error instanceof Error ? error.message : copy.submitErrorFallback
-      setSubmitError(message)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [copy, formData, locale, showSchedulingStep])
+  const submitConsultationInquiry = useCallback(async () => {
+    await postBooking("inquiry")
+  }, [postBooking])
 
   const handleClose = onClose
 
@@ -439,6 +565,9 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
     formData.consultationDateTime.trim().length > 0 &&
     formData.consultationLocation.trim().length > 0
 
+  const consultationReadyForInquiry =
+    consultationSchedulingKind === "inquiry" && intakeContractAccepted
+
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
     center: { x: 0, opacity: 1 },
@@ -447,7 +576,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
 
   if (isComplete) {
     return (
-      <div className="h-full flex flex-col">
+      <div className={shellClass}>
         <div className="shrink-0 bg-background border-b border-border/50 px-6 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
           <div className="max-w-lg mx-auto flex justify-end">
             <button
@@ -466,7 +595,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
             transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
             className="w-full max-w-lg"
           >
-            <StepConfirmation formData={formData} />
+            <StepConfirmation formData={formData} submissionKind={completionKind} />
           </motion.div>
         </div>
       </div>
@@ -474,7 +603,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className={shellClass}>
       {/* Top bar: Back + Progress + Close */}
       <div className="shrink-0 bg-background border-b border-border/50 px-6 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
         <div className="max-w-lg mx-auto">
@@ -515,13 +644,63 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">{copy.schedulingTitle}</h3>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {consultationSchedulingKind === "unset"
+                    ? copy.schedulingChooseTitle
+                    : consultationSchedulingKind === "inquiry"
+                      ? copy.inquirySectionTitle
+                      : copy.schedulingTitle}
+                </h3>
                 <p className="text-sm text-muted-foreground">
-                  {copy.schedulingSubtitle}
+                  {consultationSchedulingKind === "unset"
+                    ? copy.schedulingChooseSubtitle
+                    : consultationSchedulingKind === "inquiry"
+                      ? copy.inquirySectionSubtitle
+                      : copy.schedulingSubtitle}
                 </p>
               </div>
 
-              {isLoadingSlots ? (
+              {consultationSchedulingKind === "unset" ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConsultationSchedulingKind("deposit")
+                      setSubmitError(null)
+                    }}
+                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                  >
+                    <Calendar className="w-5 h-5 text-primary mb-2" />
+                    <p className="font-semibold text-foreground">{copy.optionBookTitle}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{copy.optionBookDesc}</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConsultationSchedulingKind("inquiry")
+                      setSubmitError(null)
+                    }}
+                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                  >
+                    <MessageSquare className="w-5 h-5 text-primary mb-2" />
+                    <p className="font-semibold text-foreground">{copy.optionInquiryTitle}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{copy.optionInquiryDesc}</p>
+                  </button>
+                </div>
+              ) : consultationSchedulingKind === "inquiry" ? (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-foreground" htmlFor="consultation-inquiry-notes">
+                    {copy.inquiryNotesLabel}
+                  </label>
+                  <Textarea
+                    id="consultation-inquiry-notes"
+                    value={formData.contactNotes}
+                    onChange={(e) => updateFormData({ contactNotes: e.target.value })}
+                    placeholder={copy.inquiryNotesPlaceholder}
+                    className="rounded-xl min-h-[120px] text-base resize-none"
+                  />
+                </div>
+              ) : isLoadingSlots ? (
                 <div className="p-12 flex flex-col items-center justify-center gap-4 border rounded-xl bg-muted/20">
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">{copy.loadingTimes}</p>
@@ -568,7 +747,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                     </div>
                   ) : (
                     <>
-                      {uniqueTrainers.length > 1 && !slotsMeta.nickRoutingActive ? (
+                      {uniqueTrainers.length > 1 && !slotsMeta.nickRoutingActive && !pinnedTeamMemberId ? (
                         <div>
                           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
                             {copy.trainer}
@@ -781,7 +960,7 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-              {formData.consultationDateTime && (
+              {consultationSchedulingKind === "deposit" && formData.consultationDateTime && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -850,44 +1029,66 @@ export function BookingContent({ onClose }: { onClose: () => void }) {
                 </motion.div>
               )}
 
-              <div className="space-y-3 pt-2">
-                <a
-                  href={contractUrl("assessment_booking", locale)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                >
-                  {CONTRACT_LINK_LABEL[locale].assessment_booking}
-                </a>
-                <label className="flex items-start gap-2 text-sm text-left">
-                  <input
-                    type="checkbox"
-                    checked={intakeContractAccepted}
-                    onChange={(e) => setIntakeContractAccepted(e.target.checked)}
-                    className="mt-1"
-                  />
-                  <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
-                </label>
-              </div>
+              {consultationSchedulingKind !== "unset" ? (
+                <>
+                  <div className="space-y-3 pt-2">
+                    <a
+                      href={contractUrl("assessment_booking", locale)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                    >
+                      {CONTRACT_LINK_LABEL[locale].assessment_booking}
+                    </a>
+                    <label className="flex items-start gap-2 text-sm text-left">
+                      <input
+                        type="checkbox"
+                        checked={intakeContractAccepted}
+                        onChange={(e) => setIntakeContractAccepted(e.target.checked)}
+                        className="mt-1"
+                      />
+                      <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
+                    </label>
+                  </div>
 
-              <div className="flex items-center justify-between gap-3 pt-2">
-                <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!consultationReadyForPayment || isSubmitting || !intakeContractAccepted}
-                  className="rounded-full px-8 h-12 text-base"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {copy.openingCheckout}
-                    </>
-                  ) : (
-                    copy.payDeposit
-                  )}
-                </Button>
-              </div>
+                  <div className="flex items-center justify-between gap-3 pt-2">
+                    <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
+                    {consultationSchedulingKind === "deposit" ? (
+                      <Button
+                        type="button"
+                        onClick={() => void postBooking("deposit")}
+                        disabled={!consultationReadyForPayment || isSubmitting || !intakeContractAccepted}
+                        className="rounded-full px-8 h-12 text-base"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {copy.openingCheckout}
+                          </>
+                        ) : (
+                          copy.payDeposit
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={() => void submitConsultationInquiry()}
+                        disabled={!consultationReadyForInquiry || isSubmitting}
+                        className="rounded-full px-8 h-12 text-base"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {copy.inquirySending}
+                          </>
+                        ) : (
+                          copy.sendInquiry
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ) : null}
             </div>
           ) : (
             <AnimatePresence mode="wait" custom={direction}>

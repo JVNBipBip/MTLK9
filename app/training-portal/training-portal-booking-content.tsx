@@ -56,9 +56,12 @@ function bookingsByWeekday(bookings: CalendarBooking[]) {
 export function TrainingPortalBookingContent({
   clientEmail,
   dogName,
+  preferredTeamMemberId = null,
 }: {
   clientEmail: string
   dogName: string
+  /** When set, loads and shows only this trainer's private slots. */
+  preferredTeamMemberId?: string | null
 }) {
   const locale = useAppLocale()
   const [statusData, setStatusData] = useState<StatusResponse | null>(null)
@@ -73,7 +76,7 @@ export function TrainingPortalBookingContent({
   const [isEditingPackage, setIsEditingPackage] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
   /** Empty string = all trainers */
-  const [staffFilterId, setStaffFilterId] = useState("")
+  const [staffFilterId, setStaffFilterId] = useState(() => preferredTeamMemberId?.trim() || "")
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [bookingResult, setBookingResult] = useState<{ booked: number; duplicates: number } | null>(null)
@@ -184,6 +187,9 @@ export function TrainingPortalBookingContent({
         body: JSON.stringify({
           clientEmail: clientEmail.trim(),
           dogName: dogName.trim(),
+          ...(preferredTeamMemberId?.trim()
+            ? { preferredTeamMemberId: preferredTeamMemberId.trim() }
+            : {}),
         }),
       })
       const text = await response.text()
@@ -202,7 +208,7 @@ export function TrainingPortalBookingContent({
     } finally {
       setIsLoadingSlots(false)
     }
-  }, [clientEmail, dogName])
+  }, [clientEmail, dogName, preferredTeamMemberId])
 
   useEffect(() => {
     if (

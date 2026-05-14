@@ -91,7 +91,10 @@ function teamMemberMatchesTrainerName(teamMemberName: string | null | undefined,
   return (teamMemberName || "").toLowerCase().includes(trainerName.toLowerCase())
 }
 
-async function respondWithConsultationSlots(intake: Intake) {
+async function respondWithConsultationSlots(
+  intake: Intake,
+  options?: { forceTeamMemberId?: string | null },
+) {
   const serviceVariationIds = await getConsultationServiceVariationIds()
   if (serviceVariationIds.length === 0) {
     return NextResponse.json(
@@ -118,11 +121,17 @@ async function respondWithConsultationSlots(intake: Intake) {
     )
   }
 
+  const forceTeamMemberId = options?.forceTeamMemberId?.trim() || null
+  const pool = forceTeamMemberId
+    ? rawSlots.filter((s) => s.teamMemberId === forceTeamMemberId)
+    : rawSlots
+
   const trainerNames = getVisibleTrainerNamesForIntake(intake)
-  const nickRequired = intakeRequiresNickOnlyConsultation(intake.issue, intake.impact, intake.followUps)
+  const nickRequired =
+    !forceTeamMemberId && intakeRequiresNickOnlyConsultation(intake.issue, intake.impact, intake.followUps)
   const nickId = await getNickTeamMemberIdForConsultation()
 
-  const uniqueTeamIds = [...new Set(rawSlots.map((s) => s.teamMemberId))]
+  const uniqueTeamIds = [...new Set(pool.map((s) => s.teamMemberId))]
   const teamNames = new Map<string, string | null>()
   await Promise.all(
     uniqueTeamIds.map(async (id) => {
@@ -135,10 +144,11 @@ async function respondWithConsultationSlots(intake: Intake) {
     }),
   )
 
-  const filtered =
-    trainerNames.length === 0
-      ? rawSlots
-      : rawSlots.filter((slot) =>
+  const filtered = forceTeamMemberId
+    ? pool
+    : trainerNames.length === 0
+      ? pool
+      : pool.filter((slot) =>
           trainerNames.some((trainerName) => {
             if (trainerName === "Nick" && nickId && slot.teamMemberId === nickId) return true
             return teamMemberMatchesTrainerName(teamNames.get(slot.teamMemberId), trainerName)
@@ -148,9 +158,11 @@ async function respondWithConsultationSlots(intake: Intake) {
 
   const slotsMessage =
     deduped.length === 0
-      ? nickRequired
-        ? "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule."
-        : "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule."
+      ? forceTeamMemberId
+        ? "No assessment times are currently available with this trainer. Please contact us and we will help you schedule."
+        : nickRequired
+          ? "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule."
+          : "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule."
       : undefined
 
   const slots = deduped.map((slot) => ({
@@ -171,7 +183,8 @@ async function respondWithConsultationSlots(intake: Intake) {
   return NextResponse.json({
     slots,
     recommendedTeamMemberId: null,
-    nickRoutingActive: nickRequired,
+    nickRoutingActive: forceTeamMemberId ? false : nickRequired,
+    forcedTrainerFilter: Boolean(forceTeamMemberId),
     slotsMessage: slotsMessage ?? null,
   })
 }
@@ -190,7 +203,9 @@ function parseIntakeFromSearchParams(searchParams: URLSearchParams): Intake {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  return respondWithConsultationSlots(parseIntakeFromSearchParams(searchParams))
+  const intake = parseIntakeFromSearchParams(searchParams)
+  const forceTeamMemberId = searchParams.get("teamMemberId")?.trim() || null
+  return respondWithConsultationSlots(intake, { forceTeamMemberId })
 }
 
 export async function POST(request: Request) {
@@ -215,5 +230,7 @@ export async function POST(request: Request) {
           ),
         )
       : {}
-  return respondWithConsultationSlots({ issue, impact, followUps })
+  const tmRaw = obj.teamMemberId
+  const forceTeamMemberId = typeof tmRaw === "string" ? tmRaw.trim() || null : null
+  return respondWithConsultationSlots({ issue, impact, followUps }, { forceTeamMemberId })
 }

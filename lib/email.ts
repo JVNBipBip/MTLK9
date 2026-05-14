@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer"
+import { CLIENT_EMAIL_SHELL_MARKER } from "@/lib/client-email-layout"
 
 type EmailConfig =
   | { method: "smtp"; from: string; transporter: nodemailer.Transporter }
@@ -31,10 +32,12 @@ function getEmailConfig(): EmailConfig | null {
   return null
 }
 
+/** Staff / arbitrary HTML (not wrapped in {@link clientFacingEmailShell}). */
 export async function sendEmail(params: {
   to: string
   subject: string
   html: string
+  replyTo?: string
 }): Promise<{ sent: boolean; reason?: string }> {
   const config = getEmailConfig()
   if (!config) {
@@ -49,6 +52,7 @@ export async function sendEmail(params: {
       await config.transporter.sendMail({
         from: config.from,
         to: params.to,
+        ...(params.replyTo ? { replyTo: params.replyTo } : {}),
         subject: params.subject,
         html: params.html,
       })
@@ -68,6 +72,7 @@ export async function sendEmail(params: {
     body: JSON.stringify({
       from: config.from,
       to: [params.to],
+      ...(params.replyTo ? { reply_to: params.replyTo } : {}),
       subject: params.subject,
       html: params.html,
     }),
@@ -78,4 +83,19 @@ export async function sendEmail(params: {
     return { sent: false, reason: `Resend API error: ${body}` }
   }
   return { sent: true }
+}
+
+/** Sends to external customers — `html` must come from {@link clientFacingEmailShell}. */
+export async function sendClientFacingEmail(params: {
+  to: string
+  subject: string
+  html: string
+  replyTo?: string
+}): Promise<{ sent: boolean; reason?: string }> {
+  if (!params.html.includes(CLIENT_EMAIL_SHELL_MARKER)) {
+    throw new Error(
+      "Client-facing emails must wrap content with clientFacingEmailShell from lib/client-email-layout.",
+    )
+  }
+  return sendEmail(params)
 }

@@ -1,96 +1,75 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 import Image from "next/image"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Heart } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { TrainerBioReadMoreSection } from "@/components/trainer-bio-read-more"
+import {
+  TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG,
+  TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG,
+  type CanonicalTrainerBookingSlug,
+} from "@/lib/team-trainer-photos"
+import {
+  TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG,
+  localizeTrainerBioReadMoreTexts,
+} from "@/lib/team-trainer-public-bios"
 
-type Trainer = {
+type AboutTeamTrainerCard = {
+  bookingSlug: CanonicalTrainerBookingSlug
   name: string
   title: string
   titleFr?: string
   years: string
   yearsFr?: string
   specialty: string
-  origin: string
-  originFr?: string
-  superpower: string
-  superpowerFr?: string
-  personal: string
-  personalFr?: string
   photoDesc: string
   photo: string | null
   photoPosition?: string
 }
 
-const trainers: Trainer[] = [
-  {
+const TEAM_ABOUT_META: Record<CanonicalTrainerBookingSlug, Omit<AboutTeamTrainerCard, "bookingSlug">> = {
+  nick: {
     name: "Nick Azzuolo",
     title: "Owner, Founder & Head Trainer",
     years: "15+ years",
     specialty:
       "High-drive dogs, serious rehabilitation, advanced obedience, reactivity",
-    origin: [
-      "Nick has been handling dogs from a young age and has always had a natural ability working with them.",
-      "With over 10 years of experience, a growing list of successful cases, and a strong reputation for rehabilitating dogs, he built Montreal Canine Training into what has become one of the leading dog training companies in Montreal. Today, his focus is on building a strong team of professionals, continuing to teach and educate people about their dogs, and offering dog trainer courses for individuals looking to pursue a career in the industry.",
-      "He specializes in working with high drive dogs, serious rehabilitation cases, advanced obedience and reactivity training.",
-    ].join("\n\n"),
-    superpower: "Prioritizes engagement, motivation, communication, confidence, and relationship-building above all.",
-    personal:
-      "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.",
     photoDesc: "Nick working with a dog on a calm loose-leash walk in a Montreal park",
-    photo: "/images/team/nick.png",
-    photoPosition: "object-[50%_8%]",
+    photo: TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG.nick,
+    photoPosition: TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG.nick,
   },
-  {
+  tyson: {
     name: "Tyson Jerome White",
     title: "Trainer",
     years: "10+ years",
     specialty:
       "Puppy training & development, behaviour modification, reactivity, obedience",
-    origin: [
-      "Tyson's journey began with his first dog, Winston, an Australian Shepherd. Through his experience, hard work, and proven results, he has demonstrated the qualities and skills needed to help people better understand, manage, and build stronger relationships with their dogs.",
-      "He works closely with clients to problem-solve and create clear, customized training programs tailored to fit each client's lifestyle and goals. So far, he has achieved excellent results and built an impressive track record of customer satisfaction.",
-      "With Tyson, clients can feel confident, supported, and in good hands during every single session.",
-      "He specializes in puppy training and development, behaviour modification, reactivity and obedience training.",
-    ].join("\n\n"),
-    superpower: "Makes high-distraction urban walks feel manageable — and even enjoyable.",
-    personal:
-      "He has two dogs of his own and lives by the philosophy that structure creates freedom.",
     photoDesc: "Tyson coaching an owner through a reactive moment on a busy Montreal street",
-    photo: "/images/team/tyson.jpg",
+    photo: TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG.tyson,
   },
-  {
+  mia: {
     name: "Mia M",
     title: "Trainer",
     titleFr: "Entraîneuse",
     years: "Trainer",
     yearsFr: "Entraîneuse",
     specialty: "Puppy training, reactivity training, pet obedience",
-    origin: [
-      "Mia successfully completed Montreal Canine Training's apprenticeship program two years ago and has completed over 100 hours of stage work, along with many additional hours working in our day training program.",
-      "She began her dog training journey with her personal dog, Appa, and quickly discovered a true passion for helping dogs and their owners.",
-      "Mia is an exceptional trainer who genuinely enjoys helping others and building strong relationships between dogs and their families.",
-      "She specializes in puppy training, reactivity training, and pet obedience training.",
-    ].join("\n\n"),
-    superpower: "Helps owners feel clear, supported, and confident while they build better habits with their dogs.",
-    superpowerFr:
-      "Elle aide les propriétaires à se sentir clairs, soutenus et confiants pendant qu'ils développent de meilleures habitudes avec leur chien.",
-    personal:
-      "She works with the team to create practical training plans that fit real family routines.",
-    personalFr:
-      "Elle travaille avec l'équipe pour créer des plans d'entraînement pratiques qui s'intègrent aux vraies routines familiales.",
     photoDesc:
       "Portrait of Mia M smiling in a Montreal Canine Training hoodie outdoors",
-    photo: "/images/team/mia.jpeg",
-    photoPosition: "object-[50%_30%]",
+    photo: TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG.mia,
+    photoPosition: TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG.mia,
   },
-]
+}
+
+const trainers: AboutTeamTrainerCard[] = (["nick", "tyson", "mia"] as const).map((bookingSlug) => ({
+  bookingSlug,
+  ...TEAM_ABOUT_META[bookingSlug],
+}))
 
 export function AboutContent() {
   const locale = useAppLocale()
@@ -191,14 +170,17 @@ export function AboutContent() {
             {trainers.map((trainer) => {
               const title = locale === "fr" && trainer.titleFr ? trainer.titleFr : t(trainer.title)
               const years = locale === "fr" && trainer.yearsFr ? trainer.yearsFr : t(trainer.years)
-              const origin = locale === "fr" && trainer.originFr ? trainer.originFr : t(trainer.origin)
-              const superpower = locale === "fr" && trainer.superpowerFr ? trainer.superpowerFr : t(trainer.superpower)
-              const personal = locale === "fr" && trainer.personalFr ? trainer.personalFr : t(trainer.personal)
               const photoDesc = t(trainer.photoDesc)
+              const narrative = TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG[trainer.bookingSlug]
+              const bioTexts = localizeTrainerBioReadMoreTexts(
+                narrative,
+                locale === "fr" ? "fr" : "en",
+                t,
+              )
 
               return (
                 <div
-                  key={trainer.name}
+                  key={trainer.bookingSlug}
                   data-team-card
                   className="snap-center shrink-0 w-[92%] sm:w-[88%] md:w-auto md:shrink"
                 >
@@ -227,23 +209,14 @@ export function AboutContent() {
                         </h3>
                         <span className="text-sm text-primary font-medium">{years}</span>
                       </div>
-                      <p className="text-sm font-medium text-secondary mb-4">{title}</p>
-                      <div className="mb-4 space-y-3 text-muted-foreground text-sm leading-relaxed">
-                        {origin
-                          .split(/\n\n+/)
-                          .map((p) => p.trim())
-                          .filter(Boolean)
-                          .map((paragraph, index) => (
-                            <p key={index}>{paragraph}</p>
-                          ))}
-                      </div>
-                      <p className="text-foreground text-sm font-medium mb-2 flex items-start gap-2">
-                        <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        {superpower}
-                      </p>
-                      <p className="text-muted-foreground text-sm leading-relaxed mt-auto">
-                        {personal}
-                      </p>
+                      <p className="text-sm font-medium text-secondary mb-1">{title}</p>
+                      <TrainerBioReadMoreSection
+                        preset="about"
+                        texts={bioTexts}
+                        readMoreLabel={t("Read more")}
+                        readLessLabel={t("Show less")}
+                        className="mt-2 flex-grow"
+                      />
                     </div>
                   </div>
                 </div>

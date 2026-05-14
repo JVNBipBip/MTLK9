@@ -7,6 +7,7 @@ type ConfigSlice = Pick<
 
 export const KNOWN_GROUP_PROGRAM_LABELS: Record<string, string> = {
   "puppy-socialization-class": "Puppy Socialization Class",
+  "puppy-foundations": "Puppy Socialization Class",
   "teen-puppy-class": "Teen Puppy Class",
   "reactivity-group-class": "Reactivity Group Class",
   "level-1-obedience-class": "Level 1 Obedience Class",

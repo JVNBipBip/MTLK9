@@ -112,12 +112,19 @@ export type ConsultationRecord = {
     revokedAtIso?: string | null
   } | null
   source?: string
+  consultationSubmissionKind?: "inquiry" | "deposit" | null
+  consultationPreferredTrainerName?: string | null
+  contactNotes?: string
+  contactBestTime?: string
   squareCustomerId?: string | null
   squareConsultationBookingId?: string | null
   squareConsultationStatus?: string | null
   createdAt?: unknown
   updatedAt?: unknown
   submittedAtIso?: string
+  inquiryLastStaffReplyAtIso?: string | null
+  inquiryLastStaffReplyBy?: string | null
+  inquiryLastStaffReplySubject?: string | null
 }
 
 export type ClassSessionRecord = {
@@ -131,6 +138,8 @@ export type ClassSessionRecord = {
   locationId?: string
   locationLabel?: string
   coachId?: string
+  /** Display name when coach is not a Square team member id */
+  coachLabel?: string
   /** Price mirrored from Square's public class schedule; used to build ad-hoc Payment Link line items. */
   priceAmountCents?: number | null
   priceCurrency?: string | null

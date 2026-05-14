@@ -36,6 +36,9 @@ export const bookingStepCopy = {
     confirmationTitle: "You're in. Your assessment is booked.",
     confirmationSubtitle:
       "You'll receive a confirmation email shortly with your booking details and a short prep checklist.",
+    inquiryConfirmationTitle: "We received your inquiry.",
+    inquiryConfirmationSubtitle:
+      "Our team will review your message and follow up by email shortly. If anything is urgent, call or email us using the links below.",
     questionsBeforeThen: "Questions before then?",
   },
   fr: {
@@ -73,6 +76,9 @@ export const bookingStepCopy = {
     confirmationTitle: "C'est confirmé. Votre évaluation est réservée.",
     confirmationSubtitle:
       "Vous recevrez bientôt un courriel de confirmation avec les détails de votre réservation et une courte liste de préparation.",
+    inquiryConfirmationTitle: "Nous avons bien reçu votre demande.",
+    inquiryConfirmationSubtitle:
+      "Notre équipe examinera votre message et vous répondra par courriel sous peu. Pour toute urgence, utilisez les coordonnées ci-dessous.",
     questionsBeforeThen: "Des questions d'ici là?",
   },
 } as const

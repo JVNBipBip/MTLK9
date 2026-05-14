@@ -20,11 +20,16 @@ export function GroupClassesContent({
   statusData,
   clientEmail,
   dogName,
+  redirectPath: _redirectPath,
+  preferredCoachId = null,
+  preferredCoachLabel = null,
 }: {
   statusData: StatusResponse
   clientEmail: string
   dogName: string
   redirectPath: string
+  preferredCoachId?: string | null
+  preferredCoachLabel?: string | null
 }) {
   const locale = useAppLocale()
   const intlLocale = getIntlLocale(locale)
@@ -154,9 +159,20 @@ export function GroupClassesContent({
     }
   }, [statusData, clientEmail, dogName])
 
+  const seriesForDisplay = useMemo(() => {
+    const id = preferredCoachId?.trim()
+    if (!id) return groupSeries
+    const labelNorm = preferredCoachLabel?.trim().toLowerCase() || ""
+    return groupSeries.filter((s) => {
+      if (s.coachId === id) return true
+      if (labelNorm && s.coachLabel?.trim().toLowerCase() === labelNorm) return true
+      return false
+    })
+  }, [groupSeries, preferredCoachId, preferredCoachLabel])
+
   const seriesByProgram = useMemo(() => {
     const map = new Map<string, GroupSeriesListItem[]>()
-    for (const series of groupSeries) {
+    for (const series of seriesForDisplay) {
       const list = map.get(series.classType) || []
       list.push(series)
       map.set(series.classType, list)
@@ -165,7 +181,7 @@ export function GroupClassesContent({
       list.sort((a, b) => a.sessions[0].startsAtIso.localeCompare(b.sessions[0].startsAtIso))
     }
     return map
-  }, [groupSeries])
+  }, [seriesForDisplay])
 
   const programLabelByProgramId = useMemo(() => {
     const map = new Map<string, string>()
@@ -300,10 +316,21 @@ export function GroupClassesContent({
   }
 
   return (
-    <>
+    <div id="portal-group-classes" className="grid gap-4">
       {statusData.options.groupClasses ? (
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <h3 className="text-lg font-medium">Request a group class</h3>
+          {preferredCoachId ? (
+            <p className="text-sm rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-foreground/90">
+              {locale === "fr"
+                ? preferredCoachLabel
+                  ? `Séries dont le coach dans l’horaire correspond à ${preferredCoachLabel}. Les entrées sans coach assigné sont masquées.`
+                  : "Séries filtrées selon l’entraîneur choisi. Les entrées sans coach assigné dans l’horaire peuvent être masquées."
+                : preferredCoachLabel
+                  ? `Showing series led by ${preferredCoachLabel} (from schedule coach assignments). Series without a coach on file are hidden.`
+                  : "Filtering series for the trainer you chose. Series without a coach id on class sessions may not appear."}
+            </p>
+          ) : null}
           {!statusData.options.groupClasses.eligible ? (
             <p className="text-sm text-muted-foreground">
               {statusData.options.groupClasses.blockedReason === "no_group_program_access"
@@ -502,6 +529,6 @@ export function GroupClassesContent({
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }

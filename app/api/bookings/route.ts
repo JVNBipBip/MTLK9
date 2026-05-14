@@ -17,6 +17,7 @@ import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
+import { notifyConsultationInquiryStaffAndClient } from "@/lib/staff-booking-notify"
 
 export const runtime = "nodejs"
 
@@ -128,13 +129,36 @@ async function findReplaceableConsultationId(db: Firestore, clientId: string, do
 export async function POST(request: Request) {
   let locale: AppLocale = defaultLocale
   try {
-    const payload = (await request.json()) as { formData?: unknown; locale?: unknown }
+    const payload = (await request.json()) as {
+      formData?: unknown
+      locale?: unknown
+      consultationSubmissionKind?: unknown
+      bookingSource?: unknown
+      preferredTrainerLabel?: unknown
+    }
     locale = resolvePayloadLocale(payload.locale)
     const errorText = bookingErrors[locale]
 
     if (!isBookingFormData(payload.formData)) {
       return NextResponse.json({ error: errorText.invalidPayload }, { status: 400 })
     }
+
+    const consultationSubmissionKindRaw = payload.consultationSubmissionKind
+    const consultationSubmissionKind =
+      consultationSubmissionKindRaw === "inquiry" ? "inquiry" : "deposit"
+    if (consultationSubmissionKind === "inquiry" && payload.formData.connectMethod !== "in-person-evaluation") {
+      return NextResponse.json({ error: errorText.invalidPayload }, { status: 400 })
+    }
+
+    const bookingSourceRaw = payload.bookingSource
+    const bookingSource =
+      typeof bookingSourceRaw === "string" && bookingSourceRaw.trim()
+        ? bookingSourceRaw.trim()
+        : "website-booking-form"
+
+    const preferredTrainerLabelRaw = payload.preferredTrainerLabel
+    const preferredTrainerLabel =
+      typeof preferredTrainerLabelRaw === "string" ? preferredTrainerLabelRaw.trim() || null : null
 
     const formData = payload.formData
     if (!formData.contactEmail) {
@@ -153,7 +177,9 @@ export async function POST(request: Request) {
     const clientId = formData.contactEmail.trim().toLowerCase()
     const consultationDepositAmountCents = consultationDepositAmountCentsForEmail(clientId)
     const isConsultation = formData.connectMethod === "in-person-evaluation"
-    const consultationStatus = isConsultation ? "pending_payment" : "intake_submitted"
+    const isConsultationInquiry = isConsultation && consultationSubmissionKind === "inquiry"
+    const consultationStatus =
+      isConsultation && !isConsultationInquiry ? "pending_payment" : "intake_submitted"
     const db = getAdminDb()
     const replaceConsultationId = await findReplaceableConsultationId(db, clientId, formData.dogName)
     let squareCustomerId: string | null = null
@@ -164,7 +190,10 @@ export async function POST(request: Request) {
     let consultationTeamMemberId: string | null = null
     let consultationTeamMemberName: string | null = null
 
-    if (isConsultation && formData.consultationDateTime) {
+    if (isConsultation && !isConsultationInquiry) {
+      if (!String(formData.consultationDateTime || "").trim()) {
+        return NextResponse.json({ error: errorText.slotRequired }, { status: 400 })
+      }
       const allowedServiceVariationIds = await getConsultationServiceVariationIds()
       if (allowedServiceVariationIds.length === 0) {
         return NextResponse.json(
@@ -207,6 +236,9 @@ export async function POST(request: Request) {
 
     const requiresConsultationDeposit = isConsultation && Boolean(scheduledAtIso)
     const intakeResponses = intakeResponsesForIssue(formData.issue, formData.followUps || {})
+    const intakeResponseSummary = intakeResponses
+      .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
+      .join("\n")
     const goalLabels = goalLabelsForIssue(formData.issue, formData.goals || [])
     const submission = {
       clientId,
@@ -221,7 +253,7 @@ export async function POST(request: Request) {
       followUps: formData.followUps || {},
       intakeQuestionVersion: "2026-05-dynamic-intake-v1",
       intakeResponses,
-      intakeResponseSummary: intakeResponses.map((response) => `${response.questionLabel}: ${response.answerLabel}`).join("\n"),
+      intakeResponseSummary,
       duration: formData.duration,
       tried: formData.tried,
       impact: formData.impact,
@@ -270,7 +302,9 @@ export async function POST(request: Request) {
       squareConsultationStatus,
       preferredLocale: locale,
       websiteLocale: locale,
-      source: "website-booking-form",
+      source: bookingSource,
+      consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
+      consultationPreferredTrainerName: isConsultationInquiry ? preferredTrainerLabel : null,
       submittedAtIso: new Date().toISOString(),
       updatedAt: FieldValue.serverTimestamp(),
     }
@@ -281,7 +315,7 @@ export async function POST(request: Request) {
       clientPhone: formData.contactPhone,
       dogName: formData.dogName,
       squareCustomerId,
-      source: "website-booking-form",
+      source: bookingSource,
       preferredLocale: locale,
     })
     const docRef = clientConsultationRef(db, clientId, replaceConsultationId || undefined)
@@ -293,6 +327,21 @@ export async function POST(request: Request) {
       ...(replaceConsultationId ? { replacedByLatestSubmissionAtIso: new Date().toISOString() } : {}),
     }
     await docRef.set(writePayload, { merge: Boolean(replaceConsultationId) })
+
+    if (isConsultationInquiry) {
+      notifyConsultationInquiryStaffAndClient({
+        consultationId: docRef.id,
+        clientName: formData.contactName,
+        clientEmail: formData.contactEmail,
+        clientPhone: formData.contactPhone,
+        dogName: formData.dogName,
+        issueLabel: issueLabel(formData.issue),
+        inquiryNotes: formData.contactNotes || null,
+        preferredTrainerLabel,
+        intakeSummary: intakeResponseSummary,
+        locale,
+      })
+    }
 
     let checkoutUrl: string | null = null
     if (requiresConsultationDeposit) {

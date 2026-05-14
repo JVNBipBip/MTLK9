@@ -2,7 +2,7 @@ import type { ContractKind } from "@/lib/domain"
 import { addLocaleToPathname, defaultLocale, type AppLocale } from "@/lib/i18n/config"
 
 /** Bump when the owner replaces legal text; stored on each acceptance. */
-export const CONTRACT_VERSION = "v1-agreements-2026-05-04"
+export const CONTRACT_VERSION = "v1-agreements-2026-05-13"
 
 const PLACEHOLDER_BODY =
   "Placeholder agreement text. The owner will supply final terms for daycare, group classes, private training, and assessments. By accepting, you confirm you have read the agreement version shown below."
@@ -83,6 +83,7 @@ const ASSESSMENT_BOOKING_BODY = `Evaluation Contract Agreement
 
 1. Cancellation Policy
 I agree to provide a minimum of 48 hours notice to reschedule or cancel my evaluation.
+I understand that late cancellation or late rescheduling (less than 48 hours' notice) means the $30 deposit will not be refunded.
 
 2. Liability Waiver
 The client hereby agrees to release, indemnify, and hold harmless the Company, its owners, employees, and agents from any and all claims, liabilities, damages, or expenses arising out of or in connection with the Client's participation in the evaluation.`
@@ -91,6 +92,7 @@ const ASSESSMENT_BOOKING_BODY_FR = `Entente contractuelle d'évaluation
 
 1. Politique d'annulation
 J'accepte de fournir un préavis minimum de 48 heures pour reporter ou annuler mon évaluation.
+Je comprends qu'en cas d'annulation tardive ou de report tardif (moins de 48 heures de préavis), le dépôt de 30 $ ne sera pas remboursé.
 
 2. Décharge de responsabilité
 Le client accepte par les présentes de libérer, d'indemniser et de tenir indemne la compagnie, ses propriétaires, employés et agents de toute réclamation, responsabilité, dommage ou dépense découlant de la participation du client à l'évaluation ou y étant lié.`

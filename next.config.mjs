@@ -4,8 +4,8 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
+  experimental: {
+    externalDir: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],

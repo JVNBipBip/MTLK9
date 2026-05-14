@@ -3,7 +3,8 @@ import { NextResponse } from "next/server"
 import { CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { sendEmail } from "@/lib/email"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { GROUP_CLASS_REQUEST_SOURCE } from "@/lib/group-class-series"
+import { GROUP_CLASS_REQUEST_SOURCE, fetchClassSessionsForSeriesId } from "@/lib/group-class-series"
+import { canonicalGroupClassTypeId, dogHasAccessToGroupClassType } from "@/lib/group-class-programs"
 import { programLabel } from "@/lib/programs"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { STAFF_BOOKING_NOTIFY_EMAIL } from "@/lib/staff-booking-notify"
@@ -124,14 +125,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No group program access for this dog.", code: "no_group_program_access" }, { status: 403 })
   }
 
-  const sessionsSnap = await db.collection(CLASS_SESSIONS_COLLECTION).where("seriesId", "==", seriesId).limit(80).get()
-  if (sessionsSnap.empty) {
+  const loaded = await fetchClassSessionsForSeriesId(db, seriesId)
+  if (loaded.length === 0) {
     return NextResponse.json({ error: "Series not found.", code: "series_not_found" }, { status: 404 })
   }
 
   const nowIso = new Date().toISOString()
-  const sessions = sessionsSnap.docs
-    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ClassSessionRecord, "id">) }))
+  const sessions = loaded
     .filter((row) => row.isActive !== false && String(row.startsAtIso || "") > nowIso)
     .sort((a, b) => String(a.startsAtIso).localeCompare(String(b.startsAtIso)))
 
@@ -139,14 +139,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "This series has no upcoming sessions.", code: "series_not_available" }, { status: 400 })
   }
 
-  const classTypes = new Set(sessions.map((s) => String(s.classType || "").trim()).filter(Boolean))
+  const classTypes = new Set(sessions.map((s) => canonicalGroupClassTypeId(String(s.classType || "").trim())).filter(Boolean))
   if (classTypes.size !== 1) {
     return NextResponse.json({ error: "Series has mixed class types; fix sessions in admin.", code: "series_invalid" }, { status: 500 })
   }
-  const classType = [...classTypes][0]
-  if (!allowedClassTypes.has(classType)) {
+  const sampleRawClassType = String(sessions[0]?.classType || "").trim()
+  if (!dogHasAccessToGroupClassType(allowedClassTypes, sampleRawClassType)) {
     return NextResponse.json({ error: "You do not have access to this program.", code: "program_not_allowed" }, { status: 403 })
   }
+
+  const classType = [...classTypes][0]!
 
   const dupSnap = await clientBookingsCollection(db, portal.clientId).where("groupSeriesId", "==", seriesId).limit(30).get()
   for (const d of dupSnap.docs) {

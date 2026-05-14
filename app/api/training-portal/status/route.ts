@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
 import { getSquareBookingSiteUrlForLocation } from "@/lib/square"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
+import { PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS } from "@/lib/puppy-social-drop-in"
 
 export const runtime = "nodejs"
 
@@ -91,6 +92,11 @@ export async function POST(request: Request) {
             : portal.allowedGroupClassTypeIds.length === 0
               ? "no_group_program_access"
               : null,
+          dropInPuppySocialization: {
+            available: true,
+            depositCents: PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS,
+            currency: "cad",
+          },
         },
       },
       privateLocationAccess: portal.privateLocationAccess,

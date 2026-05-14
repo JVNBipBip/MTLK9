@@ -17,6 +17,18 @@ export const frenchTextTranslations: Record<string, string> = {
   "Program sign-up": "Inscription au programme",
   "Private training portal": "Portail d'entraînement privé",
   "Book a Consultation": "Réserver une consultation",
+  "Start with an evaluation": "Commencer par une évaluation",
+  "Meet a trainer so we understand your goals and recommend the best path — private training, group classes, or both.":
+    "Rencontrez un entraîneur pour que nous comprenions vos objectifs et recommandions la meilleure voie — entraînement privé, cours de groupe, ou les deux.",
+  "One-on-one sessions": "Séances individuelles",
+  "After your assessment, choose a package and book sessions tailored to your dog and your priorities.":
+    "Après votre évaluation, choisissez un forfait et réservez des séances adaptées à votre chien et à vos priorités.",
+  "Small cohort programs": "Petits groupes encadrés",
+  "After your trainer approves a program, browse upcoming cohorts and request your spot.":
+    "Lorsque votre entraîneur approuve un programme, parcourez les cohortes à venir et demandez votre place.",
+  "Explore group classes": "Découvrir les cours de groupe",
+  "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit — no pressure.":
+    "Réservez une consultation et nous passerons ensemble le comportement de votre chien, vos objectifs, et si des leçons privées ou une série en groupe convient mieux — sans pression.",
   "Call us": "Appelez-nous",
   "Email us": "Envoyez-nous un email",
   "Call Now": "Appelez maintenant",
@@ -132,7 +144,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "Book selected time": "Réserver l'heure sélectionnée",
   "Select package": "Choisir un forfait",
   "Private training": "Entraînement privé",
-  "Group classes": "Cours de groupe",
+  "Group classes": "Cours collectifs",
   "Could not load approved group classes.": "Impossible de charger les cours de groupe approuvés.",
   "Could not request this group class.": "Impossible de demander ce cours de groupe.",
   "Request sent. Staff will review it and email you once it has been accepted or declined.":
@@ -418,10 +430,10 @@ export const frenchTextTranslations: Record<string, string> = {
   "Scheduled series": "Séries planifiées",
   "Trainer-approved": "Approuvé par l'entraîneur",
   "Loading group classes…": "Chargement des cours de groupe…",
-  "What we run": "Ce que nous offrons",
-  "Group programs we offer": "Programmes de groupe offerts",
-  "Your trainer matches your dog to the right program and level during the assessment.":
-    "Votre entraîneur associe votre chien au bon programme et au bon niveau pendant l'évaluation.",
+  "Group programs for pups, teens, reactivity, and obedience":
+    "Programmes pour chiots, adolescents, réactivité et obéissance",
+  "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right cohort.":
+    "D’abord l’évaluation : nous examinons le comportement de votre chien, ses sensibilités et vos objectifs—puis votre entraîneur approuve ce que vous pouvez réserver pour vous placer dans la bonne cohorte.",
   "Puppy Socialization Class": "Cours de socialisation pour chiots",
   "Teen Puppy Class": "Cours pour chiots adolescents",
   "Reactivity Group Class": "Cours de groupe pour la réactivité",
@@ -602,6 +614,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "Three specialists. One mission: help you and your dog thrive together.":
     "Trois spécialistes. Une mission : aider votre chien et vous à vous épanouir ensemble.",
   "Swipe to meet each trainer": "Balayez pour rencontrer chaque entraîneur",
+  "What they offer": "Services proposés",
+  "Show less": "Voir moins",
   "Owner, Founder & Head Trainer": "Propriétaire, fondateur et entraîneur-chef",
   "15+ years": "15+ ans",
   "10+ years": "10+ ans",
@@ -611,16 +625,16 @@ export const frenchTextTranslations: Record<string, string> = {
   "Puppy training & development, behaviour modification, reactivity, obedience":
     "Entraînement et développement des chiots, modification du comportement, réactivité, obéissance",
   "Confidence-building, reactivity, obedience": "Confiance, réactivité, obéissance",
-  "Nick has been handling dogs from a young age and has always had a natural ability working with them.\n\nWith over 10 years of experience, a growing list of successful cases, and a strong reputation for rehabilitating dogs, he built Montreal Canine Training into what has become one of the leading dog training companies in Montreal. Today, his focus is on building a strong team of professionals, continuing to teach and educate people about their dogs, and offering dog trainer courses for individuals looking to pursue a career in the industry.\n\nHe specializes in working with high drive dogs, serious rehabilitation cases, advanced obedience and reactivity training.":
-    "Nick s'occupe de chiens depuis son jeune âge et a toujours eu un don naturel pour travailler avec eux.\n\nFort de plus de 10 ans d'expérience, d'une liste croissante de dossiers réussis et d'une solide réputation en réadaptation canine, il a bâti Entraînement Canin Montréal pour en faire l'une des principales entreprises d'entraînement canin à Montréal. Aujourd'hui, il met l'accent sur la constitution d'une équipe de professionnels solide, sur la poursuite de l'enseignement et de la sensibilisation des propriétaires à leurs chiens, et sur l'offre de formations pour devenir entraîneur canin pour les personnes qui souhaitent embrasser cette carrière.\n\nIl se spécialise dans le travail avec les chiens à fort instinct de travail, les cas de réadaptation sérieux, l'obéissance avancée et l'entraînement à la réactivité.",
+  "Nick has been handling dogs from a young age and has always had a natural ability working with them.\n\nWith over 10 years of experience, a growing list of successful cases, and a strong reputation for rehabilitating dogs, he built Montreal Canine Training into what has become one of the leading dog training companies in Montreal. Today, his focus is on building a strong team of professionals, continuing to teach and educate people about their dogs, and offering dog trainer courses for individuals looking to pursue a career in the industry.":
+    "Nick s'occupe de chiens depuis son jeune âge et a toujours eu un don naturel pour travailler avec eux.\n\nFort de plus de 10 ans d'expérience, d'une liste croissante de dossiers réussis et d'une solide réputation en réadaptation canine, il a bâti Entraînement Canin Montréal pour en faire l'une des principales entreprises d'entraînement canin à Montréal. Aujourd'hui, il met l'accent sur la constitution d'une équipe de professionnels solide, sur la poursuite de l'enseignement et de la sensibilisation des propriétaires à leurs chiens, et sur l'offre de formations pour devenir entraîneur canin pour les personnes qui souhaitent embrasser cette carrière.",
   "Prioritizes engagement, motivation, communication, confidence, and relationship-building above all.":
     "Priorise l'engagement, la motivation, la communication, la confiance et le développement de la relation avant tout.",
   "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.":
     "À la maison, il partage sa vie avec deux bergers australiens, des chats, sa femme et un bébé.",
-  "Tyson's journey began with his first dog, Winston, an Australian Shepherd. Through his experience, hard work, and proven results, he has demonstrated the qualities and skills needed to help people better understand, manage, and build stronger relationships with their dogs.\n\nHe works closely with clients to problem-solve and create clear, customized training programs tailored to fit each client's lifestyle and goals. So far, he has achieved excellent results and built an impressive track record of customer satisfaction.\n\nWith Tyson, clients can feel confident, supported, and in good hands during every single session.\n\nHe specializes in puppy training and development, behaviour modification, reactivity and obedience training.":
-    "Le parcours de Tyson a commencé avec son premier chien, Winston, un berger australien. Grâce à son expérience, son travail acharné et des résultats probants, il a démontré les qualités et les compétences nécessaires pour aider les gens à mieux comprendre, gérer et cultiver des relations plus solides avec leur chien.\n\nIl travaille en étroite collaboration avec les clients pour résoudre les problèmes et élaborer des programmes d'entraînement clairs et personnalisés, adaptés au mode de vie et aux objectifs de chacun. À ce jour, il a obtenu d'excellents résultats et bâti un bilan impressionnant de satisfaction client.\n\nAvec Tyson, les clients peuvent se sentir en confiance, soutenus et entre de bonnes mains à chaque séance.\n\nIl se spécialise dans l'entraînement et le développement des chiots, la modification du comportement, la réactivité et l'obéissance.",
-  "Mia successfully completed Montreal Canine Training's apprenticeship program two years ago and has completed over 100 hours of stage work, along with many additional hours working in our day training program.\n\nShe began her dog training journey with her personal dog, Appa, and quickly discovered a true passion for helping dogs and their owners.\n\nMia is an exceptional trainer who genuinely enjoys helping others and building strong relationships between dogs and their families.\n\nShe specializes in puppy training, reactivity training, and pet obedience training.":
-    "Mia a terminé avec succès le programme d'apprentissage d'Entraînement Canin Montréal il y a deux ans et a complété plus de 100 heures de stage, ainsi que de nombreuses heures supplémentaires dans notre programme d'entraînement de jour.\n\nElle a commencé son parcours en entraînement canin avec son chien, Appa, et a vite découvert une véritable passion pour aider les chiens et leurs propriétaires.\n\nMia est une entraîneuse exceptionnelle qui aime sincèrement aider les autres et bâtir des relations solides entre les chiens et leur famille.\n\nElle se spécialise dans l'entraînement des chiots, la réactivité et l'obéissance familiale.",
+  "Tyson's journey began with his first dog, Winston, an Australian Shepherd. Through his experience, hard work, and proven results, he has demonstrated the qualities and skills needed to help people better understand, manage, and build stronger relationships with their dogs.\n\nHe works closely with clients to problem-solve and create clear, customized training programs tailored to fit each client's lifestyle and goals. So far, he has achieved excellent results and built an impressive track record of customer satisfaction.\n\nWith Tyson, clients can feel confident, supported, and in good hands during every single session.":
+    "Le parcours de Tyson a commencé avec son premier chien, Winston, un berger australien. Grâce à son expérience, son travail acharné et des résultats probants, il a démontré les qualités et les compétences nécessaires pour aider les gens à mieux comprendre, gérer et cultiver des relations plus solides avec leur chien.\n\nIl travaille en étroite collaboration avec les clients pour résoudre les problèmes et élaborer des programmes d'entraînement clairs et personnalisés, adaptés au mode de vie et aux objectifs de chacun. À ce jour, il a obtenu d'excellents résultats et bâti un bilan impressionnant de satisfaction client.\n\nAvec Tyson, les clients peuvent se sentir en confiance, soutenus et entre de bonnes mains à chaque séance.",
+  "Mia successfully completed Montreal Canine Training's apprenticeship program two years ago and has completed over 100 hours of stage work, along with many additional hours working in our day training program.\n\nShe began her dog training journey with her personal dog, Appa, and quickly discovered a true passion for helping dogs and their owners.\n\nMia is an exceptional trainer who genuinely enjoys helping others and building strong relationships between dogs and their families.":
+    "Mia a terminé avec succès le programme d'apprentissage d'Entraînement Canin Montréal il y a deux ans et a complété plus de 100 heures de stage, ainsi que de nombreuses heures supplémentaires dans notre programme d'entraînement de jour.\n\nElle a commencé son parcours en entraînement canin avec son chien, Appa, et a vite découvert une véritable passion pour aider les chiens et leurs propriétaires.\n\nMia est une entraîneuse exceptionnelle qui aime sincèrement aider les autres et bâtir des relations solides entre les chiens et leur famille.",
   "Portrait of Mia M smiling in a Montreal Canine Training hoodie outdoors":
     "Portrait de Mia M souriante, portant un chandail à capuchon d'Entraînement Canin Montréal à l'extérieur",
   "Makes high-distraction urban walks feel manageable — and even enjoyable.":

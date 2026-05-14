@@ -7,10 +7,18 @@ import { TORONTO_TIME_ZONE } from "@/lib/i18n/format"
 import { bookingStepCopy } from "../translations"
 import type { BookingFormData } from "../types"
 
-export function StepConfirmation({ formData }: { formData: BookingFormData }) {
+export function StepConfirmation({
+  formData,
+  submissionKind,
+}: {
+  formData: BookingFormData
+  submissionKind?: "inquiry" | null
+}) {
   const locale = useAppLocale()
   const copy = bookingStepCopy[locale]
   const intlLocale = getIntlLocale(locale)
+  const isInquiry = submissionKind === "inquiry"
+  const consultationLocationFallback = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
   const formattedConsultationDateTime = formData.consultationDateTime
     ? new Date(formData.consultationDateTime).toLocaleString(intlLocale, {
         timeZone: TORONTO_TIME_ZONE,
@@ -18,14 +26,29 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
         timeStyle: "short",
       })
     : copy.toBeConfirmed
-  const assessmentSummary = [
-    { label: copy.when, value: formattedConsultationDateTime },
-    { label: copy.where, value: formData.consultationLocation || copy.toBeConfirmed },
-    {
-      label: copy.what,
-      value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
-    },
-  ]
+  const assessmentSummary = isInquiry
+    ? [
+        {
+          label: copy.when,
+          value: copy.toBeConfirmed,
+        },
+        {
+          label: copy.where,
+          value: formData.consultationLocation || consultationLocationFallback,
+        },
+        {
+          label: copy.what,
+          value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
+        },
+      ]
+    : [
+        { label: copy.when, value: formattedConsultationDateTime },
+        { label: copy.where, value: formData.consultationLocation || copy.toBeConfirmed },
+        {
+          label: copy.what,
+          value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
+        },
+      ]
 
   return (
     <div className="space-y-6 text-center py-8">
@@ -37,12 +60,12 @@ export function StepConfirmation({ formData }: { formData: BookingFormData }) {
 
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground mb-3">
-          {copy.confirmationTitle}
+          {isInquiry ? copy.inquiryConfirmationTitle : copy.confirmationTitle}
         </h2>
 
         <div className="space-y-4">
           <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-            {copy.confirmationSubtitle}
+            {isInquiry ? copy.inquiryConfirmationSubtitle : copy.confirmationSubtitle}
           </p>
           <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
             {assessmentSummary.map((item) => (

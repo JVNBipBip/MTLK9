@@ -1,14 +1,22 @@
-import { sendEmail } from "@/lib/email"
+import {
+  CLIENT_EMAIL_ACCENT_MUTED,
+  CLIENT_EMAIL_ACCENT_PRIMARY,
+  CLIENT_EMAIL_BODY,
+  clientFacingContactEmail,
+  clientFacingEmailShell,
+  escapeHtmlForEmail,
+} from "@/lib/client-email-layout"
+import { sendClientFacingEmail, sendEmail } from "@/lib/email"
+import type { AppLocale } from "@/lib/i18n/config"
 
 export const STAFF_BOOKING_NOTIFY_EMAIL = "mtlcaninetraining@gmail.com"
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
+/** Comma-separated overrides for consultation inquiry alerts (defaults to STAFF_BOOKING_NOTIFY_EMAIL). */
+function consultationInquiryStaffRecipients(): string[] {
+  const raw = process.env.CONSULTATION_INQUIRY_NOTIFY_EMAIL?.trim()
+  if (!raw) return [STAFF_BOOKING_NOTIFY_EMAIL]
+  const parts = raw.split(",").map((s) => s.trim()).filter(Boolean)
+  return parts.length > 0 ? parts : [STAFF_BOOKING_NOTIFY_EMAIL]
 }
 
 function formatTorontoDateTime(iso: string): string {
@@ -88,7 +96,7 @@ function buildSubject(payload: StaffBookingNotifyPayload): string {
 function buildHtml(payload: StaffBookingNotifyPayload): string {
   const rows: string[] = []
   const add = (label: string, value: string) => {
-    rows.push(`<p><strong>${escapeHtml(label)}</strong> ${escapeHtml(value)}</p>`)
+    rows.push(`<p><strong>${escapeHtmlForEmail(label)}</strong> ${escapeHtmlForEmail(value)}</p>`)
   }
 
   switch (payload.kind) {
@@ -133,14 +141,14 @@ function buildHtml(payload: StaffBookingNotifyPayload): string {
       add("Series id", payload.groupSeriesId)
       add("Booking id", payload.bookingId)
       if (payload.summaryWhat.length) {
-        rows.push(`<p><strong>Program</strong> ${escapeHtml(payload.summaryWhat.join(", "))}</p>`)
+        rows.push(`<p><strong>Program</strong> ${escapeHtmlForEmail(payload.summaryWhat.join(", "))}</p>`)
       }
       if (payload.summaryWhen.length) {
         const lines = payload.summaryWhen.map((w) => formatTorontoDateTime(w)).join(", ")
-        rows.push(`<p><strong>Sessions</strong> ${escapeHtml(lines)}</p>`)
+        rows.push(`<p><strong>Sessions</strong> ${escapeHtmlForEmail(lines)}</p>`)
       }
       if (payload.summaryWhere.length) {
-        rows.push(`<p><strong>Where</strong> ${escapeHtml(payload.summaryWhere.join("; "))}</p>`)
+        rows.push(`<p><strong>Where</strong> ${escapeHtmlForEmail(payload.summaryWhere.join("; "))}</p>`)
       }
       break
     default:
@@ -148,6 +156,108 @@ function buildHtml(payload: StaffBookingNotifyPayload): string {
   }
 
   return rows.join("\n")
+}
+
+const inquiryClientEmail = {
+  en: {
+    subject: "We received your consultation inquiry — Montreal K9 Training",
+    headline: "We received your inquiry",
+    preheader: "Our team will follow up shortly about your assessment.",
+    lead: (name: string) =>
+      `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Hi ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Thanks for contacting us about an in-person assessment. Our team has your details and will follow up shortly.</p>`,
+    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">If anything urgent comes up, call <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+  },
+  fr: {
+    subject: "Nous avons bien reçu votre demande de consultation — Montreal K9 Training",
+    headline: "Nous avons bien reçu votre demande",
+    preheader: "Notre équipe vous répondra sous peu.",
+    lead: (name: string) =>
+      `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Bonjour ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Merci de nous avoir écrit au sujet d'une évaluation en personne. Notre équipe a bien reçu vos informations et vous répondra sous peu.</p>`,
+    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Pour toute urgence : <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+  },
+} satisfies Record<
+  AppLocale,
+  { subject: string; headline: string; preheader: string; lead: (name: string) => string; footer: string }
+>
+
+function buildConsultationInquiryAdminHtml(input: {
+  consultationId: string
+  clientName: string
+  clientEmail: string
+  clientPhone?: string | null
+  dogName: string
+  issueLabel?: string | null
+  inquiryNotes?: string | null
+  preferredTrainerLabel?: string | null
+  intakeSummary?: string | null
+}): string {
+  const rows: string[] = []
+  const add = (label: string, value: string) => {
+    rows.push(`<p><strong>${escapeHtmlForEmail(label)}</strong> ${escapeHtmlForEmail(value)}</p>`)
+  }
+  rows.push("<p>A visitor submitted a <strong>consultation inquiry</strong> from the website (no deposit).</p>")
+  add("Client", input.clientName || input.clientEmail)
+  add("Email", input.clientEmail)
+  if (input.clientPhone) add("Phone", input.clientPhone)
+  add("Dog", input.dogName)
+  if (input.issueLabel) add("Issue", input.issueLabel)
+  if (input.preferredTrainerLabel) add("Preferred trainer", input.preferredTrainerLabel)
+  if (input.inquiryNotes?.trim()) add("Notes", input.inquiryNotes.trim())
+  if (input.intakeSummary?.trim()) {
+    rows.push(`<p><strong>Intake summary</strong></p><pre style="white-space:pre-wrap;font-family:inherit">${escapeHtmlForEmail(input.intakeSummary.trim())}</pre>`)
+  }
+  add("Consultation id", input.consultationId)
+  return rows.join("\n")
+}
+
+/** Staff heads-up + client acknowledgement for inquiry-only consultation submissions (non-blocking). */
+export function notifyConsultationInquiryStaffAndClient(input: {
+  consultationId: string
+  clientName: string
+  clientEmail: string
+  clientPhone?: string | null
+  dogName: string
+  issueLabel?: string | null
+  inquiryNotes?: string | null
+  preferredTrainerLabel?: string | null
+  intakeSummary?: string | null
+  locale: AppLocale
+}): void {
+  const adminHtml = buildConsultationInquiryAdminHtml(input)
+  const subject = `Consultation inquiry: ${input.dogName}`
+  for (const toStaff of consultationInquiryStaffRecipients()) {
+    void sendEmail({
+      to: toStaff,
+      subject,
+      html: adminHtml,
+    }).then((r) => {
+      if (!r.sent) console.error("[notifyConsultationInquiryStaffAndClient] staff", toStaff, r.reason)
+      else console.info("[notifyConsultationInquiryStaffAndClient] staff sent", { to: toStaff })
+    })
+  }
+
+  const copy = inquiryClientEmail[input.locale] ?? inquiryClientEmail.en
+  const clientTo = input.clientEmail.trim()
+  const clientInnerHtml = `${copy.lead(input.clientName)}${copy.footer}`
+  const clientHtml = clientFacingEmailShell({
+    preheader: copy.preheader,
+    headline: copy.headline,
+    accentRgb: CLIENT_EMAIL_ACCENT_PRIMARY,
+    innerHtml: clientInnerHtml,
+    footerNote:
+      input.locale === "fr"
+        ? "Vous avez envoyé ce message depuis le formulaire de consultation sur notre site."
+        : "You sent this from our consultation form online.",
+  })
+  void sendClientFacingEmail({
+    to: clientTo,
+    subject: copy.subject,
+    html: clientHtml,
+    replyTo: clientFacingContactEmail(),
+  }).then((r) => {
+    if (!r.sent) console.error("[notifyConsultationInquiryStaffAndClient] client", r.reason)
+    else console.info("[notifyConsultationInquiryStaffAndClient] client sent", { to: clientTo })
+  })
 }
 
 /** Fire-and-forget internal heads-up email to staff (non-blocking). */

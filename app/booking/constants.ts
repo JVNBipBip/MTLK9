@@ -112,7 +112,7 @@ export const GOALS_OPTIONS_BY_ISSUE: Record<string, Array<{ value: string; label
     { value: "join-group-class", label: "I would like to see my dog in a group class" },
     {
       value: "neutral-and-listens",
-      label: "I would like my dog to be neutral around people and dogs, and listen to my commands",
+      label: "I would like my dog to listen to my commands and be more obedient",
     },
   ],
   "anxiety-fear-separation": [

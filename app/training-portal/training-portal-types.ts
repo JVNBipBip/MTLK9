@@ -26,23 +26,7 @@ export type ApprovedGroupProgram = {
   squareUrl: string | null
 }
 
-export type GroupSeriesListItem = {
-  seriesId: string
-  classType: string
-  programLabel: string
-  sessionCount: number
-  spotsRemaining: number
-  sessions: Array<{
-    id: string
-    title: string
-    startsAtIso: string
-    endsAtIso: string
-    locationLabel: string
-    priceAmountCents: number | null
-    priceCurrency: string | null
-    spotsRemaining: number
-  }>
-}
+export type { GroupSeriesListItem } from "@/lib/group-class-series"
 
 export type StatusResponse = {
   ok: boolean
@@ -88,6 +72,12 @@ export type StatusResponse = {
       eligible: boolean
       allowedProgramIds: string[]
       blockedReason: string | null
+      /** Puppy socialization drop-in: no assessment; deposit + intake on booking */
+      dropInPuppySocialization?: {
+        available: boolean
+        depositCents: number
+        currency: string
+      }
     }
   }
   /** Admin default: facility_only (in-home hidden until enabled). */

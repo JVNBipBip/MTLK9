@@ -10,6 +10,7 @@ import { addLocaleToPathname } from "@/lib/i18n/config"
 
 const footerLinks = {
   training: [
+    { label: "Consultation", href: "/services/consultation" },
     { label: "Reactivity Training", href: "/services/reactivity" },
     { label: "Private Classes", href: "/services/private-classes" },
     { label: "Obedience Training", href: "/services/obedience" },

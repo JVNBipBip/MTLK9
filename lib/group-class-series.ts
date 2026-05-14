@@ -1,6 +1,11 @@
 import { FieldValue, type DocumentReference, type Firestore } from "firebase-admin/firestore"
 import type { ClassSessionRecord } from "@/lib/domain"
 import { CLASS_SESSIONS_COLLECTION, CLIENTS_COLLECTION } from "@/lib/domain"
+import {
+  canonicalGroupClassTypeId,
+  parseSingleSessionSeriesId,
+  effectiveSeriesIdForSession,
+} from "@/lib/group-class-programs"
 import { programLabel } from "@/lib/programs"
 import { CLIENT_BOOKINGS_SUBCOLLECTION, listClientSubcollectionDocs, queryClientSubcollectionDocsByField } from "@/lib/client-records"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
@@ -191,12 +196,18 @@ export type SessionForSeries = Pick<
   | "reservedCount"
   | "isActive"
   | "seriesId"
+  | "coachId"
+  | "coachLabel"
 >
 
 export type GroupSeriesListItem = {
   seriesId: string
   classType: string
   programLabel: string
+  /** Square team member id when every session in the series shares one coach; otherwise omitted. */
+  coachId?: string | null
+  /** Staff-entered coach name when sessions share one labeled coach. */
+  coachLabel?: string | null
   sessionCount: number
   spotsRemaining: number
   sessions: Array<{
@@ -312,23 +323,40 @@ export async function finalizeGroupSeriesPaymentFromWebhook(
   }
 }
 
+/** Loads sessions for a series id, including synthetic `single:{sessionDocId}` cohorts when `seriesId` was omitted in Firestore. */
+export async function fetchClassSessionsForSeriesId(
+  db: Firestore,
+  seriesId: string,
+): Promise<Array<{ id: string } & Omit<ClassSessionRecord, "id">>> {
+  const col = db.collection(CLASS_SESSIONS_COLLECTION)
+  const bySeries = await col.where("seriesId", "==", seriesId).limit(80).get()
+  if (!bySeries.empty) {
+    return bySeries.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ClassSessionRecord, "id">) }))
+  }
+  const orphanId = parseSingleSessionSeriesId(seriesId)
+  if (!orphanId) return []
+  const doc = await col.doc(orphanId).get()
+  if (!doc.exists) return []
+  return [{ id: doc.id, ...(doc.data() as Omit<ClassSessionRecord, "id">) }]
+}
+
 export function groupSessionsIntoSeriesList(
   raw: SessionForSeries[],
   allowedClassTypes: Set<string>,
   nowIso: string,
   groupProgramSlotOrder?: string[],
 ): GroupSeriesListItem[] {
-  const upcoming = raw.filter(
-    (s) =>
+  const upcoming = raw.filter((s) => {
+    const classType = canonicalGroupClassTypeId(String(s.classType || "").trim())
+    return (
       s.isActive !== false &&
-      s.seriesId &&
-      typeof s.seriesId === "string" &&
-      s.startsAtIso > nowIso &&
-      allowedClassTypes.has(String(s.classType || "").trim()),
-  )
+      String(s.startsAtIso || "") > nowIso &&
+      allowedClassTypes.has(classType)
+    )
+  })
   const bySeries = new Map<string, SessionForSeries[]>()
   for (const s of upcoming) {
-    const key = String(s.seriesId)
+    const key = effectiveSeriesIdForSession(s.id, s.seriesId)
     const arr = bySeries.get(key) || []
     arr.push(s)
     bySeries.set(key, arr)
@@ -336,16 +364,24 @@ export function groupSessionsIntoSeriesList(
   const out: GroupSeriesListItem[] = []
   for (const [seriesId, list] of bySeries) {
     const sorted = [...list].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso))
-    const classTypes = new Set(sorted.map((s) => String(s.classType || "").trim()))
+    const classTypes = new Set(sorted.map((s) => canonicalGroupClassTypeId(String(s.classType || "").trim())))
     if (classTypes.size !== 1) continue
     const classType = [...classTypes][0]
     if (!classType) continue
     const spots = spotsRemainingForSessions(sorted)
     if (spots <= 0) continue
+    const coachKeys = sorted.map((s) => String(s.coachId || "").trim()).filter(Boolean)
+    const uniqueCoaches = [...new Set(coachKeys)]
+    const coachId = uniqueCoaches.length === 1 ? uniqueCoaches[0]! : null
+    const coachNameKeys = sorted.map((s) => String(s.coachLabel || "").trim()).filter(Boolean)
+    const uniqueCoachLabels = [...new Set(coachNameKeys)]
+    const coachLabel = uniqueCoachLabels.length === 1 ? uniqueCoachLabels[0]! : null
     out.push({
       seriesId,
       classType,
       programLabel: programLabel(classType, groupProgramSlotOrder),
+      coachId,
+      coachLabel,
       sessionCount: sorted.length,
       spotsRemaining: spots,
       sessions: sorted.map((s) => ({

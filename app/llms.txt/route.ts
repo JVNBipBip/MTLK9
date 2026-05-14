@@ -12,6 +12,8 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 
 ## Services
 
+- [Consultation en entraînement](https://mtlcaninetraining.com/fr/services/consultation): Évaluation en personne pour préciser vos objectifs et recommander l'entraînement privé, les cours de groupe ou une combinaison.
+
 - [Entraînement pour la réactivité](https://mtlcaninetraining.com/fr/services/reactivity): Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs. Protocoles structurés pour l'attention, l'engagement, le travail en laisse et la confiance.
 - [Cours privés](https://mtlcaninetraining.com/fr/services/private-classes): Modification du comportement, réactivité en laisse, agressivité, anxiété de séparation et protection des ressources en formule individuelle. Forfaits de 3, 5 ou 7 séances.
 - [Obéissance](https://mtlcaninetraining.com/fr/services/obedience): Pour les chiens de 9 mois et plus qui ont besoin de compétences fiables dans la vraie vie. Cours de groupe et privés niveau 1 et niveau 2.
@@ -40,6 +42,8 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 Montreal Canine Training provides professional dog training services in Montreal, West Island, and Laval. We specialize in reactivity training, private classes, obedience, puppy training, and in-home training using humane, relationship-first methods.
 
 ## Services
+
+- [Training Consultation](https://mtlcaninetraining.com/services/consultation): In-person evaluation to understand your goals and recommend private training, group classes, or a blended plan.
 
 - [Reactivity Training](https://mtlcaninetraining.com/services/reactivity): For dogs who lunge, bark, or shut down around triggers. Structured protocols covering attention cues, engagement, leash work, and confidence building.
 - [Private Classes](https://mtlcaninetraining.com/services/private-classes): One-on-one behaviour modification, leash reactivity, aggression, separation anxiety, and resource guarding. 3, 5, or 7 session packages.
