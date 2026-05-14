@@ -424,16 +424,16 @@ export const frenchTextTranslations: Record<string, string> = {
   "Start with a free 15-minute discovery call. We'll learn about your dog, your home, and your goals — then recommend the right package to get started.":
     "Commencez par un appel découverte gratuit de 15 minutes. Nous apprendrons à connaître votre chien, votre maison et vos objectifs, puis recommanderons le bon forfait pour commencer.",
   "Request the group class your dog is approved for": "Demandez le cours de groupe pour lequel votre chien est approuvé",
-  "Small cohorts. Real coaching. Enter your email to see approved classes and request a spot, or book an assessment and we'll place your dog in the right program.":
-    "Petits groupes. Vrai coaching. Entrez votre courriel pour voir les cours approuvés et demander une place, ou réservez une évaluation et nous placerons votre chien dans le bon programme.",
-  "Small cohorts": "Petits groupes",
+  "Small classes. Real coaching. Enter your email to see approved classes and request a spot, or book an assessment and we'll place your dog in the right program.":
+    "Petits cours. Vrai coaching. Entrez votre courriel pour voir les cours approuvés et demander une place, ou réservez une évaluation et nous placerons votre chien dans le bon programme.",
+  "Small classes": "Petits cours",
   "Scheduled series": "Séries planifiées",
   "Trainer-approved": "Approuvé par l'entraîneur",
   "Loading group classes…": "Chargement des cours de groupe…",
   "Group programs for pups, teens, reactivity, and obedience":
     "Programmes pour chiots, adolescents, réactivité et obéissance",
-  "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right cohort.":
-    "D’abord l’évaluation : nous examinons le comportement de votre chien, ses sensibilités et vos objectifs—puis votre entraîneur approuve ce que vous pouvez réserver pour vous placer dans la bonne cohorte.",
+  "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right class.":
+    "D’abord l’évaluation : nous examinons le comportement de votre chien, ses sensibilités et vos objectifs—puis votre entraîneur approuve ce que vous pouvez réserver pour vous placer dans le bon cours.",
   "Puppy Socialization Class": "Cours de socialisation pour chiots",
   "Teen Puppy Class": "Cours pour chiots adolescents",
   "Reactivity Group Class": "Cours de groupe pour la réactivité",
@@ -488,8 +488,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "After the assessment, your trainer enables the group programs your dog is ready for.":
     "Après l'évaluation, votre entraîneur active les programmes de groupe pour lesquels votre chien est prêt.",
   "Request your spot": "Demander votre place",
-  "Come back, enter your email, and request an upcoming full-series cohort that fits your schedule.":
-    "Revenez, entrez votre courriel et demandez une série complète à venir qui convient à votre horaire.",
+  "Come back, enter your email, and request an upcoming full-series class that fits your schedule.":
+    "Revenez, entrez votre courriel et demandez un cours en série complète à venir qui convient à votre horaire.",
   "Not sure where to start?": "Vous ne savez pas par où commencer?",
   "Book an assessment and we'll point you to the right class.":
     "Réservez une évaluation et nous vous orienterons vers le bon cours.",

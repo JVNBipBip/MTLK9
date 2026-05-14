@@ -134,13 +134,13 @@ export default function GroupClassesPage() {
             </h1>
             <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               {t(
-                "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right cohort.",
+                "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right class.",
               )}
             </p>
           </div>
 
           <div className="reveal opacity-0 animation-delay-400 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-            <HeroStat icon={<Users className="w-4 h-4" />} label={t("Small cohorts")} />
+            <HeroStat icon={<Users className="w-4 h-4" />} label={t("Small classes")} />
             <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label={t("Scheduled series")} />
             <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label={t("Trainer-approved")} />
           </div>
@@ -170,7 +170,7 @@ export default function GroupClassesPage() {
                 },
                 {
                   title: "Request your spot",
-                  body: "Come back, enter your email, and request an upcoming full-series cohort that fits your schedule.",
+                  body: "Come back, enter your email, and request an upcoming full-series class that fits your schedule.",
                 },
               ].map((step, index) => (
                 <li

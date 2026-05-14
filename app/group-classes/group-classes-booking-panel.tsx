@@ -217,7 +217,7 @@ export function GroupClassesBookingPanel({
               <InfoRow
                 icon={<CalendarCheck className="w-4 h-4" />}
                 title="Upcoming scheduled classes"
-                body="Pick an upcoming full-series cohort and send a request to staff."
+                body="Pick an upcoming full-series class and send a request to staff."
               />
               <InfoRow
                 icon={<CheckCircle2 className="w-4 h-4" />}

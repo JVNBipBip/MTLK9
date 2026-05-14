@@ -229,7 +229,7 @@ export function PuppySocialDropInPanel({
                   Puppy socialization · drop-in
                 </h2>
                 <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-xl">
-                  Reserve a spot in an upcoming puppy socialization cohort. Answer a few questions, then pay a{" "}
+                  Reserve a spot in an upcoming puppy socialization class. Answer a few questions, then pay a{" "}
                   <span className="font-medium text-foreground">{depositLabel}</span> deposit to hold your place.
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -248,7 +248,7 @@ export function PuppySocialDropInPanel({
           {seriesLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
-              Loading upcoming cohorts…
+              Loading upcoming classes…
             </div>
           ) : null}
 
