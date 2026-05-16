@@ -29,14 +29,14 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Dog Training Montreal — Montreal Canine Training",
-      template: "%s — Montreal Canine Training",
+      title: "Montreal's Best Dog Trainers | Professional Training",
+      template: "%s | Montreal Canine Training",
       description:
-        "Real-world dog training in Montreal for reactivity, anxiety, puppy skills, and calmer walks.",
-      ogTitle: "Montreal Canine Training — Real-World Dog Training",
+        "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
+      ogTitle: "Montreal's Best Dog Trainers | Professional Training",
       ogDescription:
-        "Real-world behavioral coaching for Montreal dog owners. Calm walks, confident dogs, and clear plans.",
-      imageAlt: "Montreal Canine Training — Real-World Dog Training",
+        "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
+      imageAlt: "Montreal's Best Dog Trainers | Professional Training",
     },
   },
   fr: {
@@ -67,14 +67,14 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Entraînement canin Montréal — Entraînement Canin Montréal",
-      template: "%s — Entraînement Canin Montréal",
+      title: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
+      template: "%s | Entraînement Canin Montréal",
       description:
-        "Entraînement canin à Montréal pour la réactivité, l'anxiété, les chiots et les promenades calmes.",
-      ogTitle: "Entraînement Canin Montréal — Entraînement concret",
+        "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Les meilleurs en ville pour la réactivité, l'anxiété, les chiots et l'obéissance.",
+      ogTitle: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
       ogDescription:
-        "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Promenades calmes, chiens confiants et plans clairs.",
-      imageAlt: "Entraînement Canin Montréal — Entraînement concret",
+        "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Les meilleurs en ville pour la réactivité, l'anxiété, les chiots et l'obéissance.",
+      imageAlt: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
     },
   },
 } as const
