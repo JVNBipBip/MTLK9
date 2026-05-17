@@ -1,9 +1,103 @@
+import { unstable_cache } from "next/cache"
+import { HIDDEN_PUBLIC_CONSULTATION_TEAM_MEMBER_IDS } from "@/lib/consultation-public-team-members"
 import { SQUARE_SERVICE_CONFIG_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
+import {
+  listBookableTeamMemberIdsForLocation,
+  retrieveSquareTeamMemberProfile,
+} from "@/lib/square"
 import { getSquareServiceConfig } from "@/lib/square-service-config"
 import { defaultBookingTrainerImageMap } from "@/lib/team-trainer-photos"
 
-/** Parse CONSULTATION_BOOKING_TRAINER_SLUGS=nick:TMxxx,jane:TMyyy */
+/** URL segment for `/booking/[slug]` — lowercase, hyphenated ASCII. */
+export function slugifyConsultationBookingSlug(raw: string): string {
+  return raw
+    .normalize("NFKD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+type BookableTrainerRow = { id: string; given: string; family: string }
+
+async function buildConsultationBookingTrainerSlugMapFromSquare(): Promise<Record<string, string>> {
+  let ids: string[] = []
+  try {
+    ids = await listBookableTeamMemberIdsForLocation()
+  } catch {
+    return {}
+  }
+
+  const visible = ids.filter((id) => !HIDDEN_PUBLIC_CONSULTATION_TEAM_MEMBER_IDS.has(id))
+  const rows = (
+    await Promise.all(
+      visible.map(async (id) => {
+        try {
+          const p = await retrieveSquareTeamMemberProfile(id)
+          if (!p) return null
+          return { id, given: p.givenName, family: p.familyName } satisfies BookableTrainerRow
+        } catch {
+          return null
+        }
+      }),
+    )
+  ).filter((r): r is BookableTrainerRow => r !== null)
+
+  if (rows.length === 0) return {}
+
+  const shortSlug = (row: BookableTrainerRow): string => {
+    const g = slugifyConsultationBookingSlug(row.given)
+    if (g) return g
+    return slugifyConsultationBookingSlug(row.family)
+  }
+
+  const fullSlug = (row: BookableTrainerRow): string => {
+    const combined = [row.given, row.family].filter(Boolean).join(" ")
+    const s = slugifyConsultationBookingSlug(combined)
+    return s || shortSlug(row)
+  }
+
+  const shortCounts = new Map<string, number>()
+  for (const row of rows) {
+    const s = shortSlug(row)
+    if (!s) continue
+    shortCounts.set(s, (shortCounts.get(s) || 0) + 1)
+  }
+
+  const slugToTeamMemberId = new Map<string, string>()
+  const assignUnique = (preferredSlug: string, teamMemberId: string) => {
+    let base = slugifyConsultationBookingSlug(preferredSlug)
+    if (!base) base = slugifyConsultationBookingSlug(teamMemberId.replace(/^TM/i, "")) || "trainer"
+    let slug = base
+    let n = 2
+    while (slugToTeamMemberId.has(slug) && slugToTeamMemberId.get(slug) !== teamMemberId) {
+      slug = `${base}-${n++}`
+    }
+    slugToTeamMemberId.set(slug, teamMemberId)
+  }
+
+  for (const row of rows) {
+    const short = shortSlug(row)
+    const ambiguous = !short || (shortCounts.get(short) || 0) > 1
+    let candidate = ambiguous ? fullSlug(row) : short
+    if (!slugifyConsultationBookingSlug(candidate)) {
+      candidate = slugifyConsultationBookingSlug(row.id.replace(/^TM/i, "")) || row.id.toLowerCase()
+    }
+    assignUnique(candidate, row.id)
+  }
+
+  return Object.fromEntries(slugToTeamMemberId)
+}
+
+const getCachedAutoConsultationBookingTrainerSlugMap = unstable_cache(
+  async () => buildConsultationBookingTrainerSlugMapFromSquare(),
+  ["consultation-booking-trainer-slugs-from-square"],
+  { revalidate: 600 },
+)
+
+/** Optional override only — prefer Admin/Firestore `consultationBookingTrainerSlugs` or rely on Square bookable staff slugs. */
 function trainerSlugsFromEnv(): Record<string, string> {
   const raw = process.env.CONSULTATION_BOOKING_TRAINER_SLUGS?.trim()
   if (!raw) return {}
@@ -44,8 +138,13 @@ function trainerImagesFromEnv(): Record<string, string> {
   return out
 }
 
-/** Slugs allowed for /booking/[slug] → Square team_member_id (Firestore overrides env for same key). */
+/**
+ * `/booking/[slug]` → Square `team_member_id`.
+ * Slugs are derived from Square bookable staff (first name if unique, else first-last). Cached ~10m.
+ * Firestore/env entries override auto slugs for the same key (aliases / corrections).
+ */
 export async function getConsultationBookingTrainerSlugMap(): Promise<Record<string, string>> {
+  const auto = await getCachedAutoConsultationBookingTrainerSlugMap()
   const fromEnv = trainerSlugsFromEnv()
   let fromRoot: Record<string, string> = {}
   try {
@@ -58,7 +157,7 @@ export async function getConsultationBookingTrainerSlugMap(): Promise<Record<str
   }
   const config = await getSquareServiceConfig()
   const fromLocation = normalizeSlugMap(config.consultationBookingTrainerSlugs)
-  return { ...fromEnv, ...fromRoot, ...fromLocation }
+  return { ...auto, ...fromEnv, ...fromRoot, ...fromLocation }
 }
 
 /** Slug → public image path under `/public` for trainer landing hero (Firestore/env override defaults from team bios). */

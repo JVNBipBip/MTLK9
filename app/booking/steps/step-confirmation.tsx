@@ -18,7 +18,6 @@ export function StepConfirmation({
   const copy = bookingStepCopy[locale]
   const intlLocale = getIntlLocale(locale)
   const isInquiry = submissionKind === "inquiry"
-  const consultationLocationFallback = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
   const formattedConsultationDateTime = formData.consultationDateTime
     ? new Date(formData.consultationDateTime).toLocaleString(intlLocale, {
         timeZone: TORONTO_TIME_ZONE,
@@ -26,22 +25,9 @@ export function StepConfirmation({
         timeStyle: "short",
       })
     : copy.toBeConfirmed
-  const assessmentSummary = isInquiry
+
+  const assessmentSummary = !isInquiry
     ? [
-        {
-          label: copy.when,
-          value: copy.toBeConfirmed,
-        },
-        {
-          label: copy.where,
-          value: formData.consultationLocation || consultationLocationFallback,
-        },
-        {
-          label: copy.what,
-          value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
-        },
-      ]
-    : [
         { label: copy.when, value: formattedConsultationDateTime },
         { label: copy.where, value: formData.consultationLocation || copy.toBeConfirmed },
         {
@@ -49,6 +35,7 @@ export function StepConfirmation({
           value: locale === "fr" ? copy.inPersonAssessment : formData.consultationWhat || copy.inPersonAssessment,
         },
       ]
+    : []
 
   return (
     <div className="space-y-6 text-center py-8">
@@ -67,13 +54,15 @@ export function StepConfirmation({
           <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
             {isInquiry ? copy.inquiryConfirmationSubtitle : copy.confirmationSubtitle}
           </p>
-          <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
-            {assessmentSummary.map((item) => (
-              <p key={item.label} className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{item.label}:</span> {item.value}
-              </p>
-            ))}
-          </div>
+          {!isInquiry ? (
+            <div className="rounded-2xl border border-border bg-muted/30 p-6 max-w-md mx-auto text-left space-y-2">
+              {assessmentSummary.map((item) => (
+                <p key={item.label} className="text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">{item.label}:</span> {item.value}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 

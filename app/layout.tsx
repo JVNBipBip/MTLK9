@@ -72,9 +72,9 @@ export async function generateMetadata(): Promise<Metadata> {
       // Replace with a real OG image before launch (1200x630 recommended)
       images: [
         {
-          url: "/images/hero-fallback.png",
-          width: 1200,
-          height: 630,
+          url: "/images/hero-fallback.webp",
+          width: 960,
+          height: 640,
           alt: localeMessages.metadata.imageAlt,
         },
       ],
@@ -83,7 +83,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: localeMessages.metadata.ogTitle,
       description: localeMessages.metadata.ogDescription,
-      images: ["/images/hero-fallback.png"],
+      images: ["/images/hero-fallback.webp"],
     },
     robots: {
       index: true,

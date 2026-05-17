@@ -8,7 +8,13 @@ export const metadata: Metadata = noIndexMetadata(
 )
 
 type Props = {
-  searchParams: Promise<{ email?: string; dog?: string; trainerTeamMemberId?: string }>
+  searchParams: Promise<{
+    email?: string
+    dog?: string
+    trainerTeamMemberId?: string
+    portalProof?: string
+    bookingAccessToken?: string
+  }>
 }
 
 export default async function TrainingPortalBookPage({ searchParams }: Props) {
@@ -16,6 +22,8 @@ export default async function TrainingPortalBookPage({ searchParams }: Props) {
   const email = (params.email || "").trim().toLowerCase()
   const dog = (params.dog || "").trim()
   const trainerTeamMemberId = (params.trainerTeamMemberId || "").trim() || null
+  const portalProof = (params.portalProof || "").trim() || null
+  const bookingAccessToken = (params.bookingAccessToken || "").trim() || null
 
   if (!email || !dog) {
     return (
@@ -36,6 +44,8 @@ export default async function TrainingPortalBookPage({ searchParams }: Props) {
         clientEmail={email}
         dogName={dog}
         preferredTeamMemberId={trainerTeamMemberId}
+        portalProof={portalProof}
+        bookingAccessToken={bookingAccessToken}
       />
     </div>
   )

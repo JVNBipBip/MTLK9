@@ -25,7 +25,7 @@ export function StepIssue({ formData, updateFormData, onAutoAdvance }: StepProps
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+        <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.12em] text-primary text-balance leading-snug">
           {copy.issueKicker}
         </p>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">

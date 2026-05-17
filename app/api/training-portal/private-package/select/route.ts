@@ -9,6 +9,7 @@ import {
   clientPrivatePackageRef,
   upsertClientProfile,
 } from "@/lib/client-records"
+import { assertTrainingPortalConsultationTrust } from "@/lib/booking-access-training"
 import {
   PRIVATE_PLAN_TYPES,
   PRIVATE_SERVICE_TYPES,
@@ -28,6 +29,8 @@ type Payload = {
   serviceType?: string
   planType?: string
   locale?: string
+  portalProof?: string
+  bookingAccessToken?: string
 }
 
 export async function POST(request: Request) {
@@ -44,6 +47,8 @@ export async function POST(request: Request) {
     const serviceType = String(payload.serviceType || "").trim() as PrivateServiceType
     const planType = String(payload.planType || "").trim() as PrivatePlanType
     const locale = String(payload.locale || "").trim().toLowerCase()
+    const portalProof = String(payload.portalProof || "").trim() || undefined
+    const bookingAccessToken = String(payload.bookingAccessToken || "").trim() || undefined
     if (!clientEmail || !dogName || !serviceType || !planType) {
       return NextResponse.json({ error: "clientEmail, dogName, serviceType and planType are required." }, { status: 400 })
     }
@@ -59,7 +64,14 @@ export async function POST(request: Request) {
       dogName,
       oneOnOneServiceVariationIds: [],
     })
-    if (!portal.assessmentCompleted) {
+    const trust = await assertTrainingPortalConsultationTrust({
+      portalProof,
+      bookingAccessToken,
+      clientEmail,
+      dogName,
+    })
+    const assessmentCompleted = portal.assessmentCompleted || Boolean(trust)
+    if (!assessmentCompleted) {
       return NextResponse.json({ error: "Assessment must be completed before selecting a private package." }, { status: 403 })
     }
     if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {

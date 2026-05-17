@@ -51,6 +51,8 @@ export type ClientFacingEmailShellInput = {
   innerHtml: string
   /** Line under the signature block (e.g. why they got this email). */
   footerNote?: string
+  /** Declares language for `<html lang>` (accessibility). */
+  htmlLang?: "en" | "fr"
 }
 
 /**
@@ -71,8 +73,10 @@ export function clientFacingEmailShell(input: ClientFacingEmailShellInput): stri
   /** Warm cream outer — matches `:root --background`. */
   const pageBg = "#f5f3ef"
 
+  const htmlLang = input.htmlLang === "fr" ? "fr" : "en"
+
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${htmlLang}">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -103,7 +107,7 @@ ${input.innerHtml}
 </td>
 </tr>
 </table>
-<p style="margin:16px 0 0;font-family:${EMAIL_FONT};font-size:12px;color:${CLIENT_EMAIL_ACCENT_MUTED};text-align:center;max-width:520px;">${footerNote}</p>
+${footerNote ? `<p style="margin:16px 0 0;font-family:${EMAIL_FONT};font-size:12px;color:${CLIENT_EMAIL_ACCENT_MUTED};text-align:center;max-width:520px;">${footerNote}</p>` : ""}
 </td>
 </tr>
 </table>

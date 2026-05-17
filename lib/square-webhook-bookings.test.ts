@@ -488,6 +488,54 @@ describe("reconcileSquareBookingWebhook", () => {
     expect(db.all(CONSULTATIONS_COLLECTION)).toHaveLength(1)
   })
 
+  it("merges an unmatched consultation booking when phone formatting differs from intake", async () => {
+    const db = new FakeFirestore()
+    db.seed(CONSULTATIONS_COLLECTION, "intake_doc", {
+      clientName: "Jamie Client",
+      clientEmail: "jamie-intake@example.com",
+      clientPhone: "(514) 555-1234",
+      status: "intake_submitted",
+    })
+
+    const outcome = await reconcileSquareBookingWebhook(
+      db as unknown as Firestore,
+      payloadFor("sq_booking_new", "booking.created"),
+      {
+        retrieveBooking: async () => ({
+          booking: canonicalBooking({
+            id: "sq_booking_new",
+            appointment_segments: [
+              {
+                service_variation_id: "consult-var",
+                team_member_id: "tm_2",
+                duration_minutes: 75,
+              },
+            ],
+          }),
+        }),
+        retrieveCustomer: async () => ({
+          customer: {
+            id: "cust_1",
+            given_name: "Jamie",
+            family_name: "Client",
+            email_address: "jamie-square@example.com",
+            phone_number: "+15145551234",
+          },
+        }),
+      },
+    )
+
+    expect(outcome.action).toBe("merged_existing_consultation")
+    expect(outcome.matchedBy).toBe("phone")
+    expect(outcome.docId).toBe("intake_doc")
+    expect(db.data(CONSULTATIONS_COLLECTION, "intake_doc")).toMatchObject({
+      squareConsultationBookingId: "sq_booking_new",
+      squareCustomerId: "cust_1",
+      clientPhoneNormalized: "5145551234",
+    })
+    expect(db.all(CONSULTATIONS_COLLECTION)).toHaveLength(1)
+  })
+
   it("populates a consultation stub with Square customer data when no match exists", async () => {
     const db = new FakeFirestore()
 

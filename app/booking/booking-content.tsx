@@ -1,20 +1,17 @@
 "use client"
 
-import { useState, useCallback, useEffect, useMemo } from "react"
+import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, User, MessageSquare } from "lucide-react"
+import { ArrowLeft, ArrowRight, Loader2, X, Calendar, MapPin, MessageSquare, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Progress } from "@/components/ui/progress"
 import { useAppLocale } from "@/components/locale-provider"
 import { getIntlLocale } from "@/lib/i18n/config"
 import { TORONTO_TIME_ZONE } from "@/lib/i18n/format"
+import { SITE_FIXED_HEADER_STICKY_TOP_CLASS } from "@/lib/site-header-layout"
 import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
-import { StepFollowUps } from "./steps/step-follow-ups"
-import { StepDogInfo } from "./steps/step-dog-info"
-import { StepGoals } from "./steps/step-goals"
-import { StepContact } from "./steps/step-contact"
+import { StepYouAndDog } from "./steps/step-you-and-dog"
 import { StepConfirmation } from "./steps/step-confirmation"
 import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
@@ -22,48 +19,30 @@ import { trackFBInitiateCheckout, trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
-const TOTAL_STEPS = 5
+const CONSULTATION_LOCATION = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
 
-// Single-select steps auto-advance on click — no Continue button needed
+const TOTAL_STEPS = 2
+
 const AUTO_ADVANCE_STEPS = new Set([0])
-
-function hasAnsweredFollowUps(formData: BookingFormData): boolean {
-  const questions = FOLLOW_UP_QUESTIONS_BY_ISSUE[formData.issue] || []
-  return questions.every((question) => Boolean(formData.followUps[question.value]))
-}
-
-function hasAnsweredGoals(formData: BookingFormData): boolean {
-  const goals = GOALS_OPTIONS_BY_ISSUE[formData.issue] || []
-  return goals.length === 0 || formData.goals.length > 0
-}
 
 function isStepValid(step: number, formData: BookingFormData): boolean {
   switch (step) {
     case 0:
       return formData.issue !== ""
     case 1:
-      return hasAnsweredFollowUps(formData)
-    case 2:
-      return hasAnsweredGoals(formData)
-    case 3:
-      return (
-        formData.dogName.trim() !== "" &&
-        formData.dogBreed.trim() !== "" &&
-        formData.dogAge !== ""
-      )
-    case 4:
       return (
         formData.contactName.trim() !== "" &&
         formData.contactEmail.trim() !== "" &&
         formData.contactPhone.trim() !== "" &&
-        formData.contactBestTime !== ""
+        formData.contactBestTime !== "" &&
+        formData.dogName.trim() !== "" &&
+        formData.dogBreed.trim() !== "" &&
+        formData.dogAge !== ""
       )
     default:
       return false
   }
 }
-
-const CONSULTATION_LOCATION = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
 
 const bookingContentCopy = {
   en: {
@@ -75,29 +54,28 @@ const bookingContentCopy = {
     schedulingSubtitle: "Choose the time that works best, then complete the deposit to confirm your appointment.",
     loadingTimes: "Loading available times...",
     specialistMatched:
-      "Based on your answers, you're booking with the trainer matched to your dog's needs.",
+      "We've narrowed openings based on what you described.",
     specialistPricing:
-      "Please note: specialist assessments may have different pricing than our standard assessment.",
-    recommendedSpecialist: "Recommended specialist for your dog's needs",
+      "Please note: some assessments may have different pricing than our standard evaluation.",
+    recommendedSpecialist: "Recommended openings",
     recommendedPricing:
-      "Specialist assessment is $165 CAD (standard is $145 CAD). Look for the dot on the recommended trainer and time slots below.",
+      "Specialist assessment is $165 CAD (standard is $145 CAD). Recommended slots are marked with a dot below.",
     noSlotsFallback: "No slots available right now. Use the free call option on the site to reach us.",
     noFilteredSlotsNick:
-      "No assessment times are currently available with the trainer matched to your dog's needs. Please call or email us and we will help you schedule.",
+      "No assessment times matched these answers right now. Please call or email us and we will help you schedule.",
     noFilteredSlotsMatched:
-      "No assessment times are currently available with the trainers matched to your answers. Please call or email us and we will help you schedule.",
-    trainer: "Trainer",
-    allTrainers: "All trainers",
-    noTimesForTrainer: 'No times for this trainer. Choose "All trainers" to see every opening.',
+      "No assessment times matched these answers right now. Please call or email us and we will help you schedule.",
+    noMatchingTimes:
+      "No openings available for this booking path right now. Please contact us and we'll help you schedule.",
     pickADay: "Pick a day",
     slotCount: (count: number) => `${count} ${count === 1 ? "slot" : "slots"}`,
     timesOn: "Times on",
-    recommendedSpecialistAria: "Recommended specialist",
-    staff: "Staff",
+    recommendedSpecialistAria: "Recommended time slot",
     bookingSummary: "Booking Summary",
+    trainer: "Trainer",
+    trainerNotSpecified: "We’ll confirm your trainer after booking.",
     dateTime: "Date & Time",
     location: "Location",
-    with: "With",
     service: "Service",
     inPersonAssessment: "In-person assessment",
     deposit: "Deposit",
@@ -106,29 +84,29 @@ const bookingContentCopy = {
     openingCheckout: "Opening checkout...",
     payDeposit: "Pay $30 deposit",
     submitting: "Submitting...",
-    continueToScheduling: "Continue to scheduling",
     continue: "Continue",
     submitErrorFallback: "Could not submit right now. Please try again in a moment.",
     bookingSubmitFallback: "Failed to submit booking form.",
     specialistCalendarError: "Specialist calendar is not configured. Please contact us by phone or email.",
     schedulingChooseTitle: "How would you like to proceed?",
     schedulingChooseSubtitle:
-      "Book a time with a deposit, or send us an inquiry and we'll follow up by email.",
+      "Proceed with booking right away, or send an inquiry and we'll get back to you by email.",
     optionBookTitle: "Pick a time & pay deposit",
-    optionBookDesc: "Choose an available assessment slot and complete the $30 deposit to confirm.",
-    optionInquiryTitle: "Send an inquiry first",
+    optionBookDesc: "Pick a time, pay the $30 deposit — your consultation is booked right away.",
+    optionInquiryTitle: "Send an inquiry",
     optionInquiryDesc:
-      "Share questions or context and we'll reply by email before you commit to a time.",
-    inquirySectionTitle: "Almost done",
-    inquirySectionSubtitle:
-      "Optional details below — we'll email you and notify our team.",
-    inquiryNotesLabel: "Your message (optional)",
+      "We'll receive your details immediately — no extra forms. We'll reply by email shortly.",
+    contractRequiredHint: "Please accept the waiver before continuing.",
+    acceptWaiverToContinue: "Accept the waiver above to choose an option.",
+    inquiryNotesLabel: "Your message",
     inquiryNotesPlaceholder:
       "Questions, scheduling preferences, or anything else we should know…",
     sendInquiry: "Send inquiry",
     inquirySending: "Sending…",
     noSlotsForPinnedTrainer:
-      "No assessment times are currently available with this trainer. Please contact us and we will help you schedule.",
+      "No assessment times are available on this booking link right now. Please contact us and we will help you schedule.",
+    noSlotsForStaffTrainerSubset:
+      "No assessment times are available on this booking link right now. Please contact us and we will help you schedule.",
   },
   fr: {
     close: "Fermer",
@@ -140,31 +118,29 @@ const bookingContentCopy = {
       "Choisissez l'heure qui vous convient, puis complétez le dépôt pour confirmer votre rendez-vous.",
     loadingTimes: "Chargement des disponibilités...",
     specialistMatched:
-      "Selon vos réponses, vous réservez avec l'entraîneur qui correspond aux besoins de votre chien.",
+      "Nous avons filtré les disponibilités selon ce que vous avez décrit.",
     specialistPricing:
-      "Veuillez noter que les évaluations spécialisées peuvent avoir un tarif différent de notre évaluation standard.",
-    recommendedSpecialist: "Spécialiste recommandé pour les besoins de votre chien",
+      "Veuillez noter que certaines évaluations peuvent avoir un tarif différent de notre évaluation standard.",
+    recommendedSpecialist: "Créneaux recommandés",
     recommendedPricing:
-      "L'évaluation spécialisée est de 165 $ CAD (145 $ CAD pour l'évaluation standard). Repérez le point sur l'entraîneur et les créneaux recommandés ci-dessous.",
+      "L'évaluation spécialisée est de 165 $ CAD (145 $ CAD pour l'évaluation standard). Les créneaux recommandés sont indiqués par un point ci-dessous.",
     noSlotsFallback:
       "Aucun créneau n'est disponible pour le moment. Utilisez l'option d'appel gratuit sur le site pour nous joindre.",
     noFilteredSlotsNick:
-      "Aucun créneau d'évaluation n'est disponible avec l'entraîneur qui correspond aux besoins de votre chien. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
+      "Aucun créneau ne correspond à ces réponses pour le moment. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
     noFilteredSlotsMatched:
-      "Aucun créneau d'évaluation n'est disponible avec les entraîneurs qui correspondent à vos réponses. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
-    trainer: "Entraîneur",
-    allTrainers: "Tous les entraîneurs",
-    noTimesForTrainer:
-      "Aucun créneau pour cet entraîneur. Choisissez « Tous les entraîneurs » pour voir toutes les disponibilités.",
+      "Aucun créneau ne correspond à ces réponses pour le moment. Appelez-nous ou écrivez-nous et nous vous aiderons à réserver.",
+    noMatchingTimes:
+      "Aucune disponibilité pour ce parcours de réservation pour le moment. Contactez-nous et nous vous aiderons à planifier.",
     pickADay: "Choisissez une journée",
     slotCount: (count: number) => `${count} créneau${count > 1 ? "x" : ""}`,
     timesOn: "Heures le",
-    recommendedSpecialistAria: "Spécialiste recommandé",
-    staff: "Équipe",
+    recommendedSpecialistAria: "Créneau recommandé",
     bookingSummary: "Résumé de la réservation",
+    trainer: "Formateur",
+    trainerNotSpecified: "Nous confirmerons votre formateur après la réservation.",
     dateTime: "Date et heure",
     location: "Lieu",
-    with: "Avec",
     service: "Service",
     inPersonAssessment: "Évaluation en personne",
     deposit: "Dépôt",
@@ -173,7 +149,6 @@ const bookingContentCopy = {
     openingCheckout: "Ouverture du paiement...",
     payDeposit: "Payer le dépôt de 30 $",
     submitting: "Envoi...",
-    continueToScheduling: "Continuer vers la planification",
     continue: "Continuer",
     submitErrorFallback: "Impossible d'envoyer pour le moment. Veuillez réessayer dans un instant.",
     bookingSubmitFallback: "Impossible d'envoyer le formulaire de réservation.",
@@ -181,23 +156,24 @@ const bookingContentCopy = {
       "Le calendrier du spécialiste n'est pas configuré. Veuillez nous contacter par téléphone ou par courriel.",
     schedulingChooseTitle: "Comment souhaitez-vous procéder?",
     schedulingChooseSubtitle:
-      "Réservez un créneau avec dépôt, ou envoyez une demande et nous vous répondrons par courriel.",
+      "Réservez tout de suite avec un dépôt, ou envoyez une demande et nous vous répondrons par courriel.",
     optionBookTitle: "Choisir une heure et payer le dépôt",
     optionBookDesc:
-      "Choisissez un créneau d'évaluation disponible et complétez le dépôt de 30 $ pour confirmer.",
-    optionInquiryTitle: "Envoyer une demande d'abord",
+      "Choisissez une heure, payez le dépôt de 30 $ — votre consultation est réservée sur-le-champ.",
+    optionInquiryTitle: "Envoyer une demande",
     optionInquiryDesc:
-      "Posez vos questions ou donnez du contexte — nous répondrons par courriel avant de fixer un rendez-vous.",
-    inquirySectionTitle: "Presque terminé",
-    inquirySectionSubtitle:
-      "Détails facultatifs ci-dessous — nous vous enverrons un courriel et aviserons notre équipe.",
-    inquiryNotesLabel: "Votre message (optionnel)",
+      "Nous recevons vos renseignements tout de suite — aucun formulaire de plus. Nous répondrons par courriel sous peu.",
+    contractRequiredHint: "Veuillez accepter la décharge avant de continuer.",
+    acceptWaiverToContinue: "Acceptez la décharge ci-dessus pour choisir une option.",
+    inquiryNotesLabel: "Votre message",
     inquiryNotesPlaceholder:
       "Questions, préférences d'horaire ou tout autre détail utile…",
     sendInquiry: "Envoyer la demande",
     inquirySending: "Envoi…",
     noSlotsForPinnedTrainer:
-      "Aucun créneau d'évaluation n'est disponible avec cet entraîneur pour le moment. Contactez-nous et nous vous aiderons à planifier.",
+      "Aucun créneau n'est disponible sur ce lien de réservation pour le moment. Contactez-nous et nous vous aiderons à planifier.",
+    noSlotsForStaffTrainerSubset:
+      "Aucun créneau n'est disponible sur ce lien de réservation pour le moment. Contactez-nous et nous vous aiderons à planifier.",
   },
 } as const
 
@@ -206,23 +182,64 @@ export function BookingContent({
   pinnedTeamMemberId = null,
   trainerPageSlug = null,
   layout = "modal",
+  depositResume = null,
+  trainerPageDisplayName = null,
 }: {
   onClose: () => void
   pinnedTeamMemberId?: string | null
   trainerPageSlug?: string | null
   layout?: "modal" | "page"
+  depositResume?: {
+    initialFormData: Partial<BookingFormData>
+    openSchedulingDeposit: true
+    /** From inquiry scheduling link — limits which trainers’ slots are fetched. */
+    allowTeamMemberIds?: string[] | null
+  } | null
+  /** Shown as preferred trainer on inquiry when slots (names) have not been loaded yet. */
+  trainerPageDisplayName?: string | null
 }) {
   const locale = useAppLocale()
   const copy = bookingContentCopy[locale]
   const intlLocale = getIntlLocale(locale)
-  const shellClass = cn(layout === "page" ? "min-h-[100dvh]" : "h-full", "flex flex-col")
-  const [currentStep, setCurrentStep] = useState(0)
+  /** Page variant must participate in parent flex (`flex-1 min-h-0`) so the inner pane can scroll instead of clipping. */
+  const shellClass = cn(
+    "flex flex-col",
+    layout === "page" ? "min-h-0 flex-1 w-full" : "h-full min-h-0",
+  )
+  const pageTopChromeClass =
+    layout === "page"
+      ? cn("sticky z-40 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80", SITE_FIXED_HEADER_STICKY_TOP_CLASS)
+      : null
+  const topBarPaddingClass =
+    layout === "page" ? "pt-4 pb-4" : "pt-[max(1rem,env(safe-area-inset-top))] pb-4"
+
+  type ConsultationSchedulingKind = "unset" | "deposit"
+  const resumeScheduling = Boolean(depositResume?.openSchedulingDeposit)
+  const mergedResumeForm: BookingFormData =
+    resumeScheduling && depositResume
+      ? { ...INITIAL_FORM_DATA, ...depositResume.initialFormData }
+      : INITIAL_FORM_DATA
+
+  /** String key so deps stay stable — a fresh array literal from props every render must not retrigger slot-fetch. */
+  const resumeTrainerAllowIdsKey =
+    resumeScheduling && depositResume?.allowTeamMemberIds?.length
+      ? [...new Set(depositResume.allowTeamMemberIds.map((id) => String(id).trim()).filter(Boolean))]
+          .sort()
+          .join("|")
+      : ""
+
+  const resumeAllowTeamMemberIds = useMemo((): string[] | null => {
+    if (!resumeTrainerAllowIdsKey) return null
+    return resumeTrainerAllowIdsKey.split("|").filter(Boolean)
+  }, [resumeTrainerAllowIdsKey])
+
+  const [currentStep, setCurrentStep] = useState(() => (resumeScheduling ? TOTAL_STEPS - 1 : 0))
   const [direction, setDirection] = useState(1)
-  const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA)
+  const [formData, setFormData] = useState<BookingFormData>(() => mergedResumeForm)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [showSchedulingStep, setShowSchedulingStep] = useState(false)
+  const [showSchedulingStep, setShowSchedulingStep] = useState(() => resumeScheduling)
 
   const updateFormData = useCallback((updates: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }))
@@ -243,6 +260,7 @@ export function BookingContent({
   const [intakeContractAccepted, setIntakeContractAccepted] = useState(false)
   const [trainerFilterId, setTrainerFilterId] = useState<string | null>(null)
   const [slotsFetchError, setSlotsFetchError] = useState<string | null>(null)
+  const consultationSlotsLoadIdRef = useRef(0)
   const [slotsMeta, setSlotsMeta] = useState<{
     recommendedTeamMemberId: string | null
     nickRoutingActive: boolean
@@ -255,9 +273,8 @@ export function BookingContent({
     forcedTrainerFilter: false,
   })
 
-  type ConsultationSchedulingKind = "unset" | "deposit" | "inquiry"
   const [consultationSchedulingKind, setConsultationSchedulingKind] =
-    useState<ConsultationSchedulingKind>("unset")
+    useState<ConsultationSchedulingKind>(() => (resumeScheduling ? "deposit" : "unset"))
   const [pinnedTrainerDisplayName, setPinnedTrainerDisplayName] = useState<string | null>(null)
   const [completionKind, setCompletionKind] = useState<"inquiry" | null>(null)
 
@@ -265,16 +282,6 @@ export function BookingContent({
     if (!trainerFilterId) return consultationSlots
     return consultationSlots.filter((s) => s.teamMemberId === trainerFilterId)
   }, [consultationSlots, trainerFilterId])
-
-  const uniqueTrainers = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const s of consultationSlots) {
-      if (!s.teamMemberId) continue
-      const label = (s.teamMemberName || copy.staff).trim() || copy.staff
-      if (!map.has(s.teamMemberId)) map.set(s.teamMemberId, label)
-    }
-    return [...map.entries()].map(([id, name]) => ({ id, name }))
-  }, [consultationSlots, copy.staff])
 
   const slotsByDay = useMemo(() => {
     const groups: Record<string, typeof displaySlots> = {}
@@ -328,9 +335,13 @@ export function BookingContent({
   useEffect(() => {
     if (!showSchedulingStep || formData.connectMethod !== "in-person-evaluation") return
     if (consultationSchedulingKind !== "deposit") return
-    let active = true
+
+    const loadId = ++consultationSlotsLoadIdRef.current
+    const isStale = () => loadId !== consultationSlotsLoadIdRef.current
+
     setIsLoadingSlots(true)
     setSlotsFetchError(null)
+
     async function loadSlots() {
       try {
         const params = new URLSearchParams()
@@ -341,7 +352,13 @@ export function BookingContent({
         for (const [key, value] of Object.entries(formData.followUps)) {
           if (value) params.append("followUp", `${key}:${value}`)
         }
-        if (pinnedTeamMemberId) params.set("teamMemberId", pinnedTeamMemberId)
+        if (resumeAllowTeamMemberIds?.length) {
+          for (const id of resumeAllowTeamMemberIds) {
+            params.append("allowTeamMemberId", id)
+          }
+        } else if (pinnedTeamMemberId) {
+          params.set("teamMemberId", pinnedTeamMemberId)
+        }
         const response = await fetch(`/api/consultation-slots?${params.toString()}`)
         const data = (await response.json().catch(() => null)) as {
           slots?: Array<{ startAt: string; slotKey: string; teamMemberId?: string; teamMemberName?: string | null }>
@@ -351,7 +368,9 @@ export function BookingContent({
           slotsMessage?: string | null
           error?: string
         } | null
-        if (!active) return
+        const slotsPayload = Array.isArray(data?.slots) ? data.slots : undefined
+
+        if (isStale()) return
         if (response.status === 503) {
           setConsultationSlots([])
           setSlotsMeta({
@@ -365,20 +384,22 @@ export function BookingContent({
           )
           return
         }
-        if (response.ok && data?.slots) {
-          const forced = data.forcedTrainerFilter ?? false
+        if (response.ok && slotsPayload !== undefined) {
+          const forced = data?.forcedTrainerFilter ?? false
           const localizedSlotsMessage =
-            data.slotsMessage && locale === "fr"
+            data?.slotsMessage && locale === "fr"
               ? forced
-                ? copy.noSlotsForPinnedTrainer
+                ? resumeAllowTeamMemberIds && resumeAllowTeamMemberIds.length > 1
+                  ? copy.noSlotsForStaffTrainerSubset
+                  : copy.noSlotsForPinnedTrainer
                 : data.nickRoutingActive
                   ? copy.noFilteredSlotsNick
                   : copy.noFilteredSlotsMatched
-              : data.slotsMessage ?? null
-          setConsultationSlots(data.slots)
+              : data?.slotsMessage ?? null
+          setConsultationSlots(slotsPayload)
           setSlotsMeta({
-            recommendedTeamMemberId: data.recommendedTeamMemberId ?? null,
-            nickRoutingActive: data.nickRoutingActive ?? false,
+            recommendedTeamMemberId: data?.recommendedTeamMemberId ?? null,
+            nickRoutingActive: data?.nickRoutingActive ?? false,
             slotsMessage: localizedSlotsMessage,
             forcedTrainerFilter: forced,
           })
@@ -391,9 +412,12 @@ export function BookingContent({
             slotsMessage: null,
             forcedTrainerFilter: false,
           })
+          setSlotsFetchError(
+            typeof data?.error === "string" ? data.error : copy.specialistCalendarError,
+          )
         }
       } catch {
-        if (!active) return
+        if (isStale()) return
         setConsultationSlots([])
         setSlotsMeta({
           recommendedTeamMemberId: null,
@@ -401,18 +425,22 @@ export function BookingContent({
           slotsMessage: null,
           forcedTrainerFilter: false,
         })
+        setSlotsFetchError(copy.specialistCalendarError)
       } finally {
-        if (active) setIsLoadingSlots(false)
+        if (!isStale()) setIsLoadingSlots(false)
       }
     }
     void loadSlots()
+
     return () => {
-      active = false
+      consultationSlotsLoadIdRef.current += 1
+      setIsLoadingSlots(false)
     }
   }, [
     copy.noFilteredSlotsMatched,
     copy.noFilteredSlotsNick,
     copy.noSlotsForPinnedTrainer,
+    copy.noSlotsForStaffTrainerSubset,
     copy.specialistCalendarError,
     consultationSchedulingKind,
     formData.connectMethod,
@@ -421,23 +449,9 @@ export function BookingContent({
     formData.issue,
     locale,
     pinnedTeamMemberId,
+    resumeAllowTeamMemberIds,
     showSchedulingStep,
   ])
-
-  const setTrainerFilterAndClearSlot = useCallback(
-    (id: string | null) => {
-      setTrainerFilterId(id)
-      setFormData((prev) => ({
-        ...prev,
-        consultationSlotKey: "",
-        consultationDateTime: "",
-        consultationTeamMemberId: "",
-        consultationTeamMemberName: "",
-        consultationServiceVariationId: "",
-      }))
-    },
-    [],
-  )
 
   const goNext = useCallback(() => {
     setDirection(1)
@@ -464,8 +478,13 @@ export function BookingContent({
             bookingSource: trainerPageSlug
               ? `website-booking-form/trainer/${trainerPageSlug}`
               : "website-booking-form",
+            ...(pinnedTeamMemberId ? { trainerTeamMemberId: pinnedTeamMemberId } : {}),
+            ...(trainerPageSlug ? { trainerPageSlug } : {}),
             ...(submissionMode === "inquiry"
-              ? { preferredTrainerLabel: pinnedTrainerDisplayName?.trim() || null }
+              ? {
+                  preferredTrainerLabel:
+                    pinnedTrainerDisplayName?.trim() || trainerPageDisplayName?.trim() || null,
+                }
               : {}),
           }),
         })
@@ -565,23 +584,21 @@ export function BookingContent({
         setIsSubmitting(false)
       }
     },
-    [copy, formData, locale, pinnedTrainerDisplayName, trainerPageSlug],
+    [copy, formData, locale, pinnedTeamMemberId, pinnedTrainerDisplayName, trainerPageDisplayName, trainerPageSlug],
   )
 
   const handleSubmit = useCallback(async () => {
     setSubmitError(null)
     const isInPerson = formData.connectMethod === "in-person-evaluation"
     if (isInPerson && !showSchedulingStep) {
+      setConsultationSchedulingKind("unset")
+      setIntakeContractAccepted(false)
       setShowSchedulingStep(true)
       return
     }
 
     await postBooking("deposit")
   }, [formData.connectMethod, postBooking, showSchedulingStep])
-
-  const submitConsultationInquiry = useCallback(async () => {
-    await postBooking("inquiry")
-  }, [postBooking])
 
   const handleClose = onClose
 
@@ -592,9 +609,6 @@ export function BookingContent({
     formData.consultationDateTime.trim().length > 0 &&
     formData.consultationLocation.trim().length > 0
 
-  const consultationReadyForInquiry =
-    consultationSchedulingKind === "inquiry" && intakeContractAccepted
-
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
     center: { x: 0, opacity: 1 },
@@ -604,7 +618,13 @@ export function BookingContent({
   if (isComplete) {
     return (
       <div className={shellClass}>
-        <div className="shrink-0 bg-background border-b border-border/50 px-6 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
+        <div
+          className={cn(
+            "shrink-0 border-b border-border/50 px-6",
+            pageTopChromeClass,
+            topBarPaddingClass,
+          )}
+        >
           <div className="max-w-lg mx-auto flex justify-end">
             <button
               onClick={handleClose}
@@ -632,7 +652,13 @@ export function BookingContent({
   return (
     <div className={shellClass}>
       {/* Top bar: Back + Progress + Close */}
-      <div className="shrink-0 bg-background border-b border-border/50 px-6 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
+      <div
+        className={cn(
+          "shrink-0 border-b border-border/50 px-6",
+          pageTopChromeClass,
+          topBarPaddingClass,
+        )}
+      >
         <div className="max-w-lg mx-auto">
           <div className="flex items-center gap-3 mb-2">
             {currentStep > 0 ? (
@@ -674,64 +700,91 @@ export function BookingContent({
                 <h3 className="text-lg font-semibold text-foreground">
                   {consultationSchedulingKind === "unset"
                     ? copy.schedulingChooseTitle
-                    : consultationSchedulingKind === "inquiry"
-                      ? copy.inquirySectionTitle
-                      : copy.schedulingTitle}
+                    : copy.schedulingTitle}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {consultationSchedulingKind === "unset"
                     ? copy.schedulingChooseSubtitle
-                    : consultationSchedulingKind === "inquiry"
-                      ? copy.inquirySectionSubtitle
-                      : copy.schedulingSubtitle}
+                    : copy.schedulingSubtitle}
                 </p>
               </div>
 
               {consultationSchedulingKind === "unset" ? (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setConsultationSchedulingKind("deposit")
-                      setSubmitError(null)
-                    }}
-                    disabled={isSubmitting}
-                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Calendar className="w-5 h-5 text-primary mb-2" />
-                    <p className="font-semibold text-foreground">{copy.optionBookTitle}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{copy.optionBookDesc}</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmitError(null)
-                      void postBooking("inquiry")
-                    }}
-                    disabled={isSubmitting}
-                    className="rounded-xl border-2 border-amber-500/60 bg-amber-50 dark:bg-amber-950/20 p-4 text-left transition-colors hover:border-amber-500 hover:bg-amber-100/70 dark:hover:bg-amber-950/40 disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-5 h-5 text-amber-600 dark:text-amber-400 mb-2 animate-spin" />
-                    ) : (
-                      <MessageSquare className="w-5 h-5 text-amber-600 dark:text-amber-400 mb-2" />
-                    )}
-                    <p className="font-semibold text-amber-900 dark:text-amber-100">{copy.optionInquiryTitle}</p>
-                    <p className="text-sm text-amber-800/80 dark:text-amber-200/70 mt-1">{copy.optionInquiryDesc}</p>
-                  </button>
-                </div>
-              ) : consultationSchedulingKind === "inquiry" ? (
-                <div className="space-y-3">
-                  <label className="text-sm font-medium text-foreground" htmlFor="consultation-inquiry-notes">
-                    {copy.inquiryNotesLabel}
-                  </label>
-                  <Textarea
-                    id="consultation-inquiry-notes"
-                    value={formData.contactNotes}
-                    onChange={(e) => updateFormData({ contactNotes: e.target.value })}
-                    placeholder={copy.inquiryNotesPlaceholder}
-                    className="rounded-xl min-h-[120px] text-base resize-none"
-                  />
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <a
+                      href={contractUrl("assessment_booking", locale)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                    >
+                      {CONTRACT_LINK_LABEL[locale].assessment_booking}
+                    </a>
+                    <label className="flex items-start gap-2 text-sm text-left">
+                      <input
+                        type="checkbox"
+                        checked={intakeContractAccepted}
+                        onChange={(e) => {
+                          setIntakeContractAccepted(e.target.checked)
+                          setSubmitError(null)
+                        }}
+                        className="mt-1"
+                      />
+                      <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
+                    </label>
+                    <p className="text-xs text-muted-foreground">{copy.acceptWaiverToContinue}</p>
+                  </div>
+                  {submitError ? (
+                    <p className="text-sm text-destructive">{submitError}</p>
+                  ) : null}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() => {
+                        setSubmitError(null)
+                        if (!intakeContractAccepted) {
+                          setSubmitError(copy.contractRequiredHint)
+                          return
+                        }
+                        setConsultationSchedulingKind("deposit")
+                      }}
+                      className={cn(
+                        "rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 disabled:pointer-events-none",
+                        (!intakeContractAccepted || isSubmitting) &&
+                          "opacity-60 hover:border-border hover:bg-background",
+                      )}
+                    >
+                      <Calendar className="w-5 h-5 text-primary mb-2" />
+                      <p className="font-semibold text-foreground">{copy.optionBookTitle}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{copy.optionBookDesc}</p>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() => {
+                        setSubmitError(null)
+                        if (!intakeContractAccepted) {
+                          setSubmitError(copy.contractRequiredHint)
+                          return
+                        }
+                        void postBooking("inquiry")
+                      }}
+                      className={cn(
+                        "rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 disabled:pointer-events-none",
+                        (!intakeContractAccepted || isSubmitting) &&
+                          "opacity-60 hover:border-border hover:bg-background",
+                      )}
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="w-5 h-5 text-primary mb-2 animate-spin" />
+                      ) : (
+                        <MessageSquare className="w-5 h-5 text-primary mb-2" />
+                      )}
+                      <p className="font-semibold text-foreground">{copy.optionInquiryTitle}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{copy.optionInquiryDesc}</p>
+                    </button>
+                  </div>
                 </div>
               ) : isLoadingSlots ? (
                 <div className="p-12 flex flex-col items-center justify-center gap-4 border rounded-xl bg-muted/20">
@@ -780,60 +833,9 @@ export function BookingContent({
                     </div>
                   ) : (
                     <>
-                      {uniqueTrainers.length > 1 && !slotsMeta.nickRoutingActive && !pinnedTeamMemberId ? (
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                            {copy.trainer}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setTrainerFilterAndClearSlot(null)}
-                              className={cn(
-                                "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
-                                trainerFilterId === null
-                                  ? "bg-foreground text-background border-foreground"
-                                  : "bg-background text-muted-foreground border-border hover:border-primary/40",
-                              )}
-                            >
-                              {copy.allTrainers}
-                            </button>
-                            {uniqueTrainers.map((t) => {
-                              const isRecommendedTrainer =
-                                !!slotsMeta.recommendedTeamMemberId &&
-                                t.id === slotsMeta.recommendedTeamMemberId
-                              const isActive = trainerFilterId === t.id
-                              return (
-                                <button
-                                  key={t.id}
-                                  type="button"
-                                  onClick={() => setTrainerFilterAndClearSlot(t.id)}
-                                  className={cn(
-                                    "relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors",
-                                    isActive
-                                      ? "bg-foreground text-background border-foreground"
-                                      : "bg-background text-muted-foreground border-border hover:border-primary/40",
-                                  )}
-                                >
-                                  {isRecommendedTrainer ? (
-                                    <span
-                                      aria-hidden="true"
-                                      className={cn(
-                                        "w-1.5 h-1.5 rounded-full",
-                                        isActive ? "bg-background" : "bg-primary",
-                                      )}
-                                    />
-                                  ) : null}
-                                  {t.name}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      ) : null}
                       {displaySlots.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-6 border rounded-xl bg-muted/10">
-                          {copy.noTimesForTrainer}
+                          {copy.noMatchingTimes}
                         </p>
                       ) : (
                         <div className="space-y-4">
@@ -930,10 +932,6 @@ export function BookingContent({
                                       slot.teamMemberId === slotsMeta.recommendedTeamMemberId &&
                                       !slotsMeta.nickRoutingActive,
                                   )
-                                  const showTrainerName =
-                                    !trainerFilterId &&
-                                    uniqueTrainers.length > 1 &&
-                                    (slot.teamMemberName || slot.teamMemberId)
 
                                   return (
                                     <button
@@ -959,16 +957,14 @@ export function BookingContent({
                                       <span className="text-sm font-semibold">
                                         {d.toLocaleTimeString(intlLocale, { timeStyle: "short", timeZone: TORONTO_TIME_ZONE })}
                                       </span>
-                                      {showTrainerName ? (
+                                      {consultationSchedulingKind === "deposit" && slot.teamMemberName?.trim() ? (
                                         <span
                                           className={cn(
-                                            "text-[11px] mt-0.5 leading-tight",
-                                            isSelected
-                                              ? "text-primary-foreground/85"
-                                              : "text-muted-foreground",
+                                            "text-[11px] font-normal mt-0.5 max-w-[8rem] truncate leading-snug",
+                                            isSelected ? "text-primary-foreground/90" : "text-muted-foreground",
                                           )}
                                         >
-                                          {slot.teamMemberName || copy.staff}
+                                          {slot.teamMemberName.trim()}
                                         </span>
                                       ) : null}
                                       {isRecommended ? (
@@ -1018,7 +1014,17 @@ export function BookingContent({
                         </p>
                       </div>
                     </div>
-                    
+
+                    <div className="flex items-start gap-3">
+                      <User className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <p className="font-medium text-foreground">{copy.trainer}</p>
+                        <p className="text-muted-foreground">
+                          {formData.consultationTeamMemberName.trim() || copy.trainerNotSpecified}
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                       <div>
@@ -1026,20 +1032,6 @@ export function BookingContent({
                         <p className="text-muted-foreground">{CONSULTATION_LOCATION}</p>
                       </div>
                     </div>
-
-                    {(() => {
-                      const selectedSlot = consultationSlots.find((s) => s.slotKey === formData.consultationSlotKey)
-                      const staffName = selectedSlot?.teamMemberName || (selectedSlot?.teamMemberId ? copy.staff : null)
-                      return staffName ? (
-                        <div className="flex items-start gap-3">
-                          <User className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                          <div>
-                            <p className="font-medium text-foreground">{copy.with}</p>
-                            <p className="text-muted-foreground">{staffName}</p>
-                          </div>
-                        </div>
-                      ) : null
-                    })()}
 
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />
@@ -1062,63 +1054,47 @@ export function BookingContent({
                 </motion.div>
               )}
 
-              {consultationSchedulingKind !== "unset" ? (
+              {consultationSchedulingKind === "deposit" ? (
                 <>
-                  <div className="space-y-3 pt-2">
-                    <a
-                      href={contractUrl("assessment_booking", locale)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                    >
-                      {CONTRACT_LINK_LABEL[locale].assessment_booking}
-                    </a>
-                    <label className="flex items-start gap-2 text-sm text-left">
-                      <input
-                        type="checkbox"
-                        checked={intakeContractAccepted}
-                        onChange={(e) => setIntakeContractAccepted(e.target.checked)}
-                        className="mt-1"
-                      />
-                      <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
-                    </label>
-                  </div>
+                  {!intakeContractAccepted ? (
+                    <div className="space-y-3 pt-2">
+                      <a
+                        href={contractUrl("assessment_booking", locale)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
+                      >
+                        {CONTRACT_LINK_LABEL[locale].assessment_booking}
+                      </a>
+                      <label className="flex items-start gap-2 text-sm text-left">
+                        <input
+                          type="checkbox"
+                          checked={intakeContractAccepted}
+                          onChange={(e) => setIntakeContractAccepted(e.target.checked)}
+                          className="mt-1"
+                        />
+                        <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
+                      </label>
+                    </div>
+                  ) : null}
 
                   <div className="flex items-center justify-between gap-3 pt-2">
                     <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
-                    {consultationSchedulingKind === "deposit" ? (
-                      <Button
-                        type="button"
-                        onClick={() => void postBooking("deposit")}
-                        disabled={!consultationReadyForPayment || isSubmitting || !intakeContractAccepted}
-                        className="rounded-full px-8 h-12 text-base"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            {copy.openingCheckout}
-                          </>
-                        ) : (
-                          copy.payDeposit
-                        )}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={() => void submitConsultationInquiry()}
-                        disabled={!consultationReadyForInquiry || isSubmitting}
-                        className="rounded-full px-8 h-12 text-base"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            {copy.inquirySending}
-                          </>
-                        ) : (
-                          copy.sendInquiry
-                        )}
-                      </Button>
-                    )}
+                    <Button
+                      type="button"
+                      onClick={() => void postBooking("deposit")}
+                      disabled={!consultationReadyForPayment || isSubmitting || !intakeContractAccepted}
+                      className="rounded-full px-8 h-12 text-base"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {copy.openingCheckout}
+                        </>
+                      ) : (
+                        copy.payDeposit
+                      )}
+                    </Button>
                   </div>
                 </>
               ) : null}
@@ -1135,10 +1111,7 @@ export function BookingContent({
                 transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
               >
                 {currentStep === 0 && <StepIssue formData={formData} updateFormData={updateFormData} onAutoAdvance={goNext} />}
-                {currentStep === 1 && <StepFollowUps formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 2 && <StepGoals formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 3 && <StepDogInfo formData={formData} updateFormData={updateFormData} />}
-                {currentStep === 4 && <StepContact formData={formData} updateFormData={updateFormData} />}
+                {currentStep === 1 && <StepYouAndDog formData={formData} updateFormData={updateFormData} />}
               </motion.div>
             </AnimatePresence>
           )}
@@ -1163,7 +1136,7 @@ export function BookingContent({
                   {copy.submitting}
                 </>
               ) : currentStep === TOTAL_STEPS - 1 ? (
-                copy.continueToScheduling
+                copy.continue
               ) : (
                 <>
                   {copy.continue}

@@ -9,9 +9,12 @@ import { trainerPhotoPositionClassForBookingSlug } from "@/lib/team-trainer-phot
 import { retrieveSquareTeamMember } from "@/lib/square"
 import { buildLocalizedMetadata } from "@/lib/seo"
 
-type PageProps = { params: Promise<{ trainerSlug: string }> }
+type PageProps = {
+  params: Promise<{ trainerSlug: string }>
+  searchParams: Promise<{ openConsultation?: string }>
+}
 
-export async function generateMetadata(props: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: Pick<PageProps, "params">): Promise<Metadata> {
   const { trainerSlug } = await props.params
   const teamMemberId = await resolveConsultationBookingTrainerTeamMemberId(trainerSlug)
   if (!teamMemberId) {
@@ -42,7 +45,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 export default async function TrainerBookingPage(props: PageProps) {
-  const { trainerSlug } = await props.params
+  const [{ trainerSlug }, searchParams] = await Promise.all([props.params, props.searchParams])
+  const initialOpenConsultation =
+    searchParams.openConsultation === "1" || searchParams.openConsultation?.toLowerCase() === "true"
   const teamMemberId = await resolveConsultationBookingTrainerTeamMemberId(trainerSlug)
   if (!teamMemberId) notFound()
   const [heroImageSrc, squareName] = await Promise.all([
@@ -58,6 +63,7 @@ export default async function TrainerBookingPage(props: PageProps) {
       trainerDisplayName={trainerDisplayName}
       trainerHeroImageSrc={heroImageSrc}
       trainerHeroImageClassName={trainerHeroImageClassName}
+      initialOpenConsultation={initialOpenConsultation}
     />
   )
 }

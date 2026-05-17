@@ -1,8 +1,8 @@
 "use client"
 
 import { Suspense, useEffect, useRef } from "react"
-import Image from "next/image"
 import { ArrowRight, CalendarCheck, ClipboardCheck, Users } from "lucide-react"
+import { CardCoverImage } from "@/components/card-cover-image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
@@ -17,6 +17,7 @@ type GroupOffering = {
   summary: string
   bullets: string[]
   image: string
+  imageAvif?: string
   imageClassName?: string
   packagePrice?: string
   unitPrice?: string
@@ -33,6 +34,7 @@ const OFFERINGS: GroupOffering[] = [
     bullets: ["Confident socialization", "Body handling", "Early manners"],
     image: "/images/Classes images/puppy_social.jpg",
     packagePrice: "$50 + tax",
+    packageDetail: "Drop-in · 2–5 months",
   },
   {
     id: "teen-puppy-class",
@@ -40,8 +42,11 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Teen puppies",
     summary: "A structured class for adolescent dogs building focus, manners, and engagement around distractions.",
     bullets: ["Focus around distractions", "Leash and impulse control", "Handler coaching"],
-    image: "/images/Classes images/teen_puppy.png",
+    image: "/images/Classes images/teen_puppy.webp",
+    imageAvif: "/images/Classes images/teen_puppy.avif",
+    packagePrice: "$350 + tax",
     unitPrice: "$90 + tax",
+    packageDetail: "4 classes",
   },
   {
     id: "reactivity-group-class",
@@ -52,6 +57,7 @@ const OFFERINGS: GroupOffering[] = [
     image: "/images/Classes images/reactivity_group_class.webp",
     packagePrice: "$360 + tax",
     unitPrice: "$95 + tax",
+    packageDetail: "4 classes",
   },
   {
     id: "level-1-obedience-class",
@@ -59,7 +65,8 @@ const OFFERINGS: GroupOffering[] = [
     forText: "Foundation obedience",
     summary: "Practical manners, reliable basics, and calm work around distractions.",
     bullets: ["Loose-leash walking", "Sit / down / stay / recall", "Impulse control"],
-    image: "/images/Classes images/obedience_group_class_1.jpg",
+    image: "/images/Classes images/obedience_group_class_1.webp",
+    imageAvif: "/images/Classes images/obedience_group_class_1.avif",
     imageClassName: "object-[center_30%]",
     packagePrice: "$360 + tax",
     unitPrice: "$95 + tax",
@@ -74,6 +81,8 @@ const OFFERINGS: GroupOffering[] = [
     image: "/images/Classes images/obedience_group_class_2.webp",
     imageClassName: "object-[center_32%]",
     packagePrice: "$450 + tax",
+    unitPrice: "$95 + tax",
+    packageDetail: "5 classes",
   },
   {
     id: "level-3-obedience-class",
@@ -82,7 +91,6 @@ const OFFERINGS: GroupOffering[] = [
     summary: "Advanced group obedience for teams ready for more challenging skills and proofing.",
     bullets: ["Advanced proofing", "Handler precision", "Higher-distraction reps"],
     image: "/images/Classes images/obedience.webp",
-    packagePrice: "$450 + tax",
     note: "Coming soon",
   },
 ]
@@ -152,10 +160,10 @@ export default function GroupClassesPage() {
           <div className="reveal opacity-0 rounded-3xl border border-border/60 bg-card p-6 md:p-8 lg:p-10 shadow-lg shadow-primary/5">
             <div className="text-center max-w-xl mx-auto mb-6">
               <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-2">
-                How it works
+                {t("How it works")}
               </p>
               <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground text-balance">
-                Three steps to the right class
+                {t("Three steps to the right class")}
               </h2>
             </div>
             <ol className="grid gap-4 md:grid-cols-3 md:gap-5">
@@ -183,9 +191,9 @@ export default function GroupClassesPage() {
                     <span className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary font-display text-base font-semibold">
                       {index + 1}
                     </span>
-                    <h3 className="text-sm font-medium text-foreground leading-snug">{step.title}</h3>
+                    <h3 className="text-sm font-medium text-foreground leading-snug">{t(step.title)}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t(step.body)}</p>
                 </li>
               ))}
             </ol>
@@ -204,8 +212,9 @@ export default function GroupClassesPage() {
                 }`}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
+                  <CardCoverImage
                     src={offering.image}
+                    srcAvif={offering.imageAvif}
                     alt={t(offering.label)}
                     fill
                     className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${offering.imageClassName ?? ""}`}
@@ -288,21 +297,22 @@ export default function GroupClassesPage() {
             />
             <div className="relative px-8 py-14 md:px-16 md:py-20 text-center">
               <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/80 font-medium mb-3">
-                Not sure where to start?
+                {t("Not sure where to start?")}
               </p>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-primary-foreground text-balance mb-4 max-w-2xl mx-auto">
-                Book an assessment and we&apos;ll point you to the right class.
+                {t("Book an assessment and we'll point you to the right class.")}
               </h2>
               <p className="text-primary-foreground/80 max-w-xl mx-auto mb-8 leading-relaxed">
-                No pressure, no guessing. We&apos;ll meet you and your dog, understand your goals, and
-                recommend the group program that fits.
+                {t(
+                  "No pressure, no guessing. We'll meet you and your dog, understand your goals, and recommend the group program that fits.",
+                )}
               </p>
               <BookingLink>
                 <Button
                   size="lg"
                   className="rounded-full bg-background text-foreground hover:bg-background/90 px-8 py-6 text-base group"
                 >
-                  Book an Assessment
+                  {t("Book an Assessment")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>

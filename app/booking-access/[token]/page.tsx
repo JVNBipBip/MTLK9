@@ -9,9 +9,11 @@ export const metadata: Metadata = noIndexMetadata(
 
 type PageProps = {
   params: Promise<{ token: string }>
+  searchParams: Promise<{ focus?: string }>
 }
 
-export default async function BookingAccessPage({ params }: PageProps) {
+export default async function BookingAccessPage({ params, searchParams }: PageProps) {
   const { token } = await params
-  return <BookingAccessContent token={token} />
+  const { focus } = await searchParams
+  return <BookingAccessContent token={token} initialFocus={focus === "private" ? "private" : null} />
 }

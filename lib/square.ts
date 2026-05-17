@@ -618,14 +618,30 @@ export function buildSquarePublicClassDetailsUrl(input: {
   }
 }
 
-export async function retrieveSquareTeamMember(teamMemberId: string) {
+export async function retrieveSquareTeamMemberProfile(teamMemberId: string): Promise<{
+  displayName: string
+  givenName: string
+  familyName: string
+} | null> {
   const result = await squareRequest<{
     team_member?: { given_name?: string; family_name?: string }
   }>(`/v2/team-members/${teamMemberId}`, { method: "GET" })
   const tm = result.team_member
   if (!tm) return null
-  const parts = [tm.given_name, tm.family_name].filter(Boolean)
-  return parts.length > 0 ? parts.join(" ") : null
+  const givenName = (tm.given_name || "").trim()
+  const familyName = (tm.family_name || "").trim()
+  const parts = [givenName, familyName].filter(Boolean)
+  if (parts.length === 0) return null
+  return {
+    displayName: parts.join(" "),
+    givenName,
+    familyName,
+  }
+}
+
+export async function retrieveSquareTeamMember(teamMemberId: string) {
+  const profile = await retrieveSquareTeamMemberProfile(teamMemberId)
+  return profile?.displayName ?? null
 }
 
 export async function listSquareBookings(input?: { startAtMin?: string; startAtMax?: string; limit?: number }) {

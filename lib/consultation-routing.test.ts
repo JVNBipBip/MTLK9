@@ -10,10 +10,9 @@ describe("intakeRequiresNickOnlyConsultation", () => {
     expect(intakeRequiresNickOnlyConsultation("aggression-safety", ["dread-walking"])).toBe(true)
   })
 
-  it("returns true for Nick-only sport paths", () => {
-    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "bite-sport" })).toBe(true)
-    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "active-obedience" })).toBe(true)
-    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "agility" })).toBe(false)
+  it("does not Nick-only-filter sport intake now that discipline is optional", () => {
+    expect(intakeRequiresNickOnlyConsultation("sport-training", [], { "sport-interest": "bite-sport" })).toBe(false)
+    expect(intakeRequiresNickOnlyConsultation("sport-training", [], {})).toBe(false)
   })
 
   it("returns true when impact includes worried-about-safety", () => {
@@ -41,6 +40,10 @@ describe("getVisibleTrainerNamesForIntake", () => {
     expect(getVisibleTrainerNamesForIntake({ issue: "puppy-out-of-control" })).toEqual(["Mia", "Tyson"])
   })
 
+  it("shows all core trainers for general leash/reactivity intake", () => {
+    expect(getVisibleTrainerNamesForIntake({ issue: "pulls-lunges-reacts" })).toEqual(["Mia", "Tyson", "Nick"])
+  })
+
   it("keeps bite-history leash cases to Nick and Tyson", () => {
     expect(
       getVisibleTrainerNamesForIntake({
@@ -50,18 +53,11 @@ describe("getVisibleTrainerNamesForIntake", () => {
     ).toEqual(["Nick", "Tyson"])
   })
 
-  it("routes sports by selected discipline", () => {
+  it("shows Nick and Tyson for sport intake", () => {
     expect(
       getVisibleTrainerNamesForIntake({
         issue: "sport-training",
-        followUps: { "sport-interest": "agility" },
       }),
-    ).toEqual(["Tyson"])
-    expect(
-      getVisibleTrainerNamesForIntake({
-        issue: "sport-training",
-        followUps: { "sport-interest": "bite-sport" },
-      }),
-    ).toEqual(["Nick"])
+    ).toEqual(["Nick", "Tyson"])
   })
 })

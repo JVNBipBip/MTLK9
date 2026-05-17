@@ -56,10 +56,12 @@ function buildEmbeddedTrainer(opts?: OpenTrainingPortalOptions): TrainingPortalE
   }
 }
 
+export type FreeCallModalVariant = "contact" | "consultation"
+
 type BookingFormContextType = {
   openBookingForm: () => void
   openProgramSignupForm: () => void
-  openFreeCallModal: () => void
+  openFreeCallModal: (opts?: { variant?: FreeCallModalVariant }) => void
   openTrainingPortal: (opts?: OpenTrainingPortalOptions) => void
   openGroupClassesBooking: (opts?: OpenGroupClassesBookingOptions) => void
 }
@@ -79,6 +81,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [programSignupOpen, setProgramSignupOpen] = useState(false)
   const [programSignupKey, setProgramSignupKey] = useState(0)
   const [freeCallOpen, setFreeCallOpen] = useState(false)
+  const [freeCallVariant, setFreeCallVariant] = useState<FreeCallModalVariant>("contact")
   const [trainingPortalOpen, setTrainingPortalOpen] = useState(false)
   const [trainingPortalKey, setTrainingPortalKey] = useState(0)
   const [portalLaunch, setPortalLaunch] = useState(defaultPortalLaunch)
@@ -104,8 +107,14 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
     setProgramSignupOpen(false)
   }, [])
 
-  const openFreeCallModal = useCallback(() => {
+  const openFreeCallModal = useCallback((opts?: { variant?: FreeCallModalVariant }) => {
+    setFreeCallVariant(opts?.variant ?? "contact")
     setFreeCallOpen(true)
+  }, [])
+
+  const handleFreeCallOpenChange = useCallback((open: boolean) => {
+    setFreeCallOpen(open)
+    if (!open) setFreeCallVariant("contact")
   }, [])
 
   const openTrainingPortal = useCallback((opts?: OpenTrainingPortalOptions) => {
@@ -148,6 +157,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 
   const closeFreeCallModal = useCallback(() => {
     setFreeCallOpen(false)
+    setFreeCallVariant("contact")
   }, [])
 
   const handleOpenAssessmentFromFreeCall = useCallback(() => {
@@ -184,43 +194,59 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
           <ProgramSignupContent key={programSignupKey} onClose={closeProgramSignupForm} />
         </DialogContent>
       </Dialog>
-      <Dialog open={freeCallOpen} onOpenChange={setFreeCallOpen}>
+      <Dialog open={freeCallOpen} onOpenChange={handleFreeCallOpenChange}>
         <DialogContent className="w-[95vw] max-w-[520px] rounded-2xl p-0 overflow-hidden">
-          <DialogTitle className="sr-only">{t("Contact us for a free call")}</DialogTitle>
+          <DialogTitle className="sr-only">
+            {freeCallVariant === "consultation" ? t("Book a Consultation") : t("Contact us for a free call")}
+          </DialogTitle>
           <div className="p-6 sm:p-7 space-y-5">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight">{t("Contact Us for a Free Call")}</h3>
+              <h3 className="text-xl font-semibold tracking-tight">
+                {freeCallVariant === "consultation"
+                  ? t("Book a Consultation")
+                  : t("Contact Us for a Free Call")}
+              </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {t("Reach us directly and we will guide you to the right next step.")}
+                {freeCallVariant === "consultation"
+                  ? t(
+                      "Schedule your in-person evaluation online, or reach us by phone or email — we'll help you choose the right next step.",
+                    )
+                  : t("Reach us directly and we will guide you to the right next step.")}
               </p>
             </div>
-            <div className="space-y-3">
+            <Button
+              type="button"
+              className="w-full rounded-full py-3.5 px-5 h-auto text-base font-semibold shadow-sm gap-2"
+              onClick={handleOpenAssessmentFromFreeCall}
+            >
+              <Calendar className="size-5 shrink-0" aria-hidden />
+              {freeCallVariant === "consultation"
+                ? t("Continue to book")
+                : t("Fill out your inquiry now")}
+            </Button>
+            <div className="space-y-2 pt-1">
               <a
                 href="tel:+15148269558"
-                className="flex items-center justify-between rounded-xl border border-border px-4 py-3 hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors"
               >
-                <span className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{t("Call us")}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <Phone className="size-3.5 shrink-0 text-primary" aria-hidden />
+                  <span className="font-medium truncate">{t("Call us")}</span>
                 </span>
-                <span className="text-sm text-muted-foreground">514 826 9558</span>
+                <span className="text-muted-foreground shrink-0 ml-2 tabular-nums">514 826 9558</span>
               </a>
               <a
                 href="mailto:mtlcaninetraining@gmail.com"
-                className="flex items-center justify-between rounded-xl border border-border px-4 py-3 hover:bg-muted/40 transition-colors"
+                className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors gap-2"
               >
-                <span className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{t("Email us")}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <Mail className="size-3.5 shrink-0 text-primary" aria-hidden />
+                  <span className="font-medium truncate">{t("Email us")}</span>
                 </span>
-                <span className="text-sm text-muted-foreground">mtlcaninetraining@gmail.com</span>
+                <span className="text-muted-foreground truncate max-w-[52%] sm:max-w-[58%]">
+                  mtlcaninetraining@gmail.com
+                </span>
               </a>
-            </div>
-            <div className="pt-2 border-t border-border">
-              <Button type="button" className="w-full rounded-full" onClick={handleOpenAssessmentFromFreeCall}>
-                <Calendar className="w-4 h-4 mr-2" />
-                {t("Book your in-person assessment")}
-              </Button>
             </div>
           </div>
         </DialogContent>
@@ -384,16 +410,18 @@ export function FreeCallLink({
   children,
   className,
   onClick,
+  modalVariant = "contact",
 }: {
   children: ReactNode
   className?: string
   onClick?: () => void
+  modalVariant?: FreeCallModalVariant
 }) {
   const { openFreeCallModal } = useBookingForm()
 
   const handleOpen = () => {
     onClick?.()
-    openFreeCallModal()
+    openFreeCallModal({ variant: modalVariant })
   }
 
   if (isValidElement(children)) {

@@ -9,7 +9,10 @@ export const frenchTextTranslations: Record<string, string> = {
   "Contact Us": "Contactez-nous",
   "Contact Us for a Free Call": "Contactez-nous pour un appel gratuit",
   "Contact Us for a Free Discovery Call": "Contactez-nous pour un appel découverte gratuit",
-  "Book your in-person assessment": "Réserver votre évaluation en personne",
+  "Fill out your inquiry now": "Remplissez votre demande maintenant",
+  "Continue to book": "Continuer pour réserver",
+  "Schedule your in-person evaluation online, or reach us by phone or email — we'll help you choose the right next step.":
+    "Planifiez votre évaluation en personne en ligne, ou joignez-nous par téléphone ou par courriel — nous vous aiderons à choisir la prochaine étape qui vous convient.",
   "Reach us directly and we will guide you to the right next step.":
     "Contactez-nous directement et nous vous guiderons vers la prochaine étape appropriée.",
   "Contact us for a free call": "Contactez-nous pour un appel gratuit",
@@ -23,9 +26,9 @@ export const frenchTextTranslations: Record<string, string> = {
   "One-on-one sessions": "Séances individuelles",
   "After your assessment, choose a package and book sessions tailored to your dog and your priorities.":
     "Après votre évaluation, choisissez un forfait et réservez des séances adaptées à votre chien et à vos priorités.",
-  "Small cohort programs": "Petits groupes encadrés",
-  "After your trainer approves a program, browse upcoming cohorts and request your spot.":
-    "Lorsque votre entraîneur approuve un programme, parcourez les cohortes à venir et demandez votre place.",
+  "Small group programs": "Petits groupes encadrés",
+  "After your trainer approves a program, browse upcoming classes and request your spot.":
+    "Lorsque votre entraîneur approuve un programme, parcourez les cours à venir et demandez votre place.",
   "Explore group classes": "Découvrir les cours de groupe",
   "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit — no pressure.":
     "Réservez une consultation et nous passerons ensemble le comportement de votre chien, vos objectifs, et si des leçons privées ou une série en groupe convient mieux — sans pression.",
@@ -282,8 +285,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "One-on-one coaching for behaviour work, custom goals, or dogs who need a quieter setup.":
     "Coaching individuel pour le comportement, des objectifs personnalisés ou les chiens qui ont besoin d'un cadre plus calme.",
   "Group class": "Cours de groupe",
-  "Small scheduled cohorts for approved dogs. Check availability or request a spot.":
-    "Petits groupes planifiés pour les chiens approuvés. Consultez les disponibilités ou demandez une place.",
+  "Small scheduled group classes for approved dogs. Check availability or request a spot.":
+    "Petits cours de groupe planifiés pour les chiens approuvés. Consultez les disponibilités ou demandez une place.",
   "I'm not sure yet": "Je ne suis pas encore certain",
   "Book an assessment and we'll place your dog in the right private or group path.":
     "Réservez une évaluation et nous placerons votre chien dans le bon parcours privé ou de groupe.",
@@ -319,6 +322,33 @@ export const frenchTextTranslations: Record<string, string> = {
   "Previous goal": "Objectif précédent",
   "Next goal": "Objectif suivant",
   "Go to goal": "Aller à l'objectif",
+
+  "In-person evaluation — where every training path begins":
+    "Évaluation en personne — le point de départ de tout parcours d'entraînement",
+  "Dog Training Consultations in Montreal": "Consultations en dressage canin à Montréal",
+  "Meet a trainer, clarify your goals, and get a personalised recommendation — private training, group classes, or a combination — before you purchase a larger package.":
+    "Rencontrez un entraîneur, clarifiez vos objectifs et obtenez une recommandation personnalisée — entraînement privé, cours de groupe ou les deux — avant d'acheter un plus gros forfait.",
+  "Your goals & priorities": "Vos objectifs et vos priorités",
+  "Your dog's behaviour day to day": "Le comportement de votre chien au quotidien",
+  "Stress, safety & quality of life": "Stress, sécurité et qualité de vie",
+  "Private vs group program fit": "Adaptation : cours privés ou programme de groupe",
+  "Your questions, answered plainly": "Vos questions, avec des réponses claires",
+  "In a consultation, we prioritize listening — then outline clear options so you leave with direction, not guesswork.":
+    "Lors d'une consultation, nous mettons d'abord l'accent sur l'écoute — puis nous présentons des options claires pour que vous repartiez avec une direction précise plutôt qu'avec des hypothèses.",
+  "You're new to structured training and want clarity before committing to a package.":
+    "Vous découvrez l'entraînement structuré et vous voulez y voir clair avant de vous engager dans un forfait.",
+  "You're unsure whether private lessons or a group series would suit your dog best.":
+    "Vous ne savez pas encore si des cours privés ou une série en groupe conviendraient mieux à votre chien.",
+  "You've tried tips from friends, videos, or apps and want a professional read on what's happening.":
+    "Vous avez essayé des conseils d'amis, des vidéos ou des applis et vous voulez l'avis professionnel sur ce qui se passe.",
+  "You want time to explain the full picture — routines, triggers, and what you've already tried.":
+    "Vous voulez prendre le temps de tout expliquer — routines, déclencheurs et ce que vous avez déjà essayé.",
+  "You're ready for an in-person evaluation so we can recommend the safest, most realistic next step.":
+    "Vous souhaitez une évaluation en personne pour que nous puissions recommander la prochaine étape la plus sûre et réaliste.",
+  "Ready to schedule your consultation?": "Prêt à planifier votre consultation?",
+  "Choose a convenient time online, bring your dog, and we'll take it from there. If email works better first, you'll find that option inside the booking flow too.":
+    "Choisissez un créneau en ligne qui vous convient, apportez votre chien et nous nous occupons du reste. Si vous préférez commencer par courriel, vous trouverez cette option dans le flux de réservation.",
+
   "You cross the street every time you see another dog.": "Vous traversez la rue chaque fois que vous voyez un autre chien.",
   "You've rearranged your entire schedule to avoid triggers.":
     "Vous avez réorganisé tout votre horaire pour éviter les déclencheurs.",
@@ -497,7 +527,31 @@ export const frenchTextTranslations: Record<string, string> = {
     "Sans pression, sans deviner. Nous rencontrerons votre chien, comprendrons vos objectifs et recommanderons le programme de groupe approprié.",
   "Book an Assessment": "Réserver une évaluation",
   "Look up your classes": "Trouver vos cours",
+  "From your email": "Depuis votre courriel",
+  "Almost there — we're opening your booking":
+    "Presque terminé — nous ouvrons votre réservation",
+  "Your details are pre-filled from your invitation. Access is verified automatically—then you can request your spot.":
+    "Vos renseignements sont préremplis depuis votre invitation. Nous vérifions votre accès automatiquement — vous pourrez ensuite demander votre place.",
+  "Opening your booking…": "Ouverture de votre réservation…",
+  "Your class link": "Votre lien pour le cours",
+  "This page opened from your trainer’s email. Your details are filled in below—give us a moment to confirm access, then you can request your spot.":
+    "Cette page s’ouvre depuis le courriel de votre entraîneur. Vos renseignements sont préremplis ci-dessous — accordez-nous un instant pour confirmer l’accès, puis vous pourrez demander votre place.",
   "Find the group classes": "Trouver les cours de groupe",
+  "Find the group classes your dog can request":
+    "Trouvez les cours de groupe que votre chien peut demander",
+  "Enter your email to look up approved programs and puppy socialization drop-ins. Puppy socialization does not require an assessment; other group programs do after your trainer approves them.":
+    "Entrez votre courriel pour consulter les programmes approuvés et les séances ponctuelles de socialisation des chiots. La socialisation des chiots ne nécessite pas d'évaluation ; pour les autres cours de groupe, une évaluation est requise après approbation par votre entraîneur.",
+  "Your approved programs": "Vos programmes approuvés",
+  "Only the group programs your trainer enabled for your dog.":
+    "Uniquement les programmes de groupe que votre entraîneur a activés pour votre chien.",
+  "Upcoming scheduled classes": "Prochains cours planifiés",
+  "Pick an upcoming full-series class and send a request to staff.":
+    "Choisissez une série complète à venir et envoyez une demande à l'équipe.",
+  "Your current bookings": "Vos réservations actuelles",
+  "See what's already on your calendar.":
+    "Voyez ce qui figure déjà à votre calendrier.",
+  "Please enter your email.": "Veuillez entrer votre courriel.",
+  "Book one here": "Réservez-en une ici",
   Email: "Courriel",
   "Dog's name": "Nom du chien",
   optional: "facultatif",
@@ -505,10 +559,10 @@ export const frenchTextTranslations: Record<string, string> = {
   "e.g. Luna": "ex. Luna",
   "Checking your access…": "Vérification de votre accès…",
   "Check my group classes": "Voir mes cours de groupe",
-  "Haven’t done an assessment yet?": "Vous n'avez pas encore fait d'évaluation?",
+  "Haven't done an assessment yet?": "Vous n'avez pas encore fait d'évaluation?",
   "Book one here.": "Réservez-en une ici.",
   "Private to you": "Privé pour vous",
-  "What you’ll see": "Ce que vous verrez",
+  "What you'll see": "Ce que vous verrez",
   "We couldn't find an assessment on file": "Nous n'avons pas trouvé d'évaluation au dossier",
   "Your assessment is still in progress": "Votre évaluation est toujours en cours",
   "No approved group programs yet": "Aucun programme de groupe approuvé pour le moment",
@@ -544,6 +598,106 @@ export const frenchTextTranslations: Record<string, string> = {
   "Everything is set": "Tout est prêt",
   "You do not need to submit": "Vous n'avez pas besoin d'envoyer",
   "Back to group classes": "Retour aux cours de groupe",
+  "We didn't find an assessment under":
+    "Nous n'avons trouvé aucune évaluation associée à ",
+  "for": "pour",
+  ". Book an assessment first and we'll place you in the right group class.":
+    ". Réservez d'abord une évaluation et nous vous placerons dans le bon cours de groupe.",
+  "We have ": "Nous avons ",
+  " on file, but the assessment isn't complete yet. Once the trainer wraps it up, approved group classes will show up here.":
+    " au dossier, mais l'évaluation n'est pas encore terminée. Une fois que l'entraîneur aura complété la démarche, les cours de groupe approuvés s'afficheront ici.",
+  "No group program is enabled for this dog yet. Your trainer needs to approve a program before you can request a class online.":
+    "Aucun programme de groupe n'est encore activé pour ce chien. Votre entraîneur doit approuver un programme avant que vous puissiez demander un cours en ligne.",
+  "Complete your assessment to unlock group class requests online.":
+    "Complétez votre évaluation pour débloquer les demandes de cours de groupe en ligne.",
+  "Deposit checkout started": "Paiement du dépôt commencé",
+  "Complete payment on the next screen to reserve your puppy socialization spot. If anything goes wrong, reach out and reference booking ":
+    "Complétez le paiement à l'écran suivant pour réserver votre place en socialisation des chiots. En cas de problème, contactez-nous en indiquant la réservation ",
+  "ID from your email": "l'identifiant figurant dans votre courriel",
+  "We received your group class request. Staff will add you to Square and follow up at ":
+    "Nous avons bien reçu votre demande de cours de groupe. L'équipe vous ajoutera dans Square et communiquera avec vous à ",
+  "Staff will add you to Square and follow up at ":
+    "L'équipe vous ajoutera dans Square et communiquera avec vous à ",
+  "No assessment required": "Aucune évaluation requise",
+  "Puppy socialization · drop-in": "Socialisation des chiots · séance ponctuelle",
+  "Reserve a spot in an upcoming puppy socialization class. Answer a few questions, then pay a {deposit} deposit to hold your place.":
+    "Réservez une place dans une prochaine séance de socialisation des chiots. Répondez à quelques questions, puis payez un dépôt de {deposit} pour garantir votre place.",
+  "Signed in as": "Connecté en tant que",
+  "Loading upcoming classes…": "Chargement des prochains cours…",
+  "Could not load puppy socialization dates.":
+    "Impossible de charger les dates de socialisation des chiots.",
+  "Could not start checkout.": "Impossible de démarrer le paiement.",
+  "Starting checkout…": "Ouverture du paiement…",
+  "Continue to pay {deposit}": "Continuer pour payer {deposit}",
+  "No puppy socialization sessions are scheduled yet. Check back soon or contact us to join the waitlist.":
+    "Aucune séance de socialisation des chiots n'est prévue pour le moment. Revenez bientôt ou contactez-nous pour vous inscrire sur la liste d'attente.",
+  "Puppy socialization": "Socialisation des chiots",
+  Starts: "Début",
+  session: "séance",
+  sessions: "séances",
+  "Full — join waitlist by contacting us":
+    "Complet — rejoignez la liste d'attente en nous contactant",
+  "{n} spots left": "{n} places restantes",
+  "1 session included": "1 séance incluse",
+  "{n} sessions included": "{n} séances incluses",
+  "1 spot remaining": "1 place restante",
+  "{n} spots remaining": "{n} places restantes",
+  "Reserve with deposit": "Réserver avec dépôt",
+  "Other group programs": "Autres programmes de groupe",
+  "This path is only for puppy socialization drop-ins. For teen puppy, reactivity, or obedience series, book an assessment first so your trainer can approve the right program.":
+    "Ce parcours est réservé aux séances ponctuelles de socialisation des chiots. Pour les chiots adolescents, la réactivité ou les séries d'obéissance, réservez d'abord une évaluation afin que votre entraîneur approuve le bon programme.",
+  "Book an assessment": "Réserver une évaluation",
+  "Puppy socialization · intake": "Socialisation des chiots · questionnaire",
+  "Answer each question, confirm the agreements, then continue to pay your {deposit} deposit.":
+    "Répondez à chaque question, acceptez les ententes, puis continuez pour payer votre dépôt de {deposit}.",
+  "About you": "À propos de vous",
+  "Your name": "Votre nom",
+  "Dog's age": "Âge du chien",
+  "e.g. 12 weeks": "ex. 12 semaines",
+  "Is your dog up to date with their vaccinations?":
+    "Les vaccins de votre chien sont-ils à jour?",
+  Yes: "Oui",
+  No: "Non",
+  "Puppy socialization requires current vaccinations. Please update vaccines before registering.":
+    "La socialisation des chiots exige des vaccins à jour. Veuillez mettre les vaccins à jour avant de vous inscrire.",
+  Agreements: "Ententes",
+  "I agree to show proof of vaccinations.":
+    "J'accepte de présenter une preuve de vaccination.",
+  "I agree to not bring my dog to a scheduled group class if they are showing signs of an illness or any contagious disease.":
+    "J'accepte de ne pas amener mon chien à un cours de groupe prévu s'il présente des signes de maladie ou une maladie contagieuse.",
+  "I agree to not bring my puppy to a scheduled group class if my puppy is already showing signs of aggression towards humans and dogs.":
+    "J'accepte de ne pas amener mon chiot à un cours de groupe prévu si mon chiot montre déjà des signes d'agressivité envers les humains ou les chiens.",
+  "{deposit} deposit reserves your spot. You'll complete payment on the next step.":
+    "Le dépôt de {deposit} garantit votre place. Vous compléterez le paiement à l'étape suivante.",
+  "Choose a class type to see upcoming full-series classes.":
+    "Choisissez un type de cours pour voir les classes en série complète à venir.",
+  "1 upcoming series": "1 série à venir",
+  "{n} upcoming series": "{n} séries à venir",
+  "No approved group programs are available right now.":
+    "Aucun programme de groupe approuvé n'est disponible pour le moment.",
+  "No upcoming series for this program right now. Check back later.":
+    "Aucune série à venir pour ce programme pour le moment. Revenez plus tard.",
+  "Group classes are requested as full series only. Submit your request and staff will email you once it has been accepted or declined.":
+    "Les cours de groupe se demandent uniquement en série complète. Envoyez votre demande et l'équipe vous écrira une fois qu'elle aura été acceptée ou refusée.",
+  "{label} request": "Demande — {label}",
+  "Everything is set. Staff will review your group class request and email you once it has been accepted or declined.":
+    "Tout est en ordre. L'équipe révisera votre demande de cours de groupe et vous écrira une fois qu'elle aura été acceptée ou refusée.",
+  "You do not need to submit anything else right now.":
+    "Vous n'avez rien d'autre à envoyer pour le moment.",
+  "Could not load scheduled group classes.":
+    "Impossible de charger les cours de groupe planifiés.",
+  "These requests were sent successfully. Staff is reviewing them and will notify you by email.":
+    "Ces demandes ont bien été envoyées. L'équipe les révise et vous avisera par courriel.",
+  "Staff is reviewing this request and will notify you by email.":
+    "L'équipe révise cette demande et vous avisera par courriel.",
+  "No group program is enabled for this dog yet. Ask staff after your assessment to turn on the programs you need.":
+    "Aucun programme de groupe n'est encore activé pour ce chien. Demandez à l'équipe après votre évaluation d'activer les programmes dont vous avez besoin.",
+  "Complete your assessment to enroll in group classes online.":
+    "Complétez votre évaluation pour vous inscrire aux cours de groupe en ligne.",
+  "Showing series led by {coach} (from schedule coach assignments). Series without a coach on file are hidden.":
+    "Séries animées par {coach} (selon l'horaire). Les séries sans entraîneur au dossier sont masquées.",
+  "Filtering series for the trainer you chose. Series without a coach id on class sessions may not appear.":
+    "Filtrage des séries pour l'entraîneur choisi. Les séries sans identifiant d'entraîneur sur les séances peuvent ne pas apparaître.",
   "Last updated: April 7, 2026": "Dernière mise à jour : 7 avril 2026",
   "1. Information We Collect": "1. Renseignements que nous recueillons",
   "2. How We Use Your Information": "2. Comment nous utilisons vos renseignements",
@@ -750,4 +904,37 @@ export const frenchTextTranslations: Record<string, string> = {
   "No payment was processed for your evaluation booking.":
     "Aucun paiement n'a été traité pour votre réservation d'évaluation.",
   "Return to booking": "Retour à la réservation",
+
+  "In-facility · CAD + tax": "En installation · CAD + taxes",
+  "Package rates": "Tarifs forfaits",
+  "Single class": "À la séance",
+  "Per-class pricing is on the Group Classes page.":
+    "Le détail des prix par cours figure sur la page Cours de groupe.",
+  "Rate depends on your dog's age.": "Le tarif dépend de l'âge de votre chien.",
+  "Packages and session rates — see Private Training.":
+    "Forfaits et tarifs à la séance — voir la page Cours privés.",
+
+  "In-Facility Training": "Entraînement en installation",
+  Consultation: "Consultation",
+  "Group Classes — Package Rates": "Cours de groupe — tarifs forfaits",
+  "Group Classes — Individual Rates": "Cours de groupe — tarifs à la séance",
+  "In-Facility Consultation (2–5 months)": "Consultation (2 à 5 mois)",
+  "In-Facility Consultation (5 months +)": "Consultation (5 mois et plus)",
+  "Option A — 3 classes": "Option A — 3 cours",
+  "Option B — 5 classes": "Option B — 5 cours",
+  "Option C — 7 classes": "Option C — 7 cours",
+  "Option A — Puppy — 3 classes": "Option A — Chiot — 3 cours",
+  "Option B & C not available for puppies.":
+    "Les options B et C ne sont pas offertes pour les chiots.",
+  "Private class / unit": "Cours privé / à l'unité",
+  "Private class / unit (2–5 months)": "Cours privé / à l'unité (2 à 5 mois)",
+  "Puppy socialization (2–5 months)": "Socialisation des chiots (2 à 5 mois)",
+  "Teen puppy group — 4 classes": "Groupe chiot ado — 4 cours",
+  "Level 1 Obedience — 4 classes": "Obéissance niveau 1 — 4 cours",
+  "Level 2 Obedience — 5 classes": "Obéissance niveau 2 — 5 cours",
+  "Reactivity group class — 4 classes": "Cours de groupe réactivité — 4 cours",
+  "Teen puppy group — 1 class": "Groupe chiot ado — 1 cours",
+  "Level 1 Obedience — 1 class": "Obéissance niveau 1 — 1 cours",
+  "Level 2 Obedience — 1 class": "Obéissance niveau 2 — 1 cours",
+  "Reactivity group class — 1 class": "Cours de groupe réactivité — 1 cours",
 }

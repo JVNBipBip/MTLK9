@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import {
   ArrowRight,
   CalendarCheck,
@@ -17,8 +17,9 @@ import {
 import { BookingLink } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { GroupClassesContent } from "@/app/training-portal/group-classes-content"
-import { addLocaleToPathname } from "@/lib/i18n/config"
+import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
 import type { StatusResponse } from "@/app/training-portal/training-portal-types"
 import { PuppySocialDropInPanel } from "@/app/group-classes/puppy-social-drop-in-panel"
 
@@ -27,14 +28,21 @@ type VerifyState = "idle" | "loading" | "error"
 export function GroupClassesBookingPanel({
   preferredCoachId = null,
   preferredCoachLabel = null,
+  variant = "default",
 }: {
   preferredCoachId?: string | null
   preferredCoachLabel?: string | null
+  variant?: "default" | "invite"
 } = {}) {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const pathname = usePathname()
   const locale = useAppLocale()
-  const groupClassesPath = addLocaleToPathname("/group-classes", locale)
+  const t = useLocalizedText()
+  const bookingBasePath =
+    variant === "invite"
+      ? addLocaleToPathname("/group-classes/book", locale)
+      : addLocaleToPathname("/group-classes", locale)
 
   const emailFromUrl = searchParams.get("email") || ""
   const dogFromUrl = searchParams.get("dog") || ""
@@ -49,11 +57,26 @@ export function GroupClassesBookingPanel({
 
   const autoVerified = useRef(false)
 
+  const strippedPath = stripLocaleFromPathname(pathname)
+  const seriesFromUrl = searchParams.get("series")?.trim() || ""
+  const shouldRedirectFromMarketingToBook =
+    variant === "default" &&
+    strippedPath === "/group-classes" &&
+    Boolean(seriesFromUrl) &&
+    emailFromUrl.trim().length > 0
+
+  useLayoutEffect(() => {
+    if (!shouldRedirectFromMarketingToBook) return
+    const bookPath = addLocaleToPathname("/group-classes/book", locale)
+    const q = searchParams.toString()
+    router.replace(q ? `${bookPath}?${q}` : bookPath)
+  }, [shouldRedirectFromMarketingToBook, locale, router, searchParams])
+
   async function runVerify(targetEmail: string, targetDog: string) {
     const cleanedEmail = targetEmail.trim().toLowerCase()
     const cleanedDog = targetDog.trim()
     if (!cleanedEmail) {
-      setErrorMessage("Please enter your email.")
+      setErrorMessage(t("Please enter your email."))
       setState("error")
       return
     }
@@ -67,12 +90,12 @@ export function GroupClassesBookingPanel({
       })
       const data = (await response.json()) as StatusResponse & { error?: string }
       if (!response.ok || !data.ok) {
-        throw new Error(data.error || "Could not verify your profile.")
+        throw new Error(data.error || t("Could not verify your profile."))
       }
       setStatus(data)
       setState("idle")
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Could not verify your profile.")
+      setErrorMessage(err instanceof Error ? err.message : t("Could not verify your profile."))
       setState("error")
       setStatus(null)
     }
@@ -81,17 +104,18 @@ export function GroupClassesBookingPanel({
   useEffect(() => {
     if (autoVerified.current) return
     if (emailFromUrl.trim().length > 0) {
+      if (shouldRedirectFromMarketingToBook) return
       autoVerified.current = true
       void runVerify(emailFromUrl, dogFromUrl)
     }
-  }, [emailFromUrl, dogFromUrl])
+  }, [emailFromUrl, dogFromUrl, shouldRedirectFromMarketingToBook])
 
   function handleReset() {
     setStatus(null)
     setErrorMessage(null)
     setState("idle")
     if (searchParams.get("group") || searchParams.get("booking")) {
-      router.replace(groupClassesPath)
+      router.replace(bookingBasePath)
     }
   }
 
@@ -104,10 +128,11 @@ export function GroupClassesBookingPanel({
         justBooked={justBooked}
         puppyDropInSuccess={puppyDropInSuccess}
         bookingId={searchParams.get("booking")}
-        groupClassesPath={groupClassesPath}
+        bookingBasePath={bookingBasePath}
         onReset={handleReset}
         preferredCoachId={preferredCoachId}
         preferredCoachLabel={preferredCoachLabel}
+        highlightSeriesId={searchParams.get("series")}
       />
     )
   }
@@ -129,37 +154,44 @@ export function GroupClassesBookingPanel({
           <div>
             <p className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-primary mb-4">
               <Sparkles className="w-3 h-3" />
-              Look up your classes
+              {variant === "invite" ? t("From your email") : t("Look up your classes")}
             </p>
             <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-              Find the group classes your dog can request
+              {variant === "invite"
+                ? t("Almost there — we're opening your booking")
+                : t("Find the group classes your dog can request")}
             </h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              Enter your email to look up approved programs and puppy socialization drop-ins. Puppy socialization does
-              not require an assessment; other group programs do after your trainer approves them.
+              {variant === "invite"
+                ? t(
+                    "Your details are pre-filled from your invitation. Access is verified automatically—then you can request your spot.",
+                  )
+                : t(
+                    "Enter your email to look up approved programs and puppy socialization drop-ins. Puppy socialization does not require an assessment; other group programs do after your trainer approves them.",
+                  )}
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <InputField
-              label="Email"
+              label={t("Email")}
               icon={<Mail className="w-4 h-4" />}
               type="email"
               autoComplete="email"
               required
               value={email}
               onChange={setEmail}
-              placeholder="you@email.com"
+              placeholder={t("you@email.com")}
             />
             <InputField
-              label="Dog's name"
-              hint="optional"
+              label={t("Dog's name")}
+              hint={t("optional")}
               icon={<Dog className="w-4 h-4" />}
               type="text"
               autoComplete="off"
               value={dogName}
               onChange={setDogName}
-              placeholder="e.g. Luna"
+              placeholder={t("e.g. Luna")}
             />
           </div>
 
@@ -180,19 +212,19 @@ export function GroupClassesBookingPanel({
               {state === "loading" ? (
                 <>
                   <Loader2 className="mr-2 w-4 h-4 animate-spin" />
-                  Checking your access…
+                  {variant === "invite" ? t("Opening your booking…") : t("Checking your access…")}
                 </>
               ) : (
                 <>
-                  Check my group classes
+                  {t("Check my group classes")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
-              Haven&apos;t done an assessment yet?{" "}
+              {t("Haven't done an assessment yet?")}{" "}
               <BookingLink className="underline underline-offset-4 text-primary hover:text-primary/80 font-medium">
-                Book one here
+                {t("Book one here")}
               </BookingLink>
               .
             </p>
@@ -203,26 +235,26 @@ export function GroupClassesBookingPanel({
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full bg-card/80 border border-border/50 px-3 py-1 text-xs font-medium text-foreground/80 w-fit">
               <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-              Private to you
+              {t("Private to you")}
             </div>
             <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
-              What you&apos;ll see
+              {t("What you'll see")}
             </h3>
             <ul className="space-y-4">
               <InfoRow
                 icon={<ClipboardList className="w-4 h-4" />}
-                title="Your approved programs"
-                body="Only the group programs your trainer enabled for your dog."
+                title={t("Your approved programs")}
+                body={t("Only the group programs your trainer enabled for your dog.")}
               />
               <InfoRow
                 icon={<CalendarCheck className="w-4 h-4" />}
-                title="Upcoming scheduled classes"
-                body="Pick an upcoming full-series class and send a request to staff."
+                title={t("Upcoming scheduled classes")}
+                body={t("Pick an upcoming full-series class and send a request to staff.")}
               />
               <InfoRow
                 icon={<CheckCircle2 className="w-4 h-4" />}
-                title="Your current bookings"
-                body="See what's already on your calendar."
+                title={t("Your current bookings")}
+                body={t("See what's already on your calendar.")}
               />
             </ul>
           </div>
@@ -306,10 +338,11 @@ function VerifiedView({
   justBooked,
   puppyDropInSuccess,
   bookingId,
-  groupClassesPath,
+  bookingBasePath,
   onReset,
   preferredCoachId = null,
   preferredCoachLabel = null,
+  highlightSeriesId = null,
 }: {
   status: StatusResponse
   email: string
@@ -317,12 +350,15 @@ function VerifiedView({
   justBooked: boolean
   puppyDropInSuccess: boolean
   bookingId: string | null
-  groupClassesPath: string
+  bookingBasePath: string
   onReset: () => void
   preferredCoachId?: string | null
   preferredCoachLabel?: string | null
+  highlightSeriesId?: string | null
 }) {
-  const resolvedDog = (status.lookup.dogName || dogName).trim() || "your dog"
+  const t = useLocalizedText()
+  const rawDogName = (status.lookup.dogName || dogName).trim()
+  const resolvedDogDisplay = rawDogName || t("your dog")
   const displayEmail = (status.lookup.clientEmail || email).trim()
   const dropIn = status.options.groupClasses.dropInPuppySocialization
 
@@ -330,21 +366,22 @@ function VerifiedView({
     return (
       <GatePanel
         onReset={onReset}
-        title="We couldn't find an assessment on file"
+        title={t("We couldn't find an assessment on file")}
         body={
           <>
-            We didn&apos;t find an assessment under{" "}
+            {t("We didn't find an assessment under")}{" "}
             <span className="font-medium text-foreground">{displayEmail}</span>
-            {resolvedDog !== "your dog" ? (
+            {rawDogName ? (
               <>
                 {" "}
-                for <span className="font-medium text-foreground">{resolvedDog}</span>
+                {t("for")}{" "}
+                <span className="font-medium text-foreground">{rawDogName}</span>
               </>
             ) : null}
-            . Book an assessment first and we&apos;ll place you in the right group class.
+            {t(". Book an assessment first and we'll place you in the right group class.")}
           </>
         }
-        ctaLabel="Book Assessment"
+        ctaLabel={t("Book Assessment")}
       />
     )
   }
@@ -353,15 +390,17 @@ function VerifiedView({
     return (
       <GatePanel
         onReset={onReset}
-        title="Your assessment is still in progress"
+        title={t("Your assessment is still in progress")}
         body={
           <>
-            We have <span className="font-medium text-foreground">{resolvedDog}</span> on file, but
-            the assessment isn&apos;t complete yet. Once the trainer wraps it up, approved group
-            classes will show up here.
+            {t("We have ")}
+            <span className="font-medium text-foreground">{resolvedDogDisplay}</span>
+            {t(
+              " on file, but the assessment isn't complete yet. Once the trainer wraps it up, approved group classes will show up here.",
+            )}
           </>
         }
-        ctaLabel="Book or Reschedule Assessment"
+        ctaLabel={t("Book or Reschedule Assessment")}
       />
     )
   }
@@ -370,17 +409,26 @@ function VerifiedView({
     const reason = status.options.groupClasses.blockedReason
     const bodyText =
       reason === "no_group_program_access"
-        ? "No group program is enabled for this dog yet. Your trainer needs to approve a program before you can request a class online."
-        : "Complete your assessment to unlock group class requests online."
+        ? t(
+            "No group program is enabled for this dog yet. Your trainer needs to approve a program before you can request a class online.",
+          )
+        : t("Complete your assessment to unlock group class requests online.")
     return (
       <GatePanel
         onReset={onReset}
-        title={reason === "no_group_program_access" ? "No approved group programs yet" : "Assessment required"}
+        title={
+          reason === "no_group_program_access"
+            ? t("No approved group programs yet")
+            : t("Assessment required")
+        }
         body={bodyText}
-        ctaLabel="Book Assessment"
+        ctaLabel={t("Book Assessment")}
       />
     )
   }
+
+  const highlightSeries = highlightSeriesId?.trim() || ""
+  const hidePuppyDropInForClassInvite = Boolean(highlightSeries)
 
   return (
     <div className="space-y-6">
@@ -391,30 +439,37 @@ function VerifiedView({
           </span>
           <div>
             <p className="font-medium text-emerald-900">
-              {puppyDropInSuccess ? "Deposit checkout started" : "Request received"}
+              {puppyDropInSuccess ? t("Deposit checkout started") : t("Request received")}
             </p>
             <p className="text-sm text-emerald-800/90 mt-1 leading-relaxed">
               {puppyDropInSuccess ? (
                 <>
-                  Complete payment on the next screen to reserve your puppy socialization spot. If anything goes wrong,
-                  reach out and reference booking{" "}
-                  {bookingId ? <span className="font-medium">{bookingId}</span> : "ID from your email"}.
+                  {t(
+                    "Complete payment on the next screen to reserve your puppy socialization spot. If anything goes wrong, reach out and reference booking ",
+                  )}
+                  {bookingId ? <span className="font-medium">{bookingId}</span> : t("ID from your email")}.
                 </>
               ) : bookingId ? (
-                `We received your group class request. Staff will add you to Square and follow up at ${displayEmail}.`
+                <>
+                  {t("We received your group class request. Staff will add you to Square and follow up at ")}
+                  <span className="font-medium">{displayEmail}</span>.
+                </>
               ) : (
-                `Staff will add you to Square and follow up at ${displayEmail}.`
+                <>
+                  {t("Staff will add you to Square and follow up at ")}
+                  <span className="font-medium">{displayEmail}</span>.
+                </>
               )}
             </p>
           </div>
         </div>
       ) : null}
 
-      {dropIn?.available ? (
+      {dropIn?.available && !hidePuppyDropInForClassInvite ? (
         <PuppySocialDropInPanel
           clientEmail={email}
           dogNameHint={dogName}
-          redirectPath={groupClassesPath}
+          redirectPath={bookingBasePath}
           depositCents={dropIn.depositCents}
           currency={dropIn.currency}
           eligibleForAssessedPrograms={status.options.groupClasses.eligible}
@@ -436,13 +491,13 @@ function VerifiedView({
                 </span>
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium">
-                    Welcome back
+                    {t("Welcome back")}
                   </p>
                   <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-1">
-                    Classes for {resolvedDog}
+                    {t("Classes for")} {resolvedDogDisplay}
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Linked to{" "}
+                    {t("Linked to")}{" "}
                     <span className="font-medium text-foreground">{displayEmail}</span>
                   </p>
                 </div>
@@ -454,7 +509,7 @@ function VerifiedView({
                 className="rounded-full"
                 onClick={onReset}
               >
-                Use a different email
+                {t("Use a different email")}
               </Button>
             </div>
           </div>
@@ -464,9 +519,10 @@ function VerifiedView({
               statusData={status}
               clientEmail={email}
               dogName={dogName}
-              redirectPath={groupClassesPath}
+              redirectPath={bookingBasePath}
               preferredCoachId={preferredCoachId}
               preferredCoachLabel={preferredCoachLabel}
+              highlightSeriesId={highlightSeriesId}
             />
           </div>
         </div>
@@ -486,6 +542,7 @@ function GatePanel({
   ctaLabel: string
   onReset: () => void
 }) {
+  const t = useLocalizedText()
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
       <div
@@ -512,7 +569,7 @@ function GatePanel({
             </Button>
           </BookingLink>
           <Button type="button" variant="ghost" className="rounded-full" onClick={onReset}>
-            Try a different email
+            {t("Try a different email")}
           </Button>
         </div>
       </div>

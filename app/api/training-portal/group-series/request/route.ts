@@ -244,6 +244,16 @@ export async function POST(request: Request) {
     )
   }
 
+  console.info("[group-series/request] Sending staff notification email", {
+    to: STAFF_BOOKING_NOTIFY_EMAIL,
+    bookingId,
+    seriesId,
+    programLabel: displayName,
+    clientEmail,
+    dogName: portal.dogName,
+    sessionCount: sessions.length,
+  })
+
   const notification = await notifyAdmin({
     bookingId,
     clientName: portal.latestConsultation?.clientName || "",
@@ -254,6 +264,15 @@ export async function POST(request: Request) {
     sessions,
     locale,
   })
+
+  if (notification.sent) {
+    console.info("[group-series/request] Staff notification email sent", { bookingId })
+  } else {
+    console.error("[group-series/request] Staff notification email failed", {
+      bookingId,
+      reason: notification.reason,
+    })
+  }
 
   const notificationPatch = {
     notificationEmailSent: notification.sent,

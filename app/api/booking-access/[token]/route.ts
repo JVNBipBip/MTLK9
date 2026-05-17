@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { resolvePrivateTrainerAllowList } from "@/lib/booking-access-training"
+import { filterTrainerRowsByAllowList, listConsultationPortalTrainerRows } from "@/lib/consultation-portal-trainers"
 import { findClientConsultationByAccessTokenHash } from "@/lib/client-records"
 import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
@@ -23,7 +25,11 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Invalid or expired booking link." }, { status: 404 })
   }
 
-  const consultation = { id: doc.id, ...doc.data() } as {
+  const row = doc.data() as Record<string, unknown> & {
+    status?: string
+    bookingAccess?: { expiresAtIso?: string; revokedAtIso?: string }
+  }
+  const consultation = { id: String(row.id || doc.id), ...row } as {
     id: string
     status?: string
     bookingAccess?: { expiresAtIso?: string; revokedAtIso?: string }
@@ -38,6 +44,10 @@ export async function GET(_request: Request, context: RouteContext) {
   const clientId = String((doc.data().clientId as string) || (doc.data().clientEmail as string) || "").trim().toLowerCase()
   const dogName = String((doc.data().dogName as string) || "")
   const approvedClasses = await buildApprovedGroupClassesForClientDog(clientId, dogName)
+
+  const allowList = await resolvePrivateTrainerAllowList(clientId, row)
+  const allPrivateTrainers = await listConsultationPortalTrainerRows()
+  const privateTrainers = filterTrainerRowsByAllowList(allPrivateTrainers, allowList)
 
   if (clientId) {
     captureServerEvent({
@@ -64,6 +74,7 @@ export async function GET(_request: Request, context: RouteContext) {
       approvedClasses,
       staffNotes: (doc.data().staffNotes as string) || "",
       expiresAtIso: consultation.bookingAccess?.expiresAtIso || "",
+      privateTrainers,
     },
   })
 }

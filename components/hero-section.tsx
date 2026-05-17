@@ -9,7 +9,7 @@ import { AnimatedText } from "@/components/animated-text"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
-const HERO_FALLBACK = "/images/hero-fallback.png"
+const HERO_FALLBACK = "/images/hero-fallback.webp"
 
 export function HeroSection() {
   const t = useLocalizedText()
@@ -90,10 +90,11 @@ export function HeroSection() {
           alt="Montreal Canine Training"
           fill
           priority
+          quality={55}
           className="object-cover -z-10"
           sizes="100vw"
         />
-        {/* Desktop video */}
+        {/* Compressed hero sources; originals kept as desktop-hero.webm / mobile-hero.mp4 */}
         <video
           ref={desktopVideoRef}
           autoPlay
@@ -108,7 +109,7 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/desktop-hero.webm" type="video/webm" />
+          <source src="/videos/desktop-hero-lite.webm" type="video/webm" />
         </video>
         {/* Mobile video */}
         <video
@@ -125,14 +126,14 @@ export function HeroSection() {
             isVideoReady ? "opacity-100" : "opacity-0"
           }`}
         >
-          <source src="/videos/mobile-hero.mp4" type="video/mp4" />
+          <source src="/videos/mobile-hero-lite.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />
         {/* Loading overlay appears only when video startup is actually slow */}
         {showLoader && !isVideoReady && (
           <div className="absolute inset-0 transition-opacity duration-500 opacity-100">
-            <Image src={HERO_FALLBACK} alt="" fill priority className="object-cover" sizes="100vw" />
+            <Image src={HERO_FALLBACK} alt="" fill priority quality={55} className="object-cover" sizes="100vw" />
             <div className="absolute inset-0 bg-foreground/30" />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-14 h-14 rounded-full border-2 border-white/55 border-t-transparent animate-spin" />
@@ -170,7 +171,7 @@ export function HeroSection() {
             {t("Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.")}
           </p>
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
-            <FreeCallLink className="w-full sm:w-auto">
+            <FreeCallLink className="w-full sm:w-auto" modalVariant="consultation">
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"

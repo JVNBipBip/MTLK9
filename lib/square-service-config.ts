@@ -15,8 +15,8 @@ export type SquareServiceConfig = {
   /** Additional evaluation service variants (e.g. Puppy Evaluation, Daycare Evaluation). Slots from all are merged. */
   evaluationServiceVariationIds?: string[]
   /**
-   * URL slug → Square team_member_id for shareable pages `/booking/[slug]`.
-   * Env fallback: CONSULTATION_BOOKING_TRAINER_SLUGS=nick:TMxxx,jane:TMyyy
+   * Optional overrides / aliases for `/booking/[slug]` slugs. Defaults come from Square bookable staff names (see consultation-booking-trainer-pages).
+   * Env fallback (optional): CONSULTATION_BOOKING_TRAINER_SLUGS=nick-alias:TMxxx
    */
   consultationBookingTrainerSlugs?: Record<string, string | undefined>
   /** Slug → image path under `/public` for `/booking/[slug]` hero. Defaults match About bios (`/images/team/*`); env overrides: CONSULTATION_BOOKING_TRAINER_IMAGES */

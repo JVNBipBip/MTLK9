@@ -24,14 +24,7 @@ export function getVisibleTrainerNamesForIntake(intake: IntakeForConsultationRou
     return [CONSULTATION_TRAINERS_BY_NAME.nick]
   }
 
-  if (intake.issue === "pulls-lunges-reacts" && answeredYes(followUps, "bitten-or-nipped-human")) {
-    return [CONSULTATION_TRAINERS_BY_NAME.nick, CONSULTATION_TRAINERS_BY_NAME.tyson]
-  }
-
   if (intake.issue === "sport-training") {
-    if (followUps["sport-interest"] === "agility") return [CONSULTATION_TRAINERS_BY_NAME.tyson]
-    if (followUps["sport-interest"] === "bite-sport") return [CONSULTATION_TRAINERS_BY_NAME.nick]
-    if (followUps["sport-interest"] === "active-obedience") return [CONSULTATION_TRAINERS_BY_NAME.nick]
     return [CONSULTATION_TRAINERS_BY_NAME.nick, CONSULTATION_TRAINERS_BY_NAME.tyson]
   }
 
@@ -39,7 +32,12 @@ export function getVisibleTrainerNamesForIntake(intake: IntakeForConsultationRou
     return [CONSULTATION_TRAINERS_BY_NAME.mia, CONSULTATION_TRAINERS_BY_NAME.tyson]
   }
 
+  /** @deprecated Legacy intake category — treat like general leash/behaviour. */
   if (intake.issue === "pulls-lunges-reacts" || intake.issue === "anxiety-fear-separation") {
+    /** Bite-history follow-ups may still exist on resumed/older records */
+    if (intake.issue === "pulls-lunges-reacts" && answeredYes(followUps, "bitten-or-nipped-human")) {
+      return [CONSULTATION_TRAINERS_BY_NAME.nick, CONSULTATION_TRAINERS_BY_NAME.tyson]
+    }
     return [
       CONSULTATION_TRAINERS_BY_NAME.mia,
       CONSULTATION_TRAINERS_BY_NAME.tyson,
@@ -49,8 +47,8 @@ export function getVisibleTrainerNamesForIntake(intake: IntakeForConsultationRou
 
   if (intake.issue === "better-obedience") {
     return [
-      CONSULTATION_TRAINERS_BY_NAME.tyson,
       CONSULTATION_TRAINERS_BY_NAME.nick,
+      CONSULTATION_TRAINERS_BY_NAME.tyson,
       CONSULTATION_TRAINERS_BY_NAME.mia,
     ]
   }
@@ -65,10 +63,9 @@ export function getVisibleTrainerNamesForIntake(intake: IntakeForConsultationRou
 export function intakeRequiresNickOnlyConsultation(
   issue: string,
   impact: string[] = [],
-  followUps: Record<string, string> = {},
+  _followUps: Record<string, string> = {},
 ): boolean {
   if (issue === "aggression-safety") return true
-  if (issue === "sport-training" && ["bite-sport", "active-obedience"].includes(followUps["sport-interest"])) return true
   const chosen = new Set(impact)
   return NICK_ROUTING_IMPACT_VALUES.some((v) => chosen.has(v))
 }

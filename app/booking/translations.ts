@@ -2,15 +2,16 @@ import type { AppLocale } from "@/lib/i18n/config"
 
 export const bookingStepCopy = {
   en: {
-    issueKicker: "Start here",
+    issueKicker: "START HERE TO FILL OUT YOUR INQUIRY",
     issueTitle: "What's going on with your dog?",
     issueSubtitle:
-      "Pick the closest match. We'll use this to ask the right follow-up questions and show the best trainer options.",
+      "Please select one of the five options that best describes your dog.",
     followUpsTitle: "A few quick questions",
-    followUpsSubtitle: "These help us match you with the right trainer for your assessment.",
+    followUpsSubtitle: "These answers help us match you with the best assessment slot.",
     goalsTitle: "What would success look like for you?",
     checkAllThatApply: "Check all that apply.",
     goalsComplete: "Thanks, we have the details we need for this category.",
+    youAndDogTitle: "Tell us about you and your dog",
     dogInfoTitle: "Tell us about your dog",
     dogName: "Dog's name",
     dogNamePlaceholder: "e.g. Max",
@@ -25,6 +26,8 @@ export const bookingStepCopy = {
     contactPhone: "Phone number",
     contactBestTime: "Best time to reach you",
     contactBestTimePlaceholder: "Select a time",
+    additionalDogContext:
+      "Please share with us any additional information about your dog",
     contactNotes: "Anything else you want us to know?",
     optional: "(optional)",
     contactNotesPlaceholder: "Feel free to share anything that might help us prepare...",
@@ -36,21 +39,21 @@ export const bookingStepCopy = {
     confirmationTitle: "You're in. Your assessment is booked.",
     confirmationSubtitle:
       "You'll receive a confirmation email shortly with your booking details and a short prep checklist.",
-    inquiryConfirmationTitle: "We received your inquiry.",
-    inquiryConfirmationSubtitle:
-      "Our team will review your message and follow up by email shortly. If anything is urgent, call or email us using the links below.",
+    inquiryConfirmationTitle: "Your inquiry was sent.",
+    inquiryConfirmationSubtitle: "We'll get back to you shortly.",
     questionsBeforeThen: "Questions before then?",
   },
   fr: {
-    issueKicker: "Commencez ici",
+    issueKicker: "COMMENCEZ ICI POUR COMPLÉTER VOTRE DEMANDE",
     issueTitle: "Que se passe-t-il avec votre chien?",
     issueSubtitle:
-      "Choisissez l'option la plus proche. Nous l'utiliserons pour poser les bonnes questions et vous proposer les meilleurs entraîneurs.",
+      "Veuillez choisir l'une des cinq options qui décrit le mieux votre situation.",
     followUpsTitle: "Quelques questions rapides",
-    followUpsSubtitle: "Ces réponses nous aident à vous jumeler au bon entraîneur pour votre évaluation.",
+    followUpsSubtitle: "Ces réponses nous aident à vous proposer le meilleur créneau d'évaluation.",
     goalsTitle: "À quoi ressemblerait une réussite pour vous?",
     checkAllThatApply: "Cochez toutes les options qui s'appliquent.",
     goalsComplete: "Merci, nous avons les détails nécessaires pour cette catégorie.",
+    youAndDogTitle: "Parlez-nous de vous et de votre chien",
     dogInfoTitle: "Parlez-nous de votre chien",
     dogName: "Nom du chien",
     dogNamePlaceholder: "ex. Max",
@@ -65,6 +68,8 @@ export const bookingStepCopy = {
     contactPhone: "Numéro de téléphone",
     contactBestTime: "Meilleur moment pour vous joindre",
     contactBestTimePlaceholder: "Sélectionnez un moment",
+    additionalDogContext:
+      "Veuillez partager toute information supplémentaire sur votre chien",
     contactNotes: "Autre chose que vous voulez nous faire savoir?",
     optional: "(optionnel)",
     contactNotesPlaceholder: "Partagez tout détail qui pourrait nous aider à nous préparer...",
@@ -76,37 +81,41 @@ export const bookingStepCopy = {
     confirmationTitle: "C'est confirmé. Votre évaluation est réservée.",
     confirmationSubtitle:
       "Vous recevrez bientôt un courriel de confirmation avec les détails de votre réservation et une courte liste de préparation.",
-    inquiryConfirmationTitle: "Nous avons bien reçu votre demande.",
-    inquiryConfirmationSubtitle:
-      "Notre équipe examinera votre message et vous répondra par courriel sous peu. Pour toute urgence, utilisez les coordonnées ci-dessous.",
+    inquiryConfirmationTitle: "Votre demande a été envoyée.",
+    inquiryConfirmationSubtitle: "Nous vous répondrons sous peu.",
     questionsBeforeThen: "Des questions d'ici là?",
   },
 } as const
 
 const optionTextFr: Record<string, { label?: string; description?: string }> = {
   "puppy-out-of-control": {
-    label: "Aide pour chiot ou jeune chien",
-    description: "Mordillage, pleurs dans la cage, sauts, socialisation ou manque d'écoute.",
+    label: "Formation chiot",
+    description:
+      "Aide pour la cage, la propreté, le mordillage, la socialisation, les bases ou d'autres comportements de chiot.",
   },
   "pulls-lunges-reacts": {
-    label: "Tire, se lance ou réagit",
-    description: "Les marches sont stressantes, votre chien réagit ou les commandes de base sont difficiles dehors.",
+    label: "Tirer en laisse, réactivité et obéissance générale",
+    description:
+      "Les promenades sont stressantes; contrôler votre chien à la maison ou à l'extérieur est difficile. Besoin d'aide avec l'obéissance et le comportement.",
   },
   "anxiety-fear-separation": {
     label: "Anxiété, peur ou anxiété de séparation",
     description: "Votre chien a de la difficulté seul, près de déclencheurs ou dans les lieux publics.",
   },
   "aggression-safety": {
-    label: "Agressivité ou enjeux de sécurité",
-    description: "Morsures, protection des ressources ou inquiétudes avec les gens, les chiens, la famille ou le public.",
+    label: "Agressivité et problèmes de comportement graves",
+    description:
+      "Réactivité sévère, morsures, protection des ressources, anxiété de séparation ou enjeux de sécurité à la maison ou à l'extérieur.",
   },
   "better-obedience": {
-    label: "Meilleure obéissance et fiabilité sans laisse",
-    description: "Votre chien va généralement bien, mais vous voulez une meilleure écoute dans la vraie vie.",
+    label: "Améliorer l'obéissance ou la fiabilité hors laisse",
+    description:
+      "Votre chien va plutôt bien, mais vous voulez progresser, approfondir l'entraînement et passer au niveau supérieur.",
   },
   "sport-training": {
     label: "Entraînement sportif",
-    description: "Agilité, sports de mordant, obéissance active ou autre travail sportif structuré.",
+    description:
+      "Vous souhaitez commencer sports de mordant, agility, obéissance active ou une activité amusante avec votre chien.",
   },
   "crate-trouble": { label: "Votre chiot a-t-il de la difficulté avec sa cage?" },
   "potty-mistakes": { label: "Votre chiot fait-il ses besoins dans la maison?" },

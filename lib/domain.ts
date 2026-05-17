@@ -38,6 +38,11 @@ export type ClientBookingSettingsRecord = {
   clientEmail: string
   privateLocationAccess: PrivateLocationAccess
   privateTrainingAccess?: PrivateTrainingAccess
+  /**
+   * When set, private lesson links and the booking-access hub only list these Square team_member_id values.
+   * When empty/unset, defaults to consultation trainer(s) or all bookable trainers.
+   */
+  privatePortalTrainerTeamMemberIds?: string[]
   /** Keys: normalized dog name (trim + lower). When true, dog may book any configured group program, including new slots. */
   groupProgramsIncludeAllFutureByDog?: Record<string, boolean>
   updatedAt?: unknown
@@ -111,9 +116,29 @@ export type ConsultationRecord = {
     emailSentAtIso?: string | null
     revokedAtIso?: string | null
   } | null
+  /** Lets inquiry submitters resume deposit scheduling without re-entering intake (hashed token only). */
+  depositResumeAccess?: {
+    tokenHash: string
+    expiresAtIso: string
+    emailSentAtIso?: string | null
+    revokedAtIso?: string | null
+  } | null
+  /** Same URL emailed on inquiry submit; lets staff copy/paste from admin. */
+  depositResumeUrl?: string | null
+  /** Staff-picked trainer(s) for `/booking/resume` — single id pins that calendar. */
+  depositResumeAllowedTeamMemberIds?: string[] | null
   source?: string
   consultationSubmissionKind?: "inquiry" | "deposit" | null
   consultationPreferredTrainerName?: string | null
+  /** Square team member id when the client booked from a trainer page or staff assigns a trainer. */
+  consultationPreferredTrainerTeamMemberId?: string | null
+  /** Trainer slug from `/booking/[slug]` when applicable. */
+  consultationBookingTrainerPageSlug?: string | null
+  /**
+   * When set on a completed consultation, private lesson links from this consultation only offer these trainers
+   * (overrides client `privatePortalTrainerTeamMemberIds` until cleared).
+   */
+  privateLessonInviteTrainerTeamMemberIds?: string[] | null
   contactNotes?: string
   contactBestTime?: string
   squareCustomerId?: string | null

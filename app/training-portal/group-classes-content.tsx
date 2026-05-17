@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
 import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
 import { trackFBLead } from "@/lib/facebook-pixel"
 import { getIntlLocale } from "@/lib/i18n/config"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import type { ApprovedGroupProgram, GroupSeriesListItem, StatusResponse } from "./training-portal-types"
 
 function formatDateTime(iso: string, intlLocale: string) {
@@ -23,6 +24,7 @@ export function GroupClassesContent({
   redirectPath: _redirectPath,
   preferredCoachId = null,
   preferredCoachLabel = null,
+  highlightSeriesId = null,
 }: {
   statusData: StatusResponse
   clientEmail: string
@@ -30,8 +32,11 @@ export function GroupClassesContent({
   redirectPath: string
   preferredCoachId?: string | null
   preferredCoachLabel?: string | null
+  /** When set (e.g. from `?series=` on group-classes), opens that program and scrolls to the class. */
+  highlightSeriesId?: string | null
 }) {
   const locale = useAppLocale()
+  const t = useLocalizedText()
   const intlLocale = getIntlLocale(locale)
   const [groupPrograms, setGroupPrograms] = useState<ApprovedGroupProgram[]>([])
   const [groupLoading, setGroupLoading] = useState(false)
@@ -46,6 +51,7 @@ export function GroupClassesContent({
   const [groupContractAccepted, setGroupContractAccepted] = useState(false)
   const [groupContractAlreadyAccepted, setGroupContractAlreadyAccepted] = useState(false)
   const [localPendingRequests, setLocalPendingRequests] = useState<Array<{ id: string; startAt: string; label: string }>>([])
+  const highlightAppliedRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!statusData.options.groupClasses?.eligible) {
@@ -69,14 +75,14 @@ export function GroupClassesContent({
         const data = (await response.json()) as { programs?: ApprovedGroupProgram[]; error?: string }
         if (cancelled) return
         if (!response.ok) {
-          setGroupErr(data.error || "Could not load approved group classes.")
+          setGroupErr(data.error || t("Could not load approved group classes."))
           setGroupPrograms([])
           return
         }
         setGroupPrograms(data.programs || [])
       } catch {
         if (!cancelled) {
-          setGroupErr("Could not load approved group classes.")
+          setGroupErr(t("Could not load approved group classes."))
           setGroupPrograms([])
         }
       } finally {
@@ -140,14 +146,14 @@ export function GroupClassesContent({
         const data = (await response.json()) as { series?: GroupSeriesListItem[]; error?: string }
         if (cancelled) return
         if (!response.ok) {
-          setGroupSeriesErr(data.error || "Could not load scheduled group classes.")
+          setGroupSeriesErr(data.error || t("Could not load scheduled group classes."))
           setGroupSeries([])
           return
         }
         setGroupSeries(data.series || [])
       } catch {
         if (!cancelled) {
-          setGroupSeriesErr("Could not load scheduled group classes.")
+          setGroupSeriesErr(t("Could not load scheduled group classes."))
           setGroupSeries([])
         }
       } finally {
@@ -169,6 +175,27 @@ export function GroupClassesContent({
       return false
     })
   }, [groupSeries, preferredCoachId, preferredCoachLabel])
+
+  useEffect(() => {
+    highlightAppliedRef.current = null
+  }, [highlightSeriesId])
+
+  useEffect(() => {
+    const raw = highlightSeriesId?.trim()
+    if (!raw || !statusData.options.groupClasses?.eligible) return
+    if (groupSeriesLoading) return
+    if (highlightAppliedRef.current === raw) return
+
+    const match = seriesForDisplay.find((s) => s.seriesId === raw)
+    if (!match) return
+
+    highlightAppliedRef.current = raw
+    setSelectedProgramId(match.classType)
+    const t = window.setTimeout(() => {
+      document.getElementById(`group-series-${raw}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+    }, 150)
+    return () => window.clearTimeout(t)
+  }, [highlightSeriesId, seriesForDisplay, groupSeriesLoading, statusData.options.groupClasses?.eligible])
 
   const seriesByProgram = useMemo(() => {
     const map = new Map<string, GroupSeriesListItem[]>()
@@ -202,7 +229,7 @@ export function GroupClassesContent({
     setGroupSeriesErr(null)
     setRequestMsg(null)
     if (!groupContractAlreadyAccepted && !groupContractAccepted) {
-      setGroupSeriesErr("Please read and accept the group class agreement before requesting a spot.")
+      setGroupSeriesErr(t("Please read and accept the group class agreement before requesting a spot."))
       return
     }
     setRequestSeriesId(seriesId)
@@ -237,27 +264,29 @@ export function GroupClassesContent({
       })
       const data = (await response.json()) as { bookingId?: string; notificationEmailSent?: boolean; error?: string }
       if (!response.ok || !data.bookingId) {
-        throw new Error(data.error || "Could not request this group class.")
+        throw new Error(data.error || t("Could not request this group class."))
       }
       const bookingId = data.bookingId
       trackFBLead({
         content_name: requestedSeries?.programLabel || "Group Class Request",
         content_category: "Group Class Lead",
       })
-      setRequestMsg("Request sent. Staff will review it and email you once it has been accepted or declined.")
+      setRequestMsg(
+        t("Request sent. Staff will review it and email you once it has been accepted or declined."),
+      )
       if (requestedSeries?.sessions[0]) {
         setLocalPendingRequests((prev) => [
           ...prev,
           {
             id: bookingId,
             startAt: requestedSeries.sessions[0].startsAtIso,
-            label: `${requestedSeries.programLabel} request`,
+            label: t("{label} request").replace("{label}", requestedSeries.programLabel),
           },
         ])
       }
       setGroupSeries((prev) => prev.filter((series) => series.seriesId !== seriesId))
     } catch (err) {
-      setGroupSeriesErr(err instanceof Error ? err.message : "Could not request this group class.")
+      setGroupSeriesErr(err instanceof Error ? err.message : t("Could not request this group class."))
     } finally {
       setRequestLoading(false)
       setRequestSeriesId(null)
@@ -284,6 +313,26 @@ export function GroupClassesContent({
     return (seriesByProgram.get(programId) || []).length
   }
 
+  function upcomingSeriesSummary(count: number) {
+    if (count === 0) return t("No upcoming series")
+    if (count === 1) return t("1 upcoming series")
+    return t("{n} upcoming series").replace("{n}", String(count))
+  }
+
+  function sessionsIncludedPhrase(count: number) {
+    if (count === 1) return t("1 session included")
+    return t("{n} sessions included").replace("{n}", String(count))
+  }
+
+  function spotsRemainingPhrase(count: number) {
+    if (count === 1) return t("1 spot remaining")
+    return t("{n} spots remaining").replace("{n}", String(count))
+  }
+
+  function spotsLeftPhrase(count: number) {
+    return t("{n} spots left").replace("{n}", String(count))
+  }
+
   if (requestMsg) {
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-6 sm:p-8 text-center space-y-4">
@@ -291,13 +340,15 @@ export function GroupClassesContent({
           ✓
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold text-emerald-950">Request received</h3>
+          <h3 className="text-xl font-semibold text-emerald-950">{t("Request received")}</h3>
           <p className="mx-auto max-w-xl text-sm leading-relaxed text-emerald-900/80">
-            Everything is set. Staff will review your group class request and email you once it has been accepted or declined.
+            {t(
+              "Everything is set. Staff will review your group class request and email you once it has been accepted or declined.",
+            )}
           </p>
         </div>
         <p className="mx-auto max-w-lg text-xs leading-relaxed text-emerald-900/70">
-          You do not need to submit anything else right now.
+          {t("You do not need to submit anything else right now.")}
         </p>
         <Button
           type="button"
@@ -309,7 +360,7 @@ export function GroupClassesContent({
             setSelectedProgramId(null)
           }}
         >
-          Back to group classes
+          {t("Back to group classes")}
         </Button>
       </div>
     )
@@ -319,23 +370,25 @@ export function GroupClassesContent({
     <div id="portal-group-classes" className="grid gap-4">
       {statusData.options.groupClasses ? (
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <h3 className="text-lg font-medium">Request a group class</h3>
+          <h3 className="text-lg font-medium">{t("Request a group class")}</h3>
           {preferredCoachId ? (
             <p className="text-sm rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-foreground/90">
-              {locale === "fr"
-                ? preferredCoachLabel
-                  ? `Séries dont le coach dans l’horaire correspond à ${preferredCoachLabel}. Les entrées sans coach assigné sont masquées.`
-                  : "Séries filtrées selon l’entraîneur choisi. Les entrées sans coach assigné dans l’horaire peuvent être masquées."
-                : preferredCoachLabel
-                  ? `Showing series led by ${preferredCoachLabel} (from schedule coach assignments). Series without a coach on file are hidden.`
-                  : "Filtering series for the trainer you chose. Series without a coach id on class sessions may not appear."}
+              {preferredCoachLabel
+                ? t(
+                    "Showing series led by {coach} (from schedule coach assignments). Series without a coach on file are hidden.",
+                  ).replace("{coach}", preferredCoachLabel)
+                : t(
+                    "Filtering series for the trainer you chose. Series without a coach id on class sessions may not appear.",
+                  )}
             </p>
           ) : null}
           {!statusData.options.groupClasses.eligible ? (
             <p className="text-sm text-muted-foreground">
               {statusData.options.groupClasses.blockedReason === "no_group_program_access"
-                ? "No group program is enabled for this dog yet. Ask staff after your assessment to turn on the programs you need."
-                : "Complete your assessment to enroll in group classes online."}
+                ? t(
+                    "No group program is enabled for this dog yet. Ask staff after your assessment to turn on the programs you need.",
+                  )
+                : t("Complete your assessment to enroll in group classes online.")}
             </p>
           ) : (
             <>
@@ -344,13 +397,15 @@ export function GroupClassesContent({
               {requestMsg ? <p className="text-sm text-emerald-700">{requestMsg}</p> : null}
 
               {groupLoading || groupSeriesLoading ? (
-                <p className="text-sm text-muted-foreground">Loading classes…</p>
+                <p className="text-sm text-muted-foreground">{t("Loading classes…")}</p>
               ) : groupPrograms.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No approved group programs are available right now.</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("No approved group programs are available right now.")}
+                </p>
               ) : selectedProgramId === null ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    Choose a class type to see upcoming full-series cohorts.
+                    {t("Choose a class type to see upcoming full-series classes.")}
                   </p>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {groupPrograms.map((program) => {
@@ -363,10 +418,8 @@ export function GroupClassesContent({
                           className="flex items-start justify-between gap-3 rounded-xl border border-border bg-background/60 p-4 text-left transition-colors hover:bg-background/80"
                         >
                           <div className="space-y-1">
-                            <p className="font-medium text-foreground">{program.programLabel}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {count === 0 ? "No upcoming series" : `${count} upcoming series`}
-                            </p>
+                            <p className="font-medium text-foreground">{t(program.programLabel)}</p>
+                            <p className="text-sm text-muted-foreground">{upcomingSeriesSummary(count)}</p>
                           </div>
                           <span aria-hidden className="text-muted-foreground">
                             →
@@ -386,19 +439,23 @@ export function GroupClassesContent({
                       className="rounded-full"
                       onClick={() => setSelectedProgramId(null)}
                     >
-                      ← All programs
+                      ← {t("All programs")}
                     </Button>
-                    <p className="font-medium text-right">{selectedProgramLabel}</p>
+                    <p className="font-medium text-right">
+                      {selectedProgramLabel ? t(selectedProgramLabel) : selectedProgramId}
+                    </p>
                   </div>
 
                   {selectedProgramSeries.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
-                      No upcoming series for this program right now. Check back later.
+                      {t("No upcoming series for this program right now. Check back later.")}
                     </p>
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        Group classes are requested as full series only. Submit your request and staff will email you once it has been accepted or declined.
+                        {t(
+                          "Group classes are requested as full series only. Submit your request and staff will email you once it has been accepted or declined.",
+                        )}
                       </p>
                       {groupContractAlreadyAccepted ? (
                         <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
@@ -431,7 +488,11 @@ export function GroupClassesContent({
                         const firstSession = series.sessions[0]
                         const lastSession = series.sessions[series.sessions.length - 1]
                         return (
-                          <div key={series.seriesId} className="rounded-xl border border-border bg-muted/10 p-4 space-y-3">
+                          <div
+                            id={`group-series-${series.seriesId}`}
+                            key={series.seriesId}
+                            className="rounded-xl border border-border bg-muted/10 p-4 space-y-3"
+                          >
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                               <div>
                                 <p className="font-medium text-foreground">
@@ -439,14 +500,16 @@ export function GroupClassesContent({
                                     ? `${formatDateTime(firstSession.startsAtIso, intlLocale)} - ${formatDateTime(lastSession.startsAtIso, intlLocale)}`
                                     : firstSession
                                       ? formatDateTime(firstSession.startsAtIso, intlLocale)
-                                      : series.programLabel}
+                                      : series.programLabel
+                                          ? t(series.programLabel)
+                                          : ""}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  {series.sessionCount} session{series.sessionCount !== 1 ? "s" : ""} included
+                                  {sessionsIncludedPhrase(series.sessionCount)}
                                 </p>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                {series.spotsRemaining} spot{series.spotsRemaining !== 1 ? "s" : ""} remaining
+                                {spotsRemainingPhrase(series.spotsRemaining)}
                               </p>
                             </div>
 
@@ -456,7 +519,7 @@ export function GroupClassesContent({
                                   <span>{formatDateTime(session.startsAtIso, intlLocale)}</span>
                                   <span className="text-muted-foreground">
                                     {session.locationLabel ? `${session.locationLabel} · ` : ""}
-                                    {session.spotsRemaining} spot{session.spotsRemaining !== 1 ? "s" : ""} left
+                                    {spotsLeftPhrase(session.spotsRemaining)}
                                   </span>
                                 </div>
                               ))}
@@ -470,7 +533,11 @@ export function GroupClassesContent({
                                 disabled={requestLoading || isFull || (!groupContractAlreadyAccepted && !groupContractAccepted)}
                                 onClick={() => void handleSeriesRequest(series.seriesId)}
                               >
-                                {isRequesting ? "Sending request..." : isFull ? "Full" : "Request full series"}
+                                {isRequesting
+                                  ? t("Sending request...")
+                                  : isFull
+                                    ? t("Full")
+                                    : t("Request full series")}
                               </Button>
                             </div>
                           </div>
@@ -487,16 +554,18 @@ export function GroupClassesContent({
 
       {pendingGroupRequests.length > 0 ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-6 space-y-4">
-          <h3 className="text-lg font-medium text-amber-950">Pending requests</h3>
+          <h3 className="text-lg font-medium text-amber-950">{t("Pending requests")}</h3>
           <p className="text-sm text-amber-900/80">
-            These requests were sent successfully. Staff is reviewing them and will notify you by email.
+            {t(
+              "These requests were sent successfully. Staff is reviewing them and will notify you by email.",
+            )}
           </p>
           <div className="space-y-2">
             {pendingGroupRequests.map((request) => (
               <div key={request.id} className="rounded-lg border border-amber-200 bg-white/70 p-3">
-                <p className="font-medium text-amber-950">{request.label}</p>
+                <p className="font-medium text-amber-950">{t(request.label)}</p>
                 <p className="text-sm text-amber-900/70">{formatDateTime(request.startAt, intlLocale)}</p>
-                <p className="mt-1 text-xs text-amber-900/70">Status: waiting for staff review</p>
+                <p className="mt-1 text-xs text-amber-900/70">{t("Status: waiting for staff review")}</p>
               </div>
             ))}
           </div>
@@ -504,15 +573,15 @@ export function GroupClassesContent({
       ) : null}
 
       <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-        <h3 className="text-lg font-medium">Upcoming group sessions</h3>
+        <h3 className="text-lg font-medium">{t("Upcoming group sessions")}</h3>
         {visibleGroupBookings.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No upcoming group sessions on file.</p>
+          <p className="text-sm text-muted-foreground">{t("No upcoming group sessions on file.")}</p>
         ) : (
           <div className="space-y-2">
             {visibleGroupBookings.map((booking) => (
                 <div key={booking.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="font-medium">{booking.label}</p>
+                    <p className="font-medium">{t(booking.label)}</p>
                     <p className="text-sm text-muted-foreground">{formatDateTime(booking.startAt, intlLocale)}</p>
                     <p className="text-xs text-muted-foreground">
                       Status: {booking.bookingStatus || "-"}
@@ -521,7 +590,7 @@ export function GroupClassesContent({
                   </div>
                   {booking.bookingStatus === "requested" ? (
                     <p className="text-sm text-muted-foreground">
-                      Staff is reviewing this request and will notify you by email.
+                      {t("Staff is reviewing this request and will notify you by email.")}
                     </p>
                   ) : null}
                 </div>

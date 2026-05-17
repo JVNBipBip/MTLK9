@@ -8,6 +8,11 @@ import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, ONE_ON_ONE_PROGRAM_LABEL, loadTrainingPortalContext } from "@/lib/training-portal"
 import {
+  assertTrainingPortalConsultationTrust,
+  resolvePrivateTrainerAllowList,
+  trainerAllowedByList,
+} from "@/lib/booking-access-training"
+import {
   clientBookingRef,
   clientBookingsCollection,
   clientPrivatePackageRef,
@@ -23,6 +28,8 @@ type Payload = {
   dogName?: string
   selectedSlotKey?: string
   locale?: string
+  portalProof?: string
+  bookingAccessToken?: string
 }
 
 export async function POST(request: Request) {
@@ -37,6 +44,8 @@ export async function POST(request: Request) {
   const dogName = String(payload.dogName || "").trim()
   const selectedSlotKey = String(payload.selectedSlotKey || "")
   const locale = String(payload.locale || "").trim().toLowerCase()
+  const portalProof = String(payload.portalProof || "").trim() || undefined
+  const bookingAccessToken = String(payload.bookingAccessToken || "").trim() || undefined
   if (!clientEmail || !dogName || !selectedSlotKey) {
     return NextResponse.json({ error: "clientEmail, dogName and selectedSlotKey are required." }, { status: 400 })
   }
@@ -51,7 +60,14 @@ export async function POST(request: Request) {
     dogName,
     oneOnOneServiceVariationIds,
   })
-  if (!portal.assessmentCompleted) {
+  const trust = await assertTrainingPortalConsultationTrust({
+    portalProof,
+    bookingAccessToken,
+    clientEmail,
+    dogName,
+  })
+  const assessmentCompleted = portal.assessmentCompleted || Boolean(trust)
+  if (!assessmentCompleted) {
     return NextResponse.json({ error: "Assessment must be completed before booking training." }, { status: 403 })
   }
   if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {
@@ -84,6 +100,16 @@ export async function POST(request: Request) {
   const [startAt, programId, teamMemberId, serviceVariationFromSlot] = selectedSlotKey.split("|")
   if (!startAt || !programId || !teamMemberId) {
     return NextResponse.json({ error: "Invalid slot key." }, { status: 400 })
+  }
+  const allowList = await resolvePrivateTrainerAllowList(
+    clientEmail,
+    (trust?.consultation ?? portal.latestConsultation) as Record<string, unknown> | undefined,
+  )
+  if (allowList && allowList.length > 0 && !trainerAllowedByList(teamMemberId, allowList)) {
+    return NextResponse.json(
+      { error: "This trainer is not available for your account.", code: "trainer_not_allowed" },
+      { status: 403 },
+    )
   }
   if (programId !== ONE_ON_ONE_PROGRAM_ID) {
     return NextResponse.json({ error: "Selected slot is not a valid 1-on-1 slot." }, { status: 400 })

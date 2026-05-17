@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
+import { InFacilityDetailPricing } from "@/components/in-facility-detail-pricing"
+import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const forYouIf = [
@@ -92,9 +94,12 @@ export default function PrivateClassesPage() {
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
               {t("Your dog deserves a plan built for them.")}
             </h2>
-            <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
+            <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
               {t("Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.")}
             </p>
+            <div className="reveal opacity-0 animation-delay-300">
+              <InFacilityDetailPricing section={IN_FACILITY_PRICING_SECTIONS[1]} variant="embed" />
+            </div>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>
                 <Button

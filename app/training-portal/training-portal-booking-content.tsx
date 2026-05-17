@@ -57,11 +57,17 @@ export function TrainingPortalBookingContent({
   clientEmail,
   dogName,
   preferredTeamMemberId = null,
+  portalProof = null,
+  bookingAccessToken = null,
 }: {
   clientEmail: string
   dogName: string
   /** When set, loads and shows only this trainer's private slots. */
   preferredTeamMemberId?: string | null
+  /** Staff-signed proof — skips assessment re-check when valid. */
+  portalProof?: string | null
+  /** Plain token from /booking-access/{token}. */
+  bookingAccessToken?: string | null
 }) {
   const locale = useAppLocale()
   const [statusData, setStatusData] = useState<StatusResponse | null>(null)
@@ -82,6 +88,14 @@ export function TrainingPortalBookingContent({
   const [bookingResult, setBookingResult] = useState<{ booked: number; duplicates: number } | null>(null)
   const [packageContractAccepted, setPackageContractAccepted] = useState(false)
   const [packageContractAlreadyAccepted, setPackageContractAlreadyAccepted] = useState(false)
+
+  const trustPayload = useMemo(
+    () => ({
+      ...(portalProof?.trim() ? { portalProof: portalProof.trim() } : {}),
+      ...(bookingAccessToken?.trim() ? { bookingAccessToken: bookingAccessToken.trim() } : {}),
+    }),
+    [portalProof, bookingAccessToken],
+  )
 
   const activePackage = statusData?.activePrivatePackage || null
   const oneOnOneUpcoming = statusData?.existingBookings.find((b) => b.type === "one_on_one") || null
@@ -147,6 +161,7 @@ export function TrainingPortalBookingContent({
         body: JSON.stringify({
           clientEmail: clientEmail.trim(),
           dogName: dogName.trim(),
+          ...trustPayload,
         }),
       })
       const data = (await response.json()) as StatusResponse & { error?: string }
@@ -169,7 +184,7 @@ export function TrainingPortalBookingContent({
     } finally {
       setIsLoadingStatus(false)
     }
-  }, [clientEmail, dogName, loadPrivateContractAccepted])
+  }, [clientEmail, dogName, loadPrivateContractAccepted, trustPayload])
 
   useEffect(() => {
     fetchStatus()
@@ -187,6 +202,7 @@ export function TrainingPortalBookingContent({
         body: JSON.stringify({
           clientEmail: clientEmail.trim(),
           dogName: dogName.trim(),
+          ...trustPayload,
           ...(preferredTeamMemberId?.trim()
             ? { preferredTeamMemberId: preferredTeamMemberId.trim() }
             : {}),
@@ -208,7 +224,7 @@ export function TrainingPortalBookingContent({
     } finally {
       setIsLoadingSlots(false)
     }
-  }, [clientEmail, dogName, preferredTeamMemberId])
+  }, [clientEmail, dogName, preferredTeamMemberId, trustPayload])
 
   useEffect(() => {
     if (
@@ -243,6 +259,7 @@ export function TrainingPortalBookingContent({
           serviceType: selectedServiceType,
           planType: selectedPlanType,
           locale,
+          ...trustPayload,
         }),
       })
       const text = await response.text()
@@ -318,6 +335,7 @@ export function TrainingPortalBookingContent({
             dogName: dogName.trim(),
             selectedSlotKey: slotKey,
             locale,
+            ...trustPayload,
           }),
         })
         const text = await response.text()

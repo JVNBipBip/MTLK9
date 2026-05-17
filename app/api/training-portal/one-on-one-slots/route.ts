@@ -8,6 +8,11 @@ import {
 import { filterSlotsByFacilityRoomCapacity } from "@/lib/facility-room-capacity"
 import { inHomeBookingAllowed, privateTrainingBookingAllowed } from "@/lib/client-booking-settings"
 import { ONE_ON_ONE_PROGRAM_ID, loadTrainingPortalContext } from "@/lib/training-portal"
+import {
+  assertTrainingPortalConsultationTrust,
+  resolvePrivateTrainerAllowList,
+  trainerAllowedByList,
+} from "@/lib/booking-access-training"
 
 export const runtime = "nodejs"
 
@@ -16,6 +21,8 @@ type Payload = {
   dogName?: string
   /** When set, only return slots for this Square team_member_id. */
   preferredTeamMemberId?: string
+  portalProof?: string
+  bookingAccessToken?: string
 }
 
 type OneOnOneSlot = {
@@ -60,12 +67,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing private training Square mapping configuration." }, { status: 500 })
     }
 
+    const portalProof = String(payload.portalProof || "").trim() || undefined
+    const bookingAccessToken = String(payload.bookingAccessToken || "").trim() || undefined
+
     const portal = await loadTrainingPortalContext({
       clientEmail,
       dogName,
       oneOnOneServiceVariationIds,
     })
-    if (!portal.assessmentCompleted) {
+    const trust = await assertTrainingPortalConsultationTrust({
+      portalProof,
+      bookingAccessToken,
+      clientEmail,
+      dogName,
+    })
+    const assessmentCompleted = portal.assessmentCompleted || Boolean(trust)
+    if (!assessmentCompleted) {
       return NextResponse.json({ error: "Assessment must be completed before booking training." }, { status: 403 })
     }
     if (!privateTrainingBookingAllowed(portal.privateTrainingAccess)) {
@@ -233,10 +250,22 @@ export async function POST(request: Request) {
       ...s,
       teamMemberName: teamNames.get(s.teamMemberId) ?? null,
     }))
+    const allowList = await resolvePrivateTrainerAllowList(
+      clientEmail,
+      (trust?.consultation ?? portal.latestConsultation) as Record<string, unknown> | undefined,
+    )
+    let scoped = slotsWithNames
+    if (allowList && allowList.length > 0) {
+      scoped = scoped.filter((s) => trainerAllowedByList(s.teamMemberId, allowList))
+    }
     const preferredTeamMemberId = String(payload.preferredTeamMemberId || "").trim()
-    const filteredSlots = preferredTeamMemberId
-      ? slotsWithNames.filter((s) => s.teamMemberId === preferredTeamMemberId)
-      : slotsWithNames
+    if (allowList && allowList.length > 0 && preferredTeamMemberId && !trainerAllowedByList(preferredTeamMemberId, allowList)) {
+      return NextResponse.json(
+        { error: "This trainer is not available for your account.", code: "trainer_not_allowed" },
+        { status: 403 },
+      )
+    }
+    const filteredSlots = preferredTeamMemberId ? scoped.filter((s) => s.teamMemberId === preferredTeamMemberId) : scoped
     const uniqueTeamIdsFiltered = [...new Set(filteredSlots.map((s) => s.teamMemberId))]
     const staffSummary = Object.fromEntries(
       uniqueTeamIdsFiltered.map((id) => [id, teamNames.get(id) ?? "(unknown)"])

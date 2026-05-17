@@ -41,6 +41,7 @@ export function Header() {
     setIsOpen(false)
   }, [pathname])
 
+  // Keep lib/site-header-layout.ts in sync when changing outer padding or inner nav height.
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4 md:p-6">
       <nav
@@ -57,6 +58,7 @@ export function Header() {
               height={50}
               className="h-12 md:h-14 w-auto"
               priority
+              fetchPriority="high"
             />
           </Link>
 

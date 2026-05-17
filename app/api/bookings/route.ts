@@ -15,9 +15,17 @@ import { getAdminDb } from "@/lib/firebase-admin"
 import { createSquarePaymentLinkForItems } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
-import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
+import {
+  addLocaleToPathname,
+  defaultLocale,
+  isAppLocale,
+  type AppLocale,
+} from "@/lib/i18n/config"
+import { normalizePhoneForMatch } from "@/lib/contact-normalize"
 import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
+import { consultationDepositResumeExpiryIso } from "@/lib/consultation-deposit-resume"
 import { notifyConsultationInquiryStaffAndClient } from "@/lib/staff-booking-notify"
+import { generateAccessToken, hashAccessToken } from "@/lib/tokens"
 import { captureServerEvent } from "@/lib/posthog-server"
 
 export const runtime = "nodejs"
@@ -111,6 +119,16 @@ function buildConsultationCheckoutRedirectUrl(request: Request, consultationId: 
   return `${origin}/checkout/success?${params.toString()}`
 }
 
+function buildConsultationDepositResumeUrl(request: Request, locale: AppLocale, plainToken: string): string | undefined {
+  const origin =
+    request.headers.get("origin") ||
+    (process.env.NEXT_PUBLIC_SITE_URL?.trim() ? process.env.NEXT_PUBLIC_SITE_URL.trim() : "") ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "")
+  if (!origin || !plainToken.trim()) return undefined
+  const path = addLocaleToPathname(`/booking/resume/${encodeURIComponent(plainToken.trim())}`, locale)
+  return `${origin.replace(/\/$/, "")}${path}`
+}
+
 async function findReplaceableConsultationId(db: Firestore, clientId: string, dogName: string) {
   const targetDogName = normalizedDogName(dogName)
   if (!clientId || !targetDogName) return null
@@ -136,6 +154,8 @@ export async function POST(request: Request) {
       consultationSubmissionKind?: unknown
       bookingSource?: unknown
       preferredTrainerLabel?: unknown
+      trainerTeamMemberId?: unknown
+      trainerPageSlug?: unknown
     }
     locale = resolvePayloadLocale(payload.locale)
     const errorText = bookingErrors[locale]
@@ -161,6 +181,16 @@ export async function POST(request: Request) {
     const preferredTrainerLabel =
       typeof preferredTrainerLabelRaw === "string" ? preferredTrainerLabelRaw.trim() || null : null
 
+    const trainerTeamMemberIdRaw = payload.trainerTeamMemberId
+    const trainerTeamMemberIdFromPayload =
+      typeof trainerTeamMemberIdRaw === "string" && trainerTeamMemberIdRaw.trim()
+        ? trainerTeamMemberIdRaw.trim()
+        : null
+
+    const trainerPageSlugRaw = payload.trainerPageSlug
+    const trainerPageSlugFromPayload =
+      typeof trainerPageSlugRaw === "string" && trainerPageSlugRaw.trim() ? trainerPageSlugRaw.trim() : null
+
     const formData = payload.formData
     if (!formData.contactEmail) {
       return NextResponse.json({ error: errorText.emailRequired }, { status: 400 })
@@ -179,6 +209,20 @@ export async function POST(request: Request) {
     const consultationDepositAmountCents = consultationDepositAmountCentsForEmail(clientId)
     const isConsultation = formData.connectMethod === "in-person-evaluation"
     const isConsultationInquiry = isConsultation && consultationSubmissionKind === "inquiry"
+
+    let inquiryDepositResumePlainToken: string | null = null
+    let inquiryDepositResumeAccess:
+      | { tokenHash: string; expiresAtIso: string; emailSentAtIso?: null; revokedAtIso?: null }
+      | undefined
+    if (isConsultationInquiry) {
+      inquiryDepositResumePlainToken = generateAccessToken()
+      inquiryDepositResumeAccess = {
+        tokenHash: hashAccessToken(inquiryDepositResumePlainToken),
+        expiresAtIso: consultationDepositResumeExpiryIso(),
+        emailSentAtIso: null,
+        revokedAtIso: null,
+      }
+    }
     const consultationStatus =
       isConsultation && !isConsultationInquiry ? "pending_payment" : "intake_submitted"
     const db = getAdminDb()
@@ -241,11 +285,13 @@ export async function POST(request: Request) {
       .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
       .join("\n")
     const goalLabels = goalLabelsForIssue(formData.issue, formData.goals || [])
+    const clientPhoneNormalized = normalizePhoneForMatch(formData.contactPhone || undefined)
     const submission = {
       clientId,
       clientName: formData.contactName,
-      clientEmail: formData.contactEmail,
+      clientEmail: clientId,
       clientPhone: formData.contactPhone,
+      ...(clientPhoneNormalized ? { clientPhoneNormalized } : {}),
       dogName: formData.dogName,
       issue: formData.issue,
       issueLabel: issueLabel(formData.issue),
@@ -306,6 +352,15 @@ export async function POST(request: Request) {
       source: bookingSource,
       consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
       consultationPreferredTrainerName: isConsultationInquiry ? preferredTrainerLabel : null,
+      consultationPreferredTrainerTeamMemberId: isConsultation ? trainerTeamMemberIdFromPayload : null,
+      consultationBookingTrainerPageSlug: isConsultation ? trainerPageSlugFromPayload : null,
+      ...(isConsultationInquiry && inquiryDepositResumeAccess && inquiryDepositResumePlainToken
+        ? {
+            depositResumeAccess: inquiryDepositResumeAccess,
+            depositResumeUrl:
+              buildConsultationDepositResumeUrl(request, locale, inquiryDepositResumePlainToken) ?? null,
+          }
+        : {}),
       submittedAtIso: new Date().toISOString(),
       updatedAt: FieldValue.serverTimestamp(),
     }
@@ -341,6 +396,7 @@ export async function POST(request: Request) {
         preferredTrainerLabel,
         intakeSummary: intakeResponseSummary,
         locale,
+        depositResumeUrl: buildConsultationDepositResumeUrl(request, locale, inquiryDepositResumePlainToken || ""),
       })
     }
 

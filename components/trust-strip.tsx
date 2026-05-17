@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { Shield, MapPin, Users, Clock } from "lucide-react"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const trustItems = [
   { icon: Clock, text: "10–15+ Years Experience" },
@@ -11,6 +12,7 @@ const trustItems = [
 ]
 
 export function TrustStrip() {
+  const t = useLocalizedText()
   const sectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function TrustStrip() {
           {trustItems.map((item) => (
             <div key={item.text} className="flex items-center gap-2.5 text-muted-foreground">
               <item.icon className="w-5 h-5 text-primary shrink-0" />
-              <span className="text-sm font-medium whitespace-nowrap">{item.text}</span>
+              <span className="text-sm font-medium whitespace-nowrap">{t(item.text)}</span>
             </div>
           ))}
         </div>

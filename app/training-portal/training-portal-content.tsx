@@ -505,6 +505,7 @@ export function TrainingPortalContent({
                     redirectPath={pathname || trainingPortalPath}
                     preferredCoachId={trainerTeamMemberIdMerged || null}
                     preferredCoachLabel={trainerNameMerged || null}
+                    highlightSeriesId={searchParams.get("series")}
                   />
                 ) : null}
 

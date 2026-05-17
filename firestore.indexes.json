@@ -73,6 +73,20 @@
     },
     {
       "collectionGroup": "consultations",
+      "fieldPath": "clientPhoneNormalized",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    },
+    {
+      "collectionGroup": "consultations",
+      "fieldPath": "connectMethod",
+      "indexes": [
+        { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
+      ]
+    },
+    {
+      "collectionGroup": "consultations",
       "fieldPath": "id",
       "indexes": [
         { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
@@ -147,6 +161,11 @@
       "indexes": [
         { "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }
       ]
+    },
+    {
+      "collectionGroup": "consultations",
+      "fieldPath": "depositResumeAccess.tokenHash",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }]
     }
   ]
 }

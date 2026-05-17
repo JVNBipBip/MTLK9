@@ -1,4 +1,5 @@
 import { FieldValue, type Firestore, type QueryDocumentSnapshot } from "firebase-admin/firestore"
+import { normalizePhoneForMatch } from "@/lib/contact-normalize"
 import { CLIENTS_COLLECTION } from "@/lib/domain"
 
 export const CLIENT_CONSULTATIONS_SUBCOLLECTION = "consultations"
@@ -141,6 +142,17 @@ export async function findClientConsultationByAccessTokenHash(
   return docs[0] || null
 }
 
+export async function findClientConsultationByDepositResumeTokenHash(db: Firestore, tokenHash: string) {
+  const tokenDocs = await queryClientSubcollectionDocsByField(
+    db,
+    CLIENT_CONSULTATIONS_SUBCOLLECTION,
+    "depositResumeAccess.tokenHash",
+    tokenHash,
+    10,
+  )
+  return tokenDocs[0] || null
+}
+
 export async function findClientBookingById(db: Firestore, bookingId: string) {
   if (!bookingId) return null
   const docs = await queryClientSubcollectionDocsByField(db, CLIENT_BOOKINGS_SUBCOLLECTION, "id", bookingId, 1)
@@ -186,7 +198,11 @@ export async function upsertClientProfile(
     updatedAtIso: nowIso,
   }
   if (input.clientName?.trim()) clientPatch.clientName = input.clientName.trim()
-  if (input.clientPhone?.trim()) clientPatch.clientPhone = input.clientPhone.trim()
+  if (input.clientPhone?.trim()) {
+    clientPatch.clientPhone = input.clientPhone.trim()
+    const digits = normalizePhoneForMatch(input.clientPhone)
+    if (digits) clientPatch.clientPhoneNormalized = digits
+  }
   if (input.squareCustomerId) clientPatch.squareCustomerId = input.squareCustomerId
   if (input.source) clientPatch.lastSource = input.source
   const locale = normalizedLocale(input.preferredLocale)

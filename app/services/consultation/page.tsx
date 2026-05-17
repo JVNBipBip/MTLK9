@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { BookingLink } from "@/components/booking-form-provider"
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
+import { InFacilityDetailPricing } from "@/components/in-facility-detail-pricing"
+import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const consultationGoals = [
@@ -95,11 +97,14 @@ export default function ConsultationPage() {
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
               {t("Ready to schedule your consultation?")}
             </h2>
-            <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
+            <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
               {t(
                 "Choose a convenient time online, bring your dog, and we'll take it from there. If email works better first, you'll find that option inside the booking flow too.",
               )}
             </p>
+            <div className="reveal opacity-0 animation-delay-300">
+              <InFacilityDetailPricing section={IN_FACILITY_PRICING_SECTIONS[0]} variant="embed" />
+            </div>
             <div className="reveal opacity-0 animation-delay-400">
               <BookingLink>
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group">

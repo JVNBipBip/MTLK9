@@ -8,6 +8,11 @@ import {
   queryClientSubcollectionDocsByField,
   upsertClientProfile,
 } from "@/lib/client-records"
+import {
+  normalizeEmailForMatch,
+  normalizePhoneForMatch,
+  phoneEqualityCandidates,
+} from "@/lib/contact-normalize"
 
 export type SquareWebhookPayload = {
   type?: string
@@ -167,24 +172,7 @@ function consultationStartFromExisting(data: ExistingConsultationDoc) {
   return normalizeIso(data.scheduledAtIso || data.consultationDateTime || null)
 }
 
-/** Lowercase + trim for email equality checks. Returns null if empty. */
-export function normalizeEmailForMatch(email: string | null | undefined): string | null {
-  if (!email) return null
-  const trimmed = email.trim().toLowerCase()
-  return trimmed || null
-}
-
-/**
- * Normalize phone to last 10 digits for equality checks.
- * Handles "+1 (514) 555-1234", "5145551234", "+15145551234" → "5145551234".
- * Returns null if we don't have at least 7 digits to work with.
- */
-export function normalizePhoneForMatch(phone: string | null | undefined): string | null {
-  if (!phone) return null
-  const digits = phone.replace(/\D+/g, "")
-  if (digits.length < 7) return null
-  return digits.length > 10 ? digits.slice(-10) : digits
-}
+export { normalizeEmailForMatch, normalizePhoneForMatch } from "@/lib/contact-normalize"
 
 function combineCustomerName(customer: SquareCustomer | null | undefined): string | null {
   if (!customer) return null
@@ -432,6 +420,7 @@ async function upsertWebhookClientProfile(
     return
   }
 
+  const phoneNorm = normalizePhoneForMatch(input.phone || undefined)
   await db.collection(CLIENTS_COLLECTION).doc(clientId).set(
     {
       id: clientId,
@@ -439,6 +428,7 @@ async function upsertWebhookClientProfile(
       clientEmail: email,
       clientName: input.name || "",
       clientPhone: input.phone || "",
+      ...(phoneNorm ? { clientPhoneNormalized: phoneNorm } : {}),
       squareCustomerId: input.squareCustomerId || null,
       lastSource: "square-webhook-review",
       updatedAt: FieldValue.serverTimestamp(),
@@ -545,6 +535,9 @@ function buildMergeIntoExistingConsultation(
       ? "scheduled"
       : baseStatus
 
+  const mergedPhoneNorm =
+    normalizePhoneForMatch(enrichedCustomer.phone || existing.clientPhone || undefined) || null
+
   return {
     squareConsultationBookingId: booking.id,
     squareConsultationStatus: booking.status,
@@ -558,6 +551,7 @@ function buildMergeIntoExistingConsultation(
     ...(existing.clientName ? {} : enrichedCustomer.name ? { clientName: enrichedCustomer.name } : {}),
     ...(existing.clientEmail ? {} : enrichedCustomer.email ? { clientEmail: enrichedCustomer.email } : {}),
     ...(existing.clientPhone ? {} : enrichedCustomer.phone ? { clientPhone: enrichedCustomer.phone } : {}),
+    ...(mergedPhoneNorm ? { clientPhoneNormalized: mergedPhoneNorm } : {}),
     squareWebhookLastEventId: payload.event_id || null,
     squareWebhookLastEventType: payload.type || null,
     squareWebhookMergedAtIso: new Date().toISOString(),
@@ -571,11 +565,13 @@ function buildConsultationStub(
   payload: SquareWebhookPayload,
 ) {
   const nowIso = new Date().toISOString()
+  const phoneNorm = normalizePhoneForMatch(enrichedCustomer.phone || undefined)
   return {
     clientId: enrichedCustomer.email || booking.customerId || "",
     clientName: enrichedCustomer.name || "",
     clientEmail: enrichedCustomer.email || "",
     clientPhone: enrichedCustomer.phone || "",
+    ...(phoneNorm ? { clientPhoneNormalized: phoneNorm } : {}),
     dogName: "",
     connectMethod: "square-webhook-import",
     consultationDateTime: booking.startAtIso,
@@ -617,11 +613,13 @@ function buildBookingStub(
   payload: SquareWebhookPayload,
 ) {
   const nowIso = new Date().toISOString()
+  const phoneNorm = normalizePhoneForMatch(enrichedCustomer.phone || undefined)
   return {
     consultationId: "",
     clientId: enrichedCustomer.email || booking.customerId || "",
     clientName: enrichedCustomer.name || "",
     clientEmail: enrichedCustomer.email || "",
+    ...(phoneNorm ? { clientPhoneNormalized: phoneNorm } : {}),
     dogName: "",
     selectedSlots: booking.slotKey ? [booking.slotKey] : [],
     selectedClassTypes: [] as string[],
@@ -692,7 +690,20 @@ async function findConsultationMatch(
   if (enriched.phone) {
     const normalizedPhone = normalizePhoneForMatch(enriched.phone)
     if (normalizedPhone) {
-      const docs = await collectionGroupDocsByField(db, CLIENT_CONSULTATIONS_SUBCOLLECTION, "clientPhone", enriched.phone, 5)
+      const byNorm = await collectionGroupDocsByField(
+        db,
+        CLIENT_CONSULTATIONS_SUBCOLLECTION,
+        "clientPhoneNormalized",
+        normalizedPhone,
+        5,
+      )
+      const bestNorm = pickBestCandidate(byNorm)
+      if (bestNorm) {
+        return { id: bestNorm.id, data: bestNorm.data as ExistingConsultationDoc, matchedBy: "phone" }
+      }
+    }
+    for (const candidate of phoneEqualityCandidates(enriched.phone)) {
+      const docs = await collectionGroupDocsByField(db, CLIENT_CONSULTATIONS_SUBCOLLECTION, "clientPhone", candidate, 5)
       const best = pickBestCandidate(docs)
       if (best) {
         return { id: best.id, data: best.data as ExistingConsultationDoc, matchedBy: "phone" }

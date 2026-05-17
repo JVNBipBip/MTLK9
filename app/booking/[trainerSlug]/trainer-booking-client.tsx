@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, UserRound, Users } from "lucide-react"
 import { BookingContent } from "../booking-content"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
+import { SITE_FIXED_HEADER_MAIN_PT_CLASS } from "@/lib/site-header-layout"
 import { Button } from "@/components/ui/button"
 import { useBookingForm } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
@@ -28,7 +29,7 @@ const hubCopy = {
     private: "Private training",
     privateDesc: "Verify your assessment, then choose a package and book one-on-one sessions.",
     group: "Group classes",
-    groupDesc: "Look up approved programs and request a cohort — same experience as our group classes page.",
+    groupDesc: "Look up approved programs and request a class — same experience as our group classes page.",
     assessmentNote:
       "Already completed your assessment? Use private or group below — we verify your email before showing booking options.",
     readMoreBio: "Read more",
@@ -47,7 +48,7 @@ const hubCopy = {
       "Après vérification de votre évaluation, choisissez un forfait et réservez des séances individuelles.",
     group: "Cours en groupe",
     groupDesc:
-      "Consultez les programmes approuvés et demandez une cohorte — même expérience que sur la page cours en groupe.",
+      "Consultez les programmes approuvés et demandez une classe — même expérience que sur la page cours en groupe.",
     assessmentNote:
       "Évaluation déjà complétée ? Utilisez le privé ou le collectif — nous vérifions votre courriel avant d’afficher les réservations.",
     readMoreBio: "Lire la suite",
@@ -61,19 +62,22 @@ export function TrainerBookingClientPage({
   trainerDisplayName,
   trainerHeroImageSrc,
   trainerHeroImageClassName,
+  initialOpenConsultation = false,
 }: {
   pinnedTeamMemberId: string
   trainerSlug: string
   trainerDisplayName: string
   trainerHeroImageSrc: string | null
   trainerHeroImageClassName?: string | null
+  /** When true (e.g. `?openConsultation=1` from booking-access), skip hub and open assessment booking. */
+  initialOpenConsultation?: boolean
 }) {
   const locale = useAppLocale()
   const router = useRouter()
   const { openTrainingPortal, openGroupClassesBooking } = useBookingForm()
   const copy = hubCopy[locale]
   const tDom = useLocalizedText()
-  const [showConsultation, setShowConsultation] = useState(false)
+  const [showConsultation, setShowConsultation] = useState(Boolean(initialOpenConsultation))
 
   const narrative = useMemo(() => getTrainerPublicNarrative(trainerSlug), [trainerSlug])
   const localizedBioTexts = useMemo(() => {
@@ -100,7 +104,12 @@ export function TrainerBookingClientPage({
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
       <Header />
-      <main className="flex-1 mx-auto w-full max-w-3xl px-4 py-8 sm:py-12 space-y-8">
+      <main
+        className={cn(
+          "flex-1 mx-auto w-full max-w-3xl px-4 pb-8 sm:pb-12 space-y-8",
+          SITE_FIXED_HEADER_MAIN_PT_CLASS,
+        )}
+      >
         <Button type="button" variant="ghost" className="gap-2 -ml-2" onClick={() => router.push(addLocaleToPathname("/", locale))}>
           <ArrowLeft className="w-4 h-4" aria-hidden />
           {copy.back}
@@ -199,6 +208,7 @@ export function TrainerBookingClientPage({
               layout="page"
               pinnedTeamMemberId={pinnedTeamMemberId}
               trainerPageSlug={trainerSlug}
+              trainerPageDisplayName={trainerDisplayName}
               onClose={() => router.push(addLocaleToPathname("/", locale))}
             />
           </div>
