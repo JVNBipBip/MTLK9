@@ -695,7 +695,8 @@ export function BookingContent({
                       setConsultationSchedulingKind("deposit")
                       setSubmitError(null)
                     }}
-                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                    disabled={isSubmitting}
+                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Calendar className="w-5 h-5 text-primary mb-2" />
                     <p className="font-semibold text-foreground">{copy.optionBookTitle}</p>
@@ -704,14 +705,19 @@ export function BookingContent({
                   <button
                     type="button"
                     onClick={() => {
-                      setConsultationSchedulingKind("inquiry")
                       setSubmitError(null)
+                      void postBooking("inquiry")
                     }}
-                    className="rounded-xl border border-border bg-background p-4 text-left transition-colors hover:border-primary/40 hover:bg-muted/30"
+                    disabled={isSubmitting}
+                    className="rounded-xl border-2 border-amber-500/60 bg-amber-50 dark:bg-amber-950/20 p-4 text-left transition-colors hover:border-amber-500 hover:bg-amber-100/70 dark:hover:bg-amber-950/40 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <MessageSquare className="w-5 h-5 text-primary mb-2" />
-                    <p className="font-semibold text-foreground">{copy.optionInquiryTitle}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{copy.optionInquiryDesc}</p>
+                    {isSubmitting ? (
+                      <Loader2 className="w-5 h-5 text-amber-600 dark:text-amber-400 mb-2 animate-spin" />
+                    ) : (
+                      <MessageSquare className="w-5 h-5 text-amber-600 dark:text-amber-400 mb-2" />
+                    )}
+                    <p className="font-semibold text-amber-900 dark:text-amber-100">{copy.optionInquiryTitle}</p>
+                    <p className="text-sm text-amber-800/80 dark:text-amber-200/70 mt-1">{copy.optionInquiryDesc}</p>
                   </button>
                 </div>
               ) : consultationSchedulingKind === "inquiry" ? (
