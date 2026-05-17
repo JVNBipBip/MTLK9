@@ -619,13 +619,6 @@ export function TrainingPortalBookingContent({
                   </p>
                 )}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  {statusData.squareBookingSiteUrl ? (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={statusData.squareBookingSiteUrl} target="_blank" rel="noopener noreferrer">
-                        Book in Square
-                      </a>
-                    </Button>
-                  ) : null}
                   <Button
                     type="button"
                     variant="outline"

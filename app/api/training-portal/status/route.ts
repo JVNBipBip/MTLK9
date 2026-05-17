@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
-import { getSquareBookingSiteUrlForLocation } from "@/lib/square"
 import { assertTrainingPortalConsultationTrust } from "@/lib/booking-access-training"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 import { PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS } from "@/lib/puppy-social-drop-in"
@@ -68,12 +67,6 @@ export async function POST(request: Request) {
             status: "completed",
           }
         : null)
-    let squareBookingSiteUrl: string | null = null
-    try {
-      squareBookingSiteUrl = await getSquareBookingSiteUrlForLocation()
-    } catch {
-      squareBookingSiteUrl = null
-    }
 
     return NextResponse.json({
       ok: true,
@@ -133,7 +126,6 @@ export async function POST(request: Request) {
       inHomeBookingAllowed: portal.privateLocationAccess === "facility_and_in_home",
       privateTrainingAccess: portal.privateTrainingAccess,
       privateTrainingAllowed: portal.privateTrainingAccess !== "blocked",
-      squareBookingSiteUrl,
     })
   } catch (error) {
     console.error("[training-portal/status] Lookup failed:", error)

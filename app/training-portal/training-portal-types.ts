@@ -85,7 +85,6 @@ export type StatusResponse = {
   inHomeBookingAllowed: boolean
   privateTrainingAccess: "allowed" | "blocked"
   privateTrainingAllowed: boolean
-  squareBookingSiteUrl: string | null
 }
 
 export const SERVICE_TYPE_LABEL: Record<PrivatePackage["serviceType"], string> = {
