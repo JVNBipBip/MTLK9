@@ -56,12 +56,10 @@ function buildEmbeddedTrainer(opts?: OpenTrainingPortalOptions): TrainingPortalE
   }
 }
 
-export type FreeCallModalVariant = "contact" | "consultation"
-
 type BookingFormContextType = {
   openBookingForm: () => void
   openProgramSignupForm: () => void
-  openFreeCallModal: (opts?: { variant?: FreeCallModalVariant }) => void
+  openFreeCallModal: () => void
   openTrainingPortal: (opts?: OpenTrainingPortalOptions) => void
   openGroupClassesBooking: (opts?: OpenGroupClassesBookingOptions) => void
 }
@@ -81,7 +79,6 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [programSignupOpen, setProgramSignupOpen] = useState(false)
   const [programSignupKey, setProgramSignupKey] = useState(0)
   const [freeCallOpen, setFreeCallOpen] = useState(false)
-  const [freeCallVariant, setFreeCallVariant] = useState<FreeCallModalVariant>("contact")
   const [trainingPortalOpen, setTrainingPortalOpen] = useState(false)
   const [trainingPortalKey, setTrainingPortalKey] = useState(0)
   const [portalLaunch, setPortalLaunch] = useState(defaultPortalLaunch)
@@ -92,6 +89,10 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const openBookingForm = useCallback(() => {
     setBookingFormKey((k) => k + 1) // reset form state on each open
     setBookingOpen(true)
+  }, [])
+
+  const handleBookingDialogOpenChange = useCallback((open: boolean) => {
+    setBookingOpen(open)
   }, [])
 
   const closeBookingForm = useCallback(() => {
@@ -107,14 +108,8 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
     setProgramSignupOpen(false)
   }, [])
 
-  const openFreeCallModal = useCallback((opts?: { variant?: FreeCallModalVariant }) => {
-    setFreeCallVariant(opts?.variant ?? "contact")
+  const openFreeCallModal = useCallback(() => {
     setFreeCallOpen(true)
-  }, [])
-
-  const handleFreeCallOpenChange = useCallback((open: boolean) => {
-    setFreeCallOpen(open)
-    if (!open) setFreeCallVariant("contact")
   }, [])
 
   const openTrainingPortal = useCallback((opts?: OpenTrainingPortalOptions) => {
@@ -157,13 +152,13 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 
   const closeFreeCallModal = useCallback(() => {
     setFreeCallOpen(false)
-    setFreeCallVariant("contact")
   }, [])
 
   const handleOpenAssessmentFromFreeCall = useCallback(() => {
     closeFreeCallModal()
-    openBookingForm()
-  }, [closeFreeCallModal, openBookingForm])
+    setBookingFormKey((k) => k + 1)
+    setBookingOpen(true)
+  }, [closeFreeCallModal])
 
   return (
     <BookingFormContext.Provider
@@ -176,42 +171,36 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      <Dialog open={bookingOpen} onOpenChange={setBookingOpen}>
+      <Dialog open={bookingOpen} onOpenChange={handleBookingDialogOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
+          className="!flex !flex-col !top-1/2 !left-1/2 !bottom-auto !right-auto !h-auto !max-h-[min(565px,72svh)] !min-h-0 !w-[calc(100%-2rem)] !max-w-[424px] !-translate-x-1/2 !-translate-y-1/2 gap-0 overflow-hidden rounded-2xl border-none p-0 shadow-2xl sm:!max-h-[min(626px,78vh)] sm:!max-w-[486px]"
         >
-          <DialogTitle className="sr-only">{t("Book your evaluation")}</DialogTitle>
-          <BookingContent key={bookingFormKey} onClose={closeBookingForm} />
+          <DialogTitle className="sr-only">{t("Submit an inquiry")}</DialogTitle>
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <BookingContent key={bookingFormKey} onClose={closeBookingForm} inquiryOnly />
+          </div>
         </DialogContent>
       </Dialog>
       <Dialog open={programSignupOpen} onOpenChange={setProgramSignupOpen}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
+          className="!flex !flex-col inset-x-0 top-0 w-full h-[100dvh] max-h-[100dvh] !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:inset-x-auto sm:!top-[50%] sm:!left-[50%] sm:!right-auto sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
         >
           <DialogTitle className="sr-only">{t("Program sign-up")}</DialogTitle>
           <ProgramSignupContent key={programSignupKey} onClose={closeProgramSignupForm} />
         </DialogContent>
       </Dialog>
-      <Dialog open={freeCallOpen} onOpenChange={handleFreeCallOpenChange}>
-        <DialogContent className="w-[95vw] max-w-[520px] rounded-2xl p-0 overflow-hidden">
-          <DialogTitle className="sr-only">
-            {freeCallVariant === "consultation" ? t("Book a Consultation") : t("Contact us for a free call")}
-          </DialogTitle>
+      <Dialog open={freeCallOpen} onOpenChange={setFreeCallOpen}>
+        <DialogContent
+          className="!flex !flex-col !h-auto !max-h-[90svh] !min-h-0 !w-[calc(100%-2rem)] !max-w-[440px] !gap-0 rounded-2xl border-none !p-0 overflow-hidden shadow-2xl sm:!max-w-[480px]"
+        >
+          <DialogTitle className="sr-only">{t("Submit an inquiry")}</DialogTitle>
           <div className="p-6 sm:p-7 space-y-5">
             <div>
-              <h3 className="text-xl font-semibold tracking-tight">
-                {freeCallVariant === "consultation"
-                  ? t("Book a Consultation")
-                  : t("Contact Us for a Free Call")}
-              </h3>
+              <h3 className="text-xl font-semibold tracking-tight">{t("Submit an Inquiry")}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {freeCallVariant === "consultation"
-                  ? t(
-                      "Schedule your in-person evaluation online, or reach us by phone or email — we'll help you choose the right next step.",
-                    )
-                  : t("Reach us directly and we will guide you to the right next step.")}
+                {t("Share a few details about your dog and we'll reply by email to help with next steps.")}
               </p>
             </div>
             <Button
@@ -220,9 +209,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
               onClick={handleOpenAssessmentFromFreeCall}
             >
               <Calendar className="size-5 shrink-0" aria-hidden />
-              {freeCallVariant === "consultation"
-                ? t("Continue to book")
-                : t("Fill out your inquiry now")}
+              {t("Fill out your inquiry now")}
             </Button>
             <div className="space-y-2 pt-1">
               <a
@@ -254,7 +241,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
       <Dialog open={trainingPortalOpen} onOpenChange={handleTrainingPortalOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
+          className="!flex !flex-col inset-x-0 top-0 w-full h-[100dvh] max-h-[100dvh] !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:inset-x-auto sm:!top-[50%] sm:!left-[50%] sm:!right-auto sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[600px] sm:h-[85dvh] sm:shadow-2xl"
         >
           <DialogTitle className="sr-only">
             {portalLaunch.mode === "private_only"
@@ -272,7 +259,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
       <Dialog open={groupClassesOpen} onOpenChange={handleGroupClassesOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col w-screen h-[100dvh] max-h-[100dvh] !top-0 !left-0 !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:!top-[50%] sm:!left-[50%] sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[960px] sm:h-[85dvh] sm:shadow-2xl"
+          className="!flex !flex-col inset-x-0 top-0 w-full h-[100dvh] max-h-[100dvh] !translate-x-0 !translate-y-0 rounded-t-3xl sm:rounded-2xl border-none p-0 gap-0 overflow-hidden sm:inset-x-auto sm:!top-[50%] sm:!left-[50%] sm:!right-auto sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:w-[95vw] sm:max-w-[960px] sm:h-[85dvh] sm:shadow-2xl"
         >
           <DialogTitle className="sr-only">{t("Group Classes")}</DialogTitle>
           <div className="flex shrink-0 items-center justify-end border-b border-border/45 px-4 py-3 sm:px-6">
@@ -410,18 +397,16 @@ export function FreeCallLink({
   children,
   className,
   onClick,
-  modalVariant = "contact",
 }: {
   children: ReactNode
   className?: string
   onClick?: () => void
-  modalVariant?: FreeCallModalVariant
 }) {
   const { openFreeCallModal } = useBookingForm()
 
   const handleOpen = () => {
     onClick?.()
-    openFreeCallModal({ variant: modalVariant })
+    openFreeCallModal()
   }
 
   if (isValidElement(children)) {

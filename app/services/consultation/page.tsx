@@ -6,19 +6,17 @@ import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Check } from "lucide-react"
 import { BookingLink } from "@/components/booking-form-provider"
-import { ServiceWorkOnSection } from "@/components/service-work-on-section"
-import { InFacilityDetailPricing } from "@/components/in-facility-detail-pricing"
-import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
-const consultationGoals = [
-  "Your goals & priorities",
-  "Your dog's behaviour day to day",
-  "Stress, safety & quality of life",
-  "Private vs group program fit",
-  "Your questions, answered plainly",
+const consultationCovers = [
+  "Meet and Greet",
+  "Full assessment of dog/puppy",
+  "Immediate hands-on training",
+  "Explanation of our services and pricing",
+  "Creating a training program suited for your dog",
+  "Reassure and motivate you to develop a stronger connection with your dog.",
 ]
 
 const forYouIf = [
@@ -28,9 +26,6 @@ const forYouIf = [
   "You want time to explain the full picture — routines, triggers, and what you've already tried.",
   "You're ready for an in-person evaluation so we can recommend the safest, most realistic next step.",
 ]
-
-const goalCarouselBody =
-  "In a consultation, we prioritize listening — then outline clear options so you leave with direction, not guesswork."
 
 export default function ConsultationPage() {
   const t = useLocalizedText()
@@ -79,7 +74,7 @@ export default function ConsultationPage() {
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <BookingLink>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
-                  {t("Book a Consultation")}
+                  {t("Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>
@@ -87,9 +82,60 @@ export default function ConsultationPage() {
           </div>
         </section>
 
-        <ServiceWorkOnSection goals={consultationGoals} ctaMode="book_consultation" goalCardBodyText={goalCarouselBody} />
+        <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+              <div className="lg:col-span-5 lg:sticky lg:top-32">
+                <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
+                  {t("Initial 75-minute consultation")}
+                </p>
+                <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
+                  {t("What we'll cover")}
+                </h2>
+                <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground leading-relaxed">
+                  {t("What we will cover during this initial 75-minute consultation session:")}
+                </p>
+              </div>
 
-        <ServiceForYouSection items={forYouIf} ctaMode="book_consultation" />
+              <div className="lg:col-span-7">
+                <article className="reveal opacity-0 animation-delay-200 bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 p-8 md:p-10">
+                  <ul className="space-y-4">
+                    {consultationCovers.map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                        <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(item)}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-8 pt-8 border-t border-border/50 space-y-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-1">
+                      {t("Pricing")}
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
+                      <p className="font-display text-lg md:text-xl tracking-tight text-foreground">
+                        {t("Puppy (2 months–5 months)")}
+                      </p>
+                      <p className="text-muted-foreground text-base md:text-lg">
+                        {t("$135+tx | 75 minutes")}
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
+                      <p className="font-display text-lg md:text-xl tracking-tight text-foreground">
+                        {t("Adolescent/Adult (5 months +)")}
+                      </p>
+                      <p className="text-muted-foreground text-base md:text-lg">
+                        {t("$145+tx | 75 minutes")}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ServiceForYouSection items={forYouIf} />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
@@ -103,12 +149,9 @@ export default function ConsultationPage() {
               )}
             </p>
             <div className="reveal opacity-0 animation-delay-300">
-              <InFacilityDetailPricing section={IN_FACILITY_PRICING_SECTIONS[0]} variant="embed" />
-            </div>
-            <div className="reveal opacity-0 animation-delay-400">
               <BookingLink>
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group">
-                  {t("Book a Consultation")}
+                  {t("Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>

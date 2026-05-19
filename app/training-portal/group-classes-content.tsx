@@ -1,12 +1,17 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { CalendarCheck } from "lucide-react"
+import { BookingLink } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { PuppySocialDropInIntakeDialog } from "@/app/group-classes/puppy-social-drop-in-intake-dialog"
+import { CONTRACT_VERSION } from "@/lib/contract-terms"
+import { ContractAcceptanceAccordion } from "@/components/contract-acceptance-accordion"
 import { trackFBLead } from "@/lib/facebook-pixel"
 import { getIntlLocale } from "@/lib/i18n/config"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { PUPPY_SOCIALIZATION_CLASS_TYPE_ID } from "@/lib/puppy-social-drop-in"
 import type { ApprovedGroupProgram, GroupSeriesListItem, StatusResponse } from "./training-portal-types"
 
 function formatDateTime(iso: string, intlLocale: string) {
@@ -17,11 +22,18 @@ function formatDateTime(iso: string, intlLocale: string) {
   })
 }
 
+const PUPPY_SOCIALIZATION_PROGRAM: ApprovedGroupProgram = {
+  programId: PUPPY_SOCIALIZATION_CLASS_TYPE_ID,
+  programLabel: "Puppy Socialization Class",
+  squareUrl: null,
+}
+
 export function GroupClassesContent({
   statusData,
   clientEmail,
   dogName,
-  redirectPath: _redirectPath,
+  redirectPath,
+  dropInPuppySocialization = null,
   preferredCoachId = null,
   preferredCoachLabel = null,
   highlightSeriesId = null,
@@ -30,6 +42,8 @@ export function GroupClassesContent({
   clientEmail: string
   dogName: string
   redirectPath: string
+  /** Puppy socialization drop-in — no assessment required. */
+  dropInPuppySocialization?: { depositCents: number; currency: string } | null
   preferredCoachId?: string | null
   preferredCoachLabel?: string | null
   /** When set (e.g. from `?series=` on group-classes), opens that program and scrolls to the class. */
@@ -51,10 +65,19 @@ export function GroupClassesContent({
   const [groupContractAccepted, setGroupContractAccepted] = useState(false)
   const [groupContractAlreadyAccepted, setGroupContractAlreadyAccepted] = useState(false)
   const [localPendingRequests, setLocalPendingRequests] = useState<Array<{ id: string; startAt: string; label: string }>>([])
+  const [puppyDropInSeries, setPuppyDropInSeries] = useState<GroupSeriesListItem[]>([])
+  const [puppyDropInLoading, setPuppyDropInLoading] = useState(false)
+  const [puppyDropInErr, setPuppyDropInErr] = useState<string | null>(null)
+  const [puppyIntakeOpen, setPuppyIntakeOpen] = useState(false)
+  const [puppyIntakeSeriesId, setPuppyIntakeSeriesId] = useState<string | null>(null)
   const highlightAppliedRef = useRef<string | null>(null)
 
+  const groupClassesEligible = Boolean(statusData.options.groupClasses?.eligible)
+  const puppyDropInAvailable = Boolean(dropInPuppySocialization)
+  const canPickClasses = groupClassesEligible || puppyDropInAvailable
+
   useEffect(() => {
-    if (!statusData.options.groupClasses?.eligible) {
+    if (!groupClassesEligible) {
       setGroupPrograms([])
       setGroupErr(null)
       return
@@ -92,10 +115,55 @@ export function GroupClassesContent({
     return () => {
       cancelled = true
     }
-  }, [statusData, clientEmail, dogName])
+  }, [statusData, clientEmail, dogName, groupClassesEligible])
 
   useEffect(() => {
-    if (!statusData.options.groupClasses?.eligible) {
+    if (!puppyDropInAvailable) {
+      setPuppyDropInSeries([])
+      setPuppyDropInErr(null)
+      return
+    }
+    const email = clientEmail.trim().toLowerCase()
+    const dog = (statusData.lookup.dogName || dogName).trim()
+    if (!email) return
+    let cancelled = false
+    setPuppyDropInLoading(true)
+    setPuppyDropInErr(null)
+    void (async () => {
+      try {
+        const response = await fetch("/api/training-portal/group-series/list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            clientEmail: email,
+            dogName: dog,
+            dropInPuppySocialization: true,
+          }),
+        })
+        const data = (await response.json()) as { series?: GroupSeriesListItem[]; error?: string }
+        if (cancelled) return
+        if (!response.ok) {
+          setPuppyDropInErr(data.error || t("Could not load puppy socialization dates."))
+          setPuppyDropInSeries([])
+          return
+        }
+        setPuppyDropInSeries(data.series || [])
+      } catch {
+        if (!cancelled) {
+          setPuppyDropInErr(t("Could not load puppy socialization dates."))
+          setPuppyDropInSeries([])
+        }
+      } finally {
+        if (!cancelled) setPuppyDropInLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [puppyDropInAvailable, statusData, clientEmail, dogName, t])
+
+  useEffect(() => {
+    if (!groupClassesEligible) {
       setGroupContractAccepted(false)
       setGroupContractAlreadyAccepted(false)
       return
@@ -121,10 +189,10 @@ export function GroupClassesContent({
     return () => {
       cancelled = true
     }
-  }, [statusData, clientEmail])
+  }, [statusData, clientEmail, groupClassesEligible])
 
   useEffect(() => {
-    if (!statusData.options.groupClasses?.eligible) {
+    if (!groupClassesEligible) {
       setGroupSeries([])
       setGroupSeriesErr(null)
       setSelectedProgramId(null)
@@ -163,7 +231,7 @@ export function GroupClassesContent({
     return () => {
       cancelled = true
     }
-  }, [statusData, clientEmail, dogName])
+  }, [statusData, clientEmail, dogName, groupClassesEligible])
 
   const seriesForDisplay = useMemo(() => {
     const id = preferredCoachId?.trim()
@@ -182,20 +250,46 @@ export function GroupClassesContent({
 
   useEffect(() => {
     const raw = highlightSeriesId?.trim()
-    if (!raw || !statusData.options.groupClasses?.eligible) return
-    if (groupSeriesLoading) return
+    if (!raw || !canPickClasses) return
+    if (groupSeriesLoading || groupLoading || puppyDropInLoading) return
     if (highlightAppliedRef.current === raw) return
 
-    const match = seriesForDisplay.find((s) => s.seriesId === raw)
+    const match =
+      seriesForDisplay.find((s) => s.seriesId === raw) ||
+      puppyDropInSeries.find((s) => s.seriesId === raw)
     if (!match) return
 
-    highlightAppliedRef.current = raw
     setSelectedProgramId(match.classType)
-    const t = window.setTimeout(() => {
-      document.getElementById(`group-series-${raw}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
-    }, 150)
-    return () => window.clearTimeout(t)
-  }, [highlightSeriesId, seriesForDisplay, groupSeriesLoading, statusData.options.groupClasses?.eligible])
+
+    const scrollToSeries = () => {
+      const el = document.getElementById(`group-series-${raw}`)
+      if (!el) return
+      highlightAppliedRef.current = raw
+      el.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+
+    const timeout = window.setTimeout(scrollToSeries, 250)
+    return () => window.clearTimeout(timeout)
+  }, [
+    highlightSeriesId,
+    seriesForDisplay,
+    puppyDropInSeries,
+    groupSeriesLoading,
+    groupLoading,
+    puppyDropInLoading,
+    canPickClasses,
+  ])
+
+  const programsForPicker = useMemo(() => {
+    const byId = new Map<string, ApprovedGroupProgram>()
+    if (puppyDropInAvailable) {
+      byId.set(PUPPY_SOCIALIZATION_CLASS_TYPE_ID, PUPPY_SOCIALIZATION_PROGRAM)
+    }
+    for (const program of groupPrograms) {
+      byId.set(program.programId, program)
+    }
+    return [...byId.values()]
+  }, [groupPrograms, puppyDropInAvailable])
 
   const seriesByProgram = useMemo(() => {
     const map = new Map<string, GroupSeriesListItem[]>()
@@ -204,20 +298,34 @@ export function GroupClassesContent({
       list.push(series)
       map.set(series.classType, list)
     }
+    if (puppyDropInAvailable) {
+      const sorted = [...puppyDropInSeries].sort((a, b) =>
+        a.sessions[0].startsAtIso.localeCompare(b.sessions[0].startsAtIso),
+      )
+      map.set(PUPPY_SOCIALIZATION_CLASS_TYPE_ID, sorted)
+    }
     for (const list of map.values()) {
       list.sort((a, b) => a.sessions[0].startsAtIso.localeCompare(b.sessions[0].startsAtIso))
     }
     return map
-  }, [seriesForDisplay])
+  }, [seriesForDisplay, puppyDropInSeries, puppyDropInAvailable])
 
   const programLabelByProgramId = useMemo(() => {
     const map = new Map<string, string>()
-    for (const p of groupPrograms) map.set(p.programId, p.programLabel)
+    for (const p of programsForPicker) map.set(p.programId, p.programLabel)
     for (const [programId, seriesList] of seriesByProgram) {
       if (!map.has(programId) && seriesList[0]) map.set(programId, seriesList[0].programLabel)
     }
     return map
-  }, [groupPrograms, seriesByProgram])
+  }, [programsForPicker, seriesByProgram])
+
+  const isPuppyDropInProgram =
+    selectedProgramId === PUPPY_SOCIALIZATION_CLASS_TYPE_ID && puppyDropInAvailable
+
+  function openPuppyDropInIntake(seriesId: string) {
+    setPuppyIntakeSeriesId(seriesId)
+    setPuppyIntakeOpen(true)
+  }
 
   useEffect(() => {
     if (selectedProgramId && !programLabelByProgramId.has(selectedProgramId)) {
@@ -382,7 +490,7 @@ export function GroupClassesContent({
                   )}
             </p>
           ) : null}
-          {!statusData.options.groupClasses.eligible ? (
+          {!canPickClasses ? (
             <p className="text-sm text-muted-foreground">
               {statusData.options.groupClasses.blockedReason === "no_group_program_access"
                 ? t(
@@ -394,11 +502,12 @@ export function GroupClassesContent({
             <>
               {groupErr ? <p className="text-sm text-destructive">{groupErr}</p> : null}
               {groupSeriesErr ? <p className="text-sm text-destructive">{groupSeriesErr}</p> : null}
+              {puppyDropInErr ? <p className="text-sm text-destructive">{puppyDropInErr}</p> : null}
               {requestMsg ? <p className="text-sm text-emerald-700">{requestMsg}</p> : null}
 
-              {groupLoading || groupSeriesLoading ? (
+              {groupLoading || groupSeriesLoading || puppyDropInLoading ? (
                 <p className="text-sm text-muted-foreground">{t("Loading classes…")}</p>
-              ) : groupPrograms.length === 0 ? (
+              ) : programsForPicker.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {t("No approved group programs are available right now.")}
                 </p>
@@ -408,7 +517,7 @@ export function GroupClassesContent({
                     {t("Choose a class type to see upcoming full-series classes.")}
                   </p>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {groupPrograms.map((program) => {
+                    {programsForPicker.map((program) => {
                       const count = countUpcomingForProgram(program.programId)
                       return (
                         <button
@@ -428,6 +537,19 @@ export function GroupClassesContent({
                       )
                     })}
                   </div>
+                  {!groupClassesEligible && puppyDropInAvailable ? (
+                    <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-4 text-sm text-muted-foreground leading-relaxed">
+                      <p className="font-medium text-foreground mb-1">{t("Other group programs")}</p>
+                      <p>
+                        {t(
+                          "This path is only for puppy socialization drop-ins. For teen puppy, reactivity, or obedience series, book an assessment first so your trainer can approve the right program.",
+                        )}
+                      </p>
+                      <BookingLink className="inline-flex mt-3 underline underline-offset-4 text-primary font-medium hover:text-primary/80">
+                        {t("Book an assessment")}
+                      </BookingLink>
+                    </div>
+                  ) : null}
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -450,6 +572,56 @@ export function GroupClassesContent({
                     <p className="text-sm text-muted-foreground">
                       {t("No upcoming series for this program right now. Check back later.")}
                     </p>
+                  ) : isPuppyDropInProgram ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        {t(
+                          "Reserve a spot in an upcoming puppy socialization class. Answer a few questions, then pay a deposit to hold your place.",
+                        )}
+                      </p>
+                      <ul className="space-y-3">
+                        {selectedProgramSeries.map((series) => {
+                          const first = series.sessions[0]
+                          const full = series.spotsRemaining <= 0
+                          return (
+                            <li
+                              id={`group-series-${series.seriesId}`}
+                              key={series.seriesId}
+                              className="scroll-mt-28 md:scroll-mt-36 flex flex-col gap-3 rounded-xl border border-border bg-muted/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary mt-0.5">
+                                  <CalendarCheck className="w-4 h-4" />
+                                </span>
+                                <div>
+                                  <p className="font-medium text-foreground">
+                                    {t(series.programLabel || "Puppy socialization")}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground mt-0.5">
+                                    {t("Starts")}{" "}
+                                    {first ? formatDateTime(first.startsAtIso, intlLocale) : "—"} · {series.sessionCount}{" "}
+                                    {series.sessionCount === 1 ? t("session") : t("sessions")}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {full
+                                      ? t("Full — join waitlist by contacting us")
+                                      : t("{n} spots left").replace("{n}", String(series.spotsRemaining))}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                className="rounded-full shrink-0"
+                                disabled={full}
+                                onClick={() => openPuppyDropInIntake(series.seriesId)}
+                              >
+                                {t("Reserve with deposit")}
+                              </Button>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
@@ -457,31 +629,13 @@ export function GroupClassesContent({
                           "Group classes are requested as full series only. Submit your request and staff will email you once it has been accepted or declined.",
                         )}
                       </p>
-                      {groupContractAlreadyAccepted ? (
-                        <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                          {CONTRACT_ACCEPTED_LABEL[locale].group_classes}
-                        </p>
-                      ) : (
-                        <div className="space-y-3">
-                          <a
-                            href={contractUrl("group_classes", locale)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                          >
-                            {CONTRACT_LINK_LABEL[locale].group_classes}
-                          </a>
-                          <label className="flex items-start gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={groupContractAccepted}
-                              onChange={(e) => setGroupContractAccepted(e.target.checked)}
-                              className="mt-1"
-                            />
-                            <span>{CONTRACT_ACCEPTANCE_LABEL[locale].group_classes}</span>
-                          </label>
-                        </div>
-                      )}
+                      <ContractAcceptanceAccordion
+                        contractKind="group_classes"
+                        locale={locale}
+                        accepted={groupContractAccepted}
+                        onAcceptedChange={setGroupContractAccepted}
+                        alreadyAccepted={groupContractAlreadyAccepted}
+                      />
                       {selectedProgramSeries.map((series) => {
                         const isFull = series.spotsRemaining <= 0
                         const isRequesting = requestSeriesId === series.seriesId
@@ -491,7 +645,7 @@ export function GroupClassesContent({
                           <div
                             id={`group-series-${series.seriesId}`}
                             key={series.seriesId}
-                            className="rounded-xl border border-border bg-muted/10 p-4 space-y-3"
+                            className="scroll-mt-28 md:scroll-mt-36 rounded-xl border border-border bg-muted/10 p-4 space-y-3"
                           >
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                               <div>
@@ -598,6 +752,19 @@ export function GroupClassesContent({
           </div>
         )}
       </div>
+
+      {dropInPuppySocialization ? (
+        <PuppySocialDropInIntakeDialog
+          open={puppyIntakeOpen}
+          onOpenChange={setPuppyIntakeOpen}
+          clientEmail={clientEmail}
+          dogNameHint={dogName}
+          seriesId={puppyIntakeSeriesId}
+          depositCents={dropInPuppySocialization.depositCents}
+          currency={dropInPuppySocialization.currency}
+          redirectPath={redirectPath}
+        />
+      ) : null}
     </div>
   )
 }

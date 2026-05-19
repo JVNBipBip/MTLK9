@@ -9,10 +9,12 @@ import { parsePrivateLocationAccess, parsePrivateTrainingAccess } from "@/lib/cl
 import { getAdminDb } from "@/lib/firebase-admin"
 import { allConfiguredGroupProgramTypeIds, isGroupProgramsAllFutureForDog } from "@/lib/group-dog-program-access"
 import {
+  CLIENT_DOGS_SUBCOLLECTION,
   CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION,
   clientBookingsCollection,
   clientBookingSettingsRef,
   clientConsultationsCollection,
+  clientDocRef,
   clientDogRef,
   clientGroupAccessCollection,
 } from "@/lib/client-records"
@@ -244,6 +246,96 @@ function pickLatestConsultation(items: ConsultationLookup[]) {
   return withRank[0].item
 }
 
+type ClientDogRecord = { dogName?: string }
+
+function consultationDogName(item: ConsultationLookup) {
+  return String(item.dogName || "").trim()
+}
+
+/** When the client omits dog name, infer it from consultations, bookings, or dog records. */
+export function resolvePortalDogName(input: {
+  requestedDogName: string
+  consultations: ConsultationLookup[]
+  dogRecords: ClientDogRecord[]
+  bookingRows: BookingLookup[]
+}) {
+  const requested = input.requestedDogName.trim()
+  if (requested) return requested
+
+  const placeholderNorm = normalized(SQUARE_CLIENT_PLACEHOLDER_DOG_NAME)
+
+  const consultationsWithDog = input.consultations.filter((item) => consultationDogName(item))
+  const latestCompleted = pickLatestConsultation(
+    consultationsWithDog.filter((item) => item.status === "completed"),
+  )
+  if (latestCompleted) return consultationDogName(latestCompleted)
+
+  const latestAny = pickLatestConsultation(consultationsWithDog)
+  if (latestAny) return consultationDogName(latestAny)
+
+  for (const record of input.dogRecords) {
+    const name = String(record.dogName || "").trim()
+    if (name) return name
+  }
+
+  for (const row of input.bookingRows) {
+    const name = String(row.dogName || "").trim()
+    if (name && normalized(name) !== placeholderNorm) return name
+  }
+
+  return ""
+}
+
+function uniqueDogNamesForLookup(
+  requestedDogName: string,
+  resolvedDogName: string,
+  consultations: ConsultationLookup[],
+  dogRecords: ClientDogRecord[],
+  bookingRows: BookingLookup[],
+) {
+  const names = new Set<string>()
+  const add = (value: string) => {
+    const trimmed = value.trim()
+    if (trimmed) names.add(trimmed)
+  }
+  if (requestedDogName.trim()) add(requestedDogName)
+  else {
+    add(resolvedDogName)
+    for (const item of consultations) add(consultationDogName(item))
+    for (const record of dogRecords) add(String(record.dogName || ""))
+    for (const row of bookingRows) add(String(row.dogName || ""))
+  }
+  return [...names]
+}
+
+async function loadAllowedGroupClassTypeIdsForDogs(
+  db: ReturnType<typeof getAdminDb>,
+  clientId: string,
+  dogNames: string[],
+  settingsData: { groupProgramsIncludeAllFutureByDog?: unknown } | undefined,
+) {
+  const explicitGroupIds = new Set<string>()
+  for (const dogName of dogNames) {
+    const docs = await safeQueryDocs(
+      clientGroupAccessCollection(db, clientId, dogName).where("status", "==", "allowed").limit(200),
+    )
+    for (const doc of docs) {
+      const classTypeId = String((doc.data() as ClassAccessLookup).classTypeId || "").trim()
+      if (classTypeId) explicitGroupIds.add(classTypeId)
+    }
+  }
+
+  let allowedGroupClassTypeIds = [...explicitGroupIds]
+  for (const dogName of dogNames) {
+    const dogKey = normalized(dogName)
+    if (isGroupProgramsAllFutureForDog(settingsData, dogKey)) {
+      allowedGroupClassTypeIds = [...new Set([...allowedGroupClassTypeIds, ...(await allConfiguredGroupProgramTypeIds())])]
+      break
+    }
+  }
+  return allowedGroupClassTypeIds
+}
+
 function pickLatestActivePackage(items: PrivatePackageLookup[]) {
   if (items.length === 0) return null
   const withRank = items.map((item) => {
@@ -302,27 +394,71 @@ export async function loadTrainingPortalContext(input: {
   oneOnOneServiceVariationIds: string[]
 }) {
   const clientId = normalized(input.clientEmail)
-  const dogName = normalized(input.dogName)
+  const requestedDogName = input.dogName.trim()
+  const requestedDogNorm = normalized(requestedDogName)
   const db = getAdminDb()
 
   const [
     nestedConsultationDocs,
-    nestedClassAccessDocs,
     nestedBookingDocs,
+    clientDogDocs,
     privatePackageDocs,
-    nestedPrivatePackageDocs,
     squareCustomerDocs,
     nestedClientSettingsSnap,
   ] =
     await Promise.all([
       safeQueryDocs(clientConsultationsCollection(db, clientId).limit(200)),
-      safeQueryDocs(clientGroupAccessCollection(db, clientId, dogName).where("status", "==", "allowed").limit(200)),
       safeQueryDocs(clientBookingsCollection(db, clientId).limit(300)),
+      requestedDogName
+        ? Promise.resolve([] as Awaited<ReturnType<typeof safeQueryDocs>>)
+        : safeQueryDocs(clientDocRef(db, clientId).collection(CLIENT_DOGS_SUBCOLLECTION).limit(50)),
       safeQueryDocs(db.collection(PRIVATE_TRAINING_PACKAGES_COLLECTION).where("clientId", "==", clientId).limit(50)),
-      safeQueryDocs(clientDogRef(db, clientId, dogName).collection(CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION).limit(50)),
       safeQueryDocs(db.collection(SQUARE_CUSTOMERS_COLLECTION).where("emailLower", "==", clientId).limit(1)),
       clientBookingSettingsRef(db, clientId).get(),
     ])
+
+  const allConsultations = nestedConsultationDocs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<ConsultationLookup, "id">),
+  }))
+  const dogRecords = clientDogDocs.map((doc) => doc.data() as ClientDogRecord)
+  const bookingRowsEarly = nestedBookingDocs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<BookingLookup, "id">),
+  }))
+
+  const resolvedDogName = resolvePortalDogName({
+    requestedDogName,
+    consultations: allConsultations,
+    dogRecords,
+    bookingRows: bookingRowsEarly,
+  })
+  const effectiveDogName = resolvedDogName || requestedDogName
+  const effectiveDogNorm = normalized(effectiveDogName)
+
+  const dogNamesForGroupAccess = uniqueDogNamesForLookup(
+    requestedDogName,
+    resolvedDogName,
+    allConsultations,
+    dogRecords,
+    bookingRowsEarly,
+  )
+
+  const [nestedClassAccessIds, nestedPrivatePackageDocs] = await Promise.all([
+    loadAllowedGroupClassTypeIdsForDogs(
+      db,
+      clientId,
+      dogNamesForGroupAccess.length > 0 ? dogNamesForGroupAccess : effectiveDogName ? [effectiveDogName] : [],
+      nestedClientSettingsSnap.data(),
+    ),
+    effectiveDogName
+      ? safeQueryDocs(
+          clientDogRef(db, clientId, effectiveDogName)
+            .collection(CLIENT_PRIVATE_PACKAGES_SUBCOLLECTION)
+            .limit(50),
+        )
+      : Promise.resolve([] as Awaited<ReturnType<typeof safeQueryDocs>>),
+  ])
 
   const privateLocationAccess: PrivateLocationAccess = nestedClientSettingsSnap.exists
     ? parsePrivateLocationAccess(nestedClientSettingsSnap.data()?.privateLocationAccess)
@@ -342,50 +478,42 @@ export async function loadTrainingPortalContext(input: {
     )
   }
 
-  const consultations = nestedConsultationDocs
-    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<ConsultationLookup, "id">) }))
-    .filter((item) => normalized(String(item.dogName || "")) === dogName)
+  const consultations = requestedDogNorm
+    ? allConsultations.filter((item) => normalized(String(item.dogName || "")) === requestedDogNorm)
+    : allConsultations
 
   const squareCustomer = squareCustomerDocsResult[0]?.data() as SyncedSquareCustomerLookup | undefined
   const squareBookings = squareCustomer?.bookings || []
   const activeSquareBookings = squareBookings.filter((booking) => isActiveSyncedSquareBooking(booking))
 
-  let latestConsultation = pickLatestConsultation(consultations)
-  let assessmentCompleted = latestConsultation?.status === "completed"
-  let effectiveDogName = dogName || (latestConsultation?.dogName ? normalized(String(latestConsultation.dogName)) : "")
-  const isPlaceholderDogName = normalized(SQUARE_CLIENT_PLACEHOLDER_DOG_NAME) === effectiveDogName
+  const latestConsultation = requestedDogNorm
+    ? pickLatestConsultation(consultations)
+    : pickLatestConsultation(consultations.filter((item) => item.status === "completed")) ||
+      pickLatestConsultation(consultations)
+  let assessmentCompleted = requestedDogNorm
+    ? latestConsultation?.status === "completed"
+    : allConsultations.some((item) => item.status === "completed")
+  const isPlaceholderDogName = normalized(SQUARE_CLIENT_PLACEHOLDER_DOG_NAME) === effectiveDogNorm
 
-  if (!assessmentCompleted && (!effectiveDogName || isPlaceholderDogName) && activeSquareBookings.length > 0) {
+  let portalDogName = effectiveDogName
+  if (!assessmentCompleted && (!portalDogName || isPlaceholderDogName) && activeSquareBookings.length > 0) {
     assessmentCompleted = true
-    effectiveDogName = SQUARE_CLIENT_PLACEHOLDER_DOG_NAME
+    portalDogName = SQUARE_CLIENT_PLACEHOLDER_DOG_NAME
   }
 
-  if (!assessmentCompleted && !effectiveDogName && squareCustomer && activeSquareBookings.length === 0) {
+  if (!assessmentCompleted && !portalDogName && squareCustomer && activeSquareBookings.length === 0) {
     assessmentCompleted = false
   }
 
-  const effectiveDogNorm = normalized(effectiveDogName)
-  const explicitGroupIds = [
-    ...new Set(
-      nestedClassAccessDocs
-        .map((doc) => doc.data() as ClassAccessLookup & { dogName?: string; classTypeId?: string })
-        .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
-        .map((item) => String(item.classTypeId || "").trim())
-        .filter(Boolean),
-    ),
-  ]
-  let allowedGroupClassTypeIds = explicitGroupIds
-  const settingsData = nestedClientSettingsSnap.data()
-  if (isGroupProgramsAllFutureForDog(settingsData, effectiveDogNorm)) {
-    allowedGroupClassTypeIds = [...new Set([...explicitGroupIds, ...(await allConfiguredGroupProgramTypeIds())])]
-  }
+  const portalDogNorm = normalized(portalDogName)
+  const allowedGroupClassTypeIds = nestedClassAccessIds
   const allowedClassCount = allowedGroupClassTypeIds.length
 
-  const bookingRows = nestedBookingDocs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<BookingLookup, "id">) }))
+  const bookingRows = bookingRowsEarly
   const hasMatchingLocalBooking = bookingRows.some((item) => {
     if (isCancelled(item)) return false
-    if (!effectiveDogNorm) return false
-    return normalized(String(item.dogName || "")) === effectiveDogNorm
+    if (!portalDogNorm) return false
+    return normalized(String(item.dogName || "")) === portalDogNorm
   })
   const hasKnownBooking =
     hasMatchingLocalBooking ||
@@ -415,10 +543,10 @@ export async function loadTrainingPortalContext(input: {
   const nowIso = new Date().toISOString()
   const nestedPrivatePackages = nestedPrivatePackageDocs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
-    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
+    .filter((item) => normalized(String(item.dogName || "")) === portalDogNorm)
   const legacyPrivatePackages = privatePackageDocs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<PrivatePackageLookup, "id">) }))
-    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
+    .filter((item) => normalized(String(item.dogName || "")) === portalDogNorm)
   const activePrivatePackage = pickLatestActivePackage(
     nestedPrivatePackages.length > 0 ? nestedPrivatePackages : legacyPrivatePackages,
   )
@@ -427,7 +555,7 @@ export async function loadTrainingPortalContext(input: {
     (!activePrivatePackage || activePrivatePackage.status !== "active" || activePrivatePackage.sessionsRemaining <= 0)
 
   const upcomingBookings = bookingRows
-    .filter((item) => normalized(String(item.dogName || "")) === effectiveDogNorm)
+    .filter((item) => normalized(String(item.dogName || "")) === portalDogNorm)
     .map((item) => {
       const startAt = bookingStartAt(item, sessionStartById)
       if (!startAt) return null
@@ -451,7 +579,7 @@ export async function loadTrainingPortalContext(input: {
 
   return {
     clientId,
-    dogName: effectiveDogName || dogName,
+    dogName: portalDogName || resolvedDogName || requestedDogName,
     latestConsultation,
     assessmentCompleted,
     allowedClassCount,

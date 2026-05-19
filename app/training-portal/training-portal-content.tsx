@@ -6,7 +6,8 @@ import { useBookingForm } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { X, Search, CheckCircle2, AlertCircle, Phone, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { CONTRACT_VERSION } from "@/lib/contract-terms"
+import { ContractAcceptanceAccordion } from "@/components/contract-acceptance-accordion"
 import { addLocaleToPathname, getIntlLocale } from "@/lib/i18n/config"
 import {
   PLAN_TYPE_LABEL,
@@ -503,6 +504,15 @@ export function TrainingPortalContent({
                     clientEmail={clientEmail}
                     dogName={dogName}
                     redirectPath={pathname || trainingPortalPath}
+                    dropInPuppySocialization={
+                      statusData.options.groupClasses.dropInPuppySocialization?.available
+                        ? {
+                            depositCents:
+                              statusData.options.groupClasses.dropInPuppySocialization.depositCents,
+                            currency: statusData.options.groupClasses.dropInPuppySocialization.currency,
+                          }
+                        : null
+                    }
                     preferredCoachId={trainerTeamMemberIdMerged || null}
                     preferredCoachLabel={trainerNameMerged || null}
                     highlightSeriesId={searchParams.get("series")}
@@ -583,31 +593,13 @@ export function TrainingPortalContent({
                               </div>
                             </div>
                           </div>
-                          {privateContractAlreadyAccepted ? (
-                            <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                              {CONTRACT_ACCEPTED_LABEL[locale].private_classes}
-                            </p>
-                          ) : (
-                            <>
-                              <a
-                                href={contractUrl("private_classes", locale)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                              >
-                                {CONTRACT_LINK_LABEL[locale].private_classes}
-                              </a>
-                              <label className="flex items-start gap-2 text-sm">
-                                <input
-                                  type="checkbox"
-                                  checked={privateContractAccepted}
-                                  onChange={(e) => setPrivateContractAccepted(e.target.checked)}
-                                  className="mt-1"
-                                />
-                                <span>{CONTRACT_ACCEPTANCE_LABEL[locale].private_classes}</span>
-                              </label>
-                            </>
-                          )}
+                          <ContractAcceptanceAccordion
+                            contractKind="private_classes"
+                            locale={locale}
+                            accepted={privateContractAccepted}
+                            onAcceptedChange={setPrivateContractAccepted}
+                            alreadyAccepted={privateContractAlreadyAccepted}
+                          />
                           <div className="flex flex-wrap items-center gap-3">
                             <Button
                               type="button"

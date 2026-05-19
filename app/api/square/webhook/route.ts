@@ -17,6 +17,7 @@ import { findClientConsultationById } from "@/lib/client-records"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 import { captureServerEvent } from "@/lib/posthog-server"
+import { resolveConsultationScheduledAtIsoForBooking } from "@/lib/consultation-deposit"
 
 export const runtime = "nodejs"
 
@@ -441,11 +442,20 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       return
     }
 
+    const scheduledAtIso = resolveConsultationScheduledAtIsoForBooking({
+      scheduledAtIso: data.scheduledAtIso,
+      requestedScheduledAtIso: (data as { requestedScheduledAtIso?: string }).requestedScheduledAtIso,
+      consultationSlotKey: (data as { consultationSlotKey?: string }).consultationSlotKey,
+      consultationDateTime: (data as { consultationDateTime?: string }).consultationDateTime,
+      initialPaymentStatus: data.initialPaymentStatus,
+      squareConsultationBookingId: data.squareConsultationBookingId,
+      status: (data as { status?: string }).status,
+    })
     const required = {
       clientName: String(data.clientName || "").trim(),
       clientEmail: String(data.clientEmail || "").trim(),
       dogName: String(data.dogName || "").trim(),
-      scheduledAtIso: String(data.scheduledAtIso || "").trim(),
+      scheduledAtIso,
       consultationServiceVariationId: String(data.consultationServiceVariationId || "").trim(),
       consultationTeamMemberId: String(data.consultationTeamMemberId || "").trim(),
     }
@@ -588,6 +598,8 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       {
         ...paymentPatch,
         status: "scheduled",
+        scheduledAtIso: claim.scheduledAtIso,
+        consultationDateTime: claim.scheduledAtIso,
         squareCustomerId,
         squareConsultationBookingId,
         squareConsultationStatus: squareBooking.booking?.status || null,

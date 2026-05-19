@@ -5,7 +5,8 @@ import Link from "next/link"
 import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, User } from "lucide-react"
 import { useAppLocale } from "@/components/locale-provider"
 import { Button } from "@/components/ui/button"
-import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_ACCEPTED_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { CONTRACT_VERSION } from "@/lib/contract-terms"
+import { ContractAcceptanceAccordion } from "@/components/contract-acceptance-accordion"
 import { trackFBCompleteRegistration, trackFBSchedule } from "@/lib/facebook-pixel"
 import {
   PLAN_TYPE_LABEL,
@@ -545,31 +546,13 @@ export function TrainingPortalBookingContent({
                       </div>
                     </div>
                   </div>
-                  {packageContractAlreadyAccepted ? (
-                    <p className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                      {CONTRACT_ACCEPTED_LABEL[locale].private_classes}
-                    </p>
-                  ) : (
-                    <>
-                      <a
-                        href={contractUrl("private_classes", locale)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block rounded-lg border border-border bg-muted/20 p-3 text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                      >
-                        {CONTRACT_LINK_LABEL[locale].private_classes}
-                      </a>
-                      <label className="flex items-start gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={packageContractAccepted}
-                          onChange={(e) => setPackageContractAccepted(e.target.checked)}
-                          className="mt-1"
-                        />
-                        <span>{CONTRACT_ACCEPTANCE_LABEL[locale].private_classes}</span>
-                      </label>
-                    </>
-                  )}
+                  <ContractAcceptanceAccordion
+                    contractKind="private_classes"
+                    locale={locale}
+                    accepted={packageContractAccepted}
+                    onAcceptedChange={setPackageContractAccepted}
+                    alreadyAccepted={packageContractAlreadyAccepted}
+                  />
                   <div className="flex justify-end">
                     <Button
                       type="button"
@@ -712,7 +695,7 @@ export function TrainingPortalBookingContent({
                         <p className="text-xs text-muted-foreground text-center py-1.5 bg-muted/30 border-b border-border">
                           Scroll horizontally to see all days
                         </p>
-                        <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
+                        <div className="overflow-x-auto touch-pan-x [-webkit-overflow-scrolling:touch]">
                           <div
                             className="grid divide-x divide-border"
                             style={{

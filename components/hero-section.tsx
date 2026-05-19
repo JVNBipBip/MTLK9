@@ -171,12 +171,12 @@ export function HeroSection() {
             {t("Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.")}
           </p>
           <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
-            <FreeCallLink className="w-full sm:w-auto" modalVariant="consultation">
+            <FreeCallLink className="w-full sm:w-auto">
               <Button
                 size="lg"
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
               >
-                {t("Book a Consultation")}
+                {t("Send an Inquiry")}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>

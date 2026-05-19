@@ -34,10 +34,7 @@ export async function GET(_request: Request, context: RouteContext) {
     status?: string
     bookingAccess?: { expiresAtIso?: string; revokedAtIso?: string }
   }
-  const expiresAt = consultation.bookingAccess?.expiresAtIso ? new Date(consultation.bookingAccess.expiresAtIso).getTime() : 0
-  const isExpired = !expiresAt || expiresAt < Date.now()
-
-  if (consultation.bookingAccess?.revokedAtIso || isExpired || consultation.status !== "completed") {
+  if (consultation.bookingAccess?.revokedAtIso || consultation.status !== "completed") {
     return NextResponse.json({ error: "This booking link is no longer available." }, { status: 410 })
   }
 

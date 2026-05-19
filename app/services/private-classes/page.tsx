@@ -8,9 +8,6 @@ import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
-import { ServiceWorkOnSection } from "@/components/service-work-on-section"
-import { InFacilityDetailPricing } from "@/components/in-facility-detail-pricing"
-import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const forYouIf = [
@@ -19,16 +16,6 @@ const forYouIf = [
   "You've tried group classes and your dog needs something more tailored.",
   "You're dealing with reactivity, anxiety, aggression, or guarding.",
   "You want a clear plan built around your dog — not a generic curriculum.",
-]
-
-const trainingGoals = [
-  "Behaviour modification",
-  "Leash reactivity",
-  "Aggression management",
-  "Confidence building",
-  "Handler skill development",
-  "Separation anxiety protocol",
-  "Resource guarding",
 ]
 
 export default function PrivateClassesPage() {
@@ -84,7 +71,46 @@ export default function PrivateClassesPage() {
           </div>
         </section>
 
-        <ServiceWorkOnSection goals={trainingGoals} />
+        <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+              <div className="lg:col-span-5 lg:sticky lg:top-32">
+                <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
+                  {t("Our most popular program")}
+                </p>
+                <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
+                  {t("Private classes")}
+                </h2>
+                <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground leading-relaxed">
+                  {t(
+                    "Private classes are designed for dogs or puppies that require more individualized training or struggle in group settings.",
+                  )}
+                </p>
+              </div>
+
+              <div className="lg:col-span-7">
+                <article className="reveal opacity-0 animation-delay-200 bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 p-8 md:p-10">
+                  <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                    {t(
+                      "Each session is tailored to the dog's specific needs while gradually introducing controlled distractions to help build confidence and set the dog up for success. As training progresses, we will meet in different environments to make the training more realistic and applicable to everyday life. Whether you need help with basic puppy training or need help with behavioural problems, private classes is the most ideal and productive route for training.",
+                    )}
+                  </p>
+
+                  <div className="mt-8 pt-8 border-t border-border/50">
+                    <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
+                      {t("Our goal")}
+                    </p>
+                    <p className="font-display text-xl md:text-2xl tracking-tight leading-snug text-foreground">
+                      {t(
+                        "Our goal is to successfully transition the dog into a group setting or help the owner achieve their desired training goals.",
+                      )}
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <ServiceForYouSection items={forYouIf} />
 
@@ -98,9 +124,6 @@ export default function PrivateClassesPage() {
               {t("Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.")}
             </p>
             <div className="reveal opacity-0 animation-delay-300">
-              <InFacilityDetailPricing section={IN_FACILITY_PRICING_SECTIONS[1]} variant="embed" />
-            </div>
-            <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>
                 <Button
                   size="lg"

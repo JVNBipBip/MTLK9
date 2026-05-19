@@ -5,8 +5,6 @@ import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import type { Firestore } from "firebase-admin/firestore"
 import { hashAccessToken } from "@/lib/tokens"
 
-const RESUME_VALID_DAYS = 90
-
 /** Firestore may return string arrays as keyed maps; normalize IDs for resume eligibility. */
 function coalesceFirestoreStringIds(value: unknown): string[] {
   if (value === null || value === undefined) return []
@@ -101,19 +99,8 @@ export async function loadConsultationDepositResumePageData(
   if (!access?.tokenHash || access.tokenHash !== tokenHash) return null
   if (access.revokedAtIso) return null
 
-  const expiresAt = access.expiresAtIso ? new Date(access.expiresAtIso).getTime() : 0
-  if (!expiresAt || expiresAt < Date.now()) return null
-
   const status = String(data.status || "").trim().toLowerCase()
-  const submissionKind = String(data.consultationSubmissionKind || "").trim().toLowerCase()
-  const payment = String(data.initialPaymentStatus || "").trim().toLowerCase()
-
-  if (submissionKind !== "inquiry") return null
-  if (status !== "intake_submitted") return null
-  if (payment === "paid" || payment === "processing") return null
-
-  const scheduled = str(data.scheduledAtIso)
-  if (scheduled) return null
+  if (status === "completed") return null
 
   const localeRaw = str(data.preferredLocale || data.websiteLocale)
   const locale = isAppLocale(localeRaw) ? localeRaw : defaultLocale
@@ -145,8 +132,4 @@ export async function loadConsultationDepositResumePageData(
     locale,
     allowTeamMemberIds: allowTeamMemberIds.length > 0 ? allowTeamMemberIds : null,
   }
-}
-
-export function consultationDepositResumeExpiryIso(nowMs = Date.now()): string {
-  return new Date(nowMs + RESUME_VALID_DAYS * 24 * 60 * 60 * 1000).toISOString()
 }

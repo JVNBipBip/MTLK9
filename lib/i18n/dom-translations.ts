@@ -16,10 +16,17 @@ export const frenchTextTranslations: Record<string, string> = {
   "Reach us directly and we will guide you to the right next step.":
     "Contactez-nous directement et nous vous guiderons vers la prochaine étape appropriée.",
   "Contact us for a free call": "Contactez-nous pour un appel gratuit",
+  "Submit an inquiry": "Soumettre une demande",
+  "Submit an Inquiry": "Soumettre une demande",
+  "Share a few details about your dog and we'll guide you to the right next step.":
+    "Partagez quelques détails sur votre chien et nous vous guiderons vers la prochaine étape appropriée.",
+  "Share a few details about your dog and we'll reply by email to help with next steps.":
+    "Partagez quelques détails sur votre chien et nous vous répondrons par courriel pour la suite.",
   "Book your evaluation": "Réservez votre évaluation",
   "Program sign-up": "Inscription au programme",
   "Private training portal": "Portail d'entraînement privé",
   "Book a Consultation": "Réserver une consultation",
+  "Send an Inquiry": "Envoyer une demande",
   "Start with an evaluation": "Commencer par une évaluation",
   "Meet a trainer so we understand your goals and recommend the best path — private training, group classes, or both.":
     "Rencontrez un entraîneur pour que nous comprenions vos objectifs et recommandions la meilleure voie — entraînement privé, cours de groupe, ou les deux.",
@@ -304,6 +311,17 @@ export const frenchTextTranslations: Record<string, string> = {
     "Arrêtez d'organiser votre vie autour des déclencheurs de votre chien. Protocoles structurés pour les élans, les jappements, la peur et le figement, en cours privés ou de groupe.",
   "One-on-one sessions built entirely around your dog. No group curriculum, no distractions — just focused work on what matters most.":
     "Des séances individuelles entièrement adaptées à votre chien. Pas de curriculum de groupe, pas de distractions, seulement du travail ciblé sur ce qui compte vraiment.",
+  "Our most popular program! Private classes are designed for dogs or puppies that require more individualized training or struggle in group settings.":
+    "Notre programme le plus populaire! Les cours privés sont conçus pour les chiens ou chiots qui nécessitent un entraînement plus individualisé ou qui ont de la difficulté en groupe.",
+  "Our most popular program": "Notre programme le plus populaire",
+  "Private classes": "Cours privés",
+  "Private classes are designed for dogs or puppies that require more individualized training or struggle in group settings.":
+    "Les cours privés sont conçus pour les chiens ou chiots qui nécessitent un entraînement plus individualisé ou qui ont de la difficulté en groupe.",
+  "Our goal": "Notre objectif",
+  "Each session is tailored to the dog's specific needs while gradually introducing controlled distractions to help build confidence and set the dog up for success. As training progresses, we will meet in different environments to make the training more realistic and applicable to everyday life. Whether you need help with basic puppy training or need help with behavioural problems, private classes is the most ideal and productive route for training.":
+    "Chaque séance est adaptée aux besoins spécifiques du chien tout en introduisant graduellement des distractions contrôlées pour renforcer la confiance et préparer le chien au succès. Au fil de l'entraînement, nous nous retrouverons dans différents environnements pour rendre l'entraînement plus réaliste et applicable à la vie quotidienne. Que vous ayez besoin d'aide pour l'entraînement de base d'un chiot ou pour des problèmes comportementaux, les cours privés sont la voie la plus idéale et productive pour l'entraînement.",
+  "Our goal is to successfully transition the dog into a group setting or help the owner achieve their desired training goals.":
+    "Notre objectif est de réussir la transition du chien vers un cadre de groupe ou d'aider le propriétaire à atteindre ses objectifs d'entraînement.",
   "Commands that actually work where they matter — on Montreal sidewalks, in busy parks, and around real-world distractions.":
     "Des commandes qui fonctionnent là où ça compte : sur les trottoirs de Montréal, dans les parcs occupés et autour de vraies distractions.",
   "The first few months shape the next ten years. Build confidence, manners, and a strong bond from the very beginning.":
@@ -313,6 +331,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "This is for you if…": "C'est pour vous si…",
   "What we’ll work on": "Ce que nous allons travailler",
   "What we'll work on": "Ce que nous allons travailler",
+  "What to expect": "À quoi s'attendre",
+  "Class details": "Détails du cours",
   "Swipe/Scroll to see each focus area": "Balayez ou faites défiler pour voir chaque objectif",
   "Training Focus": "Objectif d'entraînement",
   "Clear steps, real-world reps, and measurable progress — built around your dog.":
@@ -335,6 +355,22 @@ export const frenchTextTranslations: Record<string, string> = {
   "Your questions, answered plainly": "Vos questions, avec des réponses claires",
   "In a consultation, we prioritize listening — then outline clear options so you leave with direction, not guesswork.":
     "Lors d'une consultation, nous mettons d'abord l'accent sur l'écoute — puis nous présentons des options claires pour que vous repartiez avec une direction précise plutôt qu'avec des hypothèses.",
+  "Initial 75-minute consultation": "Consultation initiale de 75 minutes",
+  "What we'll cover": "Ce que nous couvrirons",
+  "What we will cover during this initial 75-minute consultation session:":
+    "Ce que nous couvrirons lors de cette consultation initiale de 75 minutes :",
+  "Meet and Greet": "Rencontre et accueil",
+  "Full assessment of dog/puppy": "Évaluation complète du chien ou du chiot",
+  "Immediate hands-on training": "Entraînement pratique immédiat",
+  "Explanation of our services and pricing": "Explication de nos services et de nos tarifs",
+  "Creating a training program suited for your dog": "Création d'un programme d'entraînement adapté à votre chien",
+  "Reassure and motivate you to develop a stronger connection with your dog.":
+    "Vous rassurer et vous motiver à développer un lien plus fort avec votre chien.",
+  "Puppy (2 months–5 months)": "Chiot (2 à 5 mois)",
+  "Adolescent/Adult (5 months +)": "Adolescent/adulte (5 mois et plus)",
+  "$135+tx | 75 minutes": "135 $ + taxes | 75 minutes",
+  "$145+tx | 75 minutes": "145 $ + taxes | 75 minutes",
+  "Pricing": "Tarification",
   "You're new to structured training and want clarity before committing to a package.":
     "Vous découvrez l'entraînement structuré et vous voulez y voir clair avant de vous engager dans un forfait.",
   "You're unsure whether private lessons or a group series would suit your dog best.":
@@ -363,6 +399,18 @@ export const frenchTextTranslations: Record<string, string> = {
   "Stability work and confidence building": "Stabilité et développement de la confiance",
   "Realistic scenario training": "Entraînement en scénarios réalistes",
   "Structured socialization": "Socialisation structurée",
+  "Reinforcing engagement and relationship tools":
+    "Renforcement des outils d'engagement et de relation",
+  "Application of markers": "Application des marqueurs",
+  "Application of basic commands (sit, down, stay, heel, come, place)":
+    "Application des commandes de base (assis, couché, reste, au pied, viens, place)",
+  "Exposure to different environments & distractions":
+    "Exposition à différents environnements et distractions",
+  "Getting ready for our level 2 basic obedience":
+    "Préparation à notre obéissance de base niveau 2",
+  "Increasing motivation": "Augmentation de la motivation",
+  Socialization: "Socialisation",
+  "Leash handling": "Manipulation de la laisse",
   "Ready to take back your walks?": "Prêt à reprendre vos promenades?",
   "Book a free 15-minute discovery call. We'll talk about your dog's triggers, your goals, and which format — private or group — makes the most sense.":
     "Commencez par un appel découverte gratuit de 15 minutes. Nous parlerons des déclencheurs de votre chien, de vos objectifs et du format privé ou de groupe qui convient le mieux.",
@@ -478,6 +526,41 @@ export const frenchTextTranslations: Record<string, string> = {
   "Advanced obedience": "Obéissance avancée",
   "Safe early socialization, confidence building, and trainer-guided puppy manners.":
     "Socialisation précoce sécuritaire, confiance et bonnes manières guidées par un entraîneur.",
+  "Group socialization for puppies 10–20 weeks — play, handling, and confidence in a trainer-led class.":
+    "Socialisation en groupe pour chiots de 10 à 20 semaines — jeu, manipulation et confiance dans un cours encadré.",
+  "Group class setting": "Cours en groupe",
+  "10–20 weeks": "10 à 20 semaines",
+  "$30 + tax per class": "30 $ + taxes par cours",
+  "per class · 10–20 weeks": "par cours · 10 à 20 semaines",
+  "Group class · puppies 10–20 weeks": "Cours en groupe · chiots 10 à 20 semaines",
+  "Trainer-guided group classes for puppies 10–20 weeks — interactive play, proper greetings, body handling, and confidence-building in a safe, supervised setting.":
+    "Cours en groupe encadrés pour chiots de 10 à 20 semaines — jeu interactif, salutations appropriées, manipulation corporelle et renforcement de la confiance dans un cadre sécuritaire.",
+  "Age group: 10 weeks to 20 weeks old": "Groupe d'âge : 10 à 20 semaines",
+  "Cost: $30 + tax per class": "Coût : 30 $ + taxes par cours",
+  "Booking: classes available upon demand": "Réservation : cours offerts sur demande",
+  "Puppy must be at least 10 weeks old and vaccinated. Send proof of vaccinations to mtlcaninetraining@gmail.com before your first class.":
+    "Le chiot doit avoir au moins 10 semaines et être vacciné. Envoyez la preuve de vaccination à mtlcaninetraining@gmail.com avant votre premier cours.",
+  "Puppy must be free of fleas, ticks, and parasites.":
+    "Le chiot doit être exempt de puces, de tiques et de parasites.",
+  "Interactive play with other puppies and humans": "Jeu interactif avec d'autres chiots et des humains",
+  "Meet & greet and proper greetings": "Rencontres et salutations appropriées",
+  "Body handling for vet and grooming purposes": "Manipulation corporelle (vétérinaire et toilettage)",
+  "Discussions and Q&A with your trainer": "Discussions et questions-réponses avec votre entraîneur",
+  "Socialization opportunities with other pups": "Occasions de socialisation avec d'autres chiots",
+  "Confidence-building exercises": "Exercices pour renforcer la confiance",
+  "Environmental exposure — different surfaces, objects, and obstacle courses":
+    "Exposition environnementale — surfaces, objets et parcours d'obstacles variés",
+  "Your puppy is between 10 and 20 weeks and ready for structured group social time.":
+    "Votre chiot a entre 10 et 20 semaines et est prêt pour une socialisation structurée en groupe.",
+  "You need help with greetings, handling, and early confidence around new things.":
+    "Vous avez besoin d'aide pour les salutations, la manipulation et la confiance face aux nouveautés.",
+  "You want trainer guidance and time to ask questions during class.":
+    "Vous voulez l'encadrement d'un entraîneur et du temps pour poser des questions en cours.",
+  "Each class balances play, handling, and exposure so your puppy learns in a positive, trainer-supervised group environment.":
+    "Chaque cours équilibre jeu, manipulation et exposition pour que votre chiot apprenne dans un environnement positif et supervisé.",
+  "Ready to book puppy socialization?": "Prêt à réserver la socialisation des chiots?",
+  "Browse upcoming classes on the group classes page. Send vaccination records to mtlcaninetraining@gmail.com before your first visit.":
+    "Consultez les cours à venir sur la page des cours de groupe. Envoyez les preuves de vaccination à mtlcaninetraining@gmail.com avant votre première visite.",
   "A structured class for adolescent dogs building focus, manners, and engagement around distractions.":
     "Un cours structuré pour les chiens adolescents afin de développer la concentration, les bonnes manières et l'engagement autour des distractions.",
   "Structured reactivity work with distance management and controlled reps.":
@@ -929,6 +1012,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "Private class / unit": "Cours privé / à l'unité",
   "Private class / unit (2–5 months)": "Cours privé / à l'unité (2 à 5 mois)",
   "Puppy socialization (2–5 months)": "Socialisation des chiots (2 à 5 mois)",
+  "Puppy socialization (10–20 weeks)": "Socialisation des chiots (10 à 20 semaines)",
   "Teen puppy group — 4 classes": "Groupe chiot ado — 4 cours",
   "Level 1 Obedience — 4 classes": "Obéissance niveau 1 — 4 cours",
   "Level 2 Obedience — 5 classes": "Obéissance niveau 2 — 5 cours",
@@ -937,4 +1021,18 @@ export const frenchTextTranslations: Record<string, string> = {
   "Level 1 Obedience — 1 class": "Obéissance niveau 1 — 1 cours",
   "Level 2 Obedience — 1 class": "Obéissance niveau 2 — 1 cours",
   "Reactivity group class — 1 class": "Cours de groupe réactivité — 1 cours",
+
+  "All group classes": "Tous les cours de groupe",
+  "Drop-in · puppies 2–5 months": "À la séance · chiots 2 à 5 mois",
+  "Puppy Socialization Class in Montreal": "Cours de socialisation pour chiots à Montréal",
+  "Teen Puppy Class in Montreal": "Cours pour chiots adolescents à Montréal",
+  "Reactivity Group Class in Montreal": "Cours de groupe pour la réactivité à Montréal",
+  "Level 1 Obedience Class in Montreal": "Cours d'obéissance niveau 1 à Montréal",
+  "Level 2 Obedience Class in Montreal": "Cours d'obéissance niveau 2 à Montréal",
+  "Level 3 Obedience Class in Montreal": "Cours d'obéissance niveau 3 à Montréal",
+  "4-class series · adolescent dogs": "Série de 4 cours · chiens adolescents",
+  "4-class series · reactivity & triggers": "Série de 4 cours · réactivité et déclencheurs",
+  "4-class series · foundation obedience": "Série de 4 cours · obéissance de base",
+  "5-class series · intermediate obedience": "Série de 5 cours · obéissance intermédiaire",
+  "Advanced obedience · coming soon": "Obéissance avancée · bientôt disponible",
 }

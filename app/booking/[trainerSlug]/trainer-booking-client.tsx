@@ -25,7 +25,7 @@ const hubCopy = {
     back: "Back to home",
     chooseAnother: "Choose another option",
     consultation: "Consultation",
-    consultationDesc: "In-person assessment — pick a time or send an inquiry.",
+    consultationDesc: "In-person assessment — share your details and we'll follow up by email.",
     private: "Private training",
     privateDesc: "Verify your assessment, then choose a package and book one-on-one sessions.",
     group: "Group classes",
@@ -42,7 +42,7 @@ const hubCopy = {
     back: "Retour à l’accueil",
     chooseAnother: "Choisir une autre option",
     consultation: "Consultation",
-    consultationDesc: "Évaluation en personne — créneau ou demande par courriel.",
+    consultationDesc: "Évaluation en personne — partagez vos informations et nous vous répondrons par courriel.",
     private: "Entraînement privé",
     privateDesc:
       "Après vérification de votre évaluation, choisissez un forfait et réservez des séances individuelles.",
@@ -106,7 +106,7 @@ export function TrainerBookingClientPage({
       <Header />
       <main
         className={cn(
-          "flex-1 mx-auto w-full max-w-3xl px-4 pb-8 sm:pb-12 space-y-8",
+          "flex flex-1 flex-col min-h-0 mx-auto w-full max-w-3xl px-4 pb-8 sm:pb-12 space-y-8",
           SITE_FIXED_HEADER_MAIN_PT_CLASS,
         )}
       >
@@ -200,12 +200,13 @@ export function TrainerBookingClientPage({
         ) : null}
 
         {showConsultation ? (
-          <div className="space-y-4">
+          <div className="flex flex-1 flex-col min-h-0 space-y-4">
             <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowConsultation(false)}>
               ← {copy.chooseAnother}
             </Button>
             <BookingContent
               layout="page"
+              inquiryOnly
               pinnedTeamMemberId={pinnedTeamMemberId}
               trainerPageSlug={trainerSlug}
               trainerPageDisplayName={trainerDisplayName}

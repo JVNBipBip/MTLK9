@@ -56,7 +56,6 @@ export async function POST(request: Request) {
   if (
     !access?.tokenHash ||
     access.tokenHash !== tokenHash ||
-    (access.expiresAtIso ? new Date(access.expiresAtIso).getTime() < Date.now() : true) ||
     access.revokedAtIso ||
     consultation.status !== "completed"
   ) {

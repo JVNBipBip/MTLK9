@@ -13,9 +13,10 @@ import { cn } from "@/lib/utils"
 import { StepIssue } from "./steps/step-issue"
 import { StepYouAndDog } from "./steps/step-you-and-dog"
 import { StepConfirmation } from "./steps/step-confirmation"
-import { CONTRACT_ACCEPTANCE_LABEL, CONTRACT_LINK_LABEL, CONTRACT_VERSION, contractUrl } from "@/lib/contract-terms"
+import { CONTRACT_VERSION } from "@/lib/contract-terms"
+import { ContractAcceptanceAccordion } from "@/components/contract-acceptance-accordion"
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
-import { trackFBInitiateCheckout, trackFBLead } from "@/lib/facebook-pixel"
+import { trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
@@ -51,7 +52,7 @@ const bookingContentCopy = {
     goBack: "Go back",
     stepProgress: (current: number, total: number) => `Step ${current} of ${total}`,
     schedulingTitle: "Pick your consultation slot",
-    schedulingSubtitle: "Choose the time that works best, then complete the deposit to confirm your appointment.",
+    schedulingSubtitle: "Choose the time that works best, then confirm your appointment.",
     loadingTimes: "Loading available times...",
     specialistMatched:
       "We've narrowed openings based on what you described.",
@@ -78,11 +79,13 @@ const bookingContentCopy = {
     location: "Location",
     service: "Service",
     inPersonAssessment: "In-person assessment",
-    deposit: "Deposit",
-    depositDescription:
-      "$30 deposit required. Your consultation is confirmed after payment is complete. Late cancellations or no-shows may forfeit the deposit.",
-    openingCheckout: "Opening checkout...",
-    payDeposit: "Pay $30 deposit",
+    // deposit: "Deposit",
+    // depositDescription:
+    //   "$30 deposit required. Your consultation is confirmed after payment is complete. Late cancellations or no-shows may forfeit the deposit.",
+    // openingCheckout: "Opening checkout...",
+    // payDeposit: "Pay $30 deposit",
+    bookNow: "Book now",
+    bookingInProgress: "Booking...",
     submitting: "Submitting...",
     continue: "Continue",
     submitErrorFallback: "Could not submit right now. Please try again in a moment.",
@@ -91,8 +94,8 @@ const bookingContentCopy = {
     schedulingChooseTitle: "How would you like to proceed?",
     schedulingChooseSubtitle:
       "Proceed with booking right away, or send an inquiry and we'll get back to you by email.",
-    optionBookTitle: "Pick a time & pay deposit",
-    optionBookDesc: "Pick a time, pay the $30 deposit — your consultation is booked right away.",
+    optionBookTitle: "Pick a time & book",
+    optionBookDesc: "Pick a time and your consultation is booked right away.",
     optionInquiryTitle: "Send an inquiry",
     optionInquiryDesc:
       "We'll receive your details immediately — no extra forms. We'll reply by email shortly.",
@@ -115,7 +118,7 @@ const bookingContentCopy = {
     stepProgress: (current: number, total: number) => `Étape ${current} sur ${total}`,
     schedulingTitle: "Choisissez votre créneau de consultation",
     schedulingSubtitle:
-      "Choisissez l'heure qui vous convient, puis complétez le dépôt pour confirmer votre rendez-vous.",
+      "Choisissez l'heure qui vous convient, puis confirmez votre rendez-vous.",
     loadingTimes: "Chargement des disponibilités...",
     specialistMatched:
       "Nous avons filtré les disponibilités selon ce que vous avez décrit.",
@@ -143,11 +146,13 @@ const bookingContentCopy = {
     location: "Lieu",
     service: "Service",
     inPersonAssessment: "Évaluation en personne",
-    deposit: "Dépôt",
-    depositDescription:
-      "Un dépôt de 30 $ est requis. Votre consultation est confirmée une fois le paiement complété. Les annulations tardives ou les absences peuvent entraîner la perte du dépôt.",
-    openingCheckout: "Ouverture du paiement...",
-    payDeposit: "Payer le dépôt de 30 $",
+    // deposit: "Dépôt",
+    // depositDescription:
+    //   "Un dépôt de 30 $ est requis. Votre consultation est confirmée une fois le paiement complété. Les annulations tardives ou les absences peuvent entraîner la perte du dépôt.",
+    // openingCheckout: "Ouverture du paiement...",
+    // payDeposit: "Payer le dépôt de 30 $",
+    bookNow: "Réserver",
+    bookingInProgress: "Réservation...",
     submitting: "Envoi...",
     continue: "Continuer",
     submitErrorFallback: "Impossible d'envoyer pour le moment. Veuillez réessayer dans un instant.",
@@ -157,9 +162,8 @@ const bookingContentCopy = {
     schedulingChooseTitle: "Comment souhaitez-vous procéder?",
     schedulingChooseSubtitle:
       "Réservez tout de suite avec un dépôt, ou envoyez une demande et nous vous répondrons par courriel.",
-    optionBookTitle: "Choisir une heure et payer le dépôt",
-    optionBookDesc:
-      "Choisissez une heure, payez le dépôt de 30 $ — votre consultation est réservée sur-le-champ.",
+    optionBookTitle: "Choisir une heure et réserver",
+    optionBookDesc: "Choisissez une heure — votre consultation est réservée sur-le-champ.",
     optionInquiryTitle: "Envoyer une demande",
     optionInquiryDesc:
       "Nous recevons vos renseignements tout de suite — aucun formulaire de plus. Nous répondrons par courriel sous peu.",
@@ -184,6 +188,8 @@ export function BookingContent({
   layout = "modal",
   depositResume = null,
   trainerPageDisplayName = null,
+  /** Submit inquiry directly after intake — no scheduling or deposit step */
+  inquiryOnly = false,
 }: {
   onClose: () => void
   pinnedTeamMemberId?: string | null
@@ -197,21 +203,25 @@ export function BookingContent({
   } | null
   /** Shown as preferred trainer on inquiry when slots (names) have not been loaded yet. */
   trainerPageDisplayName?: string | null
+  inquiryOnly?: boolean
 }) {
   const locale = useAppLocale()
   const copy = bookingContentCopy[locale]
   const intlLocale = getIntlLocale(locale)
-  /** Page variant must participate in parent flex (`flex-1 min-h-0`) so the inner pane can scroll instead of clipping. */
+  /** Modal uses nested flex scroll; page variant scrolls with the document (avoids zero-height flex collapse on resume/trainer pages). */
   const shellClass = cn(
-    "flex flex-col",
-    layout === "page" ? "min-h-0 flex-1 w-full" : "h-full min-h-0",
+    "flex w-full flex-col",
+    layout === "modal" && "min-h-0 flex-1 overflow-hidden",
   )
   const pageTopChromeClass =
     layout === "page"
       ? cn("sticky z-40 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80", SITE_FIXED_HEADER_STICKY_TOP_CLASS)
-      : null
-  const topBarPaddingClass =
-    layout === "page" ? "pt-4 pb-4" : "pt-[max(1rem,env(safe-area-inset-top))] pb-4"
+      : "shrink-0 bg-background"
+  const topBarPaddingClass = layout === "page" ? "pt-4 pb-4" : "pt-3 pb-3 sm:pt-4 sm:pb-4"
+  const stepScrollClass =
+    layout === "page"
+      ? "px-6 py-4"
+      : "min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-3 touch-pan-y [-webkit-overflow-scrolling:touch] sm:px-6 sm:py-4"
 
   type ConsultationSchedulingKind = "unset" | "deposit"
   const resumeScheduling = Boolean(depositResume?.openSchedulingDeposit)
@@ -490,10 +500,10 @@ export function BookingContent({
         })
 
         if (!response.ok) {
-          const data = (await response.json().catch(() => null)) as { error?: string } | null
-          throw new Error(data?.error || copy.bookingSubmitFallback)
+          const errBody = (await response.json().catch(() => null)) as { error?: string } | null
+          throw new Error(errBody?.error || copy.bookingSubmitFallback)
         }
-        const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null } | null
+        await response.json().catch(() => null)
 
         const contractSource = trainerPageSlug ? `/booking/${trainerPageSlug}` : "/booking"
 
@@ -545,30 +555,28 @@ export function BookingContent({
 
         await recordContractAcceptance()
 
-        if (data?.checkoutUrl) {
-          trackFBLead({
-            content_name: "In-Person Evaluation Deposit",
-            content_category: "Dog Training Lead",
-          })
-          trackFBInitiateCheckout({
-            content_name: "In-Person Evaluation Deposit",
-            content_category: "Dog Training Checkout",
-          })
-          posthog.capture("consultation_deposit_checkout_redirect", {
-            connectMethod: formData.connectMethod,
-            issue: formData.issue,
-            locale,
-          })
-          window.location.assign(data.checkoutUrl)
-          return
-        }
+        // $30 deposit checkout disabled for now — book directly via API and show confirmation.
+        // if (data?.checkoutUrl) {
+        //   trackFBLead({
+        //     content_name: "In-Person Evaluation Deposit",
+        //     content_category: "Dog Training Lead",
+        //   })
+        //   trackFBInitiateCheckout({
+        //     content_name: "In-Person Evaluation Deposit",
+        //     content_category: "Dog Training Checkout",
+        //   })
+        //   posthog.capture("consultation_deposit_checkout_redirect", {
+        //     connectMethod: formData.connectMethod,
+        //     issue: formData.issue,
+        //     locale,
+        //   })
+        //   window.location.assign(data.checkoutUrl)
+        //   return
+        // }
 
         setIsComplete(true)
         trackFBLead({
-          content_name:
-            formData.connectMethod === "in-person-evaluation"
-              ? "In-Person Evaluation"
-              : "Free Discovery Call",
+          content_name: "In-Person Evaluation",
           content_category: "Dog Training Lead",
         })
         posthog.capture("booking_form_completed", {
@@ -589,16 +597,16 @@ export function BookingContent({
 
   const handleSubmit = useCallback(async () => {
     setSubmitError(null)
-    const isInPerson = formData.connectMethod === "in-person-evaluation"
-    if (isInPerson && !showSchedulingStep) {
-      setConsultationSchedulingKind("unset")
-      setIntakeContractAccepted(false)
+    if (inquiryOnly) {
+      await postBooking("inquiry")
+      return
+    }
+    if (formData.connectMethod === "in-person-evaluation") {
       setShowSchedulingStep(true)
       return
     }
-
-    await postBooking("deposit")
-  }, [formData.connectMethod, postBooking, showSchedulingStep])
+    await postBooking("inquiry")
+  }, [formData.connectMethod, inquiryOnly, postBooking])
 
   const handleClose = onClose
 
@@ -692,7 +700,7 @@ export function BookingContent({
       </div>
 
       {/* Step content — scrollable */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 overscroll-contain">
+      <div className={stepScrollClass}>
         <div className="max-w-lg mx-auto w-full">
           {showSchedulingStep ? (
             <div className="space-y-6">
@@ -711,29 +719,16 @@ export function BookingContent({
 
               {consultationSchedulingKind === "unset" ? (
                 <div className="space-y-5">
-                  <div className="space-y-3">
-                    <a
-                      href={contractUrl("assessment_booking", locale)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                    >
-                      {CONTRACT_LINK_LABEL[locale].assessment_booking}
-                    </a>
-                    <label className="flex items-start gap-2 text-sm text-left">
-                      <input
-                        type="checkbox"
-                        checked={intakeContractAccepted}
-                        onChange={(e) => {
-                          setIntakeContractAccepted(e.target.checked)
-                          setSubmitError(null)
-                        }}
-                        className="mt-1"
-                      />
-                      <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
-                    </label>
-                    <p className="text-xs text-muted-foreground">{copy.acceptWaiverToContinue}</p>
-                  </div>
+                  <ContractAcceptanceAccordion
+                    contractKind="assessment_booking"
+                    locale={locale}
+                    accepted={intakeContractAccepted}
+                    onAcceptedChange={(value) => {
+                      setIntakeContractAccepted(value)
+                      setSubmitError(null)
+                    }}
+                    hint={copy.acceptWaiverToContinue}
+                  />
                   {submitError ? (
                     <p className="text-sm text-destructive">{submitError}</p>
                   ) : null}
@@ -1041,6 +1036,7 @@ export function BookingContent({
                       </div>
                     </div>
 
+                    {/* $30 deposit disabled for now
                     <div className="flex items-start gap-3">
                       <div className="w-4 h-4 rounded-full border-2 border-primary mt-0.5 shrink-0" />
                       <div>
@@ -1050,6 +1046,7 @@ export function BookingContent({
                         </p>
                       </div>
                     </div>
+                    */}
                   </div>
                 </motion.div>
               )}
@@ -1057,25 +1054,13 @@ export function BookingContent({
               {consultationSchedulingKind === "deposit" ? (
                 <>
                   {!intakeContractAccepted ? (
-                    <div className="space-y-3 pt-2">
-                      <a
-                        href={contractUrl("assessment_booking", locale)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block rounded-xl border border-border bg-muted/20 p-4 text-left text-sm font-medium text-primary transition-colors hover:bg-muted/40 hover:underline"
-                      >
-                        {CONTRACT_LINK_LABEL[locale].assessment_booking}
-                      </a>
-                      <label className="flex items-start gap-2 text-sm text-left">
-                        <input
-                          type="checkbox"
-                          checked={intakeContractAccepted}
-                          onChange={(e) => setIntakeContractAccepted(e.target.checked)}
-                          className="mt-1"
-                        />
-                        <span>{CONTRACT_ACCEPTANCE_LABEL[locale].assessment_booking}</span>
-                      </label>
-                    </div>
+                    <ContractAcceptanceAccordion
+                      className="pt-2"
+                      contractKind="assessment_booking"
+                      locale={locale}
+                      accepted={intakeContractAccepted}
+                      onAcceptedChange={setIntakeContractAccepted}
+                    />
                   ) : null}
 
                   <div className="flex items-center justify-between gap-3 pt-2">
@@ -1089,10 +1074,10 @@ export function BookingContent({
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {copy.openingCheckout}
+                          {copy.bookingInProgress}
                         </>
                       ) : (
-                        copy.payDeposit
+                        copy.bookNow
                       )}
                     </Button>
                   </div>
@@ -1133,10 +1118,14 @@ export function BookingContent({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {copy.submitting}
+                  {inquiryOnly ? copy.inquirySending : copy.submitting}
                 </>
               ) : currentStep === TOTAL_STEPS - 1 ? (
-                copy.continue
+                inquiryOnly ? (
+                  copy.sendInquiry
+                ) : (
+                  copy.continue
+                )
               ) : (
                 <>
                   {copy.continue}

@@ -24,7 +24,7 @@ export async function generateMetadata() {
 
 export default function GroupClassesBookPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-[100dvh] flex flex-col bg-background">
       <Header />
       <GroupClassesBookHero />
       <section className="px-6 lg:px-8 pb-20 lg:pb-28 scroll-mt-24">

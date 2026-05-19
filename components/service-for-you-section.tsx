@@ -1,15 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { BookingLink, ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-import type { ServiceDetailCtaMode } from "@/components/service-work-on-section"
 
 type ServiceForYouSectionProps = {
   items: string[]
-  ctaMode?: ServiceDetailCtaMode
 }
 
 function AnimatedCheck({ active }: { active: boolean }) {
@@ -55,7 +50,7 @@ function AnimatedCheck({ active }: { active: boolean }) {
   )
 }
 
-export function ServiceForYouSection({ items, ctaMode = "program_signup" }: ServiceForYouSectionProps) {
+export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
   const t = useLocalizedText()
   const itemsRef = useRef<Array<HTMLElement | null>>([])
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({})
@@ -126,24 +121,6 @@ export function ServiceForYouSection({ items, ctaMode = "program_signup" }: Serv
               </article>
             )
           })}
-        </div>
-
-        <div className="reveal opacity-0 animation-delay-600 mt-12 text-center">
-          {ctaMode === "book_consultation" ? (
-            <BookingLink>
-              <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                {t("Book a Consultation")}
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </BookingLink>
-          ) : (
-            <ProgramSignupLink>
-              <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                {t("Start Program Sign-Up")}
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </ProgramSignupLink>
-          )}
         </div>
       </div>
     </section>

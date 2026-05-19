@@ -138,7 +138,7 @@ export function ServiceWorkOnSection({ goals, ctaMode = "program_signup", goalCa
           {ctaMode === "book_consultation" ? (
             <BookingLink>
               <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                {t("Book a Consultation")}
+                {t("Send an Inquiry")}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </BookingLink>

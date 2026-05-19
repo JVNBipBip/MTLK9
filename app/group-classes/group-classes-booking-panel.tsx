@@ -21,7 +21,6 @@ import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { GroupClassesContent } from "@/app/training-portal/group-classes-content"
 import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
 import type { StatusResponse } from "@/app/training-portal/training-portal-types"
-import { PuppySocialDropInPanel } from "@/app/group-classes/puppy-social-drop-in-panel"
 
 type VerifyState = "idle" | "loading" | "error"
 
@@ -93,6 +92,9 @@ export function GroupClassesBookingPanel({
         throw new Error(data.error || t("Could not verify your profile."))
       }
       setStatus(data)
+      if (data.lookup?.dogName?.trim()) {
+        setDogName(data.lookup.dogName.trim())
+      }
       setState("idle")
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : t("Could not verify your profile."))
@@ -140,7 +142,7 @@ export function GroupClassesBookingPanel({
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
         aria-hidden="true"
       />
       <div className="grid gap-0 lg:grid-cols-[1.3fr_1fr]">
@@ -429,6 +431,7 @@ function VerifiedView({
 
   const highlightSeries = highlightSeriesId?.trim() || ""
   const hidePuppyDropInForClassInvite = Boolean(highlightSeries)
+  const showGroupClassesCard = dropIn?.available || status.options.groupClasses.eligible
 
   return (
     <div className="space-y-6">
@@ -465,38 +468,26 @@ function VerifiedView({
         </div>
       ) : null}
 
-      {dropIn?.available && !hidePuppyDropInForClassInvite ? (
-        <PuppySocialDropInPanel
-          clientEmail={email}
-          dogNameHint={dogName}
-          redirectPath={bookingBasePath}
-          depositCents={dropIn.depositCents}
-          currency={dropIn.currency}
-          eligibleForAssessedPrograms={status.options.groupClasses.eligible}
-          onReset={onReset}
-        />
-      ) : null}
-
-      {status.options.groupClasses.eligible ? (
+      {showGroupClassesCard ? (
         <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
+            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-primary via-secondary to-primary"
             aria-hidden="true"
           />
-          <div className="p-6 sm:p-8 lg:p-10 border-b border-border/60 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Dog className="w-5 h-5" />
+          <div className="border-b border-border/60 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 px-6 pb-6 pt-7 sm:px-8 sm:pb-8 sm:pt-9 lg:px-10 lg:pb-10 lg:pt-10">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Dog className="h-5 w-5" />
                 </span>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-secondary font-medium">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-secondary">
                     {t("Welcome back")}
                   </p>
-                  <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mt-1">
+                  <h2 className="font-display mt-1 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                     {t("Classes for")} {resolvedDogDisplay}
                   </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="mt-1 truncate text-sm text-muted-foreground">
                     {t("Linked to")}{" "}
                     <span className="font-medium text-foreground">{displayEmail}</span>
                   </p>
@@ -506,7 +497,7 @@ function VerifiedView({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="rounded-full"
+                className="w-fit shrink-0 rounded-full sm:ml-4"
                 onClick={onReset}
               >
                 {t("Use a different email")}
@@ -520,6 +511,11 @@ function VerifiedView({
               clientEmail={email}
               dogName={dogName}
               redirectPath={bookingBasePath}
+              dropInPuppySocialization={
+                dropIn?.available && !hidePuppyDropInForClassInvite
+                  ? { depositCents: dropIn.depositCents, currency: dropIn.currency }
+                  : null
+              }
               preferredCoachId={preferredCoachId}
               preferredCoachLabel={preferredCoachLabel}
               highlightSeriesId={highlightSeriesId}
@@ -546,7 +542,7 @@ function GatePanel({
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card shadow-xl shadow-primary/10">
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-500/70 via-primary/60 to-secondary/60"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-amber-500/70 via-primary/60 to-secondary/60"
         aria-hidden="true"
       />
       <div className="p-6 sm:p-8 lg:p-10">

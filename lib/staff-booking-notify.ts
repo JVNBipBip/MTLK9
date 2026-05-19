@@ -165,9 +165,6 @@ const inquiryClientEmail = {
     preheader: "Our team will follow up shortly about your assessment.",
     lead: (name: string) =>
       `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Hi ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Thanks for contacting us about an in-person assessment. Our team has your details and will follow up shortly.</p>`,
-    resumeIntro:
-      "When you're ready to pick a time and pay the deposit, use your personalized link below — your intake answers are already saved:",
-    resumeCta: "Continue to scheduling & deposit",
     footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">If anything urgent comes up, call <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
   },
   fr: {
@@ -176,9 +173,6 @@ const inquiryClientEmail = {
     preheader: "Notre équipe vous répondra sous peu.",
     lead: (name: string) =>
       `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Bonjour ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Merci de nous avoir écrit au sujet d'une évaluation en personne. Notre équipe a bien reçu vos informations et vous répondra sous peu.</p>`,
-    resumeIntro:
-      "Lorsque vous êtes prêt à choisir une heure et à payer le dépôt, utilisez votre lien personnalisé ci-dessous — vos réponses au formulaire sont déjà enregistrées :",
-    resumeCta: "Continuer vers les créneaux et le dépôt",
     footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Pour toute urgence : <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
   },
 } satisfies Record<
@@ -188,8 +182,6 @@ const inquiryClientEmail = {
     headline: string
     preheader: string
     lead: (name: string) => string
-    resumeIntro: string
-    resumeCta: string
     footer: string
   }
 >
@@ -209,7 +201,6 @@ const inquiryStaffEmail = {
       preferredTrainer: "Preferred trainer",
       notes: "Notes",
       intakeSummary: "Intake summary",
-      depositResumeLink: "Client deposit resume link",
       consultationId: "Consultation id",
     },
   },
@@ -226,7 +217,6 @@ const inquiryStaffEmail = {
       preferredTrainer: "Entraîneur préféré",
       notes: "Notes",
       intakeSummary: "Résumé du formulaire",
-      depositResumeLink: "Lien client (reprise du dépôt)",
       consultationId: "ID consultation",
     },
   },
@@ -244,7 +234,6 @@ const inquiryStaffEmail = {
       preferredTrainer: string
       notes: string
       intakeSummary: string
-      depositResumeLink: string
       consultationId: string
     }
   }
@@ -267,7 +256,6 @@ function buildConsultationInquiryAdminHtml(
     inquiryNotes?: string | null
     preferredTrainerLabel?: string | null
     intakeSummary?: string | null
-    depositResumeUrl?: string | null
   },
 ): string {
   const t = inquiryStaffEmail[resolvedConsultationInquiryLocale(locale)]
@@ -288,12 +276,6 @@ function buildConsultationInquiryAdminHtml(
       `<p><strong>${escapeHtmlForEmail(t.labels.intakeSummary)}</strong></p><pre style="white-space:pre-wrap;font-family:inherit">${escapeHtmlForEmail(input.intakeSummary.trim())}</pre>`,
     )
   }
-  if (input.depositResumeUrl?.trim()) {
-    const url = input.depositResumeUrl.trim()
-    rows.push(
-      `<p><strong>${escapeHtmlForEmail(t.labels.depositResumeLink)}</strong> <a href="${escapeHtmlForEmail(url)}">${escapeHtmlForEmail(url)}</a></p>`,
-    )
-  }
   add(t.labels.consultationId, input.consultationId)
   return rows.join("\n")
 }
@@ -310,7 +292,6 @@ export function notifyConsultationInquiryStaffAndClient(input: {
   preferredTrainerLabel?: string | null
   intakeSummary?: string | null
   locale: AppLocale
-  depositResumeUrl?: string | null
 }): void {
   const inquiryLocale = resolvedConsultationInquiryLocale(input.locale)
   const staffCopy = inquiryStaffEmail[inquiryLocale]
@@ -329,11 +310,7 @@ export function notifyConsultationInquiryStaffAndClient(input: {
 
   const copy = inquiryClientEmail[inquiryLocale]
   const clientTo = input.clientEmail.trim()
-  const resumeUrl = input.depositResumeUrl?.trim() || ""
-  const resumeBlock =
-    resumeUrl &&
-    `<p style="margin:20px 0 0;color:${CLIENT_EMAIL_BODY};">${escapeHtmlForEmail(copy.resumeIntro)}</p><p style="margin:16px 0 0;"><a href="${escapeHtmlForEmail(resumeUrl)}" style="display:inline-block;padding:12px 18px;background:${CLIENT_EMAIL_ACCENT_PRIMARY};color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;">${escapeHtmlForEmail(copy.resumeCta)}</a></p>`
-  const clientInnerHtml = `${copy.lead(input.clientName)}${resumeBlock || ""}${copy.footer}`
+  const clientInnerHtml = `${copy.lead(input.clientName)}${copy.footer}`
   const clientHtml = clientFacingEmailShell({
     preheader: copy.preheader,
     headline: copy.headline,

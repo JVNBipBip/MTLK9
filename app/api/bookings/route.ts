@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server"
+import crypto from "crypto"
 import { FieldValue, type Firestore } from "firebase-admin/firestore"
-import {
-  getConsultationServiceVariationId,
-  getConsultationServiceVariationIds,
-} from "@/lib/square-service-config"
 import {
   ISSUE_SERVICE_MAP,
   goalLabelsForIssue,
@@ -12,28 +9,29 @@ import {
 } from "@/app/booking/constants"
 import type { BookingFormData } from "@/app/booking/types"
 import { getAdminDb } from "@/lib/firebase-admin"
-import { createSquarePaymentLinkForItems } from "@/lib/square"
 import { pushLeadToGHL } from "@/lib/gohighlevel"
-import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
-import {
-  addLocaleToPathname,
-  defaultLocale,
-  isAppLocale,
-  type AppLocale,
-} from "@/lib/i18n/config"
+import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { normalizePhoneForMatch } from "@/lib/contact-normalize"
 import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
-import { consultationDepositResumeExpiryIso } from "@/lib/consultation-deposit-resume"
-import { notifyConsultationInquiryStaffAndClient } from "@/lib/staff-booking-notify"
-import { generateAccessToken, hashAccessToken } from "@/lib/tokens"
+import { notifyConsultationInquiryStaffAndClient, notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 import { captureServerEvent } from "@/lib/posthog-server"
+import {
+  CONSULTATION_DEPOSIT_CURRENCY,
+  buildConsultationCheckoutRedirectUrl,
+  buildConsultationDepositResumeUrl,
+  consultationDepositAmountCentsForEmail,
+  consultationDepositResumeExpiryIso,
+} from "@/lib/consultation-deposit"
+import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
+import { createSquareBooking, getOrCreateSquareCustomer, syncInquirySquareCustomer } from "@/lib/square"
+import { buildInquirySquareCustomerNoteAppendixLines } from "@/lib/square-customer-note"
+import {
+  getConsultationServiceVariationId,
+  getConsultationServiceVariationIds,
+} from "@/lib/square-service-config"
+import { generateAccessToken, hashAccessToken } from "@/lib/tokens"
 
 export const runtime = "nodejs"
-
-const CONSULTATION_DEPOSIT_AMOUNT_CENTS = 3000
-const TEST_CONSULTATION_DEPOSIT_AMOUNT_CENTS = 100
-const CONSULTATION_DEPOSIT_CURRENCY = "CAD"
-const TEST_CONSULTATION_DEPOSIT_EMAIL = "sam.diquinz@gmail.com"
 
 function isBookingFormData(value: unknown): value is BookingFormData {
   if (!value || typeof value !== "object") return false
@@ -49,12 +47,12 @@ const bookingErrors = {
     contactRequired: "Contact name is required.",
     dogRequired: "Dog name is required.",
     unsupportedType: "Unsupported booking type.",
-    configIncomplete: "Square consultation configuration is incomplete. Set in Admin -> Service Mapping.",
-    slotRequired: "Consultation slot selection is required.",
-    invalidSlot: "Invalid consultation slot selection.",
-    slotExpired: "Selected consultation slot is no longer valid.",
-    roomUnavailable: "That time is no longer available because both facility rooms are booked.",
     submitFailed: "Failed to submit booking form.",
+    slotRequired: "Please select a consultation time.",
+    invalidSlot: "Invalid consultation slot.",
+    slotExpired: "That time is no longer available. Please choose another slot.",
+    configIncomplete: "Booking is not configured yet. Please contact us.",
+    roomUnavailable: "That time is no longer available. Please choose another slot.",
   },
   fr: {
     invalidPayload: "La demande de réservation est invalide.",
@@ -62,24 +60,18 @@ const bookingErrors = {
     contactRequired: "Le nom du contact est requis.",
     dogRequired: "Le nom du chien est requis.",
     unsupportedType: "Ce type de réservation n'est pas pris en charge.",
-    configIncomplete: "La configuration Square de consultation est incomplète. Configurez-la dans Admin -> Service Mapping.",
-    slotRequired: "La sélection d'un créneau de consultation est requise.",
-    invalidSlot: "La sélection du créneau de consultation est invalide.",
-    slotExpired: "Le créneau de consultation sélectionné n'est plus valide.",
-    roomUnavailable: "Cette heure n'est plus disponible, car les deux salles sont réservées.",
     submitFailed: "Impossible d'envoyer le formulaire de réservation.",
+    slotRequired: "Veuillez choisir une heure de consultation.",
+    invalidSlot: "Créneau de consultation invalide.",
+    slotExpired: "Ce créneau n'est plus disponible. Veuillez en choisir un autre.",
+    configIncomplete: "La réservation n'est pas encore configurée. Contactez-nous.",
+    roomUnavailable: "Ce créneau n'est plus disponible. Veuillez en choisir un autre.",
   },
 } satisfies Record<AppLocale, Record<string, string>>
 
 function resolvePayloadLocale(value: unknown): AppLocale {
   const candidate = typeof value === "string" ? value : null
   return isAppLocale(candidate) ? candidate : defaultLocale
-}
-
-function consultationDepositAmountCentsForEmail(email: string) {
-  return email.trim().toLowerCase() === TEST_CONSULTATION_DEPOSIT_EMAIL
-    ? TEST_CONSULTATION_DEPOSIT_AMOUNT_CENTS
-    : CONSULTATION_DEPOSIT_AMOUNT_CENTS
 }
 
 function normalizedDogName(value?: string | null) {
@@ -91,7 +83,8 @@ function isReplaceableConsultationStatus(value: unknown) {
   return (
     status === "intake_submitted" ||
     status === "payment_failed" ||
-    status === "expired"
+    status === "expired" ||
+    status === "pending_payment"
   )
 }
 
@@ -99,34 +92,12 @@ function consultationActivityTime(data: Record<string, unknown>) {
   const candidate =
     data.submittedAtIso ||
     data.scheduledAtIso ||
+    data.requestedScheduledAtIso ||
     data.consultationDateTime ||
     data.updatedAtIso ||
     data.createdAtIso
   const time = candidate ? new Date(String(candidate)).getTime() : 0
   return Number.isFinite(time) ? time : 0
-}
-
-function buildConsultationCheckoutRedirectUrl(request: Request, consultationId: string): string | undefined {
-  const origin =
-    request.headers.get("origin") ||
-    (process.env.NEXT_PUBLIC_SITE_URL?.trim() ? process.env.NEXT_PUBLIC_SITE_URL.trim() : "") ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "")
-  if (!origin) return undefined
-  const params = new URLSearchParams({
-    type: "evaluation",
-    bookingId: consultationId,
-  })
-  return `${origin}/checkout/success?${params.toString()}`
-}
-
-function buildConsultationDepositResumeUrl(request: Request, locale: AppLocale, plainToken: string): string | undefined {
-  const origin =
-    request.headers.get("origin") ||
-    (process.env.NEXT_PUBLIC_SITE_URL?.trim() ? process.env.NEXT_PUBLIC_SITE_URL.trim() : "") ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "")
-  if (!origin || !plainToken.trim()) return undefined
-  const path = addLocaleToPathname(`/booking/resume/${encodeURIComponent(plainToken.trim())}`, locale)
-  return `${origin.replace(/\/$/, "")}${path}`
 }
 
 async function findReplaceableConsultationId(db: Firestore, clientId: string, dogName: string) {
@@ -166,10 +137,9 @@ export async function POST(request: Request) {
 
     const consultationSubmissionKindRaw = payload.consultationSubmissionKind
     const consultationSubmissionKind =
-      consultationSubmissionKindRaw === "inquiry" ? "inquiry" : "deposit"
-    if (consultationSubmissionKind === "inquiry" && payload.formData.connectMethod !== "in-person-evaluation") {
-      return NextResponse.json({ error: errorText.invalidPayload }, { status: 400 })
-    }
+      consultationSubmissionKindRaw === "inquiry" || consultationSubmissionKindRaw === "deposit"
+        ? consultationSubmissionKindRaw
+        : null
 
     const bookingSourceRaw = payload.bookingSource
     const bookingSource =
@@ -209,42 +179,25 @@ export async function POST(request: Request) {
     const consultationDepositAmountCents = consultationDepositAmountCentsForEmail(clientId)
     const isConsultation = formData.connectMethod === "in-person-evaluation"
     const isConsultationInquiry = isConsultation && consultationSubmissionKind === "inquiry"
+    const isConsultationDirectBook = isConsultation && consultationSubmissionKind === "deposit"
 
-    let inquiryDepositResumePlainToken: string | null = null
-    let inquiryDepositResumeAccess:
-      | { tokenHash: string; expiresAtIso: string; emailSentAtIso?: null; revokedAtIso?: null }
-      | undefined
-    if (isConsultationInquiry) {
-      inquiryDepositResumePlainToken = generateAccessToken()
-      inquiryDepositResumeAccess = {
-        tokenHash: hashAccessToken(inquiryDepositResumePlainToken),
-        expiresAtIso: consultationDepositResumeExpiryIso(),
-        emailSentAtIso: null,
-        revokedAtIso: null,
-      }
-    }
-    const consultationStatus =
-      isConsultation && !isConsultationInquiry ? "pending_payment" : "intake_submitted"
     const db = getAdminDb()
     const replaceConsultationId = await findReplaceableConsultationId(db, clientId, formData.dogName)
     let squareCustomerId: string | null = null
-    let squareConsultationBookingId: string | null = null
-    let squareConsultationStatus: string | null = null
-    let scheduledAtIso: string | null = null
+    const squareConsultationBookingId: string | null = null
+    const squareConsultationStatus: string | null = null
+    let requestedScheduledAtIso: string | null = null
     let consultationServiceVariationId: string | null = null
     let consultationTeamMemberId: string | null = null
     let consultationTeamMemberName: string | null = null
 
-    if (isConsultation && !isConsultationInquiry) {
+    if (isConsultationDirectBook) {
       if (!String(formData.consultationDateTime || "").trim()) {
         return NextResponse.json({ error: errorText.slotRequired }, { status: 400 })
       }
       const allowedServiceVariationIds = await getConsultationServiceVariationIds()
       if (allowedServiceVariationIds.length === 0) {
-        return NextResponse.json(
-          { error: errorText.configIncomplete },
-          { status: 500 },
-        )
+        return NextResponse.json({ error: errorText.configIncomplete }, { status: 500 })
       }
       const consultationSlotKey = String(formData.consultationSlotKey || "").trim()
       if (!consultationSlotKey) {
@@ -261,30 +214,65 @@ export async function POST(request: Request) {
       if (!primaryConsultationVariationId) {
         return NextResponse.json({ error: errorText.configIncomplete }, { status: 500 })
       }
-      scheduledAtIso = new Date(slotStartAt).toISOString()
-      // Slot may come from any merged evaluation variation (capacity visibility); Square booking uses primary consult SKU only.
+      requestedScheduledAtIso = new Date(slotStartAt).toISOString()
       consultationServiceVariationId = primaryConsultationVariationId
       consultationTeamMemberId = slotTeamMemberId
       consultationTeamMemberName = formData.consultationTeamMemberName?.trim() || null
       const roomAvailable = await isFacilityRoomAvailable({
-        startAt: scheduledAtIso,
+        startAt: requestedScheduledAtIso,
         serviceVariationId: primaryConsultationVariationId,
         teamMemberId: slotTeamMemberId,
       })
       if (!roomAvailable) {
-        return NextResponse.json(
-          { error: errorText.roomUnavailable },
-          { status: 409 },
-        )
+        return NextResponse.json({ error: errorText.roomUnavailable }, { status: 409 })
       }
     }
 
-    const requiresConsultationDeposit = isConsultation && Boolean(scheduledAtIso)
+    // $30 deposit checkout disabled — direct Square booking when a slot is selected.
+    // const requiresConsultationDeposit = isConsultationDirectBook && Boolean(requestedScheduledAtIso)
+    const requiresConsultationDeposit = false
+
+    let inquiryDepositResumePlainToken: string | null = null
+    let inquiryDepositResumeAccess:
+      | { tokenHash: string; expiresAtIso: string; emailSentAtIso?: null; revokedAtIso?: null }
+      | undefined
+    if (isConsultationInquiry) {
+      inquiryDepositResumePlainToken = generateAccessToken()
+      inquiryDepositResumeAccess = {
+        tokenHash: hashAccessToken(inquiryDepositResumePlainToken),
+        expiresAtIso: consultationDepositResumeExpiryIso(),
+        emailSentAtIso: null,
+        revokedAtIso: null,
+      }
+    }
+
     const intakeResponses = intakeResponsesForIssue(formData.issue, formData.followUps || {})
     const intakeResponseSummary = intakeResponses
       .map((response) => `${response.questionLabel}: ${response.answerLabel}`)
       .join("\n")
     const goalLabels = goalLabelsForIssue(formData.issue, formData.goals || [])
+    const submittedAtIso = new Date().toISOString()
+
+    if (isConsultationInquiry) {
+      try {
+        squareCustomerId = await syncInquirySquareCustomer({
+          name: formData.contactName,
+          email: formData.contactEmail,
+          phone: formData.contactPhone || undefined,
+          appendixLines: buildInquirySquareCustomerNoteAppendixLines({
+            formData,
+            issueLabel: issueLabel(formData.issue),
+            goalLabels,
+            intakeResponseSummary,
+            locale,
+            preferredTrainerLabel,
+            submittedAtIso,
+          }),
+        })
+      } catch (err) {
+        console.error("[Booking API] Square customer sync failed for inquiry (non-blocking):", err)
+      }
+    }
     const clientPhoneNormalized = normalizePhoneForMatch(formData.contactPhone || undefined)
     const submission = {
       clientId,
@@ -314,7 +302,8 @@ export async function POST(request: Request) {
       contactNotes: formData.contactNotes,
       consultationDateTime: formData.consultationDateTime || null,
       consultationSlotKey: formData.consultationSlotKey || null,
-      scheduledAtIso,
+      requestedScheduledAtIso,
+      scheduledAtIso: null,
       locationLabel: formData.consultationLocation || null,
       consultationLocation: formData.consultationLocation || null,
       consultationWhat: formData.consultationWhat || "In-person evaluation (60-75 minutes)",
@@ -329,7 +318,7 @@ export async function POST(request: Request) {
         formData.followUps["bitten-human"] === "yes" ||
         formData.followUps["bitten-dog"] === "yes" ||
         formData.followUps["bitten-or-nipped-human"] === "yes",
-      status: consultationStatus,
+      status: "intake_submitted",
       recommendedClassTypes: [],
       completedAtIso: null,
       completedBy: null,
@@ -361,7 +350,7 @@ export async function POST(request: Request) {
               buildConsultationDepositResumeUrl(request, locale, inquiryDepositResumePlainToken) ?? null,
           }
         : {}),
-      submittedAtIso: new Date().toISOString(),
+      submittedAtIso,
       updatedAt: FieldValue.serverTimestamp(),
     }
 
@@ -396,11 +385,87 @@ export async function POST(request: Request) {
         preferredTrainerLabel,
         intakeSummary: intakeResponseSummary,
         locale,
-        depositResumeUrl: buildConsultationDepositResumeUrl(request, locale, inquiryDepositResumePlainToken || ""),
       })
     }
 
     let checkoutUrl: string | null = null
+    if (isConsultationDirectBook && requestedScheduledAtIso && consultationServiceVariationId && consultationTeamMemberId) {
+      try {
+        const bookingCustomerId =
+          squareCustomerId ||
+          (await getOrCreateSquareCustomer({
+            name: formData.contactName,
+            email: formData.contactEmail,
+            phone: formData.contactPhone || undefined,
+          }))
+        const idempotencyKey = crypto
+          .createHash("sha256")
+          .update(`${docRef.id}:${requestedScheduledAtIso}`)
+          .digest("hex")
+          .slice(0, 45)
+        const squareBooking = await createSquareBooking({
+          customerId: bookingCustomerId,
+          startAt: requestedScheduledAtIso,
+          serviceVariationId: consultationServiceVariationId,
+          teamMemberId: consultationTeamMemberId,
+          idempotencyKey,
+          note: [
+            `Dog: ${formData.dogName}`,
+            issueLabel(formData.issue) ? `Issue: ${issueLabel(formData.issue)}` : null,
+            formData.contactBestTime ? `Contact pref: ${formData.contactBestTime}` : null,
+            formData.contactNotes ? `Client notes: ${String(formData.contactNotes).slice(0, 180)}` : null,
+          ]
+            .filter(Boolean)
+            .join(" | ")
+            .slice(0, 900),
+        })
+        const squareConsultationBookingId = squareBooking.booking?.id || null
+        if (!squareConsultationBookingId) {
+          throw new Error("Square did not return a consultation booking id.")
+        }
+        await docRef.set(
+          {
+            status: "scheduled",
+            scheduledAtIso: requestedScheduledAtIso,
+            consultationDateTime: requestedScheduledAtIso,
+            squareCustomerId: bookingCustomerId,
+            squareConsultationBookingId,
+            squareConsultationStatus: squareBooking.booking?.status || null,
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        )
+        notifyStaffOfBooking({
+          kind: "consultation",
+          consultationId: docRef.id,
+          clientName: formData.contactName,
+          clientEmail: formData.contactEmail,
+          clientPhone: formData.contactPhone,
+          dogName: formData.dogName,
+          scheduledAtIso: requestedScheduledAtIso,
+          squareBookingId: squareConsultationBookingId,
+          issueLabel: issueLabel(formData.issue),
+        })
+      } catch (err) {
+        console.error("[Booking API] Failed to create direct consultation booking:", err)
+        await docRef.set(
+          {
+            status: "booking_failed",
+            bookingError: err instanceof Error ? err.message : "Square booking failed.",
+            updatedAt: FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        )
+        return NextResponse.json(
+          {
+            error: "Could not complete the booking. Please try again or contact us.",
+          },
+          { status: 502 },
+        )
+      }
+    }
+
+    /* $30 deposit checkout disabled for now
     if (requiresConsultationDeposit) {
       try {
         const link = await createSquarePaymentLinkForItems({
@@ -442,24 +507,29 @@ export async function POST(request: Request) {
           { merge: true },
         )
         return NextResponse.json(
-          { error: "Payment checkout could not be created. Please try again or contact us to complete the deposit." },
+          {
+            error:
+              "Payment checkout could not be created. Please try again or contact us to complete the deposit.",
+          },
           { status: 502 },
         )
       }
     }
+    */
 
-    // Push lead to GoHighLevel (non-blocking)
     pushLeadToGHL(formData).catch((err) =>
-      console.error("[Booking API] GHL push failed (non-blocking):", err)
+      console.error("[Booking API] GHL push failed (non-blocking):", err),
     )
 
     captureServerEvent({
       distinctId: clientId,
       event: isConsultationInquiry
         ? "consultation_inquiry_submitted"
-        : requiresConsultationDeposit
-          ? "consultation_deposit_initiated"
-          : "booking_submitted",
+        : isConsultationDirectBook
+          ? "consultation_booked"
+          : requiresConsultationDeposit
+            ? "consultation_deposit_initiated"
+            : "booking_submitted",
       properties: {
         consultationId: docRef.id,
         connectMethod: formData.connectMethod,
@@ -473,7 +543,7 @@ export async function POST(request: Request) {
         highPriority: submission.highPriority,
         consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
         preferredTrainerLabel,
-        scheduledAtIso,
+        requestedScheduledAtIso,
         depositAmountCents: requiresConsultationDeposit ? consultationDepositAmountCents : 0,
         replacedExisting: Boolean(replaceConsultationId),
       },

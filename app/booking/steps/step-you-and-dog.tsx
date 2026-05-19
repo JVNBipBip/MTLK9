@@ -133,8 +133,7 @@ export function StepYouAndDog({ formData, updateFormData }: StepProps) {
 
         <div className="space-y-1.5">
           <Label htmlFor="contactNotes" className="text-sm font-medium">
-            {copy.additionalDogContext}{" "}
-            <span className="text-muted-foreground font-normal">{copy.optional}</span>
+            {copy.additionalDogContext}
           </Label>
           <Textarea
             id="contactNotes"

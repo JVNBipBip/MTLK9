@@ -24,12 +24,5 @@ export default async function BookingResumePage(props: Props) {
   const data = await loadConsultationDepositResumePageData(db, decoded)
   if (!data) notFound()
 
-  return (
-    <BookingResumeClient
-      initialFormData={data.initialFormData}
-      pinnedTeamMemberId={data.pinnedTeamMemberId}
-      trainerPageSlug={data.trainerPageSlug}
-      allowTeamMemberIds={data.allowTeamMemberIds}
-    />
-  )
+  return <BookingResumeClient data={data} />
 }

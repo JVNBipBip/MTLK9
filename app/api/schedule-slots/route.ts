@@ -46,13 +46,7 @@ export async function GET(request: Request) {
     dogName?: string
   }
 
-  const expiresAt = consultation.bookingAccess?.expiresAtIso ? new Date(consultation.bookingAccess.expiresAtIso).getTime() : 0
-  if (
-    consultation.bookingAccess?.revokedAtIso ||
-    !expiresAt ||
-    expiresAt < Date.now() ||
-    consultation.status !== "completed"
-  ) {
+  if (consultation.bookingAccess?.revokedAtIso || consultation.status !== "completed") {
     return NextResponse.json({ error: "This booking link is no longer available." }, { status: 410 })
   }
 

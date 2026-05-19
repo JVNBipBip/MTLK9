@@ -1,6 +1,7 @@
 import { getAdminDb } from "@/lib/firebase-admin"
 import { SQUARE_TOKENS_COLLECTION } from "@/lib/domain"
 import { getSquareLocationId } from "@/lib/square-service-config"
+import { composeSquareCustomerNote, parseStaffNoteFromSquareNote } from "@/lib/square-customer-note"
 
 const SQUARE_BASE_URL_BY_ENV = {
   production: "https://connect.squareup.com",
@@ -181,7 +182,12 @@ export async function searchSquareAvailability(input: {
   })
 }
 
-export async function createSquareCustomer(input: { givenName: string; emailAddress: string; phoneNumber?: string }) {
+export async function createSquareCustomer(input: {
+  givenName: string
+  emailAddress: string
+  phoneNumber?: string
+  note?: string
+}) {
   return squareRequest<{ customer?: { id?: string } }>("/v2/customers", {
     method: "POST",
     body: JSON.stringify({
@@ -189,6 +195,7 @@ export async function createSquareCustomer(input: { givenName: string; emailAddr
       given_name: input.givenName || undefined,
       email_address: input.emailAddress || undefined,
       phone_number: input.phoneNumber || undefined,
+      note: input.note?.trim() || undefined,
     }),
   })
 }
@@ -496,6 +503,154 @@ export type SquareCustomer = {
   phone_number?: string
   reference_id?: string
   note?: string
+  version?: number
+}
+
+function splitDisplayNameForSquare(displayName: string): { given_name: string; family_name?: string } {
+  const trimmed = displayName.trim()
+  if (!trimmed) return { given_name: "" }
+  const parts = trimmed.split(/\s+/)
+  if (parts.length === 1) return { given_name: parts[0] }
+  return { given_name: parts[0], family_name: parts.slice(1).join(" ") }
+}
+
+export type UpdateSquareCustomerInput = {
+  displayName?: string
+  email?: string
+  phone?: string
+  note?: string
+}
+
+export async function updateSquareCustomer(
+  customerId: string,
+  input: UpdateSquareCustomerInput,
+): Promise<SquareCustomer> {
+  const id = customerId.trim().toUpperCase()
+  if (!id) throw new Error("Square customer id is required.")
+
+  const retrieved = await retrieveSquareCustomer(id)
+  const existing = retrieved.customer
+  if (!existing?.id) throw new Error("Square customer not found.")
+
+  const customerPatch: Record<string, unknown> = {}
+
+  if (input.displayName !== undefined) {
+    const { given_name, family_name } = splitDisplayNameForSquare(input.displayName)
+    if (given_name && given_name !== (existing.given_name || "").trim()) {
+      customerPatch.given_name = given_name
+    }
+    if (family_name && family_name !== (existing.family_name || "").trim()) {
+      customerPatch.family_name = family_name
+    }
+  }
+
+  if (input.email !== undefined) {
+    const email = input.email.trim()
+    if (email && email !== (existing.email_address || "").trim()) {
+      customerPatch.email_address = email
+    }
+  }
+
+  if (input.phone !== undefined) {
+    const phone = input.phone.trim()
+    if (phone && phone !== (existing.phone_number || "").trim()) {
+      customerPatch.phone_number = phone
+    }
+  }
+
+  if (input.note !== undefined) {
+    const note = input.note.trim()
+    if (note && note !== (existing.note || "").trim()) {
+      customerPatch.note = note
+    }
+  }
+
+  if (Object.keys(customerPatch).length === 0) return existing
+
+  if (existing.version !== undefined) {
+    customerPatch.version = existing.version
+  }
+
+  const response = await squareRequest<{ customer?: SquareCustomer }>(
+    `/v2/customers/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(customerPatch),
+    },
+  )
+
+  const updated = response.customer
+  if (!updated?.id) throw new Error("Square did not return an updated customer.")
+  return updated
+}
+
+export async function setSquareCustomerNote(customerId: string, note: string): Promise<void> {
+  const trimmed = note.trim()
+  if (!trimmed) throw new Error("Square customer note cannot be empty.")
+
+  const id = customerId.trim().toUpperCase()
+  const retrieved = await retrieveSquareCustomer(id)
+  const existing = retrieved.customer
+  if (!existing?.id) throw new Error("Square customer not found.")
+
+  if (trimmed === (existing.note || "").trim()) return
+
+  const customer: Record<string, unknown> = { note: trimmed }
+  if (existing.version !== undefined) {
+    customer.version = existing.version
+  }
+
+  await squareRequest<{ customer?: SquareCustomer }>(`/v2/customers/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(customer),
+  })
+}
+
+export async function syncInquirySquareCustomer(input: {
+  name: string
+  email: string
+  phone?: string
+  appendixLines: string[]
+}): Promise<string> {
+  const normalizedEmail = input.email.trim().toLowerCase()
+  if (!normalizedEmail) throw new Error("Customer email is required for Square booking.")
+
+  const note = composeSquareCustomerNote("", input.appendixLines).trim()
+  if (!note) throw new Error("Inquiry note could not be composed for Square.")
+
+  const existing = await searchSquareCustomerByEmail(normalizedEmail)
+  const existingId = existing.customers?.[0]?.id
+
+  if (existingId) {
+    const retrieved = await retrieveSquareCustomer(existingId)
+    const staffNote = parseStaffNoteFromSquareNote(retrieved.customer?.note || "")
+    const fullNote = composeSquareCustomerNote(staffNote, input.appendixLines).trim()
+    if (!fullNote) throw new Error("Inquiry note could not be composed for Square.")
+    await setSquareCustomerNote(existingId, fullNote)
+    return existingId
+  }
+
+  try {
+    const created = await createSquareCustomer({
+      givenName: input.name,
+      emailAddress: normalizedEmail,
+      phoneNumber: input.phone?.trim() || undefined,
+      note,
+    })
+    const customerId = created.customer?.id
+    if (!customerId) throw new Error("Square customer could not be created.")
+    return customerId
+  } catch (err) {
+    const retry = await searchSquareCustomerByEmail(normalizedEmail)
+    const retryId = retry.customers?.[0]?.id
+    if (!retryId) throw err
+    const retrieved = await retrieveSquareCustomer(retryId)
+    const staffNote = parseStaffNoteFromSquareNote(retrieved.customer?.note || "")
+    const fullNote = composeSquareCustomerNote(staffNote, input.appendixLines).trim()
+    if (!fullNote) throw err
+    await setSquareCustomerNote(retryId, fullNote)
+    return retryId
+  }
 }
 
 export async function retrieveSquareCustomer(customerId: string) {

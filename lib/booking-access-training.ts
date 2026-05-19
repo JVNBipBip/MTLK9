@@ -32,11 +32,9 @@ function consultationRowFromDoc(
 }
 
 function bookingAccessIsValid(
-  bookingAccess: { expiresAtIso?: string; revokedAtIso?: string | null } | undefined,
+  bookingAccess: { tokenHash?: string; revokedAtIso?: string | null } | undefined,
 ): boolean {
-  if (!bookingAccess?.expiresAtIso || bookingAccess.revokedAtIso) return false
-  const t = new Date(bookingAccess.expiresAtIso).getTime()
-  return Number.isFinite(t) && t > Date.now()
+  return Boolean(bookingAccess?.tokenHash) && !bookingAccess?.revokedAtIso
 }
 
 async function trustFromBookingAccessToken(

@@ -1,103 +1,31 @@
 "use client"
 
-import { Suspense, useEffect, useRef } from "react"
-import { ArrowRight, CalendarCheck, ClipboardCheck, Users } from "lucide-react"
+import { Suspense, useEffect, useMemo, useRef } from "react"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { CardCoverImage } from "@/components/card-cover-image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
 import { Button } from "@/components/ui/button"
+import { useAppLocale } from "@/components/locale-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { addLocaleToPathname } from "@/lib/i18n/config"
+import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
-
-type GroupOffering = {
-  id: string
-  label: string
-  forText: string
-  summary: string
-  bullets: string[]
-  image: string
-  imageAvif?: string
-  imageClassName?: string
-  packagePrice?: string
-  unitPrice?: string
-  packageDetail?: string
-  note?: string
-}
-
-const OFFERINGS: GroupOffering[] = [
-  {
-    id: "puppy-socialization-class",
-    label: "Puppy Socialization Class",
-    forText: "Puppies",
-    summary: "Safe early socialization, confidence building, and trainer-guided puppy manners.",
-    bullets: ["Confident socialization", "Body handling", "Early manners"],
-    image: "/images/Classes images/puppy_social.jpg",
-    packagePrice: "$50 + tax",
-    packageDetail: "Drop-in · 2–5 months",
-  },
-  {
-    id: "teen-puppy-class",
-    label: "Teen Puppy Class",
-    forText: "Teen puppies",
-    summary: "A structured class for adolescent dogs building focus, manners, and engagement around distractions.",
-    bullets: ["Focus around distractions", "Leash and impulse control", "Handler coaching"],
-    image: "/images/Classes images/teen_puppy.webp",
-    imageAvif: "/images/Classes images/teen_puppy.avif",
-    packagePrice: "$350 + tax",
-    unitPrice: "$90 + tax",
-    packageDetail: "4 classes",
-  },
-  {
-    id: "reactivity-group-class",
-    label: "Reactivity Group Class",
-    forText: "For dogs who struggle around triggers",
-    summary: "Structured reactivity work with distance management and controlled reps.",
-    bullets: ["Engage-Disengage pattern", "Threshold distance work", "Handler coaching"],
-    image: "/images/Classes images/reactivity_group_class.webp",
-    packagePrice: "$360 + tax",
-    unitPrice: "$95 + tax",
-    packageDetail: "4 classes",
-  },
-  {
-    id: "level-1-obedience-class",
-    label: "Level 1 Obedience Class",
-    forText: "Foundation obedience",
-    summary: "Practical manners, reliable basics, and calm work around distractions.",
-    bullets: ["Loose-leash walking", "Sit / down / stay / recall", "Impulse control"],
-    image: "/images/Classes images/obedience_group_class_1.webp",
-    imageAvif: "/images/Classes images/obedience_group_class_1.avif",
-    imageClassName: "object-[center_30%]",
-    packagePrice: "$360 + tax",
-    unitPrice: "$95 + tax",
-    packageDetail: "4 classes",
-  },
-  {
-    id: "level-2-obedience-class",
-    label: "Level 2 Obedience Class",
-    forText: "Intermediate obedience",
-    summary: "The next step for dogs ready to build stronger obedience, duration, and distraction work.",
-    bullets: ["More reliability", "Distance and duration", "Proofing around distractions"],
-    image: "/images/Classes images/obedience_group_class_2.webp",
-    imageClassName: "object-[center_32%]",
-    packagePrice: "$450 + tax",
-    unitPrice: "$95 + tax",
-    packageDetail: "5 classes",
-  },
-  {
-    id: "level-3-obedience-class",
-    label: "Level 3 Obedience Class",
-    forText: "Advanced obedience",
-    summary: "Advanced group obedience for teams ready for more challenging skills and proofing.",
-    bullets: ["Advanced proofing", "Handler precision", "Higher-distraction reps"],
-    image: "/images/Classes images/obedience.webp",
-    note: "Coming soon",
-  },
-]
 
 export default function GroupClassesPage() {
   const t = useLocalizedText()
+  const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
+
+  const learnMoreHref = useMemo(() => {
+    const hrefs: Record<string, string> = {}
+    for (const offering of GROUP_CLASS_OFFERINGS) {
+      hrefs[offering.id] = addLocaleToPathname(`/group-classes/${offering.id}`, locale)
+    }
+    return hrefs
+  }, [locale])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -146,65 +74,13 @@ export default function GroupClassesPage() {
               )}
             </p>
           </div>
-
-          <div className="reveal opacity-0 animation-delay-400 mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-            <HeroStat icon={<Users className="w-4 h-4" />} label={t("Small classes")} />
-            <HeroStat icon={<CalendarCheck className="w-4 h-4" />} label={t("Scheduled series")} />
-            <HeroStat icon={<ClipboardCheck className="w-4 h-4" />} label={t("Trainer-approved")} />
-          </div>
         </div>
       </section>
 
       <section className="px-6 lg:px-8 pt-4 lg:pt-6 pb-8 lg:pb-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="reveal opacity-0 rounded-3xl border border-border/60 bg-card p-6 md:p-8 lg:p-10 shadow-lg shadow-primary/5">
-            <div className="text-center max-w-xl mx-auto mb-6">
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-2">
-                {t("How it works")}
-              </p>
-              <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground text-balance">
-                {t("Three steps to the right class")}
-              </h2>
-            </div>
-            <ol className="grid gap-4 md:grid-cols-3 md:gap-5">
-              {[
-                {
-                  title: "Complete an assessment",
-                  body: "We meet you and your dog first so we can understand goals, behavior, and the right path.",
-                },
-                {
-                  title: "Your trainer approves a program",
-                  body: "After the assessment, your trainer enables the group programs your dog is ready for.",
-                },
-                {
-                  title: "Request your spot",
-                  body: "Come back, enter your email, and request an upcoming full-series class that fits your schedule.",
-                },
-              ].map((step, index) => (
-                <li
-                  key={step.title}
-                  className={`reveal opacity-0 relative rounded-2xl border border-border/60 bg-background/60 p-4 md:p-5 ${
-                    index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <span className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary font-display text-base font-semibold">
-                      {index + 1}
-                    </span>
-                    <h3 className="text-sm font-medium text-foreground leading-snug">{t(step.title)}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{t(step.body)}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 lg:px-8 pb-20 lg:pb-28 pt-2">
         <div className="max-w-7xl mx-auto">
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {OFFERINGS.map((offering, index) => (
+            {GROUP_CLASS_OFFERINGS.map((offering, index) => (
               <article
                 key={offering.id}
                 className={`reveal opacity-0 group flex flex-col rounded-3xl overflow-hidden border border-border/50 bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/25 transition-all duration-300 ${
@@ -260,12 +136,70 @@ export default function GroupClassesPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button asChild variant="outline" className="mt-6 rounded-full">
-                    <a href="#group-class-availability">{t("See dates & availability")}</a>
-                  </Button>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <Button
+                      asChild
+                      className="rounded-full bg-white text-foreground hover:bg-muted border border-foreground transition-colors"
+                    >
+                      <a href="#group-class-availability">{t("See dates & availability")}</a>
+                    </Button>
+                    <Link
+                      href={learnMoreHref[offering.id]}
+                      className="inline-flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    >
+                      {t("Learn More")}
+                      <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 lg:px-8 pb-20 lg:pb-28 pt-2">
+        <div className="max-w-5xl mx-auto">
+          <div className="reveal opacity-0 rounded-3xl border border-border/60 bg-card p-6 md:p-8 lg:p-10 shadow-lg shadow-primary/5">
+            <div className="text-center max-w-xl mx-auto mb-6">
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-2">
+                {t("How it works")}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground text-balance">
+                {t("Three steps to the right class")}
+              </h2>
+            </div>
+            <ol className="grid gap-4 md:grid-cols-3 md:gap-5">
+              {[
+                {
+                  title: "Complete an assessment",
+                  body: "We meet you and your dog first so we can understand goals, behavior, and the right path.",
+                },
+                {
+                  title: "Your trainer approves a program",
+                  body: "After the assessment, your trainer enables the group programs your dog is ready for.",
+                },
+                {
+                  title: "Request your spot",
+                  body: "Come back, enter your email, and request an upcoming full-series class that fits your schedule.",
+                },
+              ].map((step, index) => (
+                <li
+                  key={step.title}
+                  className={`reveal opacity-0 relative rounded-2xl border border-border/60 bg-background/60 p-4 md:p-5 ${
+                    index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary font-display text-base font-semibold">
+                      {index + 1}
+                    </span>
+                    <h3 className="text-sm font-medium text-foreground leading-snug">{t(step.title)}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t(step.body)}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
@@ -312,7 +246,7 @@ export default function GroupClassesPage() {
                   size="lg"
                   className="rounded-full bg-background text-foreground hover:bg-background/90 px-8 py-6 text-base group"
                 >
-                  {t("Book an Assessment")}
+                  {t("Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>
@@ -324,14 +258,5 @@ export default function GroupClassesPage() {
 
       <Footer />
     </main>
-  )
-}
-
-function HeroStat({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center justify-center gap-2 rounded-2xl border border-border/60 bg-card/70 backdrop-blur px-3 py-3 text-xs sm:text-sm font-medium text-foreground/85">
-      <span className="text-primary">{icon}</span>
-      <span>{label}</span>
-    </div>
   )
 }

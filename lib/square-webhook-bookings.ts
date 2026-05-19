@@ -13,6 +13,10 @@ import {
   normalizePhoneForMatch,
   phoneEqualityCandidates,
 } from "@/lib/contact-normalize"
+import {
+  isConsultationAppointmentConfirmed,
+  isConsultationDepositUnpaid,
+} from "@/lib/consultation-deposit"
 
 export type SquareWebhookPayload = {
   type?: string
@@ -49,7 +53,10 @@ type ExistingBookingDoc = {
 type ExistingConsultationDoc = {
   clientId?: string
   scheduledAtIso?: string | null
+  requestedScheduledAtIso?: string | null
   consultationDateTime?: string | null
+  consultationSlotKey?: string | null
+  initialPaymentStatus?: string | null
   rescheduleCount?: number
   squareWebhookLastEventId?: string | null
   squareCustomerId?: string | null
@@ -482,6 +489,21 @@ async function setConsultationMirrors(
   await Promise.all(writes)
 }
 
+function resolveConsultationStatusAfterWebhook(
+  existing: ExistingConsultationDoc,
+  booking: NormalizedSquareBooking,
+  payload: SquareWebhookPayload,
+) {
+  if (isCancelledStatus(booking.status, payload.type)) return "expired"
+  if (isConsultationDepositUnpaid(existing)) return String(existing.status || "intake_submitted")
+  if (isConsultationAppointmentConfirmed(existing)) {
+    const base = String(existing.status || "scheduled")
+    return base === "intake_submitted" ? "scheduled" : base
+  }
+  const base = String(existing.status || "intake_submitted")
+  return base === "intake_submitted" ? "scheduled" : base
+}
+
 function buildConsultationUpdate(
   existing: ExistingConsultationDoc,
   booking: NormalizedSquareBooking,
@@ -490,12 +512,17 @@ function buildConsultationUpdate(
   const previousStart = consultationStartFromExisting(existing)
   const didReschedule = Boolean(previousStart && booking.startAtIso && previousStart !== booking.startAtIso)
   const cancelled = isCancelledStatus(booking.status, payload.type)
+  const confirmed = isConsultationAppointmentConfirmed(existing)
   return {
-    status: cancelled ? "expired" : existing.status || "scheduled",
+    status: resolveConsultationStatusAfterWebhook(existing, booking, payload),
     squareConsultationStatus: booking.status,
     squareCustomerId: booking.customerId ?? existing.squareCustomerId ?? null,
-    scheduledAtIso: booking.startAtIso ?? existing.scheduledAtIso ?? existing.consultationDateTime ?? null,
-    consultationDateTime: booking.startAtIso ?? existing.consultationDateTime ?? existing.scheduledAtIso ?? null,
+    scheduledAtIso: confirmed
+      ? (booking.startAtIso ?? existing.scheduledAtIso ?? existing.consultationDateTime ?? null)
+      : (existing.scheduledAtIso ?? null),
+    consultationDateTime: confirmed
+      ? (booking.startAtIso ?? existing.consultationDateTime ?? existing.scheduledAtIso ?? null)
+      : (existing.consultationDateTime ?? null),
     locationId: booking.locationId ?? existing.locationId ?? null,
     squareServiceVariationId: booking.serviceVariationId,
     squareTeamMemberId: booking.teamMemberId,
@@ -526,14 +553,11 @@ function buildMergeIntoExistingConsultation(
   enrichedCustomer: EnrichedSquareCustomer,
   payload: SquareWebhookPayload,
 ) {
-  const nextStart =
-    booking.startAtIso ?? existing.scheduledAtIso ?? existing.consultationDateTime ?? null
-  const baseStatus = existing.status || "scheduled"
-  const resolvedStatus = isCancelledStatus(booking.status, payload.type)
-    ? "expired"
-    : baseStatus === "intake_submitted"
-      ? "scheduled"
-      : baseStatus
+  const depositUnpaid = isConsultationDepositUnpaid(existing)
+  const nextStart = depositUnpaid
+    ? (existing.scheduledAtIso ?? existing.consultationDateTime ?? null)
+    : (booking.startAtIso ?? existing.scheduledAtIso ?? existing.consultationDateTime ?? null)
+  const resolvedStatus = resolveConsultationStatusAfterWebhook(existing, booking, payload)
 
   const mergedPhoneNorm =
     normalizePhoneForMatch(enrichedCustomer.phone || existing.clientPhone || undefined) || null
@@ -542,8 +566,8 @@ function buildMergeIntoExistingConsultation(
     squareConsultationBookingId: booking.id,
     squareConsultationStatus: booking.status,
     squareCustomerId: booking.customerId ?? enrichedCustomer.id ?? existing.squareCustomerId ?? null,
-    scheduledAtIso: nextStart,
-    consultationDateTime: nextStart,
+    scheduledAtIso: depositUnpaid ? (existing.scheduledAtIso ?? null) : nextStart,
+    consultationDateTime: depositUnpaid ? (existing.consultationDateTime ?? null) : nextStart,
     locationId: booking.locationId ?? existing.locationId ?? null,
     squareServiceVariationId: booking.serviceVariationId,
     squareTeamMemberId: booking.teamMemberId,
@@ -892,7 +916,10 @@ export async function reconcileSquareBookingWebhook(
   const isConsultation = isConsultationVariation(booking.serviceVariationId, consultationVariationIds)
 
   if (isConsultation) {
-    const match = await findConsultationMatch(db, enrichedCustomer)
+    let match = await findConsultationMatch(db, enrichedCustomer)
+    if (match && isConsultationDepositUnpaid(match.data) && !match.data.squareConsultationBookingId) {
+      match = null
+    }
     if (match) {
       await setConsultationMirrors(
         db,

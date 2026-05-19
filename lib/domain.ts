@@ -86,6 +86,8 @@ export type ConsultationRecord = {
   goalLabels?: string[]
   connectMethod?: string
   scheduledAtIso?: string | null
+  /** Client-selected slot before deposit is paid; promoted to scheduledAtIso after payment. */
+  requestedScheduledAtIso?: string | null
   consultationDateTime?: string | null
   consultationSlotKey?: string | null
   consultationServiceVariationId?: string | null
@@ -144,6 +146,15 @@ export type ConsultationRecord = {
   squareCustomerId?: string | null
   squareConsultationBookingId?: string | null
   squareConsultationStatus?: string | null
+  initialPaymentIntentId?: string | null
+  initialPaymentStatus?: string | null
+  initialPaymentProvider?: string | null
+  initialPaymentAmountCents?: number | null
+  initialPaymentCurrency?: string | null
+  initialPaymentPaidAtIso?: string | null
+  squarePaymentLinkId?: string | null
+  squarePaymentLinkUrl?: string | null
+  squareOrderId?: string | null
   createdAt?: unknown
   updatedAt?: unknown
   submittedAtIso?: string

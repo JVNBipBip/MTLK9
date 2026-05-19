@@ -11,12 +11,6 @@ import { BookingLink, TrainingPortalLink } from "@/components/booking-form-provi
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import {
-  CONSULTATION_SERVICES_CARD_RANGE,
-  GROUP_CLASSES_SERVICES_CARD_RANGE,
-  PRIVATE_TRAINING_SERVICES_CARD_RANGE,
-} from "@/lib/in-facility-training-pricing"
-
 type TrainingPathCard = {
   title: string
   lead: string
@@ -51,31 +45,6 @@ const trainingPaths: TrainingPathCard[] = [
   },
 ]
 
-function PathCardPricing({
-  variant,
-  t,
-}: {
-  variant: TrainingPathCard["variant"]
-  t: ReturnType<typeof useLocalizedText>
-}) {
-  const { range, hint } =
-    variant === "consultation"
-      ? { range: CONSULTATION_SERVICES_CARD_RANGE, hint: "Rate depends on your dog's age." as const }
-      : variant === "private"
-        ? { range: PRIVATE_TRAINING_SERVICES_CARD_RANGE, hint: "Packages and session rates — see Private Training." as const }
-        : { range: GROUP_CLASSES_SERVICES_CARD_RANGE, hint: "Per-class pricing is on the Group Classes page." as const }
-
-  return (
-    <div className="border-t border-border/55 pt-4 space-y-2">
-      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-        {t("In-facility · CAD + tax")}
-      </p>
-      <p className="font-display text-2xl font-semibold tracking-tight text-primary tabular-nums">{range}</p>
-      <p className="text-xs text-muted-foreground leading-relaxed">{t(hint)}</p>
-    </div>
-  )
-}
-
 function PathCardCta({
   path,
   groupClassesHref,
@@ -97,7 +66,7 @@ function PathCardCta({
       <div className="flex flex-col gap-3">
         <BookingLink>
           <Button variant="outline" className="w-full rounded-full border-primary/35 bg-transparent hover:bg-primary/5 group/btn">
-            {t("Book a Consultation")}
+            {t("Send an Inquiry")}
             <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Button>
         </BookingLink>
@@ -139,10 +108,7 @@ export default function ServicesPage() {
   const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
 
-  const groupClassesHref = useMemo(
-    () => `${addLocaleToPathname("/group-classes", locale)}#group-class-availability`,
-    [locale],
-  )
+  const groupClassesHref = useMemo(() => addLocaleToPathname("/group-classes", locale), [locale])
 
   const consultationLearnMoreHref = useMemo(() => addLocaleToPathname("/services/consultation", locale), [locale])
 
@@ -222,7 +188,6 @@ export default function ServicesPage() {
 
                     <div className="flex flex-1 flex-col gap-4 p-5 lg:p-6">
                       <p className="text-sm leading-relaxed text-muted-foreground">{t(path.body)}</p>
-                      <PathCardPricing variant={path.variant} t={t} />
                       <div className="mt-auto pt-1">
                         <PathCardCta
                           path={path}
@@ -261,7 +226,7 @@ export default function ServicesPage() {
                       size="lg"
                       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                     >
-                      {t("Book a Consultation")}
+                      {t("Send an Inquiry")}
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </BookingLink>
