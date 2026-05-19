@@ -1,17 +1,29 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Check } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
+
+const privatePackageRows =
+  IN_FACILITY_PRICING_SECTIONS.find((section) => section.title === "Private Classes")?.rows.slice(0, 3) ?? []
+
+const privateClassTopics = [
+  "Leash Reactivity",
+  "Aggression, Resource guarding, Separation anxiety",
+  "Puppy Training",
+  "Obedience Training",
+  "Specialized training upon client request",
+]
 
 const forYouIf = [
-  "Your dog's issues don't fit neatly into a group class.",
   "You want a trainer's full attention on your specific situation.",
   "You've tried group classes and your dog needs something more tailored.",
   "You're dealing with reactivity, anxiety, aggression, or guarding.",
@@ -58,7 +70,7 @@ export default function PrivateClassesPage() {
               {t("Private Dog Training in Montreal")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              {t("One-on-one sessions built entirely around your dog. No group curriculum, no distractions — just focused work on what matters most.")}
+              {t("One-on-one sessions designed to provide personalized, hands-on training tailored specifically to your dog's needs.")}
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
@@ -81,11 +93,15 @@ export default function PrivateClassesPage() {
                 <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
                   {t("Private classes")}
                 </h2>
-                <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground leading-relaxed">
-                  {t(
-                    "Private classes are designed for dogs or puppies that require more individualized training or struggle in group settings.",
-                  )}
-                </p>
+                <div className="reveal opacity-0 animation-delay-400 relative aspect-[3/4] rounded-2xl overflow-hidden border border-border/50 shadow-md">
+                  <Image
+                    src="/images/yul_image.jpg"
+                    alt={t("Private dog training session in Montreal")}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                  />
+                </div>
               </div>
 
               <div className="lg:col-span-7">
@@ -95,6 +111,37 @@ export default function PrivateClassesPage() {
                       "Each session is tailored to the dog's specific needs while gradually introducing controlled distractions to help build confidence and set the dog up for success. As training progresses, we will meet in different environments to make the training more realistic and applicable to everyday life. Whether you need help with basic puppy training or need help with behavioural problems, private classes is the most ideal and productive route for training.",
                     )}
                   </p>
+
+                  <div className="mt-8 pt-8 border-t border-border/50">
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                      {t("Typical topics covered in private classes:")}
+                    </p>
+                    <ul className="space-y-3">
+                      {privateClassTopics.map((topic) => (
+                        <li key={topic} className="flex items-start gap-3">
+                          <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                          <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(topic)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-8 pt-8 border-t border-border/50 space-y-4">
+                    <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold">
+                      {t("Our packages")}
+                    </p>
+                    {privatePackageRows.map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4"
+                      >
+                        <p className="font-display text-lg md:text-xl tracking-tight text-foreground">{t(row.label)}</p>
+                        <p className="text-muted-foreground text-base md:text-lg whitespace-nowrap tabular-nums shrink-0">
+                          {row.price}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
 
                   <div className="mt-8 pt-8 border-t border-border/50">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">

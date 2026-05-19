@@ -37,12 +37,12 @@ export const IN_FACILITY_PRICING_SECTIONS: InFacilityPriceSection[] = [
   {
     title: "Group Classes — Package Rates",
     rows: [
-      { label: "Puppy socialization (10–20 weeks)", price: "$30 + tax" },
-      { label: "Teen puppy group — 4 classes", price: "$320 + tax" },
-      { label: "Level 1 Obedience — 4 classes", price: "$350 + tax" },
+      { label: "Puppy socialization (10–20 weeks)", price: "$50 + tax" },
+      { label: "Teen puppy group — 4 classes", price: "$350 + tax" },
+      { label: "Level 1 Obedience — 4 classes", price: "$360 + tax" },
       { label: "Level 2 Obedience — 5 classes", price: "$450 + tax" },
-      { label: "Level 3 Obedience — 5 classes", price: "$400 + tax" },
-      { label: "Reactivity group class — 4 classes", price: "$350 + tax" },
+      { label: "Level 3 Obedience — 5 classes", price: "$450 + tax" },
+      { label: "Reactivity group class — 4 classes", price: "$360 + tax" },
     ],
   },
   {

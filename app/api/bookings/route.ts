@@ -13,7 +13,11 @@ import { pushLeadToGHL } from "@/lib/gohighlevel"
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { normalizePhoneForMatch } from "@/lib/contact-normalize"
 import { clientConsultationRef, clientConsultationsCollection, upsertClientProfile } from "@/lib/client-records"
-import { notifyConsultationInquiryStaffAndClient, notifyStaffOfBooking } from "@/lib/staff-booking-notify"
+import {
+  notifyConsultationBookedClient,
+  notifyConsultationInquiryStaffAndClient,
+  notifyStaffOfBooking,
+} from "@/lib/staff-booking-notify"
 import { captureServerEvent } from "@/lib/posthog-server"
 import {
   CONSULTATION_DEPOSIT_CURRENCY,
@@ -446,6 +450,17 @@ export async function POST(request: Request) {
           squareBookingId: squareConsultationBookingId,
           issueLabel: issueLabel(formData.issue),
         })
+        if (isConsultation && isConsultationDirectBook) {
+          notifyConsultationBookedClient({
+            clientName: formData.contactName,
+            clientEmail: formData.contactEmail,
+            dogName: formData.dogName,
+            scheduledAtIso: requestedScheduledAtIso,
+            locale,
+            bookingSource,
+            depositAmountCents: consultationDepositAmountCents,
+          })
+        }
       } catch (err) {
         console.error("[Booking API] Failed to create direct consultation booking:", err)
         await docRef.set(
@@ -495,6 +510,7 @@ export async function POST(request: Request) {
           },
           { merge: true },
         )
+        // notifyConsultationBookedClient — call from active direct-book path above when deposit checkout is re-enabled
       } catch (err) {
         console.error("[Booking API] Failed to create consultation deposit checkout:", err)
         await docRef.set(

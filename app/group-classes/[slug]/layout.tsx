@@ -13,9 +13,9 @@ const META_BY_SLUG: Record<
       fr: "Cours de socialisation pour chiots — Montréal",
     },
     description: {
-      en: "Group puppy socialization in Montreal — $30 + tax per class for pups 10–20 weeks. Play, handling, greetings, and confidence-building.",
+      en: "Group puppy socialization in Montreal — $50 + tax per class for pups 10–20 weeks. Play, confidence building, and safe interactions.",
       fr:
-        "Socialisation en groupe pour chiots à Montréal — 30 $ + taxes par cours (10 à 20 semaines). Jeu, manipulation, salutations et confiance.",
+        "Socialisation en groupe pour chiots à Montréal — 50 $ + taxes par cours (10 à 20 semaines). Jeu, confiance et interactions sécuritaires.",
     },
   },
   "teen-puppy-class": {
@@ -35,9 +35,9 @@ const META_BY_SLUG: Record<
       fr: "Cours de groupe pour la réactivité — Montréal",
     },
     description: {
-      en: "Structured reactivity group training in Montreal — distance management, Engage–Disengage, and handler coaching.",
+      en: "Reactivity group class in Montreal — gradual group exposure, threshold distance work, and handler coaching for all ages.",
       fr:
-        "Entraînement en groupe pour la réactivité à Montréal — gestion de la distance, Engage–Disengage et coaching.",
+        "Cours de groupe réactivité à Montréal — exposition graduelle, travail de distance seuil et coaching pour tous les âges.",
     },
   },
   "level-1-obedience-class": {
@@ -46,9 +46,9 @@ const META_BY_SLUG: Record<
       fr: "Cours d'obéissance niveau 1 — Montréal",
     },
     description: {
-      en: "Foundation group obedience in Montreal — loose-leash walking, basics, recall, and impulse control in a small class.",
+      en: "Level 1 basic obedience in Montreal — six core commands, engagement, and neutral behavior around distractions.",
       fr:
-        "Obéissance de base en groupe à Montréal — marche en laisse, commandes, rappel et contrôle des impulsions.",
+        "Obéissance de base niveau 1 à Montréal — six commandes, engagement et comportement neutre autour des distractions.",
     },
   },
   "level-2-obedience-class": {
@@ -57,9 +57,9 @@ const META_BY_SLUG: Record<
       fr: "Cours d'obéissance niveau 2 — Montréal",
     },
     description: {
-      en: "Intermediate group obedience in Montreal — duration, distance, and distraction proofing after solid basics.",
+      en: "Level 2 pack walks in Montreal — group walks for confidence, obedience, and real-world proofing after Level 1.",
       fr:
-        "Obéissance intermédiaire en groupe à Montréal — durée, distance et épreuves de distraction.",
+        "Obéissance niveau 2 à Montréal — marches en meute pour la confiance, l'obéissance et la généralisation en conditions réelles.",
     },
   },
   "level-3-obedience-class": {
@@ -68,9 +68,9 @@ const META_BY_SLUG: Record<
       fr: "Cours d'obéissance niveau 3 — Montréal",
     },
     description: {
-      en: "Advanced group obedience coming soon in Montreal — challenging proofing and high-distraction reps for experienced teams.",
+      en: "Level 3 advanced obedience coming soon in Montreal — off-leash reliability for teams ready after Level 2.",
       fr:
-        "Obéissance avancée en groupe bientôt à Montréal — épreuves exigeantes pour équipes expérimentées.",
+        "Obéissance avancée niveau 3 bientôt à Montréal — fiabilité sans laisse pour les équipes prêtes après le niveau 2.",
     },
   },
 }

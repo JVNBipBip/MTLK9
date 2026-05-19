@@ -24,21 +24,21 @@ const trainingPaths: TrainingPathCard[] = [
   {
     title: "Consultation",
     lead: "Start with an evaluation",
-    body: "Meet a trainer so we understand your goals and recommend the best path — private training, group classes, or both.",
+    body: "Start your dog's training journey with a 75-minute evaluation session designed to establish the right program for both you and your dog.",
     image: "/images/Classes images/obedience.webp",
     variant: "consultation",
   },
   {
     title: "Private training",
     lead: "One-on-one sessions",
-    body: "After your assessment, choose a package and book sessions tailored to your dog and your priorities.",
+    body: "Our most popular option! Private classes offer personalized, hands-on training tailored to your specific goals. Only offered after a consultation.",
     image: "/images/Classes images/private.webp",
     variant: "private",
   },
   {
     title: "Group Classes",
     lead: "Small group programs",
-    body: "When your trainer approves a program, browse upcoming classes and request your spot.",
+    body: "A variety of structured group classes available for all dogs, ranging from basic foundations to advanced obedience training.",
     image: "/images/Classes images/obedience_group_class_1.webp",
     imageAvif: "/images/Classes images/obedience_group_class_1.avif",
     variant: "group",
@@ -217,7 +217,7 @@ export default function ServicesPage() {
                 </h2>
                 <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
                   {t(
-                    "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit — no pressure.",
+                    "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit.",
                   )}
                 </p>
                 <div className="reveal opacity-0 animation-delay-600">

@@ -2,12 +2,13 @@ import {
   CLIENT_EMAIL_ACCENT_MUTED,
   CLIENT_EMAIL_ACCENT_PRIMARY,
   CLIENT_EMAIL_BODY,
+  CLIENT_EMAIL_HEADING,
   clientFacingContactEmail,
   clientFacingEmailShell,
   escapeHtmlForEmail,
 } from "@/lib/client-email-layout"
 import { sendClientFacingEmail, sendEmail } from "@/lib/email"
-import { defaultLocale, type AppLocale } from "@/lib/i18n/config"
+import { addLocaleToPathname, defaultLocale, type AppLocale } from "@/lib/i18n/config"
 
 export const STAFF_BOOKING_NOTIFY_EMAIL = "mtlcaninetraining@gmail.com"
 
@@ -242,6 +243,136 @@ const inquiryStaffEmail = {
 /** Submission locale drives template; only `fr` selects French — otherwise English ({@link defaultLocale}). */
 function resolvedConsultationInquiryLocale(locale: AppLocale): AppLocale {
   return locale === "fr" ? "fr" : defaultLocale
+}
+
+function clientSiteOrigin(): string | null {
+  const u = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+  if (!u) return null
+  return u.replace(/\/$/, "")
+}
+
+function localizedTermsUrl(locale: AppLocale): string | null {
+  const origin = clientSiteOrigin()
+  if (!origin) return null
+  return `${origin}${addLocaleToPathname("/terms", resolvedConsultationInquiryLocale(locale))}`
+}
+
+function formatDepositAmount(cents: number, locale: AppLocale): string {
+  const amount = Math.round(cents / 100)
+  return locale === "fr" ? `${amount} $` : `$${amount}`
+}
+
+const consultationBookedClientEmail = {
+  en: {
+    subject: "Thanks for booking your assessment — Montreal K9 Training",
+    headline: "Thanks for booking",
+    preheader: "Your appointment time and a few notes about your deposit.",
+    body: (input: { name: string; when: string; dogName: string; deposit: string; termsUrl: string | null }) => {
+      const terms = input.termsUrl
+        ? `<a href="${escapeHtmlForEmail(input.termsUrl)}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">terms and conditions</a>`
+        : "terms and conditions"
+      return [
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Hi ${escapeHtmlForEmail(input.name)},</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Thanks for booking an in-person assessment for <strong style="color:${CLIENT_EMAIL_HEADING};">${escapeHtmlForEmail(input.dogName)}</strong> on <strong style="color:${CLIENT_EMAIL_HEADING};">${escapeHtmlForEmail(input.when)}</strong>. This email is just a quick notice about what happens next.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">We will send you a Square invoice for a ${escapeHtmlForEmail(input.deposit)} deposit shortly. Payment must be received within 24 hours in order to secure your appointment.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">This deposit is held in accordance with our 48-hour cancellation, rescheduling, and no-show policy.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Once your consultation has been completed, the full ${escapeHtmlForEmail(input.deposit)} deposit will be refunded to you.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">By paying this deposit, you agree to our ${terms}.</p>`,
+        `<p style="margin:0;color:${CLIENT_EMAIL_BODY};">Thank you, and we look forward to meeting you and your dog!</p>`,
+      ].join("")
+    },
+    footerNote: "Booking notice from Montreal Canine Training.",
+    footer:
+      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Questions? Call <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+  },
+  fr: {
+    subject: "Merci pour votre réservation d'évaluation — Montreal K9 Training",
+    headline: "Merci pour votre réservation",
+    preheader: "Votre rendez-vous et quelques notes sur le dépôt.",
+    body: (input: { name: string; when: string; dogName: string; deposit: string; termsUrl: string | null }) => {
+      const terms = input.termsUrl
+        ? `<a href="${escapeHtmlForEmail(input.termsUrl)}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">conditions générales</a>`
+        : "conditions générales"
+      return [
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Bonjour ${escapeHtmlForEmail(input.name)},</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Merci d'avoir réservé une évaluation en personne pour <strong style="color:${CLIENT_EMAIL_HEADING};">${escapeHtmlForEmail(input.dogName)}</strong> le <strong style="color:${CLIENT_EMAIL_HEADING};">${escapeHtmlForEmail(input.when)}</strong>. Ce courriel est un simple avis sur la suite.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Nous vous enverrons sous peu une facture Square pour un dépôt de ${escapeHtmlForEmail(input.deposit)}. Le paiement doit être reçu dans les 24 heures afin de confirmer votre rendez-vous.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Ce dépôt est assujetti à notre politique d'annulation, de report et de non-présentation de 48 heures.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Une fois votre consultation terminée, l'intégralité du dépôt de ${escapeHtmlForEmail(input.deposit)} vous sera remboursée.</p>`,
+        `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">En payant ce dépôt, vous acceptez nos ${terms}.</p>`,
+        `<p style="margin:0;color:${CLIENT_EMAIL_BODY};">Merci, et nous avons hâte de vous rencontrer, vous et votre chien!</p>`,
+      ].join("")
+    },
+    footerNote: "Avis de réservation — Entraînement Canin Montréal.",
+    footer:
+      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Des questions? <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+  },
+} satisfies Record<
+  AppLocale,
+  {
+    subject: string
+    headline: string
+    preheader: string
+    body: (input: { name: string; when: string; dogName: string; deposit: string; termsUrl: string | null }) => string
+    footerNote: string
+    footer: string
+  }
+>
+
+/** Website booking form only (`website-booking-form` or `website-booking-form/trainer/...`). */
+export function isWebsiteConsultationBookingSource(bookingSource: string): boolean {
+  const source = bookingSource.trim()
+  return source === "website-booking-form" || source.startsWith("website-booking-form/")
+}
+
+/**
+ * Client notice after a website consultation booking (in-person evaluation + slot).
+ * Not used for inquiries, private sessions, group classes, training portal, or admin flows.
+ */
+export function notifyConsultationBookedClient(input: {
+  clientName: string
+  clientEmail: string
+  dogName: string
+  scheduledAtIso: string
+  locale: AppLocale
+  bookingSource: string
+  depositAmountCents?: number
+}): void {
+  if (!isWebsiteConsultationBookingSource(input.bookingSource)) {
+    console.info("[notifyConsultationBookedClient] skipped — not a website consultation booking", {
+      bookingSource: input.bookingSource,
+    })
+    return
+  }
+
+  const mailLocale = resolvedConsultationInquiryLocale(input.locale)
+  const copy = consultationBookedClientEmail[mailLocale]
+  const when = formatTorontoDateTime(input.scheduledAtIso)
+  const name = input.clientName.trim() || "there"
+  const depositCents = input.depositAmountCents ?? 3000
+  const depositLabel = formatDepositAmount(depositCents, mailLocale)
+  const termsUrl = localizedTermsUrl(mailLocale)
+
+  const clientInnerHtml = `${copy.body({ name, when, dogName: input.dogName, deposit: depositLabel, termsUrl })}${copy.footer}`
+  const clientHtml = clientFacingEmailShell({
+    preheader: copy.preheader,
+    headline: copy.headline,
+    accentRgb: CLIENT_EMAIL_ACCENT_PRIMARY,
+    innerHtml: clientInnerHtml,
+    htmlLang: mailLocale === "fr" ? "fr" : "en",
+    footerNote: copy.footerNote,
+  })
+
+  const clientTo = input.clientEmail.trim()
+  void sendClientFacingEmail({
+    to: clientTo,
+    subject: copy.subject,
+    html: clientHtml,
+    replyTo: clientFacingContactEmail(),
+  }).then((r) => {
+    if (!r.sent) console.error("[notifyConsultationBookedClient] client", r.reason)
+    else console.info("[notifyConsultationBookedClient] client sent", { to: clientTo })
+  })
 }
 
 function buildConsultationInquiryAdminHtml(

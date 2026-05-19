@@ -137,12 +137,6 @@ export default function GroupClassesPage() {
                     ))}
                   </ul>
                   <div className="mt-6 flex flex-col gap-3">
-                    <Button
-                      asChild
-                      className="rounded-full bg-white text-foreground hover:bg-muted border border-foreground transition-colors"
-                    >
-                      <a href="#group-class-availability">{t("See dates & availability")}</a>
-                    </Button>
                     <Link
                       href={learnMoreHref[offering.id]}
                       className="inline-flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -150,6 +144,12 @@ export default function GroupClassesPage() {
                       {t("Learn More")}
                       <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                     </Link>
+                    <Button
+                      asChild
+                      className="rounded-full bg-white text-foreground hover:bg-muted border border-foreground transition-colors"
+                    >
+                      <a href="#group-class-availability">{t("See dates & availability")}</a>
+                    </Button>
                   </div>
                 </div>
               </article>

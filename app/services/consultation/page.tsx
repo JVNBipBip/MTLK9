@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
@@ -20,7 +21,7 @@ const consultationCovers = [
 ]
 
 const forYouIf = [
-  "You're new to structured training and want clarity before committing to a package.",
+  "You're a first-time dog owner and don't know where to start.",
   "You're unsure whether private lessons or a group series would suit your dog best.",
   "You've tried tips from friends, videos, or apps and want a professional read on what's happening.",
   "You want time to explain the full picture — routines, triggers, and what you've already tried.",
@@ -68,7 +69,7 @@ export default function ConsultationPage() {
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
               {t(
-                "Meet a trainer, clarify your goals, and get a personalised recommendation — private training, group classes, or a combination — before you purchase a larger package.",
+                "Meet with a trainer, clarify your goals and expectations, and let us create a personalized program designed to help you achieve the results you need.",
               )}
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
@@ -92,9 +93,20 @@ export default function ConsultationPage() {
                 <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
                   {t("What we'll cover")}
                 </h2>
-                <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground leading-relaxed">
-                  {t("What we will cover during this initial 75-minute consultation session:")}
-                </p>
+                <div className="reveal opacity-0 animation-delay-400 space-y-6">
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    {t("What we will cover during this initial 75-minute consultation session:")}
+                  </p>
+                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border/50 shadow-md">
+                    <Image
+                      src="/images/park_image.jpg"
+                      alt={t("Dog training consultation in a Montreal park")}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 400px"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="lg:col-span-7">
