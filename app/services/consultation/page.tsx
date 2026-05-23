@@ -111,16 +111,7 @@ export default function ConsultationPage() {
 
               <div className="lg:col-span-7">
                 <article className="reveal opacity-0 animation-delay-200 bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 p-8 md:p-10">
-                  <ul className="space-y-4">
-                    {consultationCovers.map((item) => (
-                      <li key={item} className="flex items-start gap-3">
-                        <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-                        <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(item)}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-8 pt-8 border-t border-border/50 space-y-4">
+                  <div className="mb-8 pb-8 border-b border-border/50 space-y-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-1">
                       {t("Pricing")}
                     </p>
@@ -141,6 +132,15 @@ export default function ConsultationPage() {
                       </p>
                     </div>
                   </div>
+
+                  <ul className="space-y-4">
+                    {consultationCovers.map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                        <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(item)}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </article>
               </div>
             </div>

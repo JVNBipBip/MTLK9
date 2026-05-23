@@ -1,7 +1,7 @@
 export const ISSUE_OPTIONS = [
   {
     value: "puppy-out-of-control",
-    label: "Puppy training",
+    label: "Puppy training / Young dog training",
     description:
       "Need help with crate training, potty training, nipping, socialization, basic training, or other puppy-related behaviours.",
   },

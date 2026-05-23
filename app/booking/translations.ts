@@ -89,7 +89,7 @@ export const bookingStepCopy = {
 
 const optionTextFr: Record<string, { label?: string; description?: string }> = {
   "puppy-out-of-control": {
-    label: "Formation chiot",
+    label: "Formation chiot / Entraînement des jeunes chiens",
     description:
       "Aide pour la cage, la propreté, le mordillage, la socialisation, les bases ou d'autres comportements de chiot.",
   },

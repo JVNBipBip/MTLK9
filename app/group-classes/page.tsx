@@ -96,7 +96,7 @@ export default function GroupClassesPage() {
                     className={`object-cover transition-transform duration-500 group-hover:scale-[1.03] ${offering.imageClassName ?? ""}`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
                       {t(offering.forText)}

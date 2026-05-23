@@ -1,7 +1,7 @@
 "use client"
 
 import { useId, useState } from "react"
-import { ChevronDown, Heart } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,7 +17,6 @@ export type TrainerBioReadMoreTexts = {
   hostsPills: string[]
   whatTheyOfferLabel: string
   personal: string
-  superpowerClosing: string
 }
 
 type TrainerBioReadMoreProps = {
@@ -106,7 +105,6 @@ function FullBioBlock({ texts }: { texts: TrainerBioReadMoreTexts }) {
     aboutSpecializes,
     hostsPills,
     personal,
-    superpowerClosing,
     whatTheyOfferLabel,
   } = texts
 
@@ -118,10 +116,6 @@ function FullBioBlock({ texts }: { texts: TrainerBioReadMoreTexts }) {
       {aboutSpecializes ? <p className="font-medium text-foreground/95">{aboutSpecializes}</p> : null}
       <FullOffersBox texts={{ hostsPills, whatTheyOfferLabel }} />
       <p className="text-muted-foreground text-sm leading-relaxed">{personal}</p>
-      <p className="text-foreground text-sm font-medium flex items-start gap-2">
-        <Heart className="w-4 h-4 text-primary shrink-0 mt-0.5" aria-hidden />
-        {superpowerClosing}
-      </p>
     </div>
   )
 }

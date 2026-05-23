@@ -33,7 +33,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "One-on-one sessions": "Séances individuelles",
   "After your assessment, choose a package and book sessions tailored to your dog and your priorities.":
     "Après votre évaluation, choisissez un forfait et réservez des séances adaptées à votre chien et à vos priorités.",
-  "Small group programs": "Petits groupes encadrés",
+  "From beginner group classes to advanced pack walks": "Des cours de groupe débutant aux marches en meute avancées",
   "After your trainer approves a program, browse upcoming classes and request your spot.":
     "Lorsque votre entraîneur approuve un programme, parcourez les cours à venir et demandez votre place.",
   "Explore group classes": "Découvrir les cours de groupe",
@@ -80,7 +80,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "Reactivity Training": "Entraînement pour la réactivité",
   "Private Classes": "Cours privés",
   "Obedience Training": "Obéissance",
-  "Puppy Training": "Entraînement des chiots",
+  "Puppy Training / Young dog training": "Entraînement des chiots / Entraînement des jeunes chiens",
   "In-Home Training": "Entraînement à domicile",
   "Book an Evaluation": "Réserver une évaluation",
   "Google Reviews": "Avis Google",

@@ -13,8 +13,6 @@ export type TeamTrainerPublicNarrative = {
   aboutSpecializesFr: string
   hostsPillsEn: string[]
   hostsPillsFr: string[]
-  superpowerEn: string
-  superpowerFr?: string
   personalEn: string
   personalFr?: string
 }
@@ -42,8 +40,6 @@ export const TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG = {
       "Groupes réactivité",
       "Programmes d'apprentissage",
     ],
-    superpowerEn:
-      "Prioritizes engagement, motivation, communication, confidence, and relationship-building above all.",
     personalEn:
       "At home, he shares his life with two Australian Shepherds, cats, a wife, and a baby.",
   },
@@ -72,7 +68,6 @@ export const TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG = {
       "Groupe réactivité",
       "Obéissance collectif (niv. 1)",
     ],
-    superpowerEn: "Makes high-distraction urban walks feel manageable — and even enjoyable.",
     personalEn:
       "He has two dogs of his own and lives by the philosophy that structure creates freedom.",
   },
@@ -89,10 +84,6 @@ export const TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG = {
       "Se spécialise en formation et développement des chiots, modification mineure du comportement, réactivité et obéissance.",
     hostsPillsEn: ["Consultations & private lessons", "Reactivity group"],
     hostsPillsFr: ["Consultations & cours privés", "Groupe réactivité"],
-    superpowerEn:
-      "Helps owners feel clear, supported, and confident while they build better habits with their dogs.",
-    superpowerFr:
-      "Elle aide les propriétaires à se sentir clairs, soutenus et confiants pendant qu'ils développent de meilleures habitudes avec leur chien.",
     personalEn:
       "She works with the team to create practical training plans that fit real family routines.",
     personalFr:
@@ -119,7 +110,6 @@ export type LocalizedTrainerBioReadMoreTexts = {
   hostsPills: string[]
   whatTheyOfferLabel: string
   personal: string
-  superpowerClosing: string
 }
 
 export function localizeTrainerBioReadMoreTexts(
@@ -135,9 +125,5 @@ export function localizeTrainerBioReadMoreTexts(
     whatTheyOfferLabel: t("What they offer"),
     personal:
       isFr && narrative.personalFr !== undefined ? narrative.personalFr : t(narrative.personalEn),
-    superpowerClosing:
-      isFr && narrative.superpowerFr !== undefined
-        ? narrative.superpowerFr
-        : t(narrative.superpowerEn),
   }
 }

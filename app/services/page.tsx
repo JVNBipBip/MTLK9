@@ -37,7 +37,7 @@ const trainingPaths: TrainingPathCard[] = [
   },
   {
     title: "Group Classes",
-    lead: "Small group programs",
+    lead: "From beginner group classes to advanced pack walks",
     body: "A variety of structured group classes available for all dogs, ranging from basic foundations to advanced obedience training.",
     image: "/images/Classes images/obedience_group_class_1.webp",
     imageAvif: "/images/Classes images/obedience_group_class_1.avif",
@@ -173,7 +173,7 @@ export default function ServicesPage() {
                         sizes="(max-width: 1024px) 100vw, 33vw"
                       />
                       <div
-                        className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 to-transparent"
+                        className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/85 via-black/50 to-transparent"
                         aria-hidden
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-5">
