@@ -145,7 +145,7 @@ export async function POST(request: Request) {
   }
   await bookingRef.set({ ...bookingData, clientCollectionPath: bookingRef.path })
 
-  notifyStaffOfBooking({
+  await notifyStaffOfBooking({
     kind: "group_class_post_assessment",
     bookingId: bookingRef.id,
     clientName: bookingData.clientName,
@@ -154,6 +154,8 @@ export async function POST(request: Request) {
     programLabel: bookingData.summary.what[0] || programId,
     slotStartAtIso: new Date(startAt).toISOString(),
     squareBookingId: squareBooking.booking?.id || null,
+  }).catch((err) => {
+    console.error("[schedule-bookings/create-payment-intent] Staff notification failed:", err)
   })
 
   captureServerEvent({

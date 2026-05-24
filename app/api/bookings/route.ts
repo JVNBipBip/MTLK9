@@ -378,7 +378,7 @@ export async function POST(request: Request) {
     await docRef.set(writePayload, { merge: Boolean(replaceConsultationId) })
 
     if (isConsultationInquiry) {
-      notifyConsultationInquiryStaffAndClient({
+      await notifyConsultationInquiryStaffAndClient({
         consultationId: docRef.id,
         clientName: formData.contactName,
         clientEmail: formData.contactEmail,
@@ -389,6 +389,8 @@ export async function POST(request: Request) {
         preferredTrainerLabel,
         intakeSummary: intakeResponseSummary,
         locale,
+      }).catch((err) => {
+        console.error("[Booking API] Inquiry notifications failed:", err)
       })
     }
 
@@ -439,28 +441,32 @@ export async function POST(request: Request) {
           },
           { merge: true },
         )
-        notifyStaffOfBooking({
-          kind: "consultation",
-          consultationId: docRef.id,
-          clientName: formData.contactName,
-          clientEmail: formData.contactEmail,
-          clientPhone: formData.contactPhone,
-          dogName: formData.dogName,
-          scheduledAtIso: requestedScheduledAtIso,
-          squareBookingId: squareConsultationBookingId,
-          issueLabel: issueLabel(formData.issue),
-        })
-        if (isConsultation && isConsultationDirectBook) {
-          notifyConsultationBookedClient({
+        await Promise.allSettled([
+          notifyStaffOfBooking({
+            kind: "consultation",
+            consultationId: docRef.id,
             clientName: formData.contactName,
             clientEmail: formData.contactEmail,
+            clientPhone: formData.contactPhone,
             dogName: formData.dogName,
             scheduledAtIso: requestedScheduledAtIso,
-            locale,
-            bookingSource,
-            depositAmountCents: consultationDepositAmountCents,
-          })
-        }
+            squareBookingId: squareConsultationBookingId,
+            issueLabel: issueLabel(formData.issue),
+          }),
+          ...(isConsultation && isConsultationDirectBook
+            ? [
+                notifyConsultationBookedClient({
+                  clientName: formData.contactName,
+                  clientEmail: formData.contactEmail,
+                  dogName: formData.dogName,
+                  scheduledAtIso: requestedScheduledAtIso,
+                  locale,
+                  bookingSource,
+                  depositAmountCents: consultationDepositAmountCents,
+                }),
+              ]
+            : []),
+        ])
       } catch (err) {
         console.error("[Booking API] Failed to create direct consultation booking:", err)
         await docRef.set(

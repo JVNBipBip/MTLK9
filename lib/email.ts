@@ -1,9 +1,36 @@
 import nodemailer from "nodemailer"
 import { CLIENT_EMAIL_SHELL_MARKER } from "@/lib/client-email-layout"
+import { FieldValue } from "firebase-admin/firestore"
+import { getAdminDb } from "@/lib/firebase-admin"
 
 type EmailConfig =
   | { method: "smtp"; from: string; transporter: nodemailer.Transporter }
   | { method: "resend"; apiKey: string; from: string }
+
+async function logEmailDelivery(input: {
+  to: string
+  subject: string
+  method: "smtp" | "resend" | "none"
+  status: "sent" | "failed"
+  reason?: string
+}): Promise<void> {
+  try {
+    const db = getAdminDb()
+    const ref = db.collection("email_delivery_logs").doc()
+    await ref.set({
+      id: ref.id,
+      to: input.to,
+      subject: input.subject,
+      method: input.method,
+      status: input.status,
+      reason: input.reason || null,
+      createdAt: FieldValue.serverTimestamp(),
+      createdAtIso: new Date().toISOString(),
+    })
+  } catch (err) {
+    console.error("[email] Failed to persist delivery log:", err)
+  }
+}
 
 function getEmailConfig(): EmailConfig | null {
   const smtpHost = process.env.SMTP_HOST
@@ -41,6 +68,14 @@ export async function sendEmail(params: {
 }): Promise<{ sent: boolean; reason?: string }> {
   const config = getEmailConfig()
   if (!config) {
+    await logEmailDelivery({
+      to: params.to,
+      subject: params.subject,
+      method: "none",
+      status: "failed",
+      reason:
+        "Missing email config. Set SMTP_HOST, SMTP_USER, SMTP_PASS, and EMAIL_FROM, or RESEND_API_KEY and RESEND_FROM_EMAIL.",
+    })
     return {
       sent: false,
       reason: "Missing email config. Set SMTP_HOST, SMTP_USER, SMTP_PASS, and EMAIL_FROM, or RESEND_API_KEY and RESEND_FROM_EMAIL.",
@@ -56,33 +91,72 @@ export async function sendEmail(params: {
         subject: params.subject,
         html: params.html,
       })
+      await logEmailDelivery({
+        to: params.to,
+        subject: params.subject,
+        method: "smtp",
+        status: "sent",
+      })
       return { sent: true }
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err)
+      await logEmailDelivery({
+        to: params.to,
+        subject: params.subject,
+        method: "smtp",
+        status: "failed",
+        reason: `SMTP error: ${reason}`,
+      })
       return { sent: false, reason: `SMTP error: ${reason}` }
     }
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: config.from,
-      to: [params.to],
-      ...(params.replyTo ? { reply_to: params.replyTo } : {}),
-      subject: params.subject,
-      html: params.html,
-    }),
-  })
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: config.from,
+        to: [params.to],
+        ...(params.replyTo ? { reply_to: params.replyTo } : {}),
+        subject: params.subject,
+        html: params.html,
+      }),
+    })
 
-  if (!response.ok) {
-    const body = await response.text()
-    return { sent: false, reason: `Resend API error: ${body}` }
+    if (!response.ok) {
+      const body = await response.text()
+      await logEmailDelivery({
+        to: params.to,
+        subject: params.subject,
+        method: "resend",
+        status: "failed",
+        reason: `Resend API error: ${body}`,
+      })
+      return { sent: false, reason: `Resend API error: ${body}` }
+    }
+
+    await logEmailDelivery({
+      to: params.to,
+      subject: params.subject,
+      method: "resend",
+      status: "sent",
+    })
+    return { sent: true }
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err)
+    await logEmailDelivery({
+      to: params.to,
+      subject: params.subject,
+      method: "resend",
+      status: "failed",
+      reason: `Resend network error: ${reason}`,
+    })
+    return { sent: false, reason: `Resend network error: ${reason}` }
   }
-  return { sent: true }
 }
 
 /** Sends to external customers — `html` must come from {@link clientFacingEmailShell}. */

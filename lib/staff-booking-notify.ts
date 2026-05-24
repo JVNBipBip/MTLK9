@@ -337,12 +337,12 @@ export function notifyConsultationBookedClient(input: {
   locale: AppLocale
   bookingSource: string
   depositAmountCents?: number
-}): void {
+}): Promise<void> {
   if (!isWebsiteConsultationBookingSource(input.bookingSource)) {
     console.info("[notifyConsultationBookedClient] skipped — not a website consultation booking", {
       bookingSource: input.bookingSource,
     })
-    return
+    return Promise.resolve()
   }
 
   const mailLocale = resolvedConsultationInquiryLocale(input.locale)
@@ -364,7 +364,7 @@ export function notifyConsultationBookedClient(input: {
   })
 
   const clientTo = input.clientEmail.trim()
-  void sendClientFacingEmail({
+  return sendClientFacingEmail({
     to: clientTo,
     subject: copy.subject,
     html: clientHtml,
@@ -372,6 +372,8 @@ export function notifyConsultationBookedClient(input: {
   }).then((r) => {
     if (!r.sent) console.error("[notifyConsultationBookedClient] client", r.reason)
     else console.info("[notifyConsultationBookedClient] client sent", { to: clientTo })
+  }).catch((err) => {
+    console.error("[notifyConsultationBookedClient] client exception", err)
   })
 }
 
@@ -423,21 +425,21 @@ export function notifyConsultationInquiryStaffAndClient(input: {
   preferredTrainerLabel?: string | null
   intakeSummary?: string | null
   locale: AppLocale
-}): void {
+}): Promise<void> {
   const inquiryLocale = resolvedConsultationInquiryLocale(input.locale)
   const staffCopy = inquiryStaffEmail[inquiryLocale]
   const adminHtml = buildConsultationInquiryAdminHtml(input.locale, input)
   const subject = staffCopy.subject(input.dogName)
-  for (const toStaff of consultationInquiryStaffRecipients()) {
-    void sendEmail({
+  const staffPromises = consultationInquiryStaffRecipients().map((toStaff) =>
+    sendEmail({
       to: toStaff,
       subject,
       html: adminHtml,
     }).then((r) => {
       if (!r.sent) console.error("[notifyConsultationInquiryStaffAndClient] staff", toStaff, r.reason)
       else console.info("[notifyConsultationInquiryStaffAndClient] staff sent", { to: toStaff })
-    })
-  }
+    }),
+  )
 
   const copy = inquiryClientEmail[inquiryLocale]
   const clientTo = input.clientEmail.trim()
@@ -453,7 +455,7 @@ export function notifyConsultationInquiryStaffAndClient(input: {
         ? "Vous avez envoyé ce message depuis le formulaire de consultation sur notre site."
         : "You sent this from our consultation form online.",
   })
-  void sendClientFacingEmail({
+  const clientPromise = sendClientFacingEmail({
     to: clientTo,
     subject: copy.subject,
     html: clientHtml,
@@ -462,12 +464,13 @@ export function notifyConsultationInquiryStaffAndClient(input: {
     if (!r.sent) console.error("[notifyConsultationInquiryStaffAndClient] client", r.reason)
     else console.info("[notifyConsultationInquiryStaffAndClient] client sent", { to: clientTo })
   })
+  return Promise.allSettled([...staffPromises, clientPromise]).then(() => {})
 }
 
 /** Fire-and-forget internal heads-up email to staff (non-blocking). */
-export function notifyStaffOfBooking(payload: StaffBookingNotifyPayload): void {
+export function notifyStaffOfBooking(payload: StaffBookingNotifyPayload): Promise<void> {
   const to = STAFF_BOOKING_NOTIFY_EMAIL
-  void sendEmail({
+  return sendEmail({
     to,
     subject: buildSubject(payload),
     html: buildHtml(payload),
@@ -477,5 +480,7 @@ export function notifyStaffOfBooking(payload: StaffBookingNotifyPayload): void {
     } else {
       console.info("[notifyStaffOfBooking] sent", payload.kind, { to })
     }
+  }).catch((err) => {
+    console.error("[notifyStaffOfBooking]", payload.kind, "exception", err)
   })
 }

@@ -242,7 +242,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 
-  notifyStaffOfBooking({
+  await notifyStaffOfBooking({
     kind: "private_session",
     bookingId: bookingRef.id,
     clientName: portal.latestConsultation?.clientName || "",
@@ -253,6 +253,8 @@ export async function POST(request: Request) {
     privateServiceType: portal.activePrivatePackage?.serviceType ?? null,
     sessionNumber: privateSessionNumber,
     squareBookingId: squareBooking.booking?.id || null,
+  }).catch((err) => {
+    console.error("[training-portal/one-on-one-book] Staff notification failed:", err)
   })
 
   captureServerEvent({

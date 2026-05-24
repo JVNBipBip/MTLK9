@@ -607,7 +607,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       },
       { merge: true },
     )
-    notifyStaffOfBooking({
+    await notifyStaffOfBooking({
       kind: "consultation",
       consultationId: claim.consultationId,
       clientName: claim.clientName,
@@ -617,6 +617,8 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       scheduledAtIso: claim.scheduledAtIso,
       squareBookingId: squareConsultationBookingId,
       issueLabel: claim.issueLabel,
+    }).catch((err) => {
+      console.error("[square webhook] Consultation staff notification failed:", err)
     })
     captureServerEvent({
       distinctId: claim.clientEmail.toLowerCase(),
