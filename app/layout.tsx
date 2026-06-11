@@ -8,7 +8,7 @@ import { NextIntlClientProvider } from "next-intl"
 import { BookingFormProvider } from "@/components/booking-form-provider"
 import { ClientLocaleEffects } from "@/components/client-locale-effects"
 import { FacebookPixel } from "@/components/facebook-pixel"
-import { JsonLd, localBusinessJsonLd } from "@/components/json-ld"
+import { JsonLd, buildWebSiteJsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import { LocaleProvider } from "@/components/locale-provider"
 import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 import { getMessages } from "@/lib/i18n/messages"
@@ -125,6 +125,7 @@ export default async function RootLayout({
                 inLanguage: locale,
               }}
             />
+            <JsonLd data={buildWebSiteJsonLd(locale)} />
             <BookingFormProvider>
               {children}
             </BookingFormProvider>

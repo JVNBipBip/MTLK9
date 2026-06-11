@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -17,18 +17,27 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function ReactivityLayout({
+export default async function ReactivityLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+
   return (
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Reactivity Dog Training — Montreal",
-          description: "Private and group reactivity training for dogs who lunge, bark, or shut down. Structured protocols using humane, evidence-guided methods.",
-          url: "https://mtlcaninetraining.com/services/reactivity",
+          name:
+            locale === "fr"
+              ? "Entraînement pour chiens réactifs — Montréal"
+              : "Reactivity Dog Training — Montreal",
+          description:
+            locale === "fr"
+              ? "Programmes privés et de groupe pour les chiens qui jappent, se lancent ou figent face aux déclencheurs. Protocoles structurés et méthodes humaines."
+              : "Private and group reactivity training for dogs who lunge, bark, or shut down. Structured protocols using humane, evidence-guided methods.",
+          path: "/services/reactivity",
+          locale,
           price: "349",
         })}
       />
