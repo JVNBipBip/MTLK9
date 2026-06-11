@@ -5,7 +5,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowDown, ArrowRight, Play } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
@@ -163,16 +163,16 @@ export default function ResultsPage() {
                     }`}
                 >
                   <div className="h-full bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col overflow-hidden">
-                    {/* Photo/Video */}
+                    {/* Photo/Video — vertical phone footage, shown vertical */}
                     {study.wistiaId ? (
-                      <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
+                      <div className="relative bg-muted overflow-hidden aspect-[9/16]">
                         <iframe
-                          src={`https://fast.wistia.net/embed/iframe/${study.wistiaId}`}
+                          src={`https://fast.wistia.net/embed/iframe/${study.wistiaId}?videoFoam=true&fitStrategy=cover`}
                           title={t(study.photoDesc)}
                           allow="autoplay; fullscreen"
                           allowFullScreen
                           loading="lazy"
-                          className="absolute left-1/2 top-1/2 h-full w-[177.78%] -translate-x-1/2 -translate-y-1/2 border-0"
+                          className="absolute inset-0 h-full w-full border-0"
                         />
                       </div>
                     ) : (
@@ -201,24 +201,19 @@ export default function ResultsPage() {
                         </span>
                       </div>
 
-                      <div className="space-y-4 text-sm leading-relaxed flex-grow">
-                        <div>
-                          <p className="font-medium text-foreground mb-1">
-                            {t("The Problem")}
+                      <div className="space-y-3 text-sm leading-relaxed flex-grow">
+                        <div className="rounded-xl bg-destructive/[0.06] border-l-[3px] border-destructive/60 p-3.5">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
+                            {t("Before")}
                           </p>
                           <p className="text-muted-foreground">{t(study.problem)}</p>
                         </div>
-                        {study.plan && (
-                          <div>
-                            <p className="font-medium text-foreground mb-1">
-                              {t("The Plan")}
-                            </p>
-                            <p className="text-muted-foreground">{t(study.plan)}</p>
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-medium text-foreground mb-1">
-                            {t("The Result")}
+                        <div className="flex justify-center -my-1" aria-hidden="true">
+                          <ArrowDown className="w-4 h-4 text-muted-foreground/50" />
+                        </div>
+                        <div className="rounded-xl bg-primary/[0.06] border-l-[3px] border-primary/60 p-3.5">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
+                            {t("After")}
                           </p>
                           <p className="text-muted-foreground">{t(study.result)}</p>
                         </div>

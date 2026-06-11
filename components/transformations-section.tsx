@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowDown, ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { transformationStories } from "@/lib/transformation-stories"
 
-const stories = transformationStories.slice(0, 3)
+const stories = transformationStories
 
 export function TransformationsSection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -140,17 +140,20 @@ export function TransformationsSection() {
                       </span>
                     </div>
 
-                    <div className="space-y-4 flex-1">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-destructive mb-1">
+                    <div className="space-y-3 flex-1">
+                      <div className="rounded-xl bg-destructive/[0.06] border-l-[3px] border-destructive/60 p-3.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
                           Before
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
                           {story.before}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-primary mb-1">
+                      <div className="flex justify-center -my-1" aria-hidden="true">
+                        <ArrowDown className="w-4 h-4 text-muted-foreground/50" />
+                      </div>
+                      <div className="rounded-xl bg-primary/[0.06] border-l-[3px] border-primary/60 p-3.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
                           After
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
