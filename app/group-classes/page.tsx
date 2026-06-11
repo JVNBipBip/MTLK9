@@ -136,7 +136,7 @@ export default function GroupClassesPage() {
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex flex-col gap-3">
+                  <div className="mt-auto flex flex-col gap-3 pt-6">
                     <Link
                       href={learnMoreHref[offering.id]}
                       className="inline-flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
@@ -146,7 +146,7 @@ export default function GroupClassesPage() {
                     </Link>
                     <Button
                       asChild
-                      className="rounded-full bg-white text-foreground hover:bg-muted border border-foreground transition-colors"
+                      className="min-h-11 w-full rounded-full border border-primary bg-primary px-5 py-3 text-center leading-tight text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:text-primary-foreground"
                     >
                       <a href="#group-class-availability">{t("See dates & availability")}</a>
                     </Button>

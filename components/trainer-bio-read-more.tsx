@@ -151,11 +151,13 @@ function BioExpandableCompact({
   texts,
   readMoreLabel,
   readLessLabel,
+  triggerClassName,
   wrapperClassName,
 }: {
   texts: TrainerBioReadMoreTexts
   readMoreLabel: string
   readLessLabel: string
+  triggerClassName?: string
   wrapperClassName?: string
 }) {
   const idControls = useId()
@@ -170,6 +172,7 @@ function BioExpandableCompact({
           className={cn(
             "flex w-full items-center justify-center gap-1 rounded-full border border-border/70 bg-muted/40 px-3 py-2 text-xs font-semibold text-foreground",
             "hover:bg-muted/70 transition-colors",
+            triggerClassName,
           )}
           aria-expanded={open}
           aria-controls={`${idControls}-expanded`}
@@ -225,6 +228,7 @@ export function TrainerBioReadMoreSection({
             texts={texts}
             readMoreLabel={readMoreLabel}
             readLessLabel={readLessLabel}
+            triggerClassName="min-h-10 border-primary bg-primary px-4 py-2.5 text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:text-primary-foreground"
           />
         </div>
       </div>

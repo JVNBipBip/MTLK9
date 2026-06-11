@@ -95,13 +95,13 @@ export function TransformationsSection() {
         <div data-mobile-strip-reveal className="opacity-0 lg:opacity-100">
           <div
             ref={scrollerRef}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-6 lg:overflow-visible"
           >
             {stories.map((story, index) => (
               <div
                 key={story.dogName}
                 data-story-card
-                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
+                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:col-span-2 lg:w-auto lg:shrink ${stories.length % 3 === 2 && index === stories.length - 2 ? "lg:col-start-2" : ""}`}
               >
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                   {/* Video/Image — vertical phone footage, shown vertical */}
