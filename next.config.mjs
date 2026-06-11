@@ -62,8 +62,21 @@ const nextConfig = {
         permanent: true,
       },
       { source: "/in-home-dog-training-services", destination: "/en/services/in-home", permanent: true },
+      // Deterministic 308s for legacy no-locale paths Google still treats as
+      // canonical (GSC: /services 1,382 impr, /about 464 impr). The proxy's
+      // locale-detect 307 is too weak a canonical signal.
+      { source: "/services/:path*", destination: "/en/services/:path*", permanent: true },
+      { source: "/services", destination: "/en/services", permanent: true },
+      { source: "/about", destination: "/en/about", permanent: true },
+      { source: "/results", destination: "/en/results", permanent: true },
+      { source: "/faq", destination: "/en/faq", permanent: true },
+      { source: "/blog", destination: "/en/blog", permanent: true },
+      { source: "/group-classes", destination: "/en/group-classes", permanent: true },
+      { source: "/:locale(en|fr)/session-with-nick", destination: "/:locale/booking", permanent: true },
+      { source: "/session-with-nick", destination: "/en/booking", permanent: true },
       // Old Squarespace shop pages.
       { source: "/s/:path*", destination: "/en", permanent: true },
+      { source: "/product/:path*", destination: "/en", permanent: true },
     ]
   },
   async rewrites() {

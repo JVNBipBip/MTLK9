@@ -46,13 +46,9 @@ export const localBusinessJsonLd = {
   ],
   priceRange: "$$",
   image: `${SITE_URL}/images/MTLK9_Logo.webp`,
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "5.0",
-    reviewCount: "124",
-    bestRating: "5",
-    worstRating: "1",
-  },
+  // aggregateRating intentionally omitted: self-serving review markup without
+  // on-page user reviews violates Google's structured-data policy. Re-add only
+  // alongside a live on-page Google-reviews embed.
   sameAs: [
 
     "https://www.instagram.com/mtlcaninetraining/",
