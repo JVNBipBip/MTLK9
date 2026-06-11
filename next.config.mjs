@@ -33,9 +33,17 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // Legacy fr. subdomain → canonical www French routes (one host for Google).
+      // Legacy fr. subdomain → canonical www French routes (one host for
+      // Google). The same mapping lives in proxy.ts — on Vercel the middleware
+      // runs first, self-hosted these rules run first; both must agree.
       {
         source: "/en/:path*",
+        has: [{ type: "host", value: "fr.mtlcaninetraining.com" }],
+        destination: "https://www.mtlcaninetraining.com/fr/:path*",
+        permanent: true,
+      },
+      {
+        source: "/fr/:path*",
         has: [{ type: "host", value: "fr.mtlcaninetraining.com" }],
         destination: "https://www.mtlcaninetraining.com/fr/:path*",
         permanent: true,

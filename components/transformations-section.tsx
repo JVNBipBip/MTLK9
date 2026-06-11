@@ -102,20 +102,20 @@ export function TransformationsSection() {
                 className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
               >
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
-                  {/* Video/Image */}
+                  {/* Video/Image — vertical phone footage, shown vertical */}
                   {story.wistiaId ? (
-                    <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
+                    <div className="relative bg-muted overflow-hidden aspect-[9/16]">
                       <iframe
-                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}`}
+                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}?videoFoam=true&fitStrategy=cover`}
                         title={story.mediaAlt}
                         allow="autoplay; fullscreen"
                         allowFullScreen
                         loading="lazy"
-                        className="absolute left-1/2 top-1/2 h-full w-[177.78%] -translate-x-1/2 -translate-y-1/2 border-0"
+                        className="absolute inset-0 h-full w-full border-0"
                       />
                     </div>
                   ) : (
-                    <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
+                    <div className="relative aspect-[9/16] bg-muted flex items-center justify-center overflow-hidden">
                       <div className="text-center px-6">
                         <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
                           <Play className="w-6 h-6 text-primary ml-0.5" />
