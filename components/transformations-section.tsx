@@ -8,6 +8,8 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { transformationStories } from "@/lib/transformation-stories"
 
+const stories = transformationStories.slice(0, 3)
+
 export function TransformationsSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
@@ -95,7 +97,7 @@ export function TransformationsSection() {
             ref={scrollerRef}
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
           >
-            {transformationStories.slice(0, 3).map((story, index) => (
+            {stories.map((story, index) => (
               <div
                 key={story.dogName}
                 data-story-card
@@ -172,7 +174,7 @@ export function TransformationsSection() {
             ))}
           </div>
           <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
-            {transformationStories.slice(0, 3).map((story, index) => (
+            {stories.map((story, index) => (
               <button
                 key={story.dogName}
                 type="button"
@@ -184,7 +186,7 @@ export function TransformationsSection() {
               />
             ))}
             <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
-              {activeIndex + 1} / {transformationStories.length}
+              {activeIndex + 1} / {stories.length}
             </span>
           </div>
         </div>
