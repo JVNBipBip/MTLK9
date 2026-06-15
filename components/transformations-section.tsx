@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowDown, ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { transformationStories } from "@/lib/transformation-stories"
+
+const stories = transformationStories
 
 export function TransformationsSection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -93,29 +95,29 @@ export function TransformationsSection() {
         <div data-mobile-strip-reveal className="opacity-0 lg:opacity-100">
           <div
             ref={scrollerRef}
-            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-3 lg:overflow-visible"
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:grid lg:grid-cols-6 lg:overflow-visible"
           >
-            {transformationStories.slice(0, 3).map((story, index) => (
+            {stories.map((story, index) => (
               <div
                 key={story.dogName}
                 data-story-card
-                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:w-auto lg:shrink`}
+                className={`reveal lg:opacity-0 ${index === 1 ? "animation-delay-200" : index === 2 ? "animation-delay-400" : index === 3 ? "animation-delay-600" : ""} group snap-center shrink-0 w-[86%] sm:w-[70%] lg:col-span-2 lg:w-auto lg:shrink ${stories.length % 3 === 2 && index === stories.length - 2 ? "lg:col-start-2" : ""}`}
               >
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
-                  {/* Video/Image */}
+                  {/* Video/Image — vertical phone footage, shown vertical */}
                   {story.wistiaId ? (
-                    <div className="relative bg-muted overflow-hidden" style={{ aspectRatio: "16/10" }}>
+                    <div className="relative bg-muted overflow-hidden aspect-[9/16]">
                       <iframe
-                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}`}
+                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}?videoFoam=true&fitStrategy=cover`}
                         title={story.mediaAlt}
                         allow="autoplay; fullscreen"
                         allowFullScreen
                         loading="lazy"
-                        className="absolute left-1/2 top-1/2 h-full w-[177.78%] -translate-x-1/2 -translate-y-1/2 border-0"
+                        className="absolute inset-0 h-full w-full border-0"
                       />
                     </div>
                   ) : (
-                    <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
+                    <div className="relative aspect-[9/16] bg-muted flex items-center justify-center overflow-hidden">
                       <div className="text-center px-6">
                         <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 group-hover:bg-primary/30 transition-colors">
                           <Play className="w-6 h-6 text-primary ml-0.5" />
@@ -138,17 +140,20 @@ export function TransformationsSection() {
                       </span>
                     </div>
 
-                    <div className="space-y-4 flex-1">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-destructive mb-1">
+                    <div className="space-y-3 flex-1">
+                      <div className="rounded-xl bg-destructive/[0.06] border-l-[3px] border-destructive/60 p-3.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
                           Before
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
                           {story.before}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-primary mb-1">
+                      <div className="flex justify-center -my-1" aria-hidden="true">
+                        <ArrowDown className="w-4 h-4 text-muted-foreground/50" />
+                      </div>
+                      <div className="rounded-xl bg-primary/[0.06] border-l-[3px] border-primary/60 p-3.5">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
                           After
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
@@ -172,7 +177,7 @@ export function TransformationsSection() {
             ))}
           </div>
           <div className="mt-6 flex items-center justify-center gap-2.5 lg:hidden">
-            {transformationStories.slice(0, 3).map((story, index) => (
+            {stories.map((story, index) => (
               <button
                 key={story.dogName}
                 type="button"
@@ -184,7 +189,7 @@ export function TransformationsSection() {
               />
             ))}
             <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
-              {activeIndex + 1} / {transformationStories.length}
+              {activeIndex + 1} / {stories.length}
             </span>
           </div>
         </div>

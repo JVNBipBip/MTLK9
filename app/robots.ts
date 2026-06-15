@@ -55,6 +55,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/booking-access/", "/booking/resume/", "/training-portal/", "/checkout/"],
       },
     ],
-    sitemap: "https://mtlcaninetraining.com/sitemap.xml",
+    sitemap: "https://www.mtlcaninetraining.com/sitemap.xml",
   }
 }

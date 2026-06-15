@@ -70,7 +70,7 @@ export function Header() {
                 className={`text-base font-medium transition-colors ${
                   activePathname === link.href
                     ? "text-black font-semibold"
-                    : "text-black/80 hover:text-black"
+                    : "text-black hover:text-black/70"
                 }`}
               >
                 {t(`nav.${link.labelKey}`)}

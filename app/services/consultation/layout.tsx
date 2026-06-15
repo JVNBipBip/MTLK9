@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -18,19 +18,27 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function ConsultationLayout({
+export default async function ConsultationLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+
   return (
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Dog Training Consultation — Montreal",
+          name:
+            locale === "fr"
+              ? "Consultation en entraînement canin — Montréal"
+              : "Dog Training Consultation — Montreal",
           description:
-            "In-person training consultation covering your goals, your dog's behaviour, program fit between private lessons and group classes, and booking your evaluation.",
-          url: "https://mtlcaninetraining.com/services/consultation",
+            locale === "fr"
+              ? "Consultation en personne : vos objectifs, le comportement de votre chien, le choix entre cours privés et cours de groupe, et la réservation de votre évaluation."
+              : "In-person training consultation covering your goals, your dog's behaviour, program fit between private lessons and group classes, and booking your evaluation.",
+          path: "/services/consultation",
+          locale,
           price: "199",
         })}
       />

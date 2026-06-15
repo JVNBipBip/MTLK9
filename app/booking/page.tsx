@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { BookingPageRedirect } from "./booking-page-redirect"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -16,6 +16,17 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function BookingPage() {
-  return <BookingPageRedirect />
+export default async function BookingPage() {
+  const locale = await getRequestLocale()
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+      <h1 className="text-2xl font-semibold">
+        {locale === "fr"
+          ? "Réserver une évaluation en entraînement canin à Montréal"
+          : "Book a Dog Training Assessment in Montreal"}
+      </h1>
+      <BookingPageRedirect />
+    </main>
+  )
 }

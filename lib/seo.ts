@@ -33,11 +33,15 @@ export function localizedUrl(locale: AppLocale, path: string) {
   return `${SITE_URL}${localizedPath(locale, path)}`
 }
 
+/** Sitewide fallback OG/Twitter image — page-level `openGraph` replaces the
+ * root layout's wholesale, so every page needs an image of its own. */
+const DEFAULT_OG_IMAGE = "/images/hero-fallback.webp"
+
 export async function buildLocalizedMetadata({
   path,
   title,
   description,
-  image,
+  image = DEFAULT_OG_IMAGE,
   robots,
 }: LocalizedMetadataInput): Promise<Metadata> {
   const locale = await getRequestLocale()

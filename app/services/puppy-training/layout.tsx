@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -17,18 +17,25 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function PuppyTrainingLayout({
+export default async function PuppyTrainingLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+
   return (
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Puppy Training — Montreal",
-          description: "Puppy group socialization, teen puppy classes, and private sessions in Montreal. Confidence building, basic commands, and a strong foundation from the start.",
-          url: "https://mtlcaninetraining.com/services/puppy-training",
+          name:
+            locale === "fr" ? "Entraînement pour chiots — Montréal" : "Puppy Training — Montreal",
+          description:
+            locale === "fr"
+              ? "Socialisation en groupe pour chiots, cours pour jeunes chiens et séances privées à Montréal. Confiance, commandes de base et fondations solides dès le départ."
+              : "Puppy group socialization, teen puppy classes, and private sessions in Montreal. Confidence building, basic commands, and a strong foundation from the start.",
+          path: "/services/puppy-training",
+          locale,
           price: "349",
         })}
       />

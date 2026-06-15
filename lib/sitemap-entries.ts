@@ -4,8 +4,8 @@ import { locales, type AppLocale } from "@/lib/i18n/config"
 import { transformationStories } from "@/lib/transformation-stories"
 import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
 
-/** Canonical origin for sitemap URLs (matches robots.ts). */
-export const SITEMAP_BASE_URL = "https://mtlcaninetraining.com"
+/** Canonical origin for sitemap URLs (matches robots.ts and page canonicals). */
+export const SITEMAP_BASE_URL = "https://www.mtlcaninetraining.com"
 
 type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>
 

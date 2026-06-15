@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Phone, MapPin, ClipboardList, Handshake, ArrowRight } from "lucide-react"
+import { Send, MapPin, ClipboardList, Handshake, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
@@ -9,11 +9,11 @@ import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const steps = [
   {
-    icon: Phone,
+    icon: Send,
     number: "01",
-    title: "Contact Us for a Free Call",
+    title: "See If Your Dog Qualifies",
     description:
-      "Tell us what's going on. We'll figure out the right path together. 15 minutes, no commitment.",
+      "Send a quick inquiry about what's going on. We'll confirm your dog is a fit for an evaluation and point you to the right program — free, no commitment.",
   },
   {
     icon: MapPin,

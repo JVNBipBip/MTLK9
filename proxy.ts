@@ -47,8 +47,21 @@ function rememberLocale(response: NextResponse, locale: string) {
   })
 }
 
+const CANONICAL_ORIGIN = "https://www.mtlcaninetraining.com"
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
+
+  // Legacy fr. subdomain → canonical host's French routes. This must live in
+  // the middleware (not next.config redirects): on Vercel the middleware runs
+  // before next.config redirects, so those rules never fire for fr. requests.
+  const host = (request.headers.get("host") || "").toLowerCase().split(":")[0]
+  if (host === "fr.mtlcaninetraining.com") {
+    const stripped = stripLocaleFromPathname(pathname)
+    const dest = new URL(stripped === "/" ? "/fr" : `/fr${stripped}`, CANONICAL_ORIGIN)
+    dest.search = search
+    return NextResponse.redirect(dest, 308)
+  }
 
   if (shouldSkip(pathname)) return NextResponse.next()
 

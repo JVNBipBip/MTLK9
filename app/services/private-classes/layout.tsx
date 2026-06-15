@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -17,18 +17,27 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function PrivateClassesLayout({
+export default async function PrivateClassesLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+
   return (
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Private Dog Training Classes — Montreal",
-          description: "One-on-one dog training packages for behaviour modification, reactivity, aggression, confidence building, separation anxiety, and resource guarding.",
-          url: "https://mtlcaninetraining.com/services/private-classes",
+          name:
+            locale === "fr"
+              ? "Cours privés pour chiens — Montréal"
+              : "Private Dog Training Classes — Montreal",
+          description:
+            locale === "fr"
+              ? "Forfaits d'entraînement individuels pour la modification du comportement, la réactivité, l'agressivité, la confiance, l'anxiété de séparation et la protection des ressources."
+              : "One-on-one dog training packages for behaviour modification, reactivity, aggression, confidence building, separation anxiety, and resource guarding.",
+          path: "/services/private-classes",
+          locale,
           price: "349",
         })}
       />

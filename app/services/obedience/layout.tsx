@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { JsonLd, buildServiceJsonLd } from "@/components/json-ld"
-import { buildLocalizedMetadata } from "@/lib/seo"
+import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
 
 export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
@@ -17,18 +17,25 @@ export function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function ObedienceLayout({
+export default async function ObedienceLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+
   return (
     <>
       <JsonLd
         data={buildServiceJsonLd({
-          name: "Obedience Dog Training — Montreal",
-          description: "Private and group obedience classes in Montreal. Level 1 basics, Level 2 advanced work with pack walks and high distractions, plus private one-on-one sessions.",
-          url: "https://mtlcaninetraining.com/services/obedience",
+          name:
+            locale === "fr" ? "Obéissance canine — Montréal" : "Obedience Dog Training — Montreal",
+          description:
+            locale === "fr"
+              ? "Cours d'obéissance privés et de groupe à Montréal. Niveau 1 pour les bases, niveau 2 avancé avec marches de meute et distractions élevées, plus séances individuelles."
+              : "Private and group obedience classes in Montreal. Level 1 basics, Level 2 advanced work with pack walks and high distractions, plus private one-on-one sessions.",
+          path: "/services/obedience",
+          locale,
           price: "349",
         })}
       />
