@@ -11,6 +11,12 @@ const SQUARE_BASE_URL_BY_ENV = {
 type SquareEnv = keyof typeof SQUARE_BASE_URL_BY_ENV
 
 const REFRESH_BUFFER_MS = 60 * 60 * 1000 // refresh if expiring within 1 hour
+const OAUTH_RECONNECT_MESSAGE =
+  "Square OAuth token is expired or cannot be refreshed. Reconnect Square in the admin before taking bookings."
+
+function allowEnvTokenFallbackAfterOAuthFailure() {
+  return process.env.SQUARE_ALLOW_ENV_TOKEN_FALLBACK === "1"
+}
 
 async function tryRefreshOAuthToken(): Promise<boolean> {
   const url = process.env.SQUARE_OAUTH_REFRESH_URL?.trim()
@@ -24,7 +30,7 @@ async function tryRefreshOAuthToken(): Promise<boolean> {
   return false
 }
 
-/** OAuth first, fallback to SQUARE_ACCESS_TOKEN from env */
+/** OAuth first. Env token is only a bootstrap fallback unless explicitly allowed after OAuth failure. */
 async function getSquareConfigAsync() {
   const locationId = await getSquareLocationId()
   const env = (process.env.SQUARE_ENV || "sandbox") as SquareEnv
@@ -33,6 +39,7 @@ async function getSquareConfigAsync() {
   if (!locationId) throw new Error("Missing location. Set in Admin → Service Mapping or SQUARE_LOCATION_ID env.")
   if (!SQUARE_BASE_URL_BY_ENV[env]) throw new Error("Invalid SQUARE_ENV. Use sandbox or production.")
 
+  let foundOAuthConnection = false
   try {
     const db = getAdminDb()
     const snap = await db.collection(SQUARE_TOKENS_COLLECTION).limit(5).get()
@@ -41,6 +48,7 @@ async function getSquareConfigAsync() {
       return data?.accessToken || data?.refreshToken
     })
     if (doc) {
+      foundOAuthConnection = true
       const data = doc.data() as {
         accessToken?: string
         expiresAt?: string
@@ -65,8 +73,15 @@ async function getSquareConfigAsync() {
         const refreshed = await tryRefreshOAuthToken()
         if (refreshed) return getSquareConfigAsync()
       }
+
+      if (!allowEnvTokenFallbackAfterOAuthFailure()) {
+        throw new Error(OAUTH_RECONNECT_MESSAGE)
+      }
     }
-  } catch {
+  } catch (err) {
+    if (foundOAuthConnection && !allowEnvTokenFallbackAfterOAuthFailure()) {
+      throw err
+    }
     /* fall through to env */
   }
 
@@ -819,4 +834,3 @@ export async function listSquareBookings(input?: { startAtMin?: string; startAtM
 
   return { bookings }
 }
-
