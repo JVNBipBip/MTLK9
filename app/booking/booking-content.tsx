@@ -221,6 +221,7 @@ export function BookingContent({
     layout === "page"
       ? "px-6 py-4"
       : "min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-3 touch-pan-y [-webkit-overflow-scrolling:touch] sm:px-6 sm:py-4"
+  const contentWidthClass = layout === "modal" ? "max-w-2xl" : "max-w-lg"
 
   type ConsultationSchedulingKind = "unset" | "deposit"
   const resumeScheduling = Boolean(depositResume?.openSchedulingDeposit)
@@ -632,7 +633,7 @@ export function BookingContent({
             topBarPaddingClass,
           )}
         >
-          <div className="max-w-lg mx-auto flex justify-end">
+          <div className={cn(contentWidthClass, "mx-auto flex justify-end")}>
             <button
               onClick={handleClose}
               className="p-1.5 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -647,7 +648,7 @@ export function BookingContent({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="w-full max-w-lg"
+            className={cn("w-full", contentWidthClass)}
           >
             <StepConfirmation formData={formData} submissionKind={completionKind} />
           </motion.div>
@@ -666,7 +667,7 @@ export function BookingContent({
           topBarPaddingClass,
         )}
       >
-        <div className="max-w-lg mx-auto">
+        <div className={cn(contentWidthClass, "mx-auto")}>
           <div className="flex items-center gap-3 mb-2">
             {currentStep > 0 ? (
               <button
@@ -700,7 +701,7 @@ export function BookingContent({
 
       {/* Step content — scrollable */}
       <div className={stepScrollClass}>
-        <div className="max-w-lg mx-auto w-full">
+        <div className={cn(contentWidthClass, "mx-auto w-full")}>
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>
@@ -1105,7 +1106,7 @@ export function BookingContent({
       {/* Bottom nav — only for multi-select / form steps */}
       {showBottomNav && (
         <div className="shrink-0 bg-background border-t border-border/50 px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="max-w-lg mx-auto flex flex-col gap-3">
+          <div className={cn(contentWidthClass, "mx-auto flex flex-col gap-3")}>
             <div className="flex items-center justify-between gap-3">
             <p className="text-sm text-destructive min-h-5">{submitError ?? ""}</p>
             <Button
