@@ -23,6 +23,8 @@ import {
   type TrainingPortalMode,
 } from "@/app/training-portal/training-portal-content"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { trackFBEvent } from "@/lib/facebook-pixel"
+import posthog from "posthog-js"
 
 type OpenTrainingPortalOptions = {
   mode?: TrainingPortalMode
@@ -160,6 +162,17 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
     setBookingOpen(true)
   }, [closeFreeCallModal])
 
+  const trackContactLinkClick = useCallback((method: "phone" | "email") => {
+    posthog.capture("contact_link_clicked", {
+      method,
+      location: "inquiry_modal",
+    })
+    trackFBEvent("Contact", {
+      content_name: method === "phone" ? "Phone click" : "Email click",
+      contact_method: method,
+    })
+  }, [])
+
   return (
     <BookingFormContext.Provider
       value={{
@@ -214,6 +227,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
             <div className="space-y-2 pt-1">
               <a
                 href="tel:+15148269558"
+                onClick={() => trackContactLinkClick("phone")}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors"
               >
                 <span className="flex items-center gap-1.5 min-w-0">
@@ -224,6 +238,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
               </a>
               <a
                 href="mailto:mtlcaninetraining@gmail.com"
+                onClick={() => trackContactLinkClick("email")}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors gap-2"
               >
                 <span className="flex items-center gap-1.5 min-w-0">

@@ -35,7 +35,6 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
         formData.contactName.trim() !== "" &&
         formData.contactEmail.trim() !== "" &&
         formData.contactPhone.trim() !== "" &&
-        formData.contactBestTime !== "" &&
         formData.dogName.trim() !== "" &&
         formData.dogBreed.trim() !== "" &&
         formData.dogAge !== ""

@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { BEST_TIME_OPTIONS, DOG_AGE_OPTIONS } from "../constants"
+import { DOG_AGE_OPTIONS } from "../constants"
 import { bookingOptionLabel, bookingStepCopy } from "../translations"
 import type { StepProps } from "../types"
 
@@ -104,25 +104,6 @@ export function StepYouAndDog({ formData, updateFormData }: StepProps) {
             </SelectTrigger>
             <SelectContent>
               {DOG_AGE_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {bookingOptionLabel(locale, opt.value, opt.label)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label className="text-sm font-medium">{copy.contactBestTime}</Label>
-          <Select
-            value={formData.contactBestTime}
-            onValueChange={(value) => updateFormData({ contactBestTime: value })}
-          >
-            <SelectTrigger className={cn("rounded-xl h-11 text-base w-full")}>
-              <SelectValue placeholder={copy.contactBestTimePlaceholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {BEST_TIME_OPTIONS.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {bookingOptionLabel(locale, opt.value, opt.label)}
                 </SelectItem>
