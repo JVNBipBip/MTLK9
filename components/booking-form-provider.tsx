@@ -187,7 +187,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
       <Dialog open={bookingOpen} onOpenChange={handleBookingDialogOpenChange}>
         <DialogContent
           showCloseButton={false}
-          className="!flex !flex-col !top-1/2 !left-1/2 !bottom-auto !right-auto !h-auto !max-h-[min(565px,72svh)] !min-h-0 !w-[calc(100%-2rem)] !max-w-[424px] !-translate-x-1/2 !-translate-y-1/2 gap-0 overflow-hidden rounded-2xl border-none p-0 shadow-2xl sm:!max-h-[min(626px,78vh)] sm:!max-w-[486px]"
+          className="!flex !flex-col !top-0 !left-0 !right-0 !bottom-0 !h-[100dvh] !max-h-[100dvh] !min-h-[100dvh] !w-full !max-w-none !translate-x-0 !translate-y-0 gap-0 overflow-hidden rounded-none border-none p-0 shadow-2xl sm:!top-1/2 sm:!left-1/2 sm:!right-auto sm:!bottom-auto sm:!h-[min(720px,88dvh)] sm:!max-h-[min(720px,88dvh)] sm:!min-h-0 sm:!w-[min(94vw,520px)] sm:!max-w-[520px] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:rounded-2xl"
         >
           <DialogTitle className="sr-only">{t("Submit an inquiry")}</DialogTitle>
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
