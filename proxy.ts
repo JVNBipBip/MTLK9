@@ -48,6 +48,60 @@ function rememberLocale(response: NextResponse, locale: string) {
 }
 
 const CANONICAL_ORIGIN = "https://www.mtlcaninetraining.com"
+const IMPACT_DASHBOARD_PATH = "/impact"
+const ROBOTS_PRIVATE_VALUE = "noindex, nofollow, noarchive, nosnippet, noimageindex"
+
+function isImpactDashboardPath(pathname: string) {
+  return stripLocaleFromPathname(pathname) === IMPACT_DASHBOARD_PATH
+}
+
+function withPrivateRobotsHeaders(response: NextResponse) {
+  response.headers.set("X-Robots-Tag", ROBOTS_PRIVATE_VALUE)
+  response.headers.set("Cache-Control", "private, no-store")
+  return response
+}
+
+function unauthorizedImpactResponse() {
+  return new NextResponse("Authentication required.", {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": 'Basic realm="MTLK9 Impact", charset="UTF-8"',
+      "X-Robots-Tag": ROBOTS_PRIVATE_VALUE,
+      "Cache-Control": "private, no-store",
+    },
+  })
+}
+
+function notFoundImpactResponse() {
+  return new NextResponse("Not found.", {
+    status: 404,
+    headers: {
+      "X-Robots-Tag": ROBOTS_PRIVATE_VALUE,
+      "Cache-Control": "private, no-store",
+    },
+  })
+}
+
+function isAuthorizedImpactRequest(request: NextRequest) {
+  const password = process.env.IMPACT_DASHBOARD_PASSWORD
+  if (!password) return process.env.NODE_ENV !== "production"
+
+  const auth = request.headers.get("authorization") || ""
+  const [scheme, credentials] = auth.split(" ")
+  if (scheme !== "Basic" || !credentials) return false
+
+  try {
+    const decoded = atob(credentials)
+    const separatorIndex = decoded.indexOf(":")
+    if (separatorIndex === -1) return false
+    const username = decoded.slice(0, separatorIndex)
+    const providedPassword = decoded.slice(separatorIndex + 1)
+    const expectedUsername = process.env.IMPACT_DASHBOARD_USER || "admin"
+    return username === expectedUsername && providedPassword === password
+  } catch {
+    return false
+  }
+}
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
@@ -66,6 +120,7 @@ export function proxy(request: NextRequest) {
   if (shouldSkip(pathname)) return NextResponse.next()
 
   const pathLocale = getPathLocale(pathname)
+  const isImpactDashboard = isImpactDashboardPath(pathname)
 
   if (!pathLocale) {
     const locale = resolveLocale(request)
@@ -74,10 +129,19 @@ export function proxy(request: NextRequest) {
 
     const response = NextResponse.redirect(url)
     rememberLocale(response, locale)
-    return response
+    return isImpactDashboard ? withPrivateRobotsHeaders(response) : response
   }
 
   const strippedPathname = stripLocaleFromPathname(pathname)
+  if (strippedPathname === IMPACT_DASHBOARD_PATH) {
+    if (!process.env.IMPACT_DASHBOARD_PASSWORD && process.env.NODE_ENV === "production") {
+      return notFoundImpactResponse()
+    }
+    if (!isAuthorizedImpactRequest(request)) {
+      return unauthorizedImpactResponse()
+    }
+  }
+
   const rewriteUrl = request.nextUrl.clone()
   rewriteUrl.pathname = strippedPathname
   rewriteUrl.search = search
@@ -92,7 +156,7 @@ export function proxy(request: NextRequest) {
     },
   })
   rememberLocale(response, pathLocale)
-  return response
+  return strippedPathname === IMPACT_DASHBOARD_PATH ? withPrivateRobotsHeaders(response) : response
 }
 
 export const config = {

@@ -16,17 +16,17 @@ const painPoints = [
   {
     question: "Lunge or bark at other dogs?",
     description: "You cross the street, avoid the park, walk at odd hours.",
-    image: "/images/pain-points/barking.webp",
+    image: "/images/pain-points/generated-options/barking-option-2.webp",
   },
   {
     question: "Destroy things when left alone?",
     description: "You can't leave the house without worrying.",
-    image: "/images/pain-points/destroying.webp",
+    image: "/images/pain-points/generated-options/destroying-option-1.webp",
   },
   {
     question: "Bite, nip, or jump on people?",
     description: "Guests are afraid. You're embarrassed and on edge.",
-    image: "/images/pain-points/jumping.webp",
+    image: "/images/pain-points/generated-options/jumping-option-1.webp",
   },
 ]
 
