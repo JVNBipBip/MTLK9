@@ -16,8 +16,8 @@ export default function Home() {
       <HeroSection />
       <TrustStrip />
       <PainPointsSection />
-      <HowItWorksSection />
       <TransformationsSection />
+      <HowItWorksSection />
       <StatsSection />
       <FaqSection />
       <FinalCTASection />
