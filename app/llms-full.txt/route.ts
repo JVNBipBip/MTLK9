@@ -41,6 +41,18 @@ Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs.
 - Travail: distance, durée, distractions, attention, engagement, laisse, stabilité, confiance, scénarios réalistes et socialisation structurée
 - URL: https://www.mtlcaninetraining.com/fr/services/reactivity
 
+### Chien agressif
+Pour les chiens qui grognent, pincent, mordent, protègent des ressources ou deviennent difficiles à gérer avec les gens, les chiens, les invités ou la manipulation.
+- Format: entraînement privé
+- Travail: évaluation des déclencheurs, règles de sécurité, gestion de l'environnement, modification du comportement, seuils, exposition contrôlée et application dans la vraie vie
+- URL: https://www.mtlcaninetraining.com/fr/services/aggression
+
+### Anxiété de séparation
+Pour les chiens qui paniquent, jappent, détruisent ou n'arrivent pas à se calmer lorsqu'ils restent seuls.
+- Format: entraînement privé et soutien à domicile lorsque nécessaire
+- Travail: seuils de solitude, routines de départ, confinement, enrichissement, progrès mesurables et devoirs entre les séances
+- URL: https://www.mtlcaninetraining.com/fr/services/separation-anxiety
+
 ### Cours privés
 Pour les chiens qui ont besoin d'un accompagnement individuel.
 - Format: forfaits de 3, 5 ou 7 séances
@@ -96,6 +108,8 @@ ${faqSection}
 - Tous les services: https://www.mtlcaninetraining.com/fr/services
 - Consultation: https://www.mtlcaninetraining.com/fr/services/consultation
 - Réactivité: https://www.mtlcaninetraining.com/fr/services/reactivity
+- Chien agressif: https://www.mtlcaninetraining.com/fr/services/aggression
+- Anxiété de séparation: https://www.mtlcaninetraining.com/fr/services/separation-anxiety
 - Cours privés: https://www.mtlcaninetraining.com/fr/services/private-classes
 - Obéissance: https://www.mtlcaninetraining.com/fr/services/obedience
 - Chiots: https://www.mtlcaninetraining.com/fr/services/puppy-training
@@ -130,6 +144,20 @@ For dogs who lunge, bark, or shut down around triggers.
 - What we work on: The Three D's (Duration, Distance, Distraction), attention cues (Name, Touch, Leash), active and static engagement, leash work and reward placement, stability work and confidence building, realistic scenario training, structured socialization
 - This is for you if: You cross the street every time you see another dog, you've rearranged your schedule to avoid triggers, your dog lunges/barks/shuts down on walks, other trainers told you your dog is "too much"
 - URL: https://www.mtlcaninetraining.com/services/reactivity
+
+### Aggressive Dog Training
+For dogs who growl, snap, bite, guard resources, or become unsafe around people, dogs, guests, or handling.
+- Format: private behaviour training
+- What we work on: trigger assessment, safety rules, environment management, behaviour modification, thresholds, controlled exposure, and real-world follow-through
+- This is for you if: You need a safety-first plan, your dog has repeated conflict, or group classes are not appropriate yet
+- URL: https://www.mtlcaninetraining.com/services/aggression
+
+### Separation Anxiety Training
+For dogs who panic, bark, destroy, pace, drool, or cannot settle when left alone.
+- Format: private training and in-home support when needed
+- What we work on: alone-time thresholds, departure routines, confinement decisions, enrichment, measurable progress, and repeatable homework
+- This is for you if: Barking, panic, or destruction when alone is affecting daily life
+- URL: https://www.mtlcaninetraining.com/services/separation-anxiety
 
 ### Private Classes
 For dogs who need focused, one-on-one attention.
@@ -190,6 +218,8 @@ ${faqSection}
 - All Services: https://www.mtlcaninetraining.com/services
 - Consultation: https://www.mtlcaninetraining.com/services/consultation
 - Reactivity Training: https://www.mtlcaninetraining.com/services/reactivity
+- Aggressive Dog Training: https://www.mtlcaninetraining.com/services/aggression
+- Separation Anxiety Training: https://www.mtlcaninetraining.com/services/separation-anxiety
 - Private Classes: https://www.mtlcaninetraining.com/services/private-classes
 - Obedience Training: https://www.mtlcaninetraining.com/services/obedience
 - Puppy Training: https://www.mtlcaninetraining.com/services/puppy-training

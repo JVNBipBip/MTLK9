@@ -9,8 +9,8 @@ export function generateMetadata(): Promise<Metadata> {
       fr: "Entraînement canin Montréal | Programmes",
     },
     description: {
-      en: "Dog training in Montreal for puppies, reactivity, obedience, private lessons, group classes, and in-home support.",
-      fr: "Entraînement canin à Montréal pour chiots, réactivité, obéissance, cours privés, cours de groupe et soutien à domicile.",
+      en: "Dog training in Montreal for puppies, reactivity, aggression, separation anxiety, obedience, private lessons, group classes, and in-home support.",
+      fr: "Entraînement canin à Montréal pour chiots, réactivité, agressivité, anxiété de séparation, obéissance, cours privés et groupe.",
     },
   })
 }
