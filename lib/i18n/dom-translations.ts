@@ -526,6 +526,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "Loading group classes…": "Chargement des cours de groupe…",
   "Group programs for pups, teens, reactivity, and obedience":
     "Programmes pour chiots, adolescents, réactivité et obéissance",
+  "Dog training classes in Montreal for puppies, reactivity, and obedience":
+    "Cours de dressage de chiens à Montréal pour chiots, réactivité et obéissance",
   "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right class.":
     "D’abord l’évaluation : nous examinons le comportement de votre chien, ses sensibilités et vos objectifs—puis votre entraîneur approuve ce que vous pouvez réserver pour vous placer dans le bon cours.",
   "Puppy Socialization Class": "Cours de socialisation pour chiots",
