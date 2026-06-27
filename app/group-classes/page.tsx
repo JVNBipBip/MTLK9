@@ -66,7 +66,7 @@ export default function GroupClassesPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              {t("Group programs for pups, teens, reactivity, and obedience")}
+              {t("Dog training classes in Montreal for puppies, reactivity, and obedience")}
             </h1>
             <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               {t(

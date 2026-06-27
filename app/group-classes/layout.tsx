@@ -5,12 +5,12 @@ export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
     path: "/group-classes",
     title: {
-      en: "Dog Group Classes in Montreal",
-      fr: "Cours de groupe pour chiens à Montréal",
+      en: "Dog Training Classes Montreal | Group Classes",
+      fr: "Cours de dressage chien Montréal | Groupe",
     },
     description: {
-      en: "Small-group puppy, obedience, and reactivity classes in Montreal with trainer-approved placement.",
-      fr: "Cours de groupe pour chiots, obéissance et réactivité à Montréal, avec placement approuvé.",
+      en: "Group dog training classes in Montreal for puppies, obedience, and reactivity with trainer-approved placement.",
+      fr: "Cours de groupe pour chiens à Montréal : chiots, obéissance et réactivité avec placement approuvé par un entraîneur.",
     },
     image: "/images/Classes images/puppy_social.jpg",
   })

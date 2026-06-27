@@ -53,7 +53,9 @@ export async function buildLocalizedMetadata({
     : undefined
 
   return {
-    title: pageTitle,
+    title: {
+      absolute: pageTitle,
+    },
     description: pageDescription,
     alternates: {
       canonical: url,

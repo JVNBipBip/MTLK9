@@ -101,6 +101,45 @@ export function buildServiceJsonLd({
   }
 }
 
+export function buildPersonJsonLd({
+  name,
+  jobTitle,
+  description,
+  path,
+  locale,
+  image,
+  knowsAbout,
+}: {
+  name: string
+  jobTitle: string
+  description: string
+  /** Locale-less route path, e.g. "/booking/nick". */
+  path: string
+  locale: AppLocale
+  image?: string | null
+  knowsAbout: string[]
+}) {
+  const url = localizedUrl(locale, path)
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${url}#person`,
+    name,
+    jobTitle,
+    description,
+    url,
+    image: image ? new URL(image.startsWith("/") ? image : `/${image}`, SITE_URL).toString() : undefined,
+    worksFor: { "@id": ORGANIZATION_ID },
+    knowsAbout,
+    areaServed: [
+      { "@type": "City", name: "Montreal" },
+      { "@type": "Place", name: "Anjou" },
+      { "@type": "City", name: "Laval" },
+    ],
+  }
+}
+
 export function buildFaqJsonLd(
   items: { question: string; answer: string }[],
 ) {
