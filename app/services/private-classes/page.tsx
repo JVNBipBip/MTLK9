@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
+import { FocusedSupportLinksSection } from "@/components/focused-support-links-section"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
@@ -28,6 +29,42 @@ const forYouIf = [
   "You've tried group classes and your dog needs something more tailored.",
   "You're dealing with reactivity, anxiety, aggression, or guarding.",
   "You want a clear plan built around your dog — not a generic curriculum.",
+]
+
+const focusedPrivateSupportLinks = [
+  {
+    href: "/services/aggression",
+    title: {
+      en: "Aggressive dog training",
+      fr: "Chien agressif",
+    },
+    body: {
+      en: "Private behaviour work for growling, snapping, biting, resource guarding, and safety concerns.",
+      fr: "Travail comportemental privé pour grognements, morsures, protection des ressources et enjeux de sécurité.",
+    },
+  },
+  {
+    href: "/services/separation-anxiety",
+    title: {
+      en: "Separation anxiety training",
+      fr: "Anxiété de séparation",
+    },
+    body: {
+      en: "A calmer plan for dogs who bark, panic, destroy, or struggle when left alone.",
+      fr: "Un plan plus calme pour les chiens qui jappent, paniquent, détruisent ou supportent mal d'être seuls.",
+    },
+  },
+  {
+    href: "/services/reactivity",
+    title: {
+      en: "Reactive dog training",
+      fr: "Entraînement pour chiens réactifs",
+    },
+    body: {
+      en: "Structured support for lunging, barking, freezing, or leash conflict around triggers.",
+      fr: "Soutien structuré pour les chiens qui se lancent, jappent, figent ou réagissent en laisse.",
+    },
+  },
 ]
 
 export default function PrivateClassesPage() {
@@ -160,6 +197,22 @@ export default function PrivateClassesPage() {
         </section>
 
         <ServiceForYouSection items={forYouIf} />
+
+        <FocusedSupportLinksSection
+          eyebrow={{
+            en: "Focused behaviour support",
+            fr: "Soutien comportemental ciblé",
+          }}
+          title={{
+            en: "Need help with a specific behaviour problem?",
+            fr: "Besoin d'aide pour un problème précis?",
+          }}
+          intro={{
+            en: "Private training is the core path, and these focused pages explain how we approach the problems Montreal dog owners search for most.",
+            fr: "Les cours privés sont le parcours principal, et ces pages ciblées expliquent comment nous abordons les problèmes les plus recherchés par les propriétaires de chiens à Montréal.",
+          }}
+          links={focusedPrivateSupportLinks}
+        />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">

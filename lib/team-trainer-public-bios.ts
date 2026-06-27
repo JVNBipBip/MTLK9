@@ -167,6 +167,7 @@ export const TRAINER_SEO_PROFILE_BY_SLUG = {
       "Objectifs d'obéissance avancée au-delà des bases",
     ],
     serviceLinks: [
+      { path: "/services/aggression", labelEn: "Aggressive dog training", labelFr: "Chien agressif" },
       { path: "/services/reactivity", labelEn: "Reactive dog training", labelFr: "Entraînement pour chiens réactifs" },
       { path: "/services/private-classes", labelEn: "Private training", labelFr: "Cours privés" },
       { path: "/services/obedience", labelEn: "Obedience training", labelFr: "Obéissance" },
@@ -230,6 +231,7 @@ export const TRAINER_SEO_PROFILE_BY_SLUG = {
     ],
     serviceLinks: [
       { path: "/services/puppy-training", labelEn: "Puppy training", labelFr: "Entraînement pour chiots" },
+      { path: "/services/reactivity", labelEn: "Reactive dog training", labelFr: "Entraînement pour chiens réactifs" },
       { path: "/services/private-classes", labelEn: "Private training", labelFr: "Cours privés" },
       { path: "/group-classes", labelEn: "Group classes", labelFr: "Cours collectifs" },
     ],
@@ -292,6 +294,7 @@ export const TRAINER_SEO_PROFILE_BY_SLUG = {
     ],
     serviceLinks: [
       { path: "/services/puppy-training", labelEn: "Puppy training", labelFr: "Entraînement pour chiots" },
+      { path: "/services/reactivity", labelEn: "Reactive dog training", labelFr: "Entraînement pour chiens réactifs" },
       { path: "/services/obedience", labelEn: "Obedience training", labelFr: "Obéissance" },
       { path: "/group-classes", labelEn: "Group classes", labelFr: "Cours collectifs" },
     ],

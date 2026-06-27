@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
+import { FocusedSupportLinksSection } from "@/components/focused-support-links-section"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -27,6 +28,42 @@ const trainingGoals = [
   "Stability work and confidence building",
   "Realistic scenario training",
   "Structured socialization",
+]
+
+const relatedReactivitySupportLinks = [
+  {
+    href: "/services/aggression",
+    title: {
+      en: "Aggressive dog training",
+      fr: "Chien agressif",
+    },
+    body: {
+      en: "For dogs whose reactions include biting risk, resource guarding, or unsafe behaviour around people or dogs.",
+      fr: "Pour les chiens dont les réactions incluent un risque de morsure, de la protection de ressources ou des comportements dangereux.",
+    },
+  },
+  {
+    href: "/services/private-classes",
+    title: {
+      en: "Private dog training",
+      fr: "Cours privés",
+    },
+    body: {
+      en: "One-on-one coaching when your dog needs a quieter setup before a group environment makes sense.",
+      fr: "Coaching individuel lorsque votre chien a besoin d'un cadre plus calme avant d'envisager un groupe.",
+    },
+  },
+  {
+    href: "/group-classes",
+    title: {
+      en: "Group reactivity classes",
+      fr: "Cours de réactivité en groupe",
+    },
+    body: {
+      en: "Trainer-approved group work for dogs ready to practice around controlled distractions.",
+      fr: "Travail de groupe approuvé par un entraîneur pour les chiens prêts à pratiquer avec des distractions contrôlées.",
+    },
+  },
 ]
 
 export default function ReactivityPage() {
@@ -85,6 +122,22 @@ export default function ReactivityPage() {
         <ServiceWorkOnSection goals={trainingGoals} />
 
         <ServiceForYouSection items={forYouIf} />
+
+        <FocusedSupportLinksSection
+          eyebrow={{
+            en: "Related behaviour support",
+            fr: "Soutien comportemental lié",
+          }}
+          title={{
+            en: "When reactivity needs a more specific plan",
+            fr: "Quand la réactivité demande un plan plus précis",
+          }}
+          intro={{
+            en: "Some reactive dogs need private behaviour work first, especially when safety, guarding, or bite risk is part of the picture.",
+            fr: "Certains chiens réactifs ont d'abord besoin d'un travail comportemental privé, surtout quand la sécurité, la protection ou le risque de morsure font partie du portrait.",
+          }}
+          links={relatedReactivitySupportLinks}
+        />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
