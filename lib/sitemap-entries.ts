@@ -19,6 +19,8 @@ const STATIC_ROUTES: RouteSpec[] = [
   { path: "", changeFrequency: "weekly", priority: 1 },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
   { path: "/services/reactivity", changeFrequency: "monthly", priority: 0.85 },
+  { path: "/services/aggression", changeFrequency: "monthly", priority: 0.85 },
+  { path: "/services/separation-anxiety", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/private-classes", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/consultation", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/obedience", changeFrequency: "monthly", priority: 0.85 },

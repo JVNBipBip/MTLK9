@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
+import { FocusedSupportLinksSection } from "@/components/focused-support-links-section"
 import { ServiceForYouSection } from "@/components/service-for-you-section"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -27,6 +28,42 @@ const trainingGoals = [
   "House training and structure",
   "Leash skills in your neighbourhood",
   "Handler coaching and follow-through",
+]
+
+const relatedHomeSupportLinks = [
+  {
+    href: "/services/separation-anxiety",
+    title: {
+      en: "Separation anxiety training",
+      fr: "Anxiété de séparation",
+    },
+    body: {
+      en: "Support for dogs who panic, bark, destroy, or cannot settle when left alone at home.",
+      fr: "Soutien pour les chiens qui paniquent, jappent, détruisent ou n'arrivent pas à se calmer seuls à la maison.",
+    },
+  },
+  {
+    href: "/services/private-classes",
+    title: {
+      en: "Private dog training",
+      fr: "Cours privés",
+    },
+    body: {
+      en: "One-on-one behaviour coaching when the issue needs a trainer's full attention.",
+      fr: "Coaching comportemental individuel lorsqu'un problème exige toute l'attention d'un entraîneur.",
+    },
+  },
+  {
+    href: "/services/aggression",
+    title: {
+      en: "Aggressive dog training",
+      fr: "Chien agressif",
+    },
+    body: {
+      en: "Safety-first help when home behaviour includes guarding, growling, snapping, or bite risk.",
+      fr: "Aide axée sur la sécurité lorsque le comportement à la maison inclut protection, grognements, morsures ou risques.",
+    },
+  },
 ]
 
 export default function InHomePage() {
@@ -85,6 +122,22 @@ export default function InHomePage() {
         <ServiceWorkOnSection goals={trainingGoals} />
 
         <ServiceForYouSection items={forYouIf} />
+
+        <FocusedSupportLinksSection
+          eyebrow={{
+            en: "Home behaviour support",
+            fr: "Soutien comportemental à domicile",
+          }}
+          title={{
+            en: "When the problem happens inside the home",
+            fr: "Quand le problème se produit à la maison",
+          }}
+          intro={{
+            en: "Home routines, door behaviour, alone time, and safety concerns often need a focused private plan before they improve in daily life.",
+            fr: "Les routines à la maison, les comportements à la porte, le temps seul et les enjeux de sécurité demandent souvent un plan privé ciblé.",
+          }}
+          links={relatedHomeSupportLinks}
+        />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">

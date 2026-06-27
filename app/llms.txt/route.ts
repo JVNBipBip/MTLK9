@@ -15,6 +15,8 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 - [Consultation en entraînement](https://www.mtlcaninetraining.com/fr/services/consultation): Évaluation en personne pour préciser vos objectifs et recommander l'entraînement privé, les cours de groupe ou une combinaison.
 
 - [Entraînement pour la réactivité](https://www.mtlcaninetraining.com/fr/services/reactivity): Pour les chiens qui se lancent, jappent ou figent face aux déclencheurs. Protocoles structurés pour l'attention, l'engagement, le travail en laisse et la confiance.
+- [Chien agressif](https://www.mtlcaninetraining.com/fr/services/aggression): Entraînement privé pour grognements, morsures, protection des ressources, conflits en laisse et comportements difficiles avec les gens ou les chiens.
+- [Anxiété de séparation](https://www.mtlcaninetraining.com/fr/services/separation-anxiety): Soutien privé pour les chiens qui jappent, paniquent, détruisent ou n'arrivent pas à rester calmes lorsqu'ils sont seuls.
 - [Cours privés](https://www.mtlcaninetraining.com/fr/services/private-classes): Modification du comportement, réactivité en laisse, agressivité, anxiété de séparation et protection des ressources en formule individuelle. Forfaits de 3, 5 ou 7 séances.
 - [Obéissance](https://www.mtlcaninetraining.com/fr/services/obedience): Pour les chiens de 9 mois et plus qui ont besoin de compétences fiables dans la vraie vie. Cours de groupe et privés niveau 1 et niveau 2.
 - [Entraînement des chiots](https://www.mtlcaninetraining.com/fr/services/puppy-training): Pour les chiots de 10 à 20 semaines et les adolescents de 5 à 9 mois. Socialisation, confiance, inhibition de la morsure et introduction à l'obéissance.
@@ -46,6 +48,8 @@ Montreal Canine Training provides professional dog training services in Montreal
 - [Training Consultation](https://www.mtlcaninetraining.com/services/consultation): In-person evaluation to understand your goals and recommend private training, group classes, or a blended plan.
 
 - [Reactivity Training](https://www.mtlcaninetraining.com/services/reactivity): For dogs who lunge, bark, or shut down around triggers. Structured protocols covering attention cues, engagement, leash work, and confidence building.
+- [Aggressive Dog Training](https://www.mtlcaninetraining.com/services/aggression): Private behaviour training for growling, snapping, biting, resource guarding, leash conflict, and unsafe behaviour around people or dogs.
+- [Separation Anxiety Training](https://www.mtlcaninetraining.com/services/separation-anxiety): Private support for dogs who bark, panic, destroy, pace, drool, or cannot settle when left alone at home.
 - [Private Classes](https://www.mtlcaninetraining.com/services/private-classes): One-on-one behaviour modification, leash reactivity, aggression, separation anxiety, and resource guarding. 3, 5, or 7 session packages.
 - [Obedience Training](https://www.mtlcaninetraining.com/services/obedience): For dogs 9 months+ who need reliable real-world skills. Level 1 & Level 2 group and private classes.
 - [Puppy Training](https://www.mtlcaninetraining.com/services/puppy-training): For puppies 10–20 weeks & teen dogs 5–9 months. Socialisation, confidence building, bite inhibition, and intro to obedience.

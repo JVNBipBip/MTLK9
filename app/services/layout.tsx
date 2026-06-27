@@ -5,12 +5,12 @@ export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
     path: "/services",
     title: {
-      en: "Dog Training Programs in Montreal",
-      fr: "Programmes d'entraînement canin à Montréal",
+      en: "Dog Training Montreal | Programs & Classes",
+      fr: "Entraînement canin Montréal | Programmes",
     },
     description: {
-      en: "Explore dog training programs in Montreal for reactivity, obedience, puppies, private lessons, and in-home support.",
-      fr: "Choisissez le bon parcours pour votre chien : réactivité, cours privés, obéissance, chiots ou entraînement à domicile.",
+      en: "Dog training in Montreal for puppies, reactivity, aggression, separation anxiety, obedience, private lessons, group classes, and in-home support.",
+      fr: "Entraînement canin à Montréal pour chiots, réactivité, agressivité, anxiété de séparation, obéissance, cours privés et groupe.",
     },
   })
 }

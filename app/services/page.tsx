@@ -20,6 +20,23 @@ type TrainingPathCard = {
   variant: "consultation" | "private" | "group"
 }
 
+type SpecializedServiceCard = {
+  href: string
+  title: {
+    en: string
+    fr: string
+  }
+  lead: {
+    en: string
+    fr: string
+  }
+  body: {
+    en: string
+    fr: string
+  }
+  image: string
+}
+
 const trainingPaths: TrainingPathCard[] = [
   {
     title: "Consultation",
@@ -44,6 +61,45 @@ const trainingPaths: TrainingPathCard[] = [
     variant: "group",
   },
 ]
+
+const specializedServices: SpecializedServiceCard[] = [
+  {
+    href: "/services/aggression",
+    title: {
+      en: "Aggressive dog training",
+      fr: "Chien agressif",
+    },
+    lead: {
+      en: "Safety-first behaviour help",
+      fr: "Aide comportementale axée sur la sécurité",
+    },
+    body: {
+      en: "Private training for growling, snapping, biting, resource guarding, leash conflict, and unsafe behaviour around people or dogs.",
+      fr: "Entraînement privé pour grognements, morsures, protection des ressources, conflits en laisse et comportements difficiles avec les gens ou les chiens.",
+    },
+    image: "/images/Classes images/private.webp",
+  },
+  {
+    href: "/services/separation-anxiety",
+    title: {
+      en: "Separation anxiety training",
+      fr: "Anxiété de séparation",
+    },
+    lead: {
+      en: "Calmer alone-time routines",
+      fr: "Routines plus calmes lorsque le chien est seul",
+    },
+    body: {
+      en: "Private support for dogs who bark, panic, destroy, pace, drool, or cannot settle when left alone at home.",
+      fr: "Soutien privé pour les chiens qui jappent, paniquent, détruisent, tournent en rond, bavent ou n'arrivent pas à se calmer seuls.",
+    },
+    image: "/images/Classes images/in-home.webp",
+  },
+]
+
+function localized<T>(locale: "en" | "fr", value: { en: T; fr: T }) {
+  return value[locale]
+}
 
 function PathCardCta({
   path,
@@ -116,6 +172,14 @@ export default function ServicesPage() {
     () => addLocaleToPathname("/services/private-classes", locale),
     [locale],
   )
+
+  const specializedHeading =
+    locale === "fr" ? "Aide pour les problèmes de comportement" : "Help for behaviour problems"
+  const specializedIntro =
+    locale === "fr"
+      ? "Des pages ciblées pour les recherches à forte intention, avec un parcours privé clair lorsque le chien a besoin de plus qu'un cours de groupe."
+      : "Focused service pages for high-intent searches, with a clear private-training path when a dog needs more than a general class."
+  const learnMoreLabel = locale === "fr" ? "Voir le programme" : "View program"
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -201,6 +265,61 @@ export default function ServicesPage() {
                   </article>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12 lg:py-20 px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="max-w-3xl mb-8 lg:mb-10">
+              <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
+                {locale === "fr" ? "Services spécialisés" : "Specialized services"}
+              </p>
+              <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl font-semibold tracking-tight text-foreground text-balance">
+                {specializedHeading}
+              </h2>
+              <p className="reveal opacity-0 animation-delay-400 mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
+                {specializedIntro}
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {specializedServices.map((service, index) => (
+                <Link
+                  key={service.href}
+                  href={addLocaleToPathname(service.href, locale)}
+                  className={`reveal opacity-0 group/card overflow-hidden rounded-3xl border border-border/50 bg-card shadow-md shadow-black/[0.04] ring-1 ring-black/[0.03] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg hover:shadow-primary/10 ${
+                    index === 1 ? "animation-delay-200" : ""
+                  }`}
+                >
+                  <div className="grid min-h-full md:grid-cols-[0.9fr_1.1fr]">
+                    <div className="relative min-h-[220px] overflow-hidden">
+                      <CardCoverImage
+                        src={service.image}
+                        alt={localized(locale, service.title)}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
+                        sizes="(max-width: 768px) 100vw, 40vw"
+                      />
+                    </div>
+                    <div className="flex flex-col p-6 lg:p-7">
+                      <p className="text-xs font-medium uppercase tracking-[0.15em] text-secondary">
+                        {localized(locale, service.lead)}
+                      </p>
+                      <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
+                        {localized(locale, service.title)}
+                      </h3>
+                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+                        {localized(locale, service.body)}
+                      </p>
+                      <span className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary">
+                        {learnMoreLabel}
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover/card:translate-x-1" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </section>

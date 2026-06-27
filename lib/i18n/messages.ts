@@ -29,14 +29,14 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Montreal's Best Dog Trainers | Professional Training",
+      title: "Dog Training Montreal | MTL Canine Training",
       template: "%s | Montreal Canine Training",
       description:
         "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
-      ogTitle: "Montreal's Best Dog Trainers | Professional Training",
+      ogTitle: "Dog Training Montreal | MTL Canine Training",
       ogDescription:
         "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
-      imageAlt: "Montreal's Best Dog Trainers | Professional Training",
+      imageAlt: "Dog training at Montreal Canine Training",
     },
   },
   fr: {
@@ -67,14 +67,14 @@ export const messages = {
       },
     },
     metadata: {
-      title: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
+      title: "Dressage chien Montréal | MTL Canine Training",
       template: "%s | Entraînement Canin Montréal",
       description:
-        "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Les meilleurs en ville pour la réactivité, l'anxiété, les chiots et l'obéissance.",
-      ogTitle: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
+        "Coaching canin concret à Montréal pour la réactivité, l'anxiété, les chiots, l'obéissance et les promenades plus calmes.",
+      ogTitle: "Dressage chien Montréal | MTL Canine Training",
       ogDescription:
-        "Coaching comportemental concret pour les propriétaires de chiens à Montréal. Les meilleurs en ville pour la réactivité, l'anxiété, les chiots et l'obéissance.",
-      imageAlt: "Meilleurs Dresseurs de Chiens à Montréal | Entraînement Professionnel",
+        "Coaching canin concret à Montréal pour la réactivité, l'anxiété, les chiots, l'obéissance et les promenades plus calmes.",
+      imageAlt: "Dressage chien Montréal avec MTL Canine Training",
     },
   },
 } as const

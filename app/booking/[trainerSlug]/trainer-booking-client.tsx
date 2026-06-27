@@ -1,9 +1,10 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
-import { ArrowLeft, Calendar, UserRound, Users } from "lucide-react"
+import { ArrowLeft, ArrowRight, Calendar, CheckCircle2, UserRound, Users } from "lucide-react"
 import { BookingContent } from "../booking-content"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
@@ -12,14 +13,19 @@ import { Button } from "@/components/ui/button"
 import { useBookingForm } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import { getTrainerPublicNarrative, localizeTrainerBioReadMoreTexts } from "@/lib/team-trainer-public-bios"
+import {
+  getTrainerPublicNarrative,
+  getTrainerSeoProfile,
+  localizeTrainerBioReadMoreTexts,
+  localizeTrainerSeoProfile,
+} from "@/lib/team-trainer-public-bios"
 import { cn } from "@/lib/utils"
 import { TrainerBioReadMoreSection } from "@/components/trainer-bio-read-more"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const hubCopy = {
   en: {
-    title: (name: string) => `Train with ${name}`,
+    title: (name: string) => `Dog Training with ${name} in Montreal`,
     subtitle:
       "Book a consultation, private sessions, or group classes. Private and group flows check your profile before you can book sessions or request a class series.",
     back: "Back to home",
@@ -34,9 +40,14 @@ const hubCopy = {
       "Already completed your assessment? Use private or group below — we verify your email before showing booking options.",
     readMoreBio: "Read more",
     readLessBio: "Show less",
+    trainerFocus: (name: string) => `${name}'s training focus`,
+    bestFor: "Best fit",
+    specialties: "Specialties",
+    relatedPrograms: "Related programs",
+    trainerFaq: "Trainer FAQ",
   },
   fr: {
-    title: (name: string) => `Programmes avec ${name}`,
+    title: (name: string) => `Entraînement canin avec ${name} à Montréal`,
     subtitle:
       "Réservez une consultation, des séances privées ou des cours en groupe. Les parcours privé et collectif vérifient votre dossier avant la réservation ou la demande de série.",
     back: "Retour à l’accueil",
@@ -53,6 +64,11 @@ const hubCopy = {
       "Évaluation déjà complétée ? Utilisez le privé ou le collectif — nous vérifions votre courriel avant d’afficher les réservations.",
     readMoreBio: "Lire la suite",
     readLessBio: "Voir moins",
+    trainerFocus: (name: string) => `Spécialités de ${name}`,
+    bestFor: "Idéal pour",
+    specialties: "Spécialités",
+    relatedPrograms: "Programmes liés",
+    trainerFaq: "FAQ entraîneur",
   },
 } as const
 
@@ -64,7 +80,7 @@ export function TrainerBookingClientPage({
   trainerHeroImageClassName,
   initialOpenConsultation = false,
 }: {
-  pinnedTeamMemberId: string
+  pinnedTeamMemberId: string | null
   trainerSlug: string
   trainerDisplayName: string
   trainerHeroImageSrc: string | null
@@ -80,6 +96,11 @@ export function TrainerBookingClientPage({
   const [showConsultation, setShowConsultation] = useState(Boolean(initialOpenConsultation))
 
   const narrative = useMemo(() => getTrainerPublicNarrative(trainerSlug), [trainerSlug])
+  const seoProfile = useMemo(() => getTrainerSeoProfile(trainerSlug), [trainerSlug])
+  const localizedSeoProfile = useMemo(() => {
+    if (!seoProfile) return null
+    return localizeTrainerSeoProfile(seoProfile, locale === "fr" ? "fr" : "en")
+  }, [seoProfile, locale])
   const localizedBioTexts = useMemo(() => {
     if (!narrative) return null
     return localizeTrainerBioReadMoreTexts(narrative, locale === "fr" ? "fr" : "en", tDom)
@@ -88,7 +109,7 @@ export function TrainerBookingClientPage({
   const openPrivateModal = () => {
     openTrainingPortal({
       mode: "private_only",
-      trainerTeamMemberId: pinnedTeamMemberId,
+      ...(pinnedTeamMemberId ? { trainerTeamMemberId: pinnedTeamMemberId } : {}),
       trainerSlug,
       trainerName: trainerDisplayName,
     })
@@ -96,7 +117,7 @@ export function TrainerBookingClientPage({
 
   const openGroupModal = () => {
     openGroupClassesBooking({
-      preferredCoachId: pinnedTeamMemberId,
+      ...(pinnedTeamMemberId ? { preferredCoachId: pinnedTeamMemberId } : {}),
       preferredCoachLabel: trainerDisplayName,
     })
   }
@@ -149,6 +170,80 @@ export function TrainerBookingClientPage({
             </div>
           </div>
         </div>
+
+        {localizedSeoProfile ? (
+          <section className="space-y-5">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+              <div className="space-y-3">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-secondary">
+                  {localizedSeoProfile.jobTitle}
+                </p>
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                  {copy.trainerFocus(localizedSeoProfile.shortName)}
+                </h2>
+                <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {localizedSeoProfile.intro}
+                </p>
+              </div>
+
+              <div className="mt-7 grid gap-5 md:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">{copy.specialties}</h3>
+                  <ul className="mt-3 space-y-2">
+                    {localizedSeoProfile.specialties.map((item) => (
+                      <li key={item} className="flex gap-2 text-sm text-foreground/85">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">{copy.bestFor}</h3>
+                  <ul className="mt-3 space-y-2">
+                    {localizedSeoProfile.bestFor.map((item) => (
+                      <li key={item} className="flex gap-2 text-sm text-foreground/85">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-7">
+                <h3 className="text-sm font-semibold text-foreground">{copy.relatedPrograms}</h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {localizedSeoProfile.serviceLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      href={addLocaleToPathname(link.path, locale)}
+                      className="inline-flex items-center gap-1 rounded-full border border-primary/25 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+                    >
+                      {link.label}
+                      <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">{copy.trainerFaq}</h2>
+              <div className="mt-4 divide-y divide-border">
+                {localizedSeoProfile.faqs.map((faq) => (
+                  <details key={faq.question} className="group py-4 first:pt-0 last:pb-0">
+                    <summary className="cursor-pointer list-none text-sm font-medium text-foreground">
+                      {faq.question}
+                    </summary>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {!showConsultation ? (
           <div className="grid gap-4 sm:grid-cols-3">

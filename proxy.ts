@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server"
 import {
   addLocaleToPathname,
   defaultLocale,
-  detectLocaleFromAcceptLanguage,
   getPathLocale,
   isAppLocale,
   localeCookieName,
@@ -30,12 +29,6 @@ function shouldSkip(pathname: string) {
     pathname === "/sitemap.xml" ||
     hasPublicFileExtension(pathname)
   )
-}
-
-function resolveLocale(request: NextRequest) {
-  const cookieLocale = request.cookies.get(localeCookieName)?.value
-  if (isAppLocale(cookieLocale)) return cookieLocale
-  return detectLocaleFromAcceptLanguage(request.headers.get("accept-language")) || defaultLocale
 }
 
 function rememberLocale(response: NextResponse, locale: string) {
@@ -109,10 +102,21 @@ export function proxy(request: NextRequest) {
   // Legacy fr. subdomain → canonical host's French routes. This must live in
   // the middleware (not next.config redirects): on Vercel the middleware runs
   // before next.config redirects, so those rules never fire for fr. requests.
-  const host = (request.headers.get("host") || "").toLowerCase().split(":")[0]
+  const host = (request.nextUrl.hostname || request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+    .toLowerCase()
+    .split(":")[0]
   if (host === "fr.mtlcaninetraining.com") {
     const stripped = stripLocaleFromPathname(pathname)
     const dest = new URL(stripped === "/" ? "/fr" : `/fr${stripped}`, CANONICAL_ORIGIN)
+    dest.search = search
+    return NextResponse.redirect(dest, 308)
+  }
+
+  if (host === "mtlcaninetraining.com") {
+    const dest = new URL(pathname, CANONICAL_ORIGIN)
+    if (!getPathLocale(pathname)) {
+      dest.pathname = addLocaleToPathname(pathname, defaultLocale)
+    }
     dest.search = search
     return NextResponse.redirect(dest, 308)
   }
@@ -123,12 +127,11 @@ export function proxy(request: NextRequest) {
   const isImpactDashboard = isImpactDashboardPath(pathname)
 
   if (!pathLocale) {
-    const locale = resolveLocale(request)
     const url = request.nextUrl.clone()
-    url.pathname = addLocaleToPathname(pathname, locale)
+    url.pathname = addLocaleToPathname(pathname, defaultLocale)
 
-    const response = NextResponse.redirect(url)
-    rememberLocale(response, locale)
+    const response = NextResponse.redirect(url, 308)
+    rememberLocale(response, defaultLocale)
     return isImpactDashboard ? withPrivateRobotsHeaders(response) : response
   }
 

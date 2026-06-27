@@ -6,6 +6,10 @@ import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
 describe("buildSitemapEntries", () => {
   it("includes group class detail pages, all result stories, and trainer booking pages", () => {
     const urls = buildSitemapEntries(new Date("2026-05-18")).map((e) => e.url)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/en/services/aggression`)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/services/aggression`)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/en/services/separation-anxiety`)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/services/separation-anxiety`)
     for (const slug of groupClassOfferingIds()) {
       expect(urls).toContain(`${SITEMAP_BASE_URL}/en/group-classes/${slug}`)
       expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/group-classes/${slug}`)
