@@ -102,7 +102,9 @@ export function proxy(request: NextRequest) {
   // Legacy fr. subdomain → canonical host's French routes. This must live in
   // the middleware (not next.config redirects): on Vercel the middleware runs
   // before next.config redirects, so those rules never fire for fr. requests.
-  const host = (request.headers.get("host") || "").toLowerCase().split(":")[0]
+  const host = (request.nextUrl.hostname || request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+    .toLowerCase()
+    .split(":")[0]
   if (host === "fr.mtlcaninetraining.com") {
     const stripped = stripLocaleFromPathname(pathname)
     const dest = new URL(stripped === "/" ? "/fr" : `/fr${stripped}`, CANONICAL_ORIGIN)
