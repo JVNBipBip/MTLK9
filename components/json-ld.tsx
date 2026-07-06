@@ -1,5 +1,6 @@
 import { localizedUrl } from "@/lib/seo"
 import type { AppLocale } from "@/lib/i18n/config"
+import type { BlogPost } from "@/lib/blog/types"
 
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -137,6 +138,41 @@ export function buildPersonJsonLd({
       { "@type": "Place", name: "Anjou" },
       { "@type": "City", name: "Laval" },
     ],
+  }
+}
+
+export function buildArticleJsonLd({
+  post,
+  locale,
+  url,
+}: {
+  post: BlogPost
+  locale: AppLocale
+  /** Absolute localized URL of the article page. */
+  url: string
+}) {
+  const copy = post.content[locale]
+  // Same @id convention as buildPersonJsonLd so the author node connects to
+  // the trainer's Person entity on /booking/<slug>.
+  const authorUrl = localizedUrl(locale, `/booking/${post.author.slug}`)
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: copy.title,
+    description: copy.excerpt,
+    image: new URL(post.image.startsWith("/") ? post.image : `/${post.image}`, SITE_URL).toString(),
+    datePublished: post.datePublished,
+    dateModified: post.dateModified,
+    inLanguage: locale === "fr" ? "fr-CA" : "en-CA",
+    author: {
+      "@type": "Person",
+      "@id": `${authorUrl}#person`,
+      name: post.author.name,
+      url: authorUrl,
+    },
+    publisher: { "@id": ORGANIZATION_ID },
+    mainEntityOfPage: url,
   }
 }
 

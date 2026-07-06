@@ -15,6 +15,7 @@ export const messages = {
         results: "Results",
         aboutUs: "About Us",
         faq: "FAQ",
+        blog: "Blog",
       },
       footer: {
         description:
@@ -53,6 +54,7 @@ export const messages = {
         results: "Résultats",
         aboutUs: "À propos",
         faq: "FAQ",
+        blog: "Blogue",
       },
       footer: {
         description:

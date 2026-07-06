@@ -23,6 +23,7 @@ const footerLinks = {
     { label: { en: "About Us", fr: "À propos" }, href: "/about" },
     { label: { en: "Results", fr: "Résultats" }, href: "/results" },
     { label: { en: "FAQ", fr: "FAQ" }, href: "/faq" },
+    { label: { en: "Blog", fr: "Blogue" }, href: "/blog" },
     { label: { en: "Contact", fr: "Contact" }, href: "/booking" },
   ],
   resources: [

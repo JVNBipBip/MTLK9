@@ -19,7 +19,7 @@ const navLinks = [
   { labelKey: "results", href: "/results" },
   { labelKey: "aboutUs", href: "/about" },
   { labelKey: "faq", href: "/faq" },
-  // { label: "Blogs", href: "/blog" },
+  { labelKey: "blog", href: "/blog" },
 ]
 
 export function Header() {

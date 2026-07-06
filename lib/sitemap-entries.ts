@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next"
+import { blogPosts } from "@/lib/blog"
 import { groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { locales, type AppLocale } from "@/lib/i18n/config"
 import { transformationStories } from "@/lib/transformation-stories"
@@ -7,12 +8,18 @@ import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
 /** Canonical origin for sitemap URLs (matches robots.ts and page canonicals). */
 export const SITEMAP_BASE_URL = "https://www.mtlcaninetraining.com"
 
+/** Pinned lastmod for static routes — bump when site-wide content changes.
+ * A blanket `new Date()` would claim every page changed on every crawl. */
+export const SITE_LAST_UPDATED = new Date("2026-07-02")
+
 type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>
 
 type RouteSpec = {
   path: string
   changeFrequency: ChangeFrequency
   priority: number
+  /** Per-route override; static routes fall back to the shared site date. */
+  lastModified?: Date
 }
 
 const STATIC_ROUTES: RouteSpec[] = [
@@ -41,17 +48,17 @@ function localizedSitemapUrl(locale: AppLocale, path: string): string {
   return `${SITEMAP_BASE_URL}/${locale}${normalized}`
 }
 
-function expandRoute(spec: RouteSpec, lastModified: Date): MetadataRoute.Sitemap {
+function expandRoute(spec: RouteSpec, fallbackLastModified: Date): MetadataRoute.Sitemap {
   return locales.map((locale) => ({
     url: localizedSitemapUrl(locale, spec.path),
-    lastModified,
+    lastModified: spec.lastModified ?? fallbackLastModified,
     changeFrequency: spec.changeFrequency,
     priority: spec.priority,
   }))
 }
 
 /** All indexable public routes for sitemap.xml (EN + FR). */
-export function buildSitemapEntries(lastModified = new Date()): MetadataRoute.Sitemap {
+export function buildSitemapEntries(lastModified = SITE_LAST_UPDATED): MetadataRoute.Sitemap {
   const routes: RouteSpec[] = [
     ...STATIC_ROUTES,
     ...groupClassOfferingIds().map((slug) => ({
@@ -68,6 +75,12 @@ export function buildSitemapEntries(lastModified = new Date()): MetadataRoute.Si
       path: `/booking/${slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.65,
+    })),
+    ...blogPosts.map((post) => ({
+      path: post.path,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+      lastModified: new Date(post.dateModified),
     })),
   ]
 
