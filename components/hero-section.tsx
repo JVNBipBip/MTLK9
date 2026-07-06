@@ -11,14 +11,32 @@ import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 const HERO_FALLBACK = "/images/hero-fallback.webp"
 
+const HERO_VIDEO_SOURCES = {
+  desktop: { src: "/videos/desktop-hero-lite.webm", type: "video/webm" },
+  mobile: { src: "/videos/mobile-hero-lite.mp4", type: "video/mp4" },
+} as const
+
+type HeroVideoVariant = keyof typeof HERO_VIDEO_SOURCES
+
 export function HeroSection() {
   const t = useLocalizedText()
   const sectionRef = useRef<HTMLElement>(null)
-  const desktopVideoRef = useRef<HTMLVideoElement>(null)
-  const mobileVideoRef = useRef<HTMLVideoElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [isVideoReady, setIsVideoReady] = useState(false)
   const [showLoader, setShowLoader] = useState(false)
+  // No video renders pre-hydration (the priority poster image is the LCP);
+  // after mount we pick ONLY the matching breakpoint's video so a device never
+  // downloads both sources (~5MB wasted before this).
+  const [videoVariant, setVideoVariant] = useState<HeroVideoVariant | null>(null)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)")
+    const update = () => setVideoVariant(mediaQuery.matches ? "desktop" : "mobile")
+    update()
+    mediaQuery.addEventListener("change", update)
+    return () => mediaQuery.removeEventListener("change", update)
+  }, [])
 
   useEffect(() => {
     if (!isVideoReady) return
@@ -36,8 +54,9 @@ export function HeroSection() {
   }, [isVideoReady])
 
   useEffect(() => {
-    const isMobile = window.matchMedia("(max-width: 767px)").matches
-    const activeVideo = isMobile ? mobileVideoRef.current : desktopVideoRef.current
+    if (!videoVariant) return
+    const isMobile = videoVariant === "mobile"
+    const activeVideo = videoRef.current
 
     // If the active video is already buffered (cache/fast network), skip loader entirely.
     if (activeVideo?.readyState && activeVideo.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
@@ -55,7 +74,7 @@ export function HeroSection() {
       window.clearTimeout(loaderTimer)
       window.clearTimeout(fallbackTimer)
     }
-  }, [])
+  }, [videoVariant])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,40 +113,27 @@ export function HeroSection() {
           className="object-cover -z-10"
           sizes="100vw"
         />
-        {/* Compressed hero sources; originals kept as desktop-hero.webm / mobile-hero.mp4 */}
-        <video
-          ref={desktopVideoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster={HERO_FALLBACK}
-          onLoadedData={handleVideoReady}
-          onCanPlay={handleVideoReady}
-          className={`hidden md:block w-full h-full object-cover transition-opacity duration-1000 ${
-            isVideoReady ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <source src="/videos/desktop-hero-lite.webm" type="video/webm" />
-        </video>
-        {/* Mobile video */}
-        <video
-          ref={mobileVideoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster={HERO_FALLBACK}
-          onLoadedData={handleVideoReady}
-          onCanPlay={handleVideoReady}
-          className={`md:hidden w-full h-full object-cover transition-opacity duration-1000 ${
-            isVideoReady ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <source src="/videos/mobile-hero-lite.mp4" type="video/mp4" />
-        </video>
+        {/* Single breakpoint-matched video, mounted client-side only (see
+            videoVariant) so devices download exactly one compressed source. */}
+        {videoVariant && (
+          <video
+            key={videoVariant}
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster={HERO_FALLBACK}
+            onLoadedData={handleVideoReady}
+            onCanPlay={handleVideoReady}
+            className={`w-full h-full object-cover transition-opacity duration-1000 ${
+              isVideoReady ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <source src={HERO_VIDEO_SOURCES[videoVariant].src} type={HERO_VIDEO_SOURCES[videoVariant].type} />
+          </video>
+        )}
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />
         {/* Loading overlay appears only when video startup is actually slow */}
@@ -159,10 +165,10 @@ export function HeroSection() {
             {t("Montreal #1 Dog School")}
           </p>
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
-            <AnimatedText text={t("Get your life back")} delay={0.3} />
+            <AnimatedText text={t("Montreal dog training")} delay={0.3} />
             <br />
             <span className="text-accent">
-              <AnimatedText text={t("with your dog.")} delay={0.8} />
+              <AnimatedText text={t("that gives you your life back")} delay={0.8} />
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">

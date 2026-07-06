@@ -2,6 +2,38 @@ import createNextIntlPlugin from "next-intl/plugin"
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts")
 
+// Report-Only CSP (no `report-to` endpoint yet — violations surface in the
+// browser DevTools console only; promote to an enforcing
+// Content-Security-Policy once it has soaked with zero violations).
+// Origins are derived from actual usage in this codebase:
+// - script-src:  connect.facebook.net (Meta pixel loader, components/facebook-pixel.tsx),
+//                vercel.live (Vercel preview toolbar). PostHog JS is bundled +
+//                proxied first-party via /ingest rewrites, so 'self' covers it.
+//                'unsafe-inline' is required by Next.js bootstrap/inline scripts
+//                (no nonce wiring yet).
+// - frame-src:   fast.wistia.net / fast.wistia.com (testimonial video iframes).
+// - img-src:     www.facebook.com (pixel <noscript> beacon), data:/blob: for
+//                next/image placeholders.
+// - media-src:   'self' + blob: (hero videos are self-hosted in /public/videos).
+// - connect-src: 'self' (PostHog /ingest proxy, own API routes) + facebook.com
+//                (fbevents beacons), us.posthog.com / us.i.posthog.com (PostHog
+//                toolbar/direct fallback), vercel.live (preview comments).
+// - font-src:    'self' + data: (Inter/Geist are self-hosted via next/font).
+const CSP_REPORT_ONLY = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://connect.facebook.net https://vercel.live",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://www.facebook.com",
+  "media-src 'self' blob:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://www.facebook.com https://us.i.posthog.com https://us.posthog.com https://vercel.live",
+  "frame-src 'self' https://fast.wistia.net https://fast.wistia.com https://vercel.live",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ")
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -41,6 +73,9 @@ const nextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // Two-year HSTS with preload — required for hstspreload.org submission.
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
         ],
       },
     ]

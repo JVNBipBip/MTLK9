@@ -233,6 +233,9 @@ ${faqSection}
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "public, max-age=86400, s-maxage=86400",
+      // Response is negotiated on Accept-Language — without Vary a CDN could
+      // cache the FR body and serve it to EN clients (and vice versa).
+      "Vary": "Accept-Language",
     },
   })
 }

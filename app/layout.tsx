@@ -69,12 +69,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: locale === "fr" ? "Entraînement Canin Montréal" : "Montreal Canine Training",
       locale: localeConfig[locale].openGraphLocale,
       type: "website",
-      // Replace with a real OG image before launch (1200x630 recommended)
       images: [
         {
-          url: "/images/hero-fallback.webp",
-          width: 960,
-          height: 640,
+          url: "/images/og-default.jpg",
+          width: 1200,
+          height: 630,
           alt: localeMessages.metadata.imageAlt,
         },
       ],
@@ -83,7 +82,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: localeMessages.metadata.ogTitle,
       description: localeMessages.metadata.ogDescription,
-      images: ["/images/hero-fallback.webp"],
+      images: ["/images/og-default.jpg"],
     },
     robots: {
       index: true,

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { headers } from "next/headers"
-import { defaultLocale, isAppLocale, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
+import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 
 export const SITE_URL = "https://www.mtlcaninetraining.com"
 
@@ -12,6 +12,8 @@ type LocalizedMetadataInput = {
   description: LocalizedValue
   image?: string
   robots?: Metadata["robots"]
+  /** OpenGraph object type — blog posts pass "article". */
+  ogType?: "website" | "article"
 }
 
 function valueForLocale(value: LocalizedValue, locale: AppLocale) {
@@ -34,8 +36,11 @@ export function localizedUrl(locale: AppLocale, path: string) {
 }
 
 /** Sitewide fallback OG/Twitter image — page-level `openGraph` replaces the
- * root layout's wholesale, so every page needs an image of its own. */
-const DEFAULT_OG_IMAGE = "/images/hero-fallback.webp"
+ * root layout's wholesale, so every page needs an image of its own.
+ * 1200x630 JPEG generated from the private-training photo. */
+const DEFAULT_OG_IMAGE = "/images/og-default.jpg"
+
+const OG_SITE_NAME = "MTL Canine Training"
 
 export async function buildLocalizedMetadata({
   path,
@@ -43,8 +48,10 @@ export async function buildLocalizedMetadata({
   description,
   image = DEFAULT_OG_IMAGE,
   robots,
+  ogType = "website",
 }: LocalizedMetadataInput): Promise<Metadata> {
   const locale = await getRequestLocale()
+  const otherLocale: AppLocale = locale === "fr" ? "en" : "fr"
   const pageTitle = valueForLocale(title, locale)
   const pageDescription = valueForLocale(description, locale)
   const url = localizedUrl(locale, path)
@@ -65,13 +72,20 @@ export async function buildLocalizedMetadata({
         "x-default": localizedUrl(defaultLocale, path),
       },
     },
+    // Page-level openGraph/twitter replace the root layout's wholesale, so
+    // mirror siteName/type/locale/card here — otherwise subpages drop them.
     openGraph: {
       title: pageTitle,
       description: pageDescription,
       url,
+      siteName: OG_SITE_NAME,
+      type: ogType,
+      locale: localeConfig[locale].openGraphLocale,
+      alternateLocale: [localeConfig[otherLocale].openGraphLocale],
       images: imageUrl ? [imageUrl] : undefined,
     },
     twitter: {
+      card: "summary_large_image",
       title: pageTitle,
       description: pageDescription,
       images: imageUrl ? [imageUrl] : undefined,
