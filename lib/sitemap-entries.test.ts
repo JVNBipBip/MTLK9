@@ -4,7 +4,7 @@ import { groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { transformationStories } from "@/lib/transformation-stories"
 import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
 
-const STATIC_ROUTE_COUNT = 18
+const STATIC_ROUTE_COUNT = 19
 
 describe("buildSitemapEntries", () => {
   it("includes group class detail pages, all result stories, and trainer booking pages", () => {
@@ -13,6 +13,8 @@ describe("buildSitemapEntries", () => {
     expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/services/aggression`)
     expect(urls).toContain(`${SITEMAP_BASE_URL}/en/services/separation-anxiety`)
     expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/services/separation-anxiety`)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/en/dog-training-west-island`)
+    expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/dog-training-west-island`)
     for (const slug of groupClassOfferingIds()) {
       expect(urls).toContain(`${SITEMAP_BASE_URL}/en/group-classes/${slug}`)
       expect(urls).toContain(`${SITEMAP_BASE_URL}/fr/group-classes/${slug}`)

@@ -18,6 +18,7 @@ const footerLinks = {
     { label: { en: "Obedience Training", fr: "Obéissance" }, href: "/services/obedience" },
     { label: { en: "Puppy Training", fr: "Chiots" }, href: "/services/puppy-training" },
     { label: { en: "In-Home Training", fr: "À domicile" }, href: "/services/in-home" },
+    { label: { en: "West Island Dog Training", fr: "Dressage Ouest-de-l'Île" }, href: "/dog-training-west-island" },
   ],
   company: [
     { label: { en: "About Us", fr: "À propos" }, href: "/about" },

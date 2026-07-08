@@ -76,13 +76,17 @@ export function buildServiceJsonLd({
   path,
   locale,
   price,
+  areaServed,
 }: {
   name: string
   description: string
   /** Locale-less route path, e.g. "/services/reactivity". */
   path: string
   locale: AppLocale
-  price: string
+  /** Omit for pages without a fixed package price — no Offer node is emitted. */
+  price?: string
+  /** Override for the default Montreal service area (e.g. location pages). */
+  areaServed?: { "@type": "City" | "Place"; name: string }[]
 }) {
   return {
     "@context": "https://schema.org",
@@ -92,13 +96,15 @@ export function buildServiceJsonLd({
     url: localizedUrl(locale, path),
     inLanguage: locale === "fr" ? "fr-CA" : "en-CA",
     provider: { "@id": ORGANIZATION_ID },
-    areaServed: { "@type": "City", name: "Montreal" },
-    offers: {
-      "@type": "Offer",
-      price,
-      priceCurrency: "CAD",
-      availability: "https://schema.org/InStock",
-    },
+    areaServed: areaServed ?? { "@type": "City", name: "Montreal" },
+    offers: price
+      ? {
+          "@type": "Offer",
+          price,
+          priceCurrency: "CAD",
+          availability: "https://schema.org/InStock",
+        }
+      : undefined,
   }
 }
 

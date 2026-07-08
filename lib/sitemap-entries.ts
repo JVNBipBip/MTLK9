@@ -33,6 +33,7 @@ const STATIC_ROUTES: RouteSpec[] = [
   { path: "/services/obedience", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/puppy-training", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/in-home", changeFrequency: "monthly", priority: 0.85 },
+  { path: "/dog-training-west-island", changeFrequency: "monthly", priority: 0.8 },
   { path: "/group-classes", changeFrequency: "weekly", priority: 0.85 },
   { path: "/results", changeFrequency: "weekly", priority: 0.75 },
   { path: "/about", changeFrequency: "monthly", priority: 0.65 },

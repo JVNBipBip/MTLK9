@@ -156,6 +156,11 @@ export const moneyServicePages: Record<MoneyServiceSlug, MoneyServicePageData> =
             label: "In-home dog training",
             description: "Training in the environment where problems happen.",
           },
+          {
+            path: "/dog-training-west-island",
+            label: "West Island dog training",
+            description: "In-home behaviour training across the West Island — the trainer comes to you.",
+          },
         ],
         ctaTitle: "Start with a clear plan.",
         ctaBody:
@@ -245,6 +250,11 @@ export const moneyServicePages: Record<MoneyServiceSlug, MoneyServicePageData> =
             path: "/services/in-home",
             label: "Entraînement à domicile",
             description: "Travail dans l'environnement où les problèmes se produisent.",
+          },
+          {
+            path: "/dog-training-west-island",
+            label: "Dressage dans l'Ouest-de-l'Île",
+            description: "Entraînement comportemental à domicile partout dans l'Ouest-de-l'Île.",
           },
         ],
         ctaTitle: "Commencez avec un plan clair.",
@@ -355,6 +365,11 @@ export const moneyServicePages: Record<MoneyServiceSlug, MoneyServicePageData> =
             description: "Support for routines and behaviour inside the home.",
           },
           {
+            path: "/dog-training-west-island",
+            label: "West Island dog training",
+            description: "In-home training across the West Island for alone-time and home routines.",
+          },
+          {
             path: "/services/private-classes",
             label: "Private dog training",
             description: "One-on-one coaching for behaviour and anxiety cases.",
@@ -443,6 +458,11 @@ export const moneyServicePages: Record<MoneyServiceSlug, MoneyServicePageData> =
             path: "/services/in-home",
             label: "Entraînement à domicile",
             description: "Soutien pour les routines et comportements dans la maison.",
+          },
+          {
+            path: "/dog-training-west-island",
+            label: "Dressage dans l'Ouest-de-l'Île",
+            description: "Entraînement à domicile partout dans l'Ouest-de-l'Île pour les routines à la maison.",
           },
           {
             path: "/services/private-classes",
