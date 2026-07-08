@@ -7,6 +7,8 @@ export type BlogPostSlug =
   | "real-reason-dog-is-reactive"
   | "separation-anxiety-signs-myths-help"
   | "socialize-puppy-without-overwhelming"
+  | "why-your-dog-pulls-on-the-leash"
+  | "what-happens-in-dog-training-evaluation"
 
 type LocalizedText = Record<AppLocale, string>
 
