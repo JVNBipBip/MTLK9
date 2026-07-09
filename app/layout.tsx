@@ -10,6 +10,7 @@ import { ClientLocaleEffects } from "@/components/client-locale-effects"
 import { FacebookPixel } from "@/components/facebook-pixel"
 import { JsonLd, buildWebSiteJsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import { LocaleProvider } from "@/components/locale-provider"
+import { WelcomePopup } from "@/components/welcome-popup"
 import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 import { getMessages } from "@/lib/i18n/messages"
 import "./globals.css"
@@ -129,6 +130,7 @@ export default async function RootLayout({
               {children}
             </BookingFormProvider>
             <FacebookPixel />
+            <WelcomePopup />
           </LocaleProvider>
         </NextIntlClientProvider>
       </body>
