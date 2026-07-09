@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { usePathname } from "next/navigation"
-import { CheckCircle2 } from "lucide-react"
+import { Calendar, CheckCircle2, Phone } from "lucide-react"
 import posthog from "posthog-js"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useBookingForm } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { stripLocaleFromPathname } from "@/lib/i18n/config"
 import {
@@ -69,6 +70,7 @@ export function WelcomePopup() {
 }
 
 function WelcomePopupInner() {
+  const { openBookingForm } = useBookingForm()
   const locale = useAppLocale()
   const pathname = usePathname() || "/"
   const [open, setOpen] = useState(false)
@@ -127,19 +129,12 @@ function WelcomePopupInner() {
     return cleanup
   }, [blockedPath, openPopup])
 
-  // Success → mark subscribed already happened; auto-close after ~2.5s.
-  useEffect(() => {
-    if (status !== "success") return
-    const timer = window.setTimeout(() => setOpen(false), 2500)
-    return () => window.clearTimeout(timer)
-  }, [status])
-
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       setOpen(nextOpen)
       if (nextOpen) return
-      // Close via X / backdrop / Escape counts as a dismissal — but not the
-      // auto-close after a successful signup (already marked subscribed).
+      // Close via X / backdrop / Escape counts as a dismissal. A successful
+      // signup has already been marked subscribed and stays suppressed.
       if (statusRef.current === "success") return
       const stored = readStoredState()
       if (stored?.state === "subscribed") return
@@ -185,18 +180,55 @@ function WelcomePopupInner() {
   const content = welcomePopupContent[locale]
   const variantCopy = content.variants[variant]
 
+  const handleStartConsultation = () => {
+    posthog.capture("welcome_popup_consultation_clicked", { variant, locale, path: pathname })
+    setOpen(false)
+    openBookingForm()
+  }
+
+  const handleCallNick = () => {
+    posthog.capture("welcome_popup_call_clicked", { variant, locale, path: pathname })
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="w-[calc(100%-2rem)] max-w-md gap-0 rounded-3xl border-border/60 p-6 shadow-2xl sm:p-8">
         {status === "success" ? (
-          <div className="flex flex-col items-center gap-4 py-6 text-center">
-            <DialogTitle className="sr-only">{variantCopy.headline}</DialogTitle>
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
             </span>
-            <p className="text-base leading-relaxed text-foreground" role="status">
+            <DialogTitle className="font-display text-2xl font-semibold leading-snug tracking-tight text-foreground">
+              {content.successHeadline}
+            </DialogTitle>
+            <p className="text-sm leading-relaxed text-muted-foreground" role="status">
               {content.success}
             </p>
+            <div className="mt-1 grid w-full gap-2.5">
+              <Button
+                type="button"
+                onClick={handleStartConsultation}
+                className="h-11 w-full rounded-full text-sm font-semibold"
+              >
+                <Calendar className="mr-2 h-4 w-4" aria-hidden="true" />
+                {content.bookCta}
+              </Button>
+              <a
+                href="tel:+15148269558"
+                onClick={handleCallNick}
+                className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <Phone className="mr-2 h-4 w-4" aria-hidden="true" />
+                {content.callCta}
+              </a>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {content.laterCta}
+            </button>
           </div>
         ) : (
           <>

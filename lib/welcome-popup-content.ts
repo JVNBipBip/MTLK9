@@ -41,7 +41,11 @@ export type WelcomePopupCopy = {
   emailError: string
   microcopy: string
   submitting: string
+  successHeadline: string
   success: string
+  bookCta: string
+  callCta: string
+  laterCta: string
   error: string
 }
 
@@ -50,7 +54,7 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     variants: {
       a: {
         headline: "What's your dog struggling with?",
-        body: "Tell us in one line — one of our trainers will point you in the right direction. No charge, no pressure.",
+        body: "Tell us in one line — Nick or one of our trainers will point you in the right direction. No charge, no pressure.",
         cta: "Get a trainer's take",
         messageLabel: "What's your dog struggling with? (optional)",
         messagePlaceholder: "Pulling, barking, anxiety…",
@@ -64,16 +68,20 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     emailLabel: "Email address",
     emailPlaceholder: "you@email.com",
     emailError: "Please enter a valid email address.",
-    microcopy: "One or two helpful emails per week at most. Unsubscribe anytime.",
+    microcopy: "By signing up, you agree to receive helpful emails from Montreal Canine Training. Unsubscribe anytime.",
     submitting: "Sending…",
-    success: "Check your inbox — first email is on its way. Talk soon!",
+    successHeadline: "You're in. What would help most right now?",
+    success: "Your first email is on its way. You can also speak with Nick or start your consultation request now.",
+    bookCta: "Start a consultation request",
+    callCta: "Call Nick",
+    laterCta: "I'll check my inbox",
     error: "Something went wrong on our end — please try again.",
   },
   fr: {
     variants: {
       a: {
         headline: "Avec quoi votre chien a-t-il de la difficulté ?",
-        body: "Dites-le-nous en une ligne — un de nos entraîneurs vous pointera dans la bonne direction. Sans frais, sans pression.",
+        body: "Dites-le-nous en une ligne — Nick ou un de nos entraîneurs vous orientera dans la bonne direction. Sans frais, sans pression.",
         cta: "Obtenir l'avis d'un entraîneur",
         messageLabel: "Avec quoi votre chien a-t-il de la difficulté ? (facultatif)",
         messagePlaceholder: "Tire en laisse, jappements, anxiété…",
@@ -87,9 +95,13 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     emailLabel: "Adresse courriel",
     emailPlaceholder: "vous@courriel.com",
     emailError: "Veuillez entrer une adresse courriel valide.",
-    microcopy: "Au plus un ou deux courriels utiles par semaine. Désabonnez-vous en tout temps.",
+    microcopy: "En vous inscrivant, vous acceptez de recevoir des courriels utiles d'Entraînement Canin Montréal. Désabonnez-vous en tout temps.",
     submitting: "Envoi en cours…",
-    success: "Vérifiez votre boîte de réception — le premier courriel est en route. À bientôt !",
+    successHeadline: "C'est fait. De quoi avez-vous le plus besoin maintenant ?",
+    success: "Votre premier courriel est en route. Vous pouvez aussi parler à Nick ou commencer votre demande de consultation maintenant.",
+    bookCta: "Commencer une demande de consultation",
+    callCta: "Appeler Nick",
+    laterCta: "Je vais vérifier mes courriels",
     error: "Une erreur est survenue de notre côté — veuillez réessayer.",
   },
 }

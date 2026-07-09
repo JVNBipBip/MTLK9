@@ -128,9 +128,9 @@ export default async function RootLayout({
             <JsonLd data={buildWebSiteJsonLd(locale)} />
             <BookingFormProvider>
               {children}
+              <WelcomePopup />
             </BookingFormProvider>
             <FacebookPixel />
-            <WelcomePopup />
           </LocaleProvider>
         </NextIntlClientProvider>
       </body>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { captureServerEvent } from "@/lib/posthog-server"
+import { buildWelcomeSignupTags } from "@/lib/welcome-flow"
 
 export const runtime = "nodejs"
 
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
     const upsertRes = await ghlRequest("/contacts/upsert", apiKey, {
       locationId,
       email: payload.email,
-      tags: ["website-welcome-flow", `lang-${payload.locale}`, `popup-variant-${payload.variant}`],
+      tags: buildWelcomeSignupTags(payload),
       source: "website-popup",
       customFields: [],
     })
