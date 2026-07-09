@@ -157,7 +157,7 @@ export const locationPages: Record<LocationPageSlug, LocationPageData> = {
         ],
         groupTitle: "Group classes at our Anjou facility",
         groupBody: [
-          "Our group classes — obedience levels, puppy socialization, reactivity groups — run at our facility at 7770 Boul Henri-Bourassa E in Anjou. We won't pretend that's around the corner: from most of the West Island it's a drive across the island along Highway 40 or Highway 20.",
+          "Our group classes — obedience levels, puppy socialization, reactivity groups — run at our facility at 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2. We won't pretend that's around the corner: from most of the West Island it's a drive across the island along Highway 40 or Highway 20.",
           "If you're up for the trip, group classes add what a living room can't: controlled distractions, other dogs, and handler practice in a structured setting. If the drive doesn't fit your schedule, in-home and private training cover the full program without it — the group option is simply there when you want it.",
         ],
         groupLinkLabel: "See group classes",
@@ -278,7 +278,7 @@ export const locationPages: Record<LocationPageSlug, LocationPageData> = {
         ],
         groupTitle: "Les cours de groupe à notre installation d'Anjou",
         groupBody: [
-          "Nos cours de groupe — niveaux d'obéissance, socialisation pour chiots, groupes de réactivité — se donnent à notre installation du 7770, boul. Henri-Bourassa Est, à Anjou. Soyons francs : ce n'est pas à côté. Depuis la majeure partie de l'Ouest-de-l'Île, il faut compter un trajet par l'autoroute 40 ou la 20.",
+          "Nos cours de groupe — niveaux d'obéissance, socialisation pour chiots, groupes de réactivité — se donnent à notre installation du 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2. Soyons francs : ce n'est pas à côté. Depuis la majeure partie de l'Ouest-de-l'Île, il faut compter un trajet par l'autoroute 40 ou la 20.",
           "Si la route ne vous fait pas peur, les cours de groupe ajoutent ce qu'un salon ne peut pas offrir : des distractions contrôlées, d'autres chiens et de la pratique pour le maître dans un cadre structuré. Si le déplacement ne convient pas à votre horaire, l'entraînement à domicile et les cours privés couvrent le programme au complet — l'option de groupe reste là si l'envie vous prend.",
         ],
         groupLinkLabel: "Voir les cours de groupe",

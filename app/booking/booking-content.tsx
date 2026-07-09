@@ -20,7 +20,7 @@ import { trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
-const CONSULTATION_LOCATION = "7770 Boul Henri-Bourassa E, Anjou, Montreal"
+const CONSULTATION_LOCATION = "7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2"
 
 const TOTAL_STEPS = 2
 

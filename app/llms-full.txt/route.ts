@@ -97,7 +97,7 @@ ${faqSection}
 ## Coordonnées
 
 - Nom: Entraînement Canin Montréal (MTL K9)
-- Adresse: 7770 Boul Henri-Bourassa E, Anjou, Montréal, QC H1E 1P2
+- Adresse: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
 - Téléphone: 514 826 9558
 - Site Web: https://www.mtlcaninetraining.com/fr
 - Secteurs servis: Montréal, Ouest-de-l'Île, Laval
@@ -207,7 +207,7 @@ ${faqSection}
 ## Contact Information
 
 - Business Name: Montreal Canine Training (MTL K9)
-- Address: 7770 Boul Henri-Bourassa E, Anjou, Montreal, QC H1E 1P2
+- Address: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
 - Phone: 514 826 9558
 - Website: https://www.mtlcaninetraining.com
 - Areas served: Montreal, West Island, Laval

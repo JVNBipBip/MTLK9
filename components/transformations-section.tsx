@@ -5,12 +5,17 @@ import Link from "next/link"
 import { ArrowDown, ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { useAppLocale } from "@/components/locale-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
-import { transformationStories } from "@/lib/transformation-stories"
-
-const stories = transformationStories
+import { WistiaClickToPlay } from "@/components/wistia-click-to-play"
+import { addLocaleToPathname } from "@/lib/i18n/config"
+import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { localizeTransformationStory, transformationStories } from "@/lib/transformation-stories"
 
 export function TransformationsSection() {
+  const locale = useAppLocale()
+  const t = useLocalizedText()
+  const stories = transformationStories.map((story) => localizeTransformationStory(story, locale))
   const sectionRef = useRef<HTMLElement>(null)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -81,14 +86,14 @@ export function TransformationsSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            Real Results
+            {t("Real Results")}
           </p>
           <ScrollAnimatedText
-            text="Transformation stories"
+            text={t("Transformation stories")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Every dog on this page started exactly where yours is now.
+            {t("Every dog on this page started exactly where yours is now.")}
           </p>
         </div>
 
@@ -106,16 +111,12 @@ export function TransformationsSection() {
                 <div className="bg-card rounded-3xl overflow-hidden border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                   {/* Video/Image — vertical phone footage, shown vertical */}
                   {story.wistiaId ? (
-                    <div className="relative bg-muted overflow-hidden aspect-[9/16]">
-                      <iframe
-                        src={`https://fast.wistia.net/embed/iframe/${story.wistiaId}?videoFoam=true&fitStrategy=cover`}
-                        title={story.mediaAlt}
-                        allow="autoplay; fullscreen"
-                        allowFullScreen
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full border-0"
-                      />
-                    </div>
+                    <WistiaClickToPlay
+                      wistiaId={story.wistiaId}
+                      posterSrc={story.posterSrc}
+                      title={story.mediaAlt}
+                      playLabel={locale === "fr" ? "Lire la vidéo" : "Play video"}
+                    />
                   ) : (
                     <div className="relative aspect-[9/16] bg-muted flex items-center justify-center overflow-hidden">
                       <div className="text-center px-6">
@@ -143,7 +144,7 @@ export function TransformationsSection() {
                     <div className="space-y-3 flex-1">
                       <div className="rounded-xl bg-destructive/[0.06] border-l-[3px] border-destructive/60 p-3.5">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
-                          Before
+                          {t("Before")}
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
                           {story.before}
@@ -154,7 +155,7 @@ export function TransformationsSection() {
                       </div>
                       <div className="rounded-xl bg-primary/[0.06] border-l-[3px] border-primary/60 p-3.5">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
-                          After
+                          {t("After")}
                         </p>
                         <p className="text-muted-foreground text-sm leading-relaxed">
                           {story.after}
@@ -167,7 +168,7 @@ export function TransformationsSection() {
                         type="button"
                         className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
                       >
-                        Get Started
+                        {t("Get Started")}
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </FreeCallLink>
@@ -185,7 +186,7 @@ export function TransformationsSection() {
                 className={`h-2.5 rounded-full transition-all ${
                   index === activeIndex ? "w-7 bg-primary" : "w-2.5 bg-border hover:bg-muted-foreground/40"
                 }`}
-                aria-label={`Go to story ${index + 1}`}
+                aria-label={`${t("Go to story")} ${index + 1}`}
               />
             ))}
             <span className="ml-2 text-xs font-medium tracking-wide text-muted-foreground">
@@ -195,9 +196,9 @@ export function TransformationsSection() {
         </div>
 
         <div className="text-center mt-12 flex flex-col items-center gap-3">
-          <Link href="/results">
+          <Link href={addLocaleToPathname("/results", locale)}>
             <Button variant="outline" className="rounded-full px-8 group">
-              See All Results
+              {t("See All Results")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

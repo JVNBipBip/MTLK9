@@ -30,7 +30,7 @@ const footerLinks = {
   resources: [
     { label: { en: "Contact Us for a Free Call", fr: "Appel découverte gratuit" }, href: "/booking" },
     { label: { en: "Book an Evaluation", fr: "Réserver une évaluation" }, href: "/booking" },
-    { label: { en: "Google Reviews", fr: "Avis Google" }, href: "https://www.google.com/search?sca_esv=1a51245140343e35&sxsrf=ANbL-n4nQ46KR0EQfRE-u1As-F01VkoYUw:1775574475054&si=AL3DRZEsmMGCryMMFSHJ3StBhOdZ2-6yYkXd_doETEE1OR-qOZXcx_tuXme6UQ3vKDNMy0AG9EXyiX1efheageUu9Z4EdlGsRiMepkUE-rmCGlXbqZRLPZBHXVGMoIWBOw8SkWIPKgGjIKJd2NyDLmZjnI_fD6LrgZCLBk_o-Mfe_EZ-GvPMr7O2rupdmQ0mdMfdmPSHw6tQ0t1QJbx4WCN64IQFgOHGag%3D%3D&q=Montreal+Canine+Training+Inc.+/+Entra%C3%AEnement+Canin+Montr%C3%A9al+Inc.+Reviews&sa=X&ved=2ahUKEwi4lO6ugtyTAxUrETQIHUpNHjkQ0bkNegQIMhAH&biw=2400&bih=1161&dpr=0.8" },
+    { label: { en: "Google Reviews", fr: "Avis Google" }, href: "https://maps.app.goo.gl/GoTny9wRbvZ1Y81fA" },
   ],
 }
 
@@ -63,10 +63,15 @@ export function Footer() {
                 <Mail className="w-4 h-4" />
                 <span>mtlcaninetraining@gmail.com</span>
               </Link>
-              <div className="flex items-center gap-3">
+              <Link
+                href="https://maps.app.goo.gl/GoTny9wRbvZ1Y81fA"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 hover:text-background transition-colors"
+              >
                 <MapPin className="w-4 h-4 shrink-0" />
-                <span>7770 Boul Henri-Bourassa E, Anjou, Montreal</span>
-              </div>
+                <span>7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2</span>
+              </Link>
             </div>
             <div className="flex gap-4 mt-6">
               <Link
@@ -136,7 +141,6 @@ export function Footer() {
             © {new Date().getFullYear()} Montreal Canine Training. {t("footer.allRightsReserved")}
           </p>
           <div className="flex gap-6 text-sm text-background/50">
-            {/* TODO: Add real privacy policy and terms pages before launch */}
             <Link href={hrefFor("/privacy")} className="hover:text-background transition-colors">
               {t("footer.privacyPolicy")}
             </Link>

@@ -2,16 +2,13 @@
 
 import { useCallback } from "react"
 import { useAppLocale } from "@/components/locale-provider"
-import { frenchTextTranslations } from "@/lib/i18n/dom-translations"
+import { getLocalizedText } from "@/lib/i18n/localized-text"
 
 export function useLocalizedText() {
   const locale = useAppLocale()
 
   return useCallback(
-    (text: string) => {
-      if (locale !== "fr") return text
-      return frenchTextTranslations[text] ?? text
-    },
+    (text: string) => getLocalizedText(locale, text),
     [locale],
   )
 }

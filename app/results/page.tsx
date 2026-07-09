@@ -1,124 +1,28 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Header } from "@/components/header"
+import { ArrowDown, ArrowRight } from "lucide-react"
 import { Footer } from "@/components/footer"
+import { FreeCallLink } from "@/components/booking-form-provider"
+import { Header } from "@/components/header"
+import { useAppLocale } from "@/components/locale-provider"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ArrowDown, ArrowRight, Play } from "lucide-react"
-import { FreeCallLink } from "@/components/booking-form-provider"
+import { WistiaClickToPlay } from "@/components/wistia-click-to-play"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-
-const caseStudies = [
-  {
-    name: "Sasha",
-    breed: "German Shepherd",
-    age: "",
-    photoDesc: "Sasha's video testimonial about controlling reactivity",
-    wistiaId: "ww92aq0dn9",
-    problem:
-      "I had no control over Sasha. She was so reactive that I couldn't be around other dogs without her going crazy, which made our walks together a nightmare.",
-    plan: "",
-    result:
-      "I can finally enjoy being around other dogs. Sasha is much more manageable, and I've learned the exact techniques to correct her behavior and keep her focused.",
-    quote:
-      "Nick is so experienced and patient. He teaches you exactly how to deal with your dog, and now I actually enjoy our walks again. I recommend him to everybody.",
-    servicePath: "Reactivity Training",
-    serviceHref: "/services/reactivity",
-  },
-  {
-    name: "Mason",
-    breed: "German Shepherd",
-    age: "",
-    photoDesc: "Sabrina's video testimonial about overcoming Mason's severe reactivity",
-    wistiaId: "3a2efylwfy",
-    problem:
-      "Walking Mason was a constant challenge. His reactivity toward other dogs meant we couldn't even walk down the street or through the woods without an incident.",
-    plan: "",
-    result:
-      "Mason has come so far that we've transitioned from private lessons to group classes. He genuinely enjoys the training, and our daily life is completely different.",
-    quote:
-      "We drive an hour each way just to come here because it's so worth it. Working with Nick at Montreal Canine Training has truly changed our lives.",
-    servicePath: "Reactivity Training",
-    serviceHref: "/services/reactivity",
-  },
-  {
-    name: "Lilou",
-    breed: " GSD Mix",
-    age: "",
-    photoDesc: "Multi-dog success story video testimonial",
-    wistiaId: "2cytzfcub2",
-    problem:
-      "Life with my first reactive dog was a nightmare. Even a simple walk felt impossible, and the constant stress was overwhelming.",
-    plan: "",
-    result:
-      "The training made such a difference that I didn't hesitate to return with my new puppy. Now, our walks are enjoyable, and I feel confident about my dogs' future.",
-    quote:
-      "My life was a nightmare before we started. Now, it's a pleasure to be out with my dogs. I knew exactly where to go when I got my second puppy to make sure everything stayed on the right track.",
-    servicePath: "Puppy Training",
-    serviceHref: "/services/puppy-training",
-  },
-  {
-    name: "Theo",
-    breed: "Doberman",
-    age: "",
-    photoDesc: "Rebecca's video testimonial about training Theo, her Doberman puppy",
-    wistiaId: "i0ipeqgj8k",
-    problem:
-      "Searching for a trainer who truly understood the intensity of a working-line Doberman. I was meticulous and hesitant until I found Nick.",
-    plan: "",
-    result:
-      "Every session leaves me more confident. We have a clear path forward, and the support is always flexible and open—no question is ever too small.",
-    quote:
-      "I feel so much more confident every time I have a session. They are incredibly flexible and always there to support you, no matter what you need help with.",
-    servicePath: "Puppy Training",
-    serviceHref: "/services/puppy-training",
-  },
-  {
-    name: "Hunter",
-    breed: "Shiba Inu",
-    age: "",
-    photoDesc: "Video testimonial about raising a social Shiba Inu puppy",
-    wistiaId: "ek2ojttv3i",
-    problem:
-      "Shiba Inus are notorious for their independent and sometimes difficult attitudes. We wanted to ensure our puppy started on the right foot and developed into a well-rounded dog.",
-    plan: "",
-    result:
-      "He is now incredibly social and great with other dogs. The training has been so successful that people often joke he's the \"anti-Shiba\" because of how friendly and calm he is.",
-    quote:
-      "The classes and private training have helped shape him into the dog he is now. There's always room to grow, which is why we keep coming back to Montreal Canine Training.",
-    servicePath: "Puppy Training",
-    serviceHref: "/services/puppy-training",
-  },
-  // {
-  //   name: "Shilo",
-  //   breed: "Beagle",
-  //   age: "",
-  //   photoDesc: "Video testimonial about finding comfort and control with a long-reactive dog",
-  //   wistiaId: "qtdpt5lv7o",
-  //   problem:
-  //     "My dog had been reactive for years. We tried everything, but nothing seemed to stick. Our walks were stressful, and he just couldn't be around other dogs comfortably.",
-  //   plan: "",
-  //   result:
-  //     "The change has been drastic. He can now be around other dogs without feeling pressured or reactive. We've found a place where he truly feels safe and comfortable.",
-  //   quote:
-  //     "Nick is such an understanding trainer. My dog has had such a drastic change in such a short amount of time—I'm just amazed at the progress we've had.",
-  //   servicePath: "Reactivity Training",
-  //   serviceHref: "/services/reactivity",
-  // },
-]
+import { localizeTransformationStory, transformationStories } from "@/lib/transformation-stories"
 
 export default function ResultsPage() {
+  const locale = useAppLocale()
   const t = useLocalizedText()
   const contentRef = useRef<HTMLDivElement>(null)
+  const caseStudies = transformationStories.map((story) => localizeTransformationStory(story, locale))
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-up")
-          }
+          if (entry.isIntersecting) entry.target.classList.add("animate-fade-up")
         })
       },
       { threshold: 0.1 },
@@ -148,8 +52,9 @@ export default function ResultsPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {caseStudies.map((study, index) => (
                 <article
-                  key={study.name}
-                  className={`reveal opacity-0 ${index === 1
+                  key={study.slug}
+                  className={`reveal opacity-0 ${
+                    index === 1
                       ? "animation-delay-200"
                       : index === 2
                         ? "animation-delay-400"
@@ -157,48 +62,26 @@ export default function ResultsPage() {
                           ? "animation-delay-200"
                           : index === 4
                             ? "animation-delay-400"
-                            : index === 5
-                              ? "animation-delay-600"
-                              : ""
-                    }`}
+                            : ""
+                  }`}
                 >
                   <div className="h-full bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300 flex flex-col overflow-hidden">
-                    {/* Photo/Video — vertical phone footage, shown vertical */}
-                    {study.wistiaId ? (
-                      <div className="relative bg-muted overflow-hidden aspect-[9/16]">
-                        <iframe
-                          src={`https://fast.wistia.net/embed/iframe/${study.wistiaId}?videoFoam=true&fitStrategy=cover`}
-                          title={t(study.photoDesc)}
-                          allow="autoplay; fullscreen"
-                          allowFullScreen
-                          loading="lazy"
-                          className="absolute inset-0 h-full w-full border-0"
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="aspect-[16/10] bg-gradient-to-br from-primary/20 via-secondary/10 to-muted flex items-center justify-center relative group cursor-pointer"
-                        aria-label={t(study.photoDesc)}
-                      >
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-14 h-14 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                            <Play className="w-6 h-6 ml-1" fill="currentColor" />
-                          </div>
-                        </div>
-                        <span className="absolute bottom-2 left-2 right-2 text-xs text-muted-foreground italic text-center opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 py-1 px-2 rounded">
-                          {t(study.photoDesc)}
-                        </span>
-                      </div>
+                    {study.wistiaId && (
+                      <WistiaClickToPlay
+                        wistiaId={study.wistiaId}
+                        posterSrc={study.posterSrc}
+                        title={study.mediaAlt}
+                        playLabel={locale === "fr" ? "Lire la vidéo" : "Play video"}
+                        sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 92vw"
+                      />
                     )}
 
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-baseline gap-2 mb-4">
                         <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
-                          {study.name}
+                          {study.dogName}
                         </h2>
-                        <span className="text-sm text-muted-foreground">
-                          {study.breed}{study.age ? `, ${study.age}` : ""}
-                        </span>
+                        <span className="text-sm text-muted-foreground">{study.breed}</span>
                       </div>
 
                       <div className="space-y-3 text-sm leading-relaxed flex-grow">
@@ -206,7 +89,7 @@ export default function ResultsPage() {
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
                             {t("Before")}
                           </p>
-                          <p className="text-muted-foreground">{t(study.problem)}</p>
+                          <p className="text-muted-foreground">{study.before}</p>
                         </div>
                         <div className="flex justify-center -my-1" aria-hidden="true">
                           <ArrowDown className="w-4 h-4 text-muted-foreground/50" />
@@ -215,16 +98,19 @@ export default function ResultsPage() {
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
                             {t("After")}
                           </p>
-                          <p className="text-muted-foreground">{t(study.result)}</p>
+                          <p className="text-muted-foreground">{study.after}</p>
                         </div>
                       </div>
 
                       <blockquote className="mt-4 pt-4 border-t border-border/50 text-sm italic text-muted-foreground">
-                        &ldquo;{t(study.quote)}&rdquo;
+                        &ldquo;{study.testimonial}&rdquo;
                       </blockquote>
 
                       <FreeCallLink>
-                        <button type="button" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
+                        <button
+                          type="button"
+                          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
+                        >
                           {t("Book Free Evaluation")}
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
@@ -237,7 +123,6 @@ export default function ResultsPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="py-24 lg:py-32 px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-lg bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10">

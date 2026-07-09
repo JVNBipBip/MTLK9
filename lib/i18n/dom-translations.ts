@@ -193,9 +193,9 @@ export const frenchTextTranslations: Record<string, string> = {
     "La première étape consiste à planifier une évaluation avec l'un de nos entraîneurs. Cette évaluation déterminera quel programme convient le mieux à vous et à votre chien. Une fois l'évaluation terminée, un entraîneur vous expliquera comment vous préparer à votre premier cours de groupe ou cours privé et quoi apporter.",
   "The best way to reach us is by submitting a request form through our website. You can also call/text our trainers for information and bookings.":
     "La meilleure façon de nous joindre est de soumettre un formulaire de demande sur notre site Web. Vous pouvez aussi appeler ou texter nos entraîneurs pour obtenir de l'information ou réserver.",
-  "5.0 ★★★★★ · 124 Google reviews": "5,0 ★★★★★ · 124 avis Google",
+  "5.0 ★★★★★ · 130+ Google reviews": "5,0 ★★★★★ · 130+ avis Google",
   "5.0": "5,0",
-  " · 124 Google reviews": " · 124 avis Google",
+  " · 130+ Google reviews": " · 130+ avis Google",
   "MTL Canine Training": "Entraînement Canin MTL",
   "Open menu": "Ouvrir le menu",
   "10–15+ Years Experience": "10 à 15+ ans d'expérience",

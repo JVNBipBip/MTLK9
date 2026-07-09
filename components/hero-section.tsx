@@ -152,14 +152,14 @@ export function HeroSection() {
         <div className="max-w-2xl">
           <p
             className="reveal opacity-0 text-sm md:text-base text-background/95 font-semibold mb-2"
-            aria-label={t("5.0 ★★★★★ · 124 Google reviews")}
+            aria-label={t("5.0 ★★★★★ · 130+ Google reviews")}
           >
             <span>{t("5.0")}</span>
             <span className="text-yellow-400 drop-shadow-sm" aria-hidden="true">
               {" "}
               ★★★★★
             </span>
-            <span>{t(" · 124 Google reviews")}</span>
+            <span>{t(" · 130+ Google reviews")}</span>
           </p>
           <p className="reveal opacity-0 text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
             {t("Montreal #1 Dog School")}

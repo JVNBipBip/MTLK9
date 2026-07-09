@@ -24,7 +24,7 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 
 ## Informations clés
 
-- Adresse: 7770 Boul Henri-Bourassa E, Anjou, Montréal, QC
+- Adresse: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
 - Téléphone: 514 826 9558
 - Secteurs servis: Montréal, Ouest-de-l'Île, Laval
 - Site Web: https://www.mtlcaninetraining.com/fr
@@ -57,7 +57,7 @@ Montreal Canine Training provides professional dog training services in Montreal
 
 ## Key Information
 
-- Location: 7770 Boul Henri-Bourassa E, Anjou, Montreal, QC
+- Location: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
 - Phone: 514 826 9558
 - Areas served: Montreal, West Island, Laval
 - Website: https://www.mtlcaninetraining.com

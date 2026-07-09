@@ -29,17 +29,31 @@ export const localBusinessJsonLd = {
   email: "mtlcaninetraining@gmail.com",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "7770 Boul Henri-Bourassa E",
-    addressLocality: "Anjou",
+    streetAddress: "7770 Boulevard Henri-Bourassa E",
+    addressLocality: "Montreal",
     addressRegion: "QC",
-    postalCode: "",
+    postalCode: "H1E 1P2",
     addressCountry: "CA",
   },
   geo: {
     "@type": "GeoCoordinates",
-    latitude: 45.5917,
-    longitude: -73.5673,
+    latitude: 45.6221191,
+    longitude: -73.5857889,
   },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "10:00",
+      closes: "20:30",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Saturday", "Sunday"],
+      opens: "10:00",
+      closes: "18:00",
+    },
+  ],
   areaServed: [
     { "@type": "City", name: "Montreal" },
     { "@type": "City", name: "Laval" },
@@ -51,7 +65,7 @@ export const localBusinessJsonLd = {
   // on-page user reviews violates Google's structured-data policy. Re-add only
   // alongside a live on-page Google-reviews embed.
   sameAs: [
-
+    "https://www.google.com/maps?cid=8369243989789283109",
     "https://www.instagram.com/mtlcaninetraining/",
     "https://www.facebook.com/profile.php?id=100051498044652",
   ],

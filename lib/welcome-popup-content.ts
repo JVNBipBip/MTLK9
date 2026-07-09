@@ -57,7 +57,7 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
       },
       b: {
         headline: "Trainer advice that actually works",
-        body: "Get our best tips for life with a dog in Montreal — from the team behind 124+ five-star trainings.",
+        body: "Get our best tips for life with a dog in Montreal — from the team behind 130+ five-star reviews.",
         cta: "Send me the tips",
       },
     },
@@ -80,7 +80,7 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
       },
       b: {
         headline: "Des conseils d'entraîneurs qui fonctionnent vraiment",
-        body: "Recevez nos meilleurs conseils pour la vie avec un chien à Montréal — de l'équipe derrière plus de 124 entraînements cinq étoiles.",
+        body: "Recevez nos meilleurs conseils pour la vie avec un chien à Montréal — de l'équipe derrière plus de 130 avis cinq étoiles.",
         cta: "Envoyez-moi les conseils",
       },
     },

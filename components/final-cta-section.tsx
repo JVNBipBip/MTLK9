@@ -5,10 +5,13 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { useAppLocale } from "@/components/locale-provider"
+import { addLocaleToPathname } from "@/lib/i18n/config"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 export function FinalCTASection() {
   const t = useLocalizedText()
+  const locale = useAppLocale()
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -65,7 +68,10 @@ export function FinalCTASection() {
 
           <p className="reveal opacity-0 animation-delay-600 text-sm text-primary-foreground/60 mt-8">
             {t("Not sure yet?")}{" "}
-            <Link href="/services" className="underline hover:text-primary-foreground transition-colors">
+            <Link
+              href={addLocaleToPathname("/services", locale)}
+              className="underline hover:text-primary-foreground transition-colors"
+            >
               {t("Take a look at our training programs")}
             </Link>
           </p>

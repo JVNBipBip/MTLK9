@@ -5,10 +5,13 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FaqAccordion } from "@/components/faq-accordion"
+import { useAppLocale } from "@/components/locale-provider"
+import { addLocaleToPathname } from "@/lib/i18n/config"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 
 export function FaqSection() {
   const t = useLocalizedText()
+  const locale = useAppLocale()
 
   return (
     <section className="pt-24 lg:pt-32 pb-8 lg:pb-12 bg-background">
@@ -46,7 +49,7 @@ export function FaqSection() {
         <FaqAccordion />
 
         <div className="text-center mt-12">
-          <Link href="/faq">
+          <Link href={addLocaleToPathname("/faq", locale)}>
             <Button variant="outline" className="rounded-full px-8 group">
               {t("View All FAQs")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
