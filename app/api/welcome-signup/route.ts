@@ -51,11 +51,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const signupTags = buildWelcomeSignupTags(payload)
     const upsertRes = await ghlRequest("/contacts/upsert", apiKey, {
       locationId,
       email: payload.email,
       ...(payload.phone ? { phone: payload.phone } : {}),
-      tags: buildWelcomeSignupTags(payload),
       source: "website-popup",
       customFields: [],
     })
@@ -68,24 +68,33 @@ export async function POST(request: Request) {
 
     const data = (await upsertRes.json().catch(() => null)) as { contact?: { id?: string } } | null
     const contactId = data?.contact?.id || null
+    if (!contactId) {
+      console.error("[welcome-signup] GHL upsert returned no contact id")
+      return NextResponse.json({ error: "upstream" }, { status: 502 })
+    }
+
+    // Upsert's `tags` field replaces the contact's existing tags. Use the
+    // additive endpoint so an existing lead keeps all prior CRM segmentation.
+    const tagRes = await ghlRequest(`/contacts/${contactId}/tags`, apiKey, { tags: signupTags })
+    if (!tagRes.ok) {
+      const tagText = await tagRes.text().catch(() => "")
+      console.error(`[welcome-signup] GHL tag add failed (${tagRes.status}):`, tagText)
+      return NextResponse.json({ error: "upstream" }, { status: 502 })
+    }
 
     // Variant A's optional message goes on the contact as a note. A note
     // failure must not fail the signup — the contact is already captured.
     if (payload.message) {
-      if (!contactId) {
-        console.warn("[welcome-signup] GHL upsert returned no contact id; skipping note")
-      } else {
-        try {
-          const noteRes = await ghlRequest(`/contacts/${contactId}/notes`, apiKey, {
-            body: `Website welcome popup (${payload.path || "unknown path"}):\n${payload.message}`,
-          })
-          if (!noteRes.ok) {
-            const noteText = await noteRes.text().catch(() => "")
-            console.error(`[welcome-signup] GHL note failed (${noteRes.status}):`, noteText)
-          }
-        } catch (noteErr) {
-          console.error("[welcome-signup] GHL note request errored:", noteErr)
+      try {
+        const noteRes = await ghlRequest(`/contacts/${contactId}/notes`, apiKey, {
+          body: `Website welcome popup (${payload.path || "unknown path"}):\n${payload.message}`,
+        })
+        if (!noteRes.ok) {
+          const noteText = await noteRes.text().catch(() => "")
+          console.error(`[welcome-signup] GHL note failed (${noteRes.status}):`, noteText)
         }
+      } catch (noteErr) {
+        console.error("[welcome-signup] GHL note request errored:", noteErr)
       }
     }
 
