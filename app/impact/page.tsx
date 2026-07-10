@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Activity, CalendarClock, Gauge, Rocket, TrendingUp, Users } from "lucide-react"
+import { Activity, CalendarClock, Gauge, Languages, Rocket, TrendingUp, Users } from "lucide-react"
 import { Header } from "@/components/header"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -21,9 +21,11 @@ import {
   IMPACT_CHANGE_EVENTS,
   formatTorontoDateTime,
   loadInquiryImpactDashboardData,
+  loadInquiryImpactSnapshots,
   type DailyInquiryCount,
   type ImpactChangeEvent,
   type ImpactChangeRow,
+  type InquiryImpactSnapshot,
 } from "@/lib/inquiry-impact"
 import { noIndexMetadata } from "@/lib/seo"
 
@@ -36,6 +38,14 @@ export const metadata: Metadata = noIndexMetadata(
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("en-CA").format(value)
+}
+
+function formatLabel(value: string) {
+  return value
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
 }
 
 function MetricCard({
@@ -195,12 +205,22 @@ function StaticChangeLogTable({ rows }: { rows: ImpactChangeEvent[] }) {
 
 export default async function ImpactPage() {
   let data: Awaited<ReturnType<typeof loadInquiryImpactDashboardData>> | null = null
+  let snapshots: InquiryImpactSnapshot[] = []
   let loadError: string | null = null
+  let snapshotLoadError: string | null = null
 
   try {
     data = await loadInquiryImpactDashboardData()
   } catch (error) {
     loadError = error instanceof Error ? error.message : "Could not load inquiry impact data."
+  }
+
+  if (data) {
+    try {
+      snapshots = await loadInquiryImpactSnapshots()
+    } catch (error) {
+      snapshotLoadError = error instanceof Error ? error.message : "Could not load daily snapshots."
+    }
   }
 
   return (
@@ -218,8 +238,8 @@ export default async function ImpactPage() {
                 Inquiry and change log
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-                Production deploys lined up against daily website inquiry volume. Counts are grouped by
-                Toronto date and exclude client names, emails, and phone numbers.
+                Live website submissions, language mix, and production changes in one place. Counts are
+                grouped by Toronto date and exclude client names, emails, phone numbers, and dog names.
               </p>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 The change log comes from the tracked production commits. Inquiry trend counts are read
@@ -229,14 +249,14 @@ export default async function ImpactPage() {
 
             <div className="rounded-lg border border-border bg-background/80 p-4 text-sm shadow-sm">
               <div className="flex items-center gap-2 font-medium text-foreground">
-                <Rocket className="h-4 w-4 text-primary" />
-                Latest production deploy
+                <Activity className="h-4 w-4 text-primary" />
+                Current report
               </div>
               <p className="mt-2 text-muted-foreground">
-                {formatTorontoDateTime(data?.latestProductionDeployIso || "2026-06-15T22:41:58.000Z")}
+                Generated {data ? formatTorontoDateTime(data.generatedAtIso) : "when inquiry data is available"}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                GitHub pushed {formatTorontoDateTime(data?.latestGithubPushIso || "2026-06-15T22:41:11.000Z")}
+                Latest daily snapshot: {snapshots[0] ? formatTorontoDateTime(snapshots[0].generatedAtIso) : "pending"}
               </p>
             </div>
           </div>
@@ -300,6 +320,58 @@ export default async function ImpactPage() {
                 />
               </div>
 
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Card className="rounded-lg py-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Languages className="h-4 w-4 text-primary" />
+                      Last-30-day language split
+                    </CardTitle>
+                    <CardDescription>
+                      Taken from the English or French site locale that submitted each inquiry.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-3">
+                    <div className="border-b border-border pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+                      <p className="text-sm text-muted-foreground">English</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.last30Language.englishCount}</p>
+                    </div>
+                    <div className="border-b border-border pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+                      <p className="text-sm text-muted-foreground">French</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.last30Language.frenchCount}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Unknown / legacy</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.last30Language.unknownCount}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-lg py-6">
+                  <CardHeader>
+                    <CardTitle>Scheduled reporting</CardTitle>
+                    <CardDescription>
+                      Vercel records one aggregate snapshot every day. The live totals above update on every page load.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+                      <span className="text-muted-foreground">Schedule</span>
+                      <span className="font-medium">Daily at 12:15 UTC</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-muted-foreground">Latest snapshot</span>
+                      <span className="text-right font-medium">
+                        {snapshots[0] ? formatTorontoDateTime(snapshots[0].generatedAtIso) : "Pending first run"}
+                      </span>
+                    </div>
+                    {snapshotLoadError ? (
+                      <p className="text-xs text-destructive">Snapshot history unavailable: {snapshotLoadError}</p>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              </div>
+
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
                 <Card className="rounded-lg py-6">
                   <CardHeader>
@@ -338,6 +410,104 @@ export default async function ImpactPage() {
                   </CardContent>
                 </Card>
               </div>
+
+              <Card className="rounded-lg py-6">
+                <CardHeader>
+                  <CardTitle>Recent website submissions</CardTitle>
+                  <CardDescription>
+                    The 25 newest inquiries, without personal contact information.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[11rem]">Submitted</TableHead>
+                        <TableHead>Language</TableHead>
+                        <TableHead className="min-w-[12rem]">Primary issue</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Source</TableHead>
+                        <TableHead>Experiment</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data.recentInquiries.map((inquiry, index) => (
+                        <TableRow key={`${inquiry.submittedAtIso}-${index}`}>
+                          <TableCell className="whitespace-normal font-medium">
+                            {formatTorontoDateTime(inquiry.submittedAtIso)}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="rounded-md uppercase">
+                              {inquiry.locale || "-"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="whitespace-normal">{inquiry.issue}</TableCell>
+                          <TableCell>{formatLabel(inquiry.status)}</TableCell>
+                          <TableCell className="whitespace-normal text-muted-foreground">
+                            {formatLabel(inquiry.source)}
+                          </TableCell>
+                          <TableCell>
+                            {inquiry.welcomeFlowCohort === "holdout"
+                              ? "Holdout"
+                              : inquiry.welcomeFlowVariant
+                                ? `Treatment ${inquiry.welcomeFlowVariant.toUpperCase()}`
+                                : "Pre-test"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-lg py-6">
+                <CardHeader>
+                  <CardTitle>Daily Vercel snapshots</CardTitle>
+                  <CardDescription>
+                    Stable daily aggregates for comparing form volume before and after the welcome flow launches.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {snapshots.length ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead className="text-right">All time</TableHead>
+                          <TableHead className="text-right">Last 30d</TableHead>
+                          <TableHead className="text-right">Last 7d</TableHead>
+                          <TableHead className="text-right">Scheduled / completed</TableHead>
+                          <TableHead className="text-right">EN</TableHead>
+                          <TableHead className="text-right">FR</TableHead>
+                          <TableHead className="text-right">Experiment tagged</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {snapshots.map((snapshot) => (
+                          <TableRow key={snapshot.date}>
+                            <TableCell className="font-medium">{snapshot.date}</TableCell>
+                            <TableCell className="text-right tabular-nums">{snapshot.totals.allTimeInquiryCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">{snapshot.totals.last30DaysInquiryCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">{snapshot.totals.last7DaysInquiryCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {snapshot.totals.last30DaysScheduledOrCompletedCount}
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">{snapshot.last30Language.englishCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">{snapshot.last30Language.frenchCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {snapshot.welcomeExperiment.taggedInquiryCount}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      The first row appears after the cron endpoint completes its first production run.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
 
               <Card className="rounded-lg py-6">
                 <CardHeader>

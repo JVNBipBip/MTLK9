@@ -45,11 +45,21 @@ Create `Website Welcome Flow - EN/FR` in the Montreal Canine Training sub-accoun
 ### Draft status (July 9, 2026)
 
 - Created the unpublished `Website Welcome Flow - EN/FR` workflow in GHL.
+- Find it in the Montreal Canine Training sub-account under **Automation > Workflows > All workflows**. It is intentionally listed as **Draft**.
 - Added the `website-welcome-flow` trigger, French/English routing, all six emails, the two-day and three-day waits, and link-click tracking.
+- The website sends its active route locale with every popup signup: `/fr/...` adds `lang-fr`, while `/en/...` adds `lang-en`. The workflow sends `lang-fr` contacts down the French branch and uses English as the fallback.
 - Disabled workflow re-entry and enabled stop-on-response.
 - Created the language, intent, and treatment-cohort contact tags used by the website.
 - The help-intent internal notification and `in-person-evaluation` stop checks remain pending. The website does not currently sync a completed consultation request to that GHL tag, so adding those checks now would not suppress booked contacts reliably.
 - Keep the workflow in Draft until the sender address is confirmed and a test contact passes delivery, reply, tracked-link, and unsubscribe checks.
+
+## Self-service reporting
+
+- Open `https://www.mtlcaninetraining.com/en/impact` with the impact-dashboard credentials stored in Vercel.
+- The page reads current inquiry totals directly from Firestore on every load and never displays customer contact details.
+- It shows the 25 newest submissions, last-30-day EN/FR split, status, source, and welcome-flow experiment assignment.
+- Vercel Cron calls `/api/cron/inquiry-impact` every day at 12:15 UTC and stores a non-PII aggregate snapshot in Firestore.
+- View the scheduled job and its execution logs in the Vercel project under **Settings > Cron Jobs**.
 
 ## Email 1: immediate
 

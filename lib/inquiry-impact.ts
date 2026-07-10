@@ -6,6 +6,7 @@ import { CLIENT_CONSULTATIONS_SUBCOLLECTION, listClientSubcollectionDocs } from 
 
 const TORONTO_TIME_ZONE = "America/Toronto"
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
+const IMPACT_SNAPSHOTS_COLLECTION = "inquiryImpactSnapshots"
 
 export type ImpactChangeEvent = {
   id: string
@@ -200,9 +201,20 @@ type InquiryItem = {
   issue: string
   source: string
   status: string
+  locale: "en" | "fr" | null
   welcomeFlowCohort: "holdout" | "treatment" | null
   welcomeFlowVariant: "a" | "b" | null
   docPath: string
+}
+
+export type RecentInquirySummary = {
+  submittedAtIso: string
+  issue: string
+  source: string
+  status: string
+  locale: "en" | "fr" | null
+  welcomeFlowCohort: "holdout" | "treatment" | null
+  welcomeFlowVariant: "a" | "b" | null
 }
 
 export type DailyInquiryCount = {
@@ -245,9 +257,23 @@ export type InquiryImpactDashboardData = {
     variantAInquiryCount: number
     variantBInquiryCount: number
   }
+  last30Language: {
+    englishCount: number
+    frenchCount: number
+    unknownCount: number
+  }
+  recentInquiries: RecentInquirySummary[]
   dailyCounts: DailyInquiryCount[]
   last30DailyCounts: DailyInquiryCount[]
   changeRows: ImpactChangeRow[]
+}
+
+export type InquiryImpactSnapshot = {
+  date: string
+  generatedAtIso: string
+  totals: InquiryImpactDashboardData["totals"]
+  welcomeExperiment: InquiryImpactDashboardData["welcomeExperiment"]
+  last30Language: InquiryImpactDashboardData["last30Language"]
 }
 
 const torontoDateFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -299,6 +325,10 @@ function normalizeWelcomeVariant(value: unknown) {
   return value === "a" || value === "b" ? value : null
 }
 
+function normalizeLocale(value: unknown) {
+  return value === "en" || value === "fr" ? value : null
+}
+
 function issueDisplayName(issue: string) {
   const labels: Record<string, string> = {
     "puppy-out-of-control": "Puppy / young dog",
@@ -324,6 +354,7 @@ function normalizeConsultationDoc(doc: { id: string; ref: { path: string }; data
     issue: normalizeIssue(data.issue),
     source: typeof data.source === "string" ? data.source : "",
     status: typeof data.status === "string" ? data.status : "",
+    locale: normalizeLocale(data.websiteLocale) || normalizeLocale(data.preferredLocale),
     welcomeFlowCohort: normalizeWelcomeCohort(data.welcomeFlowCohort),
     welcomeFlowVariant: normalizeWelcomeVariant(data.welcomeFlowVariant),
     docPath: doc.ref.path,
@@ -436,6 +467,9 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
   })
   const last30DaysInquiryCount = countInRange(items, last30StartIso, generatedAtIso)
   const experimentItems = items.filter((item) => item.welcomeFlowCohort)
+  const last30Items = items.filter(
+    (item) => item.submittedAtIso >= last30StartIso && item.submittedAtIso < generatedAtIso,
+  )
 
   return {
     generatedAtIso,
@@ -459,10 +493,60 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
       variantAInquiryCount: experimentItems.filter((item) => item.welcomeFlowVariant === "a").length,
       variantBInquiryCount: experimentItems.filter((item) => item.welcomeFlowVariant === "b").length,
     },
+    last30Language: {
+      englishCount: last30Items.filter((item) => item.locale === "en").length,
+      frenchCount: last30Items.filter((item) => item.locale === "fr").length,
+      unknownCount: last30Items.filter((item) => !item.locale).length,
+    },
+    recentInquiries: [...items]
+      .sort((a, b) => b.submittedAtIso.localeCompare(a.submittedAtIso))
+      .slice(0, 25)
+      .map((item) => ({
+        submittedAtIso: item.submittedAtIso,
+        issue: issueDisplayName(item.issue),
+        source: item.source || "unknown",
+        status: item.status || "unknown",
+        locale: item.locale,
+        welcomeFlowCohort: item.welcomeFlowCohort,
+        welcomeFlowVariant: item.welcomeFlowVariant,
+      })),
     dailyCounts: buildDailyCounts(items, earliestEventIso, generatedAtIso),
     last30DailyCounts: buildDailyCounts(items, last30StartIso, generatedAtIso),
     changeRows,
   }
+}
+
+export async function createInquiryImpactSnapshot(): Promise<InquiryImpactSnapshot> {
+  const data = await loadInquiryImpactDashboardData()
+  const snapshot: InquiryImpactSnapshot = {
+    date: dateKeyInToronto(data.generatedAtIso),
+    generatedAtIso: data.generatedAtIso,
+    totals: data.totals,
+    welcomeExperiment: data.welcomeExperiment,
+    last30Language: data.last30Language,
+  }
+
+  await getAdminDb().collection(IMPACT_SNAPSHOTS_COLLECTION).doc(snapshot.date).set(snapshot, { merge: true })
+  return snapshot
+}
+
+export async function loadInquiryImpactSnapshots(limit = 45): Promise<InquiryImpactSnapshot[]> {
+  const snapshot = await getAdminDb()
+    .collection(IMPACT_SNAPSHOTS_COLLECTION)
+    .orderBy("generatedAtIso", "desc")
+    .limit(limit)
+    .get()
+
+  return snapshot.docs
+    .map((doc) => doc.data() as Partial<InquiryImpactSnapshot>)
+    .filter(
+      (item): item is InquiryImpactSnapshot =>
+        typeof item.date === "string" &&
+        typeof item.generatedAtIso === "string" &&
+        Boolean(item.totals) &&
+        Boolean(item.welcomeExperiment) &&
+        Boolean(item.last30Language),
+    )
 }
 
 export function formatTorontoDateTime(iso: string) {
