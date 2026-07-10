@@ -19,6 +19,14 @@ import {
   welcomePopupContent,
   type WelcomePopupVariant,
 } from "@/lib/welcome-popup-content"
+import {
+  WELCOME_EXPERIMENT_COOKIE_NAME,
+  WELCOME_EXPERIMENT_MAX_AGE_SECONDS,
+  assignWelcomeExperiment,
+  parseWelcomeExperimentCookieHeader,
+  serializeWelcomeExperiment,
+  type WelcomeExperimentCohort,
+} from "@/lib/welcome-experiment"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -26,6 +34,7 @@ type StoredPopupState = {
   state?: "dismissed" | "subscribed"
   at?: string
   variant?: WelcomePopupVariant
+  cohort?: WelcomeExperimentCohort
 }
 
 /** localStorage can throw (private mode, disabled storage) — never let that crash the page. */
@@ -61,6 +70,20 @@ function isSuppressed(stored: StoredPopupState | null): boolean {
 
 function storedVariant(stored: StoredPopupState | null): WelcomePopupVariant | null {
   return stored?.variant === "a" || stored?.variant === "b" ? stored.variant : null
+}
+
+function storedCohort(stored: StoredPopupState | null): WelcomeExperimentCohort | null {
+  return stored?.cohort === "holdout" || stored?.cohort === "treatment" ? stored.cohort : null
+}
+
+function writeExperimentCookie(cohort: WelcomeExperimentCohort, variant: WelcomePopupVariant | null) {
+  try {
+    const value = serializeWelcomeExperiment({ cohort, variant })
+    const secure = window.location.protocol === "https:" ? "; Secure" : ""
+    document.cookie = `${WELCOME_EXPERIMENT_COOKIE_NAME}=${encodeURIComponent(value)}; Path=/; Max-Age=${WELCOME_EXPERIMENT_MAX_AGE_SECONDS}; SameSite=Lax${secure}`
+  } catch {
+    // The PostHog super properties still preserve the experiment assignment.
+  }
 }
 
 /** Feature-flag gate — the whole popup ships dark unless NEXT_PUBLIC_WELCOME_POPUP="1". */
@@ -105,7 +128,36 @@ function WelcomePopupInner() {
   // comes first. Re-armed per pathname so blocked pages stay quiet.
   useEffect(() => {
     if (hasShownRef.current || blockedPath) return
-    if (isSuppressed(readStoredState())) return
+    const stored = readStoredState()
+    if (isSuppressed(stored)) return
+
+    const cookieAssignment = parseWelcomeExperimentCookieHeader(document.cookie)
+    const previousCohort = storedCohort(stored) || cookieAssignment?.cohort || null
+    const previousVariant = storedVariant(stored) || cookieAssignment?.variant || null
+    const freshAssignment = assignWelcomeExperiment(Math.random(), Math.random())
+    const cohort = previousCohort || freshAssignment.cohort
+    const assignedVariant = cohort === "treatment" ? previousVariant || freshAssignment.variant || "a" : null
+
+    if (previousCohort !== cohort || previousVariant !== assignedVariant) {
+      writeStoredState({ ...stored, cohort, variant: assignedVariant || undefined })
+    }
+    writeExperimentCookie(cohort, assignedVariant)
+    posthog.register({
+      welcome_flow_cohort: cohort,
+      welcome_flow_variant: assignedVariant || "none",
+    })
+
+    if (!previousCohort) {
+      posthog.capture("welcome_flow_cohort_assigned", {
+        cohort,
+        variant: assignedVariant || "none",
+        locale,
+        path: pathname,
+      })
+    }
+
+    if (cohort === "holdout") return
+    setVariant(assignedVariant || "a")
 
     let fired = false
     const cleanup = () => {
@@ -127,7 +179,7 @@ function WelcomePopupInner() {
     const timer = window.setTimeout(trigger, WELCOME_POPUP_TIME_TRIGGER_MS)
     window.addEventListener("scroll", onScroll, { passive: true })
     return cleanup
-  }, [blockedPath, openPopup])
+  }, [blockedPath, locale, openPopup, pathname])
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -138,7 +190,7 @@ function WelcomePopupInner() {
       if (statusRef.current === "success") return
       const stored = readStoredState()
       if (stored?.state === "subscribed") return
-      writeStoredState({ state: "dismissed", at: new Date().toISOString(), variant })
+      writeStoredState({ ...stored, state: "dismissed", at: new Date().toISOString(), variant })
       posthog.capture("welcome_popup_dismissed", { variant, locale })
     },
     [locale, variant],
@@ -167,7 +219,7 @@ function WelcomePopupInner() {
           }),
         })
         if (!res.ok) throw new Error(`welcome-signup failed (${res.status})`)
-        writeStoredState({ state: "subscribed", variant })
+        writeStoredState({ ...readStoredState(), state: "subscribed", variant })
         posthog.capture("welcome_popup_submitted", { variant, locale })
         setStatus("success")
       } catch {
@@ -183,7 +235,7 @@ function WelcomePopupInner() {
   const handleStartConsultation = () => {
     posthog.capture("welcome_popup_consultation_clicked", { variant, locale, path: pathname })
     setOpen(false)
-    openBookingForm()
+    openBookingForm({ source: "welcome_popup" })
   }
 
   const handleCallNick = () => {
@@ -215,6 +267,7 @@ function WelcomePopupInner() {
               </Button>
               <a
                 href="tel:+15148269558"
+                data-conversion-location="welcome_popup"
                 onClick={handleCallNick}
                 className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
               >

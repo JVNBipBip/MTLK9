@@ -71,6 +71,7 @@ export function StepConfirmation({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="tel:+15148269558"
+            data-conversion-location="booking_confirmation"
             className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             <Phone className="w-4 h-4" />

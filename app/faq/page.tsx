@@ -95,7 +95,7 @@ export default async function FaqPage() {
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </FreeCallLink>
-                <a href="tel:+15148269558">
+                <a href="tel:+15148269558" data-conversion-location="faq_cta">
                   <Button
                     size="lg"
                     variant="outline"

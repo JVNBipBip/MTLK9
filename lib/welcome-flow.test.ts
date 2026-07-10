@@ -11,6 +11,7 @@ describe("welcome flow segmentation", () => {
   it("adds language, intent, variant, and source tags", () => {
     expect(buildWelcomeSignupTags({ locale: "fr", path: "/fr/services/puppy-training", variant: "a" })).toEqual([
       "website-welcome-flow",
+      "welcome-cohort-treatment",
       "lang-fr",
       "popup-variant-a",
       "welcome-intent-help",

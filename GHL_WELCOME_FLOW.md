@@ -8,6 +8,7 @@
 - Captures email plus an optional dog-behavior message.
 - Upserts the contact in GHL with these tags:
   - `website-welcome-flow`
+  - `welcome-cohort-treatment`
   - `lang-en` or `lang-fr`
   - `popup-variant-a` or `popup-variant-b`
   - `welcome-intent-help` or `welcome-intent-tips`
@@ -15,6 +16,18 @@
 - Shows Call Nick and Start a consultation request actions after signup.
 
 The production popup remains disabled until the email workflow and dedicated sending domain pass an end-to-end test.
+
+## Conversion measurement
+
+The pre-launch rolling 30-day baseline, generated July 9, 2026, is 45 completed website inquiries, or 1.50 per day. Seventeen of those inquiries are currently scheduled or completed. Historical phone-link clicks are not part of this baseline because phone tracking was inconsistent across the site.
+
+- Randomly assign 20% of eligible visitors to a persistent no-popup holdout.
+- Split the remaining 80% evenly between help-first variant A and education-first variant B.
+- Primary outcome: an inquiry completion or phone-link click after assignment.
+- Secondary outcomes: popup signup, consultation-form open, scheduled consultation, and completed consultation.
+- Compare conversion rates per assigned visitor, not raw lead counts. Use the previous 30 days only as a directional baseline; the simultaneous holdout is the causal comparison.
+- Review after 14 days for tracking quality, after 30 days for direction, and after 60-90 days for a business decision.
+- A phone-link click measures call intent. Confirmed connected calls require Nick's phone logs or a GHL tracking number.
 
 ## GHL workflow
 
@@ -28,6 +41,15 @@ Create `Website Welcome Flow - EN/FR` in the Montreal Canine Training sub-accoun
 6. Wait two days. If the contact has `in-person-evaluation`, end the workflow; otherwise send Email 2.
 7. Wait three more days. Check `in-person-evaluation` again; otherwise send Email 3.
 8. Ensure every email contains the GHL unsubscribe link and uses the verified sending domain.
+
+### Draft status (July 9, 2026)
+
+- Created the unpublished `Website Welcome Flow - EN/FR` workflow in GHL.
+- Added the `website-welcome-flow` trigger, French/English routing, all six emails, the two-day and three-day waits, and link-click tracking.
+- Disabled workflow re-entry and enabled stop-on-response.
+- Created the language, intent, and treatment-cohort contact tags used by the website.
+- The help-intent internal notification and `in-person-evaluation` stop checks remain pending. The website does not currently sync a completed consultation request to that GHL tag, so adding those checks now would not suppress booked contacts reliably.
+- Keep the workflow in Draft until the sender address is confirmed and a test contact passes delivery, reply, tracked-link, and unsubscribe checks.
 
 ## Email 1: immediate
 

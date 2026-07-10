@@ -184,7 +184,11 @@ export function HeroSection() {
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>
-            <Link href="tel:+15148269558" className="w-full sm:w-auto">
+            <Link
+              href="tel:+15148269558"
+              data-conversion-location="homepage_hero"
+              className="w-full sm:w-auto"
+            >
               <Button
                 size="lg"
                 variant="outline"

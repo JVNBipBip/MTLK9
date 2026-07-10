@@ -38,6 +38,10 @@ type OpenGroupClassesBookingOptions = {
   preferredCoachLabel?: string
 }
 
+type OpenBookingFormOptions = {
+  source?: string
+}
+
 const defaultPortalLaunch: {
   mode: TrainingPortalMode
   embeddedTrainer: TrainingPortalEmbeddedTrainer | null
@@ -59,7 +63,7 @@ function buildEmbeddedTrainer(opts?: OpenTrainingPortalOptions): TrainingPortalE
 }
 
 type BookingFormContextType = {
-  openBookingForm: () => void
+  openBookingForm: (opts?: OpenBookingFormOptions) => void
   openProgramSignupForm: () => void
   openFreeCallModal: () => void
   openTrainingPortal: (opts?: OpenTrainingPortalOptions) => void
@@ -88,7 +92,11 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const [groupClassesKey, setGroupClassesKey] = useState(0)
   const [groupClassesCoach, setGroupClassesCoach] = useState<OpenGroupClassesBookingOptions | undefined>(undefined)
 
-  const openBookingForm = useCallback(() => {
+  const openBookingForm = useCallback((opts?: OpenBookingFormOptions) => {
+    posthog.capture("consultation_form_opened", {
+      source: opts?.source || "site_cta",
+      path: window.location.pathname,
+    })
     setBookingFormKey((k) => k + 1) // reset form state on each open
     setBookingOpen(true)
   }, [])
@@ -111,6 +119,9 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const openFreeCallModal = useCallback(() => {
+    posthog.capture("inquiry_modal_opened", {
+      path: window.location.pathname,
+    })
     setFreeCallOpen(true)
   }, [])
 
@@ -158,6 +169,10 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 
   const handleOpenAssessmentFromFreeCall = useCallback(() => {
     closeFreeCallModal()
+    posthog.capture("consultation_form_opened", {
+      source: "inquiry_modal",
+      path: window.location.pathname,
+    })
     setBookingFormKey((k) => k + 1)
     setBookingOpen(true)
   }, [closeFreeCallModal])
@@ -227,6 +242,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
             <div className="space-y-2 pt-1">
               <a
                 href="tel:+15148269558"
+                data-conversion-location="inquiry_modal"
                 onClick={() => trackContactLinkClick("phone")}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors"
               >

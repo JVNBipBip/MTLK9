@@ -34,6 +34,7 @@ import {
   getConsultationServiceVariationIds,
 } from "@/lib/square-service-config"
 import { generateAccessToken, hashAccessToken } from "@/lib/tokens"
+import { parseWelcomeExperimentCookieHeader } from "@/lib/welcome-experiment"
 
 export const runtime = "nodejs"
 
@@ -122,6 +123,7 @@ async function findReplaceableConsultationId(db: Firestore, clientId: string, do
 
 export async function POST(request: Request) {
   let locale: AppLocale = defaultLocale
+  const welcomeExperiment = parseWelcomeExperimentCookieHeader(request.headers.get("cookie"))
   try {
     const payload = (await request.json()) as {
       formData?: unknown
@@ -343,6 +345,8 @@ export async function POST(request: Request) {
       preferredLocale: locale,
       websiteLocale: locale,
       source: bookingSource,
+      welcomeFlowCohort: welcomeExperiment?.cohort || null,
+      welcomeFlowVariant: welcomeExperiment?.variant || null,
       consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
       consultationPreferredTrainerName: isConsultationInquiry ? preferredTrainerLabel : null,
       consultationPreferredTrainerTeamMemberId: isConsultation ? trainerTeamMemberIdFromPayload : null,
@@ -562,6 +566,8 @@ export async function POST(request: Request) {
         clientName: formData.contactName,
         locale,
         bookingSource,
+        welcomeFlowCohort: welcomeExperiment?.cohort || null,
+        welcomeFlowVariant: welcomeExperiment?.variant || null,
         highPriority: submission.highPriority,
         consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
         preferredTrainerLabel,

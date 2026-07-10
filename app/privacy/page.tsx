@@ -86,7 +86,11 @@ export default async function PrivacyPage() {
               mtlcaninetraining@gmail.com
             </a>
             <br />
-            <a href="tel:+15148269558" className="text-primary hover:underline">
+            <a
+              href="tel:+15148269558"
+              data-conversion-location="privacy_contact"
+              className="text-primary hover:underline"
+            >
               514 826 9558
             </a>
           </p>

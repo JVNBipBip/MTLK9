@@ -200,6 +200,8 @@ type InquiryItem = {
   issue: string
   source: string
   status: string
+  welcomeFlowCohort: "holdout" | "treatment" | null
+  welcomeFlowVariant: "a" | "b" | null
   docPath: string
 }
 
@@ -229,11 +231,22 @@ export type InquiryImpactDashboardData = {
   totals: {
     allTimeInquiryCount: number
     last7DaysInquiryCount: number
+    last30DaysInquiryCount: number
+    last30DayDailyAverage: number
+    last30DaysScheduledOrCompletedCount: number
     sinceQuestionsRemovedCount: number
     sinceHomepageReframeCount: number
     sinceLatestDeployCount: number
   }
+  welcomeExperiment: {
+    taggedInquiryCount: number
+    holdoutInquiryCount: number
+    treatmentInquiryCount: number
+    variantAInquiryCount: number
+    variantBInquiryCount: number
+  }
   dailyCounts: DailyInquiryCount[]
+  last30DailyCounts: DailyInquiryCount[]
   changeRows: ImpactChangeRow[]
 }
 
@@ -278,6 +291,14 @@ function normalizeIssue(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : "unknown"
 }
 
+function normalizeWelcomeCohort(value: unknown) {
+  return value === "holdout" || value === "treatment" ? value : null
+}
+
+function normalizeWelcomeVariant(value: unknown) {
+  return value === "a" || value === "b" ? value : null
+}
+
 function issueDisplayName(issue: string) {
   const labels: Record<string, string> = {
     "puppy-out-of-control": "Puppy / young dog",
@@ -303,12 +324,23 @@ function normalizeConsultationDoc(doc: { id: string; ref: { path: string }; data
     issue: normalizeIssue(data.issue),
     source: typeof data.source === "string" ? data.source : "",
     status: typeof data.status === "string" ? data.status : "",
+    welcomeFlowCohort: normalizeWelcomeCohort(data.welcomeFlowCohort),
+    welcomeFlowVariant: normalizeWelcomeVariant(data.welcomeFlowVariant),
     docPath: doc.ref.path,
   } satisfies InquiryItem
 }
 
 function countInRange(items: InquiryItem[], startIso: string, endIso: string) {
   return items.filter((item) => item.submittedAtIso >= startIso && item.submittedAtIso < endIso).length
+}
+
+function countOutcomesInRange(items: InquiryItem[], startIso: string, endIso: string) {
+  return items.filter(
+    (item) =>
+      item.submittedAtIso >= startIso &&
+      item.submittedAtIso < endIso &&
+      (item.status === "scheduled" || item.status === "completed"),
+  ).length
 }
 
 function topIssueInRange(items: InquiryItem[], startIso: string, endIso: string) {
@@ -383,6 +415,7 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
   const { items, scanned } = await loadInquiryItems()
   const earliestEventIso = IMPACT_CHANGE_EVENTS[0]?.deployedAtIso || generatedAtIso
   const last7StartIso = addDaysIso(generatedAtIso, -7)
+  const last30StartIso = addDaysIso(generatedAtIso, -30)
   const questionsRemovedIso =
     IMPACT_CHANGE_EVENTS.find((event) => event.id === "questions-removed")?.deployedAtIso || earliestEventIso
   const homepageReframeIso =
@@ -401,6 +434,8 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
       topIssue: topIssueInRange(items, event.deployedAtIso, generatedAtIso),
     }
   })
+  const last30DaysInquiryCount = countInRange(items, last30StartIso, generatedAtIso)
+  const experimentItems = items.filter((item) => item.welcomeFlowCohort)
 
   return {
     generatedAtIso,
@@ -410,11 +445,22 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
     totals: {
       allTimeInquiryCount: items.length,
       last7DaysInquiryCount: countInRange(items, last7StartIso, generatedAtIso),
+      last30DaysInquiryCount,
+      last30DayDailyAverage: last30DaysInquiryCount / 30,
+      last30DaysScheduledOrCompletedCount: countOutcomesInRange(items, last30StartIso, generatedAtIso),
       sinceQuestionsRemovedCount: countInRange(items, questionsRemovedIso, generatedAtIso),
       sinceHomepageReframeCount: countInRange(items, homepageReframeIso, generatedAtIso),
       sinceLatestDeployCount: countInRange(items, LATEST_PRODUCTION_DEPLOY_ISO, generatedAtIso),
     },
+    welcomeExperiment: {
+      taggedInquiryCount: experimentItems.length,
+      holdoutInquiryCount: experimentItems.filter((item) => item.welcomeFlowCohort === "holdout").length,
+      treatmentInquiryCount: experimentItems.filter((item) => item.welcomeFlowCohort === "treatment").length,
+      variantAInquiryCount: experimentItems.filter((item) => item.welcomeFlowVariant === "a").length,
+      variantBInquiryCount: experimentItems.filter((item) => item.welcomeFlowVariant === "b").length,
+    },
     dailyCounts: buildDailyCounts(items, earliestEventIso, generatedAtIso),
+    last30DailyCounts: buildDailyCounts(items, last30StartIso, generatedAtIso),
     changeRows,
   }
 }

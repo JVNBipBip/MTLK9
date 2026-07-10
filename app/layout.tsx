@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from "next-intl"
 import { BookingFormProvider } from "@/components/booking-form-provider"
 import { ClientLocaleEffects } from "@/components/client-locale-effects"
 import { FacebookPixel } from "@/components/facebook-pixel"
+import { ConversionTracker } from "@/components/conversion-tracker"
 import { JsonLd, buildWebSiteJsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import { LocaleProvider } from "@/components/locale-provider"
 import { WelcomePopup } from "@/components/welcome-popup"
@@ -130,6 +131,7 @@ export default async function RootLayout({
               {children}
               <WelcomePopup />
             </BookingFormProvider>
+            <ConversionTracker />
             <FacebookPixel />
           </LocaleProvider>
         </NextIntlClientProvider>

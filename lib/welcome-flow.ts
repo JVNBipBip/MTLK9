@@ -38,6 +38,7 @@ export function buildWelcomeSignupTags({
 }) {
   return [
     "website-welcome-flow",
+    "welcome-cohort-treatment",
     `lang-${locale}`,
     `popup-variant-${variant}`,
     variant === "a" ? "welcome-intent-help" : "welcome-intent-tips",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Activity, CalendarClock, GitCommitHorizontal, Rocket, TrendingUp } from "lucide-react"
+import { Activity, CalendarClock, Gauge, Rocket, TrendingUp, Users } from "lucide-react"
 import { Header } from "@/components/header"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -261,7 +261,7 @@ export default async function ImpactPage() {
 
           {data ? (
             <>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <MetricCard
                   label="All Inquiries"
                   value={data.totals.allTimeInquiryCount}
@@ -269,41 +269,47 @@ export default async function ImpactPage() {
                   icon={Activity}
                 />
                 <MetricCard
-                  label="Last 7 Days"
-                  value={data.totals.last7DaysInquiryCount}
-                  detail="Rolling 7-day count from live Firestore."
+                  label="Last 30 Days"
+                  value={data.totals.last30DaysInquiryCount}
+                  detail="Canonical baseline from completed website inquiry records."
                   icon={TrendingUp}
                 />
                 <MetricCard
-                  label="Since Q&A Removed"
-                  value={data.totals.sinceQuestionsRemovedCount}
-                  detail="Since the May 17 two-step inquiry flow deploy."
-                  icon={GitCommitHorizontal}
+                  label="Daily Average"
+                  value={data.totals.last30DayDailyAverage.toFixed(2)}
+                  detail="Average completed inquiries per day over the rolling 30-day window."
+                  icon={Gauge}
                 />
                 <MetricCard
-                  label="Since Reframe"
-                  value={data.totals.sinceHomepageReframeCount}
-                  detail="Since the June 11 homepage inquiry copy deploy."
+                  label="Scheduled / Completed"
+                  value={data.totals.last30DaysScheduledOrCompletedCount}
+                  detail="Last-30-day inquiries currently marked scheduled or completed."
                   icon={CalendarClock}
                 />
                 <MetricCard
-                  label="Since Latest"
-                  value={data.totals.sinceLatestDeployCount}
-                  detail="Since the most recent production deployment."
+                  label="Last 7 Days"
+                  value={data.totals.last7DaysInquiryCount}
+                  detail="Rolling 7-day count from live Firestore."
                   icon={Rocket}
+                />
+                <MetricCard
+                  label="Experiment Tagged"
+                  value={data.welcomeExperiment.taggedInquiryCount}
+                  detail={`${data.welcomeExperiment.holdoutInquiryCount} holdout; ${data.welcomeExperiment.treatmentInquiryCount} treatment.`}
+                  icon={Users}
                 />
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
                 <Card className="rounded-lg py-6">
                   <CardHeader>
-                    <CardTitle>Inquiries Per Day</CardTitle>
+                    <CardTitle>30-Day Inquiry Baseline</CardTitle>
                     <CardDescription>
-                      Daily inquiry volume since the first tracked inquiry-flow deploy. Right column is cumulative.
+                      Daily completed inquiry volume for the measurement window. Right column is cumulative.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <DailyBars dailyCounts={data.dailyCounts} />
+                    <DailyBars dailyCounts={data.last30DailyCounts} />
                   </CardContent>
                 </Card>
 
