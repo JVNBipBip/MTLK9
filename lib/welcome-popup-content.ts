@@ -39,6 +39,9 @@ export type WelcomePopupCopy = {
   emailLabel: string
   emailPlaceholder: string
   emailError: string
+  phoneLabel: string
+  phonePlaceholder: string
+  phoneError: string
   microcopy: string
   submitting: string
   successHeadline: string
@@ -68,6 +71,9 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     emailLabel: "Email address",
     emailPlaceholder: "you@email.com",
     emailError: "Please enter a valid email address.",
+    phoneLabel: "Phone number (optional)",
+    phonePlaceholder: "Phone number (optional)",
+    phoneError: "Please enter a valid phone number, including the area code.",
     microcopy: "By signing up, you agree to receive helpful emails from Montreal Canine Training. Unsubscribe anytime.",
     submitting: "Sending…",
     successHeadline: "You're in. What would help most right now?",
@@ -95,6 +101,9 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     emailLabel: "Adresse courriel",
     emailPlaceholder: "vous@courriel.com",
     emailError: "Veuillez entrer une adresse courriel valide.",
+    phoneLabel: "Numéro de téléphone (facultatif)",
+    phonePlaceholder: "Numéro de téléphone (facultatif)",
+    phoneError: "Veuillez entrer un numéro valide, y compris l'indicatif régional.",
     microcopy: "En vous inscrivant, vous acceptez de recevoir des courriels utiles d'Entraînement Canin Montréal. Désabonnez-vous en tout temps.",
     submitting: "Envoi en cours…",
     successHeadline: "C'est fait. De quoi avez-vous le plus besoin maintenant ?",

@@ -27,6 +27,7 @@ import {
   serializeWelcomeExperiment,
   type WelcomeExperimentCohort,
 } from "@/lib/welcome-experiment"
+import { normalizeWelcomePhone } from "@/lib/welcome-signup"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -100,8 +101,10 @@ function WelcomePopupInner() {
   const [variant, setVariant] = useState<WelcomePopupVariant>("a")
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [message, setMessage] = useState("")
   const [emailInvalid, setEmailInvalid] = useState(false)
+  const [phoneInvalid, setPhoneInvalid] = useState(false)
   const hasShownRef = useRef(false)
   const statusRef = useRef(status)
   statusRef.current = status
@@ -204,7 +207,14 @@ function WelcomePopupInner() {
         setEmailInvalid(true)
         return
       }
+      const trimmedPhone = phone.trim()
+      const normalizedPhone = trimmedPhone ? normalizeWelcomePhone(trimmedPhone) : null
+      if (trimmedPhone && !normalizedPhone) {
+        setPhoneInvalid(true)
+        return
+      }
       setEmailInvalid(false)
+      setPhoneInvalid(false)
       setStatus("submitting")
       try {
         const res = await fetch("/api/welcome-signup", {
@@ -212,6 +222,7 @@ function WelcomePopupInner() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: trimmedEmail,
+            phone: normalizedPhone || undefined,
             message: variant === "a" && message.trim() ? message.trim() : undefined,
             variant,
             locale,
@@ -226,7 +237,7 @@ function WelcomePopupInner() {
         setStatus("error")
       }
     },
-    [email, locale, message, pathname, variant],
+    [email, locale, message, pathname, phone, variant],
   )
 
   const content = welcomePopupContent[locale]
@@ -313,6 +324,29 @@ function WelcomePopupInner() {
                 {emailInvalid && (
                   <p className="mt-1.5 text-xs text-destructive" role="alert">
                     {content.emailError}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label htmlFor="welcome-popup-phone" className="sr-only">
+                  {content.phoneLabel}
+                </label>
+                <Input
+                  id="welcome-popup-phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  maxLength={40}
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  placeholder={content.phonePlaceholder}
+                  aria-invalid={phoneInvalid || undefined}
+                  className="h-11 rounded-xl"
+                />
+                {phoneInvalid && (
+                  <p className="mt-1.5 text-xs text-destructive" role="alert">
+                    {content.phoneError}
                   </p>
                 )}
               </div>

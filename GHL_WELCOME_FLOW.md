@@ -5,7 +5,8 @@
 - Opens after either 10 seconds on a page or 40% scroll depth, whichever happens first.
 - Does not open on booking, checkout, training portal, privacy, or terms pages.
 - Suppresses for 30 days after dismissal and permanently in that browser after signup.
-- Captures email plus an optional dog-behavior message.
+- Captures email, an optional phone number, and an optional dog-behavior message.
+- Normalizes supplied North American phone numbers to `+1` format before upserting the GHL contact.
 - Upserts the contact in GHL with these tags:
   - `website-welcome-flow`
   - `welcome-cohort-treatment`

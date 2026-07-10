@@ -1,53 +1,13 @@
 import { NextResponse } from "next/server"
-import { isAppLocale, type AppLocale } from "@/lib/i18n/config"
 import { captureServerEvent } from "@/lib/posthog-server"
 import { buildWelcomeSignupTags } from "@/lib/welcome-flow"
+import { parseWelcomeSignupPayload } from "@/lib/welcome-signup"
 
 export const runtime = "nodejs"
 
 const GHL_BASE_URL = "https://services.leadconnectorhq.com"
 const GHL_API_VERSION = "2021-07-28"
 const OUTBOUND_TIMEOUT_MS = 8000
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const MAX_EMAIL_LENGTH = 254
-const MAX_MESSAGE_LENGTH = 1000
-const MAX_PATH_LENGTH = 300
-
-type WelcomeSignupPayload = {
-  email: string
-  message: string | null
-  variant: "a" | "b"
-  locale: AppLocale
-  path: string
-}
-
-function parsePayload(body: unknown): WelcomeSignupPayload | null {
-  if (!body || typeof body !== "object") return null
-  const obj = body as Record<string, unknown>
-
-  const email = typeof obj.email === "string" ? obj.email.trim().toLowerCase() : ""
-  if (!email || email.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(email)) return null
-
-  const variant = obj.variant === "a" || obj.variant === "b" ? obj.variant : null
-  if (!variant) return null
-
-  const locale = typeof obj.locale === "string" && isAppLocale(obj.locale) ? obj.locale : null
-  if (!locale) return null
-
-  const messageRaw = typeof obj.message === "string" ? obj.message.trim() : ""
-  if (messageRaw.length > MAX_MESSAGE_LENGTH) return null
-
-  const pathRaw = typeof obj.path === "string" ? obj.path.trim() : ""
-
-  return {
-    email,
-    message: messageRaw || null,
-    variant,
-    locale,
-    path: pathRaw.slice(0, MAX_PATH_LENGTH),
-  }
-}
 
 /** POST to LeadConnector v2 with auth headers and an 8s abort timeout. */
 async function ghlRequest(path: string, apiKey: string, body: unknown): Promise<Response> {
@@ -77,7 +37,7 @@ export async function POST(request: Request) {
     body = null
   }
 
-  const payload = parsePayload(body)
+  const payload = parseWelcomeSignupPayload(body)
   if (!payload) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 })
   }
@@ -94,6 +54,7 @@ export async function POST(request: Request) {
     const upsertRes = await ghlRequest("/contacts/upsert", apiKey, {
       locationId,
       email: payload.email,
+      ...(payload.phone ? { phone: payload.phone } : {}),
       tags: buildWelcomeSignupTags(payload),
       source: "website-popup",
       customFields: [],
