@@ -19,7 +19,7 @@ The production popup remains disabled until the email workflow and dedicated sen
 
 ## Conversion measurement
 
-The pre-launch rolling 30-day baseline, generated July 9, 2026, is 45 completed website inquiries, or 1.50 per day. Seventeen of those inquiries are currently scheduled or completed. Historical phone-link clicks are not part of this baseline because phone tracking was inconsistent across the site.
+The pre-launch rolling 30-day baseline, generated July 9, 2026, is 45 completed website inquiries, or 1.50 per day. Seventeen of those inquiries are currently scheduled or completed. Historical phone-link clicks remain in PostHog; the protected impact report records a parallel non-PII phone-click series beginning July 9, 2026.
 
 - Randomly assign 20% of eligible visitors to a persistent no-popup holdout.
 - Split the remaining 80% evenly between help-first variant A and education-first variant B.
@@ -57,7 +57,8 @@ Create `Website Welcome Flow - EN/FR` in the Montreal Canine Training sub-accoun
 
 - Open `https://www.mtlcaninetraining.com/en/impact` with the impact-dashboard credentials stored in Vercel.
 - The page reads current inquiry totals directly from Firestore on every load and never displays customer contact details.
-- It shows the 25 newest submissions, last-30-day EN/FR split, status, source, and welcome-flow experiment assignment.
+- It shows the 25 newest submissions, last-30-day EN/FR split, status, source, welcome-flow experiment assignment, and site phone-link clicks.
+- Phone-link clicks are recorded with route, UI location, and English/French locale only. They measure call intent, not a connected or completed phone call.
 - Vercel Cron calls `/api/cron/inquiry-impact` every day at 12:15 UTC and stores a non-PII aggregate snapshot in Firestore.
 - View the scheduled job and its execution logs in the Vercel project under **Settings > Cron Jobs**.
 

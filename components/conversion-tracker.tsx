@@ -21,6 +21,24 @@ export function ConversionTracker() {
         path: pathname,
         link_text: link.textContent?.replace(/\s+/g, " ").trim().slice(0, 80) || "",
       })
+
+      const payload = JSON.stringify({
+        event: "phone_link_clicked",
+        locale,
+        location: link.dataset.conversionLocation || "site",
+        path: pathname,
+      })
+      const queued =
+        typeof navigator.sendBeacon === "function" &&
+        navigator.sendBeacon("/api/conversion-event", new Blob([payload], { type: "application/json" }))
+      if (!queued) {
+        void fetch("/api/conversion-event", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        })
+      }
     }
 
     document.addEventListener("click", handleClick, { capture: true })

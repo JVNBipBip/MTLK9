@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Activity, CalendarClock, Gauge, Languages, Rocket, TrendingUp, Users } from "lucide-react"
+import { Activity, CalendarClock, Gauge, Languages, PhoneCall, Rocket, TrendingUp, Users } from "lucide-react"
 import { Header } from "@/components/header"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -238,8 +238,9 @@ export default async function ImpactPage() {
                 Inquiry and change log
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-                Live website submissions, language mix, and production changes in one place. Counts are
-                grouped by Toronto date and exclude client names, emails, phone numbers, and dog names.
+                Live website submissions, phone-link clicks, language mix, and production changes in one
+                place. Counts are grouped by Toronto date and exclude client names, emails, phone numbers,
+                and dog names.
               </p>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 The change log comes from the tracked production commits. Inquiry trend counts are read
@@ -281,7 +282,7 @@ export default async function ImpactPage() {
 
           {data ? (
             <>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
                   label="All Inquiries"
                   value={data.totals.allTimeInquiryCount}
@@ -313,6 +314,18 @@ export default async function ImpactPage() {
                   icon={Rocket}
                 />
                 <MetricCard
+                  label="Phone Clicks / 30d"
+                  value={data.phoneClicks.last30DaysCount}
+                  detail={`Phone-link intent clicks recorded since ${formatTorontoDateTime(data.phoneClicks.trackingStartedAtIso)}.`}
+                  icon={PhoneCall}
+                />
+                <MetricCard
+                  label="Phone Clicks / 7d"
+                  value={data.phoneClicks.last7DaysCount}
+                  detail="Site phone-link clicks, not confirmed completed calls."
+                  icon={PhoneCall}
+                />
+                <MetricCard
                   label="Experiment Tagged"
                   value={data.welcomeExperiment.taggedInquiryCount}
                   detail={`${data.welcomeExperiment.holdoutInquiryCount} holdout; ${data.welcomeExperiment.treatmentInquiryCount} treatment.`}
@@ -320,7 +333,7 @@ export default async function ImpactPage() {
                 />
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="rounded-lg py-6">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -343,6 +356,32 @@ export default async function ImpactPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Unknown / legacy</p>
                       <p className="mt-1 text-2xl font-semibold tabular-nums">{data.last30Language.unknownCount}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-lg py-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PhoneCall className="h-4 w-4 text-primary" />
+                      Phone-click language split
+                    </CardTitle>
+                    <CardDescription>
+                      Direct clicks on a site telephone link during the current measurement window.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                    <div className="border-b border-border pb-3 xl:border-b-0 xl:border-r xl:pb-0 xl:pr-4">
+                      <p className="text-sm text-muted-foreground">English</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.phoneClicks.englishCount}</p>
+                    </div>
+                    <div className="border-b border-border pb-3 xl:border-b-0 xl:border-r xl:pb-0 xl:pr-4">
+                      <p className="text-sm text-muted-foreground">French</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.phoneClicks.frenchCount}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Unknown</p>
+                      <p className="mt-1 text-2xl font-semibold tabular-nums">{data.phoneClicks.unknownCount}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -372,7 +411,7 @@ export default async function ImpactPage() {
                 </Card>
               </div>
 
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+              <div className="grid gap-6 xl:grid-cols-2">
                 <Card className="rounded-lg py-6">
                   <CardHeader>
                     <CardTitle>30-Day Inquiry Baseline</CardTitle>
@@ -387,29 +426,42 @@ export default async function ImpactPage() {
 
                 <Card className="rounded-lg py-6">
                   <CardHeader>
-                    <CardTitle>Data Scan</CardTitle>
-                    <CardDescription>Firestore documents included in this read-only aggregation.</CardDescription>
+                    <CardTitle>30-Day Phone-Click Baseline</CardTitle>
+                    <CardDescription>
+                      Daily telephone-link intent clicks. Historical PostHog clicks before tracking started are not
+                      included.
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <div className="flex items-center justify-between border-b border-border pb-3">
-                      <span className="text-muted-foreground">Client records with consultations</span>
-                      <span className="font-semibold tabular-nums">{data.scanned.clientDocsWithConsultations}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-border pb-3">
-                      <span className="text-muted-foreground">Consultation records</span>
-                      <span className="font-semibold tabular-nums">{data.scanned.consultationDocs}</span>
-                    </div>
-                    <div className="flex items-center justify-between border-b border-border pb-3">
-                      <span className="text-muted-foreground">Inquiry records</span>
-                      <span className="font-semibold tabular-nums">{data.scanned.inquiryDocs}</span>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Generated</p>
-                      <p className="mt-1 font-medium">{formatTorontoDateTime(data.generatedAtIso)}</p>
-                    </div>
+                  <CardContent>
+                    <DailyBars dailyCounts={data.phoneClicks.dailyCounts} />
                   </CardContent>
                 </Card>
               </div>
+
+              <Card className="rounded-lg py-6">
+                <CardHeader>
+                  <CardTitle>Data Scan</CardTitle>
+                  <CardDescription>Firestore documents included in this read-only aggregation.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="border-b border-border pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+                    <p className="text-muted-foreground">Clients with consultations</p>
+                    <p className="mt-1 text-xl font-semibold tabular-nums">{data.scanned.clientDocsWithConsultations}</p>
+                  </div>
+                  <div className="border-b border-border pb-3 sm:border-b-0 xl:border-r xl:pb-0 xl:pr-4">
+                    <p className="text-muted-foreground">Consultation records</p>
+                    <p className="mt-1 text-xl font-semibold tabular-nums">{data.scanned.consultationDocs}</p>
+                  </div>
+                  <div className="border-b border-border pb-3 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-4">
+                    <p className="text-muted-foreground">Inquiry records</p>
+                    <p className="mt-1 text-xl font-semibold tabular-nums">{data.scanned.inquiryDocs}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Generated</p>
+                    <p className="mt-1 font-medium">{formatTorontoDateTime(data.generatedAtIso)}</p>
+                  </div>
+                </CardContent>
+              </Card>
 
               <Card className="rounded-lg py-6">
                 <CardHeader>
@@ -464,7 +516,8 @@ export default async function ImpactPage() {
                 <CardHeader>
                   <CardTitle>Daily Vercel snapshots</CardTitle>
                   <CardDescription>
-                    Stable daily aggregates for comparing form volume before and after the welcome flow launches.
+                    Stable daily aggregates for comparing form volume and phone-link clicks before and after the
+                    welcome flow launches.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -479,6 +532,8 @@ export default async function ImpactPage() {
                           <TableHead className="text-right">Scheduled / completed</TableHead>
                           <TableHead className="text-right">EN</TableHead>
                           <TableHead className="text-right">FR</TableHead>
+                          <TableHead className="text-right">Phone clicks / 30d</TableHead>
+                          <TableHead className="text-right">Phone clicks / 7d</TableHead>
                           <TableHead className="text-right">Experiment tagged</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -494,6 +549,12 @@ export default async function ImpactPage() {
                             </TableCell>
                             <TableCell className="text-right tabular-nums">{snapshot.last30Language.englishCount}</TableCell>
                             <TableCell className="text-right tabular-nums">{snapshot.last30Language.frenchCount}</TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {snapshot.phoneClicks?.last30DaysCount ?? "-"}
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {snapshot.phoneClicks?.last7DaysCount ?? "-"}
+                            </TableCell>
                             <TableCell className="text-right tabular-nums">
                               {snapshot.welcomeExperiment.taggedInquiryCount}
                             </TableCell>

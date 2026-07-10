@@ -1,5 +1,6 @@
 import "server-only"
 
+import { CONVERSION_EVENTS_COLLECTION } from "@/lib/conversion-event-schema"
 import { CONSULTATIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { CLIENT_CONSULTATIONS_SUBCOLLECTION, listClientSubcollectionDocs } from "@/lib/client-records"
@@ -7,6 +8,7 @@ import { CLIENT_CONSULTATIONS_SUBCOLLECTION, listClientSubcollectionDocs } from 
 const TORONTO_TIME_ZONE = "America/Toronto"
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const IMPACT_SNAPSHOTS_COLLECTION = "inquiryImpactSnapshots"
+export const PHONE_CLICK_TRACKING_STARTED_AT_ISO = "2026-07-10T02:05:45.000Z"
 
 export type ImpactChangeEvent = {
   id: string
@@ -207,6 +209,11 @@ type InquiryItem = {
   docPath: string
 }
 
+type PhoneClickItem = {
+  submittedAtIso: string
+  locale: "en" | "fr" | null
+}
+
 export type RecentInquirySummary = {
   submittedAtIso: string
   issue: string
@@ -262,6 +269,15 @@ export type InquiryImpactDashboardData = {
     frenchCount: number
     unknownCount: number
   }
+  phoneClicks: {
+    trackingStartedAtIso: string
+    last7DaysCount: number
+    last30DaysCount: number
+    englishCount: number
+    frenchCount: number
+    unknownCount: number
+    dailyCounts: DailyInquiryCount[]
+  }
   recentInquiries: RecentInquirySummary[]
   dailyCounts: DailyInquiryCount[]
   last30DailyCounts: DailyInquiryCount[]
@@ -274,6 +290,7 @@ export type InquiryImpactSnapshot = {
   totals: InquiryImpactDashboardData["totals"]
   welcomeExperiment: InquiryImpactDashboardData["welcomeExperiment"]
   last30Language: InquiryImpactDashboardData["last30Language"]
+  phoneClicks?: Omit<InquiryImpactDashboardData["phoneClicks"], "dailyCounts">
 }
 
 const torontoDateFormatter = new Intl.DateTimeFormat("en-CA", {
@@ -361,7 +378,7 @@ function normalizeConsultationDoc(doc: { id: string; ref: { path: string }; data
   } satisfies InquiryItem
 }
 
-function countInRange(items: InquiryItem[], startIso: string, endIso: string) {
+function countInRange<T extends { submittedAtIso: string }>(items: T[], startIso: string, endIso: string) {
   return items.filter((item) => item.submittedAtIso >= startIso && item.submittedAtIso < endIso).length
 }
 
@@ -384,7 +401,11 @@ function topIssueInRange(items: InquiryItem[], startIso: string, endIso: string)
   return top ? `${issueDisplayName(top[0])} (${top[1]})` : null
 }
 
-function buildDailyCounts(items: InquiryItem[], startIso: string, endIso: string): DailyInquiryCount[] {
+function buildDailyCounts<T extends { submittedAtIso: string }>(
+  items: T[],
+  startIso: string,
+  endIso: string,
+): DailyInquiryCount[] {
   const byDay = new Map<string, number>()
   for (const item of items) {
     if (item.submittedAtIso < startIso || item.submittedAtIso >= endIso) continue
@@ -409,6 +430,28 @@ function buildDailyCounts(items: InquiryItem[], startIso: string, endIso: string
       cumulative += count
       return { date, count, cumulative }
     })
+}
+
+async function loadPhoneClickItems(startIso: string) {
+  const snapshot = await getAdminDb()
+    .collection(CONVERSION_EVENTS_COLLECTION)
+    .where("observedAtIso", ">=", startIso)
+    .orderBy("observedAtIso", "asc")
+    .limit(5000)
+    .get()
+
+  return snapshot.docs
+    .map((doc) => {
+      const data = doc.data()
+      if (data.event !== "phone_link_clicked") return null
+      const submittedAtIso = asValidIso(data.observedAtIso)
+      if (!submittedAtIso) return null
+      return {
+        submittedAtIso,
+        locale: normalizeLocale(data.locale),
+      } satisfies PhoneClickItem
+    })
+    .filter((item): item is PhoneClickItem => Boolean(item))
 }
 
 async function loadInquiryItems() {
@@ -451,6 +494,7 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
     IMPACT_CHANGE_EVENTS.find((event) => event.id === "questions-removed")?.deployedAtIso || earliestEventIso
   const homepageReframeIso =
     IMPACT_CHANGE_EVENTS.find((event) => event.id === "homepage-inquiry-reframe")?.deployedAtIso || earliestEventIso
+  const phoneClickItems = await loadPhoneClickItems(last30StartIso)
 
   const changeRows = IMPACT_CHANGE_EVENTS.map((event) => {
     const prior7dStartIso = addDaysIso(event.deployedAtIso, -7)
@@ -498,6 +542,15 @@ export async function loadInquiryImpactDashboardData(): Promise<InquiryImpactDas
       frenchCount: last30Items.filter((item) => item.locale === "fr").length,
       unknownCount: last30Items.filter((item) => !item.locale).length,
     },
+    phoneClicks: {
+      trackingStartedAtIso: PHONE_CLICK_TRACKING_STARTED_AT_ISO,
+      last7DaysCount: countInRange(phoneClickItems, last7StartIso, generatedAtIso),
+      last30DaysCount: countInRange(phoneClickItems, last30StartIso, generatedAtIso),
+      englishCount: phoneClickItems.filter((item) => item.locale === "en").length,
+      frenchCount: phoneClickItems.filter((item) => item.locale === "fr").length,
+      unknownCount: phoneClickItems.filter((item) => !item.locale).length,
+      dailyCounts: buildDailyCounts(phoneClickItems, last30StartIso, generatedAtIso),
+    },
     recentInquiries: [...items]
       .sort((a, b) => b.submittedAtIso.localeCompare(a.submittedAtIso))
       .slice(0, 25)
@@ -524,6 +577,14 @@ export async function createInquiryImpactSnapshot(): Promise<InquiryImpactSnapsh
     totals: data.totals,
     welcomeExperiment: data.welcomeExperiment,
     last30Language: data.last30Language,
+    phoneClicks: {
+      trackingStartedAtIso: data.phoneClicks.trackingStartedAtIso,
+      last7DaysCount: data.phoneClicks.last7DaysCount,
+      last30DaysCount: data.phoneClicks.last30DaysCount,
+      englishCount: data.phoneClicks.englishCount,
+      frenchCount: data.phoneClicks.frenchCount,
+      unknownCount: data.phoneClicks.unknownCount,
+    },
   }
 
   await getAdminDb().collection(IMPACT_SNAPSHOTS_COLLECTION).doc(snapshot.date).set(snapshot, { merge: true })
