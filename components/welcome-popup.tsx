@@ -38,6 +38,8 @@ type StoredPopupState = {
   cohort?: WelcomeExperimentCohort
 }
 
+type WelcomePopupStep = "email" | "phone" | "message"
+
 /** localStorage can throw (private mode, disabled storage) — never let that crash the page. */
 function readStoredState(): StoredPopupState | null {
   try {
@@ -100,6 +102,7 @@ function WelcomePopupInner() {
   const [open, setOpen] = useState(false)
   const [variant, setVariant] = useState<WelcomePopupVariant>("a")
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
+  const [step, setStep] = useState<WelcomePopupStep>("email")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
   const [message, setMessage] = useState("")
@@ -123,6 +126,7 @@ function WelcomePopupInner() {
       writeStoredState({ ...stored, variant: assigned })
     }
     setVariant(assigned)
+    setStep("email")
     setOpen(true)
     posthog.capture("welcome_popup_shown", { variant: assigned, locale, path: pathname })
   }, [locale, pathname])
@@ -199,9 +203,8 @@ function WelcomePopupInner() {
     [locale, variant],
   )
 
-  const handleSubmit = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
+  const submitSignup = useCallback(
+    async () => {
       const trimmedEmail = email.trim()
       if (!EMAIL_REGEX.test(trimmedEmail)) {
         setEmailInvalid(true)
@@ -242,6 +245,48 @@ function WelcomePopupInner() {
 
   const content = welcomePopupContent[locale]
   const variantCopy = content.variants[variant]
+  const steps: WelcomePopupStep[] = variant === "a" ? ["email", "phone", "message"] : ["email", "phone"]
+  const stepIndex = Math.max(0, steps.indexOf(step))
+  const isFinalStep = stepIndex === steps.length - 1
+
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+
+      if (step === "email") {
+        if (!EMAIL_REGEX.test(email.trim())) {
+          setEmailInvalid(true)
+          return
+        }
+        setEmailInvalid(false)
+        posthog.capture("welcome_popup_step_completed", { step, variant, locale })
+        setStep("phone")
+        return
+      }
+
+      if (step === "phone") {
+        const trimmedPhone = phone.trim()
+        if (trimmedPhone && !normalizeWelcomePhone(trimmedPhone)) {
+          setPhoneInvalid(true)
+          return
+        }
+        setPhoneInvalid(false)
+        posthog.capture("welcome_popup_step_completed", { step, variant, locale })
+        if (variant === "a") {
+          setStep("message")
+          return
+        }
+      }
+
+      await submitSignup()
+    },
+    [email, locale, phone, step, submitSignup, variant],
+  )
+
+  const handleBack = () => {
+    setStatus("idle")
+    setStep(step === "message" ? "phone" : "email")
+  }
 
   const handleStartConsultation = () => {
     posthog.capture("welcome_popup_consultation_clicked", { variant, locale, path: pathname })
@@ -302,55 +347,83 @@ function WelcomePopupInner() {
             <DialogDescription className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
               {variantCopy.body}
             </DialogDescription>
-            <form onSubmit={handleSubmit} noValidate className="mt-5 space-y-3">
-              <div>
-                <label htmlFor="welcome-popup-email" className="sr-only">
-                  {content.emailLabel}
-                </label>
-                <Input
-                  id="welcome-popup-email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  inputMode="email"
-                  maxLength={254}
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder={content.emailPlaceholder}
-                  aria-invalid={emailInvalid || undefined}
-                  className="h-11 rounded-xl"
-                />
-                {emailInvalid && (
-                  <p className="mt-1.5 text-xs text-destructive" role="alert">
-                    {content.emailError}
-                  </p>
-                )}
+            <div
+              className="mt-5 flex items-center justify-between gap-3"
+              aria-label={`${content.stepLabel} ${stepIndex + 1} ${content.ofLabel} ${steps.length}`}
+            >
+              <p className="shrink-0 text-xs font-medium text-muted-foreground">
+                {content.stepLabel} {stepIndex + 1} {content.ofLabel} {steps.length}
+              </p>
+              <div className="flex w-full max-w-28 gap-1.5" aria-hidden="true">
+                {steps.map((item, index) => (
+                  <span
+                    key={item}
+                    className={`h-1.5 flex-1 rounded-full ${index <= stepIndex ? "bg-primary" : "bg-muted"}`}
+                  />
+                ))}
               </div>
-              <div>
-                <label htmlFor="welcome-popup-phone" className="sr-only">
-                  {content.phoneLabel}
-                </label>
-                <Input
-                  id="welcome-popup-phone"
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  inputMode="tel"
-                  maxLength={40}
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  placeholder={content.phonePlaceholder}
-                  aria-invalid={phoneInvalid || undefined}
-                  className="h-11 rounded-xl"
-                />
-                {phoneInvalid && (
-                  <p className="mt-1.5 text-xs text-destructive" role="alert">
-                    {content.phoneError}
-                  </p>
-                )}
-              </div>
-              {variant === "a" && (
+            </div>
+            <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-3">
+              {step === "email" && (
+                <div>
+                  <label htmlFor="welcome-popup-email" className="sr-only">
+                    {content.emailLabel}
+                  </label>
+                  <Input
+                    id="welcome-popup-email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    inputMode="email"
+                    maxLength={254}
+                    value={email}
+                    onChange={(event) => {
+                      setEmail(event.target.value)
+                      if (emailInvalid) setEmailInvalid(false)
+                    }}
+                    placeholder={content.emailPlaceholder}
+                    aria-invalid={emailInvalid || undefined}
+                    autoFocus
+                    className="h-11 rounded-xl"
+                  />
+                  {emailInvalid && (
+                    <p className="mt-1.5 text-xs text-destructive" role="alert">
+                      {content.emailError}
+                    </p>
+                  )}
+                </div>
+              )}
+              {step === "phone" && (
+                <div>
+                  <label htmlFor="welcome-popup-phone" className="sr-only">
+                    {content.phoneLabel}
+                  </label>
+                  <Input
+                    id="welcome-popup-phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    maxLength={40}
+                    value={phone}
+                    onChange={(event) => {
+                      setPhone(event.target.value)
+                      if (phoneInvalid) setPhoneInvalid(false)
+                    }}
+                    placeholder={content.phonePlaceholder}
+                    aria-invalid={phoneInvalid || undefined}
+                    autoFocus
+                    className="h-11 rounded-xl"
+                  />
+                  {phoneInvalid && (
+                    <p className="mt-1.5 text-xs text-destructive" role="alert">
+                      {content.phoneError}
+                    </p>
+                  )}
+                </div>
+              )}
+              {step === "message" && variant === "a" && (
                 <div>
                   <label htmlFor="welcome-popup-message" className="sr-only">
                     {variantCopy.messageLabel}
@@ -363,6 +436,7 @@ function WelcomePopupInner() {
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     placeholder={variantCopy.messagePlaceholder}
+                    autoFocus
                     className="h-11 rounded-xl"
                   />
                 </div>
@@ -372,14 +446,33 @@ function WelcomePopupInner() {
                   {content.error}
                 </p>
               )}
-              <Button
-                type="submit"
-                disabled={status === "submitting"}
-                className="h-11 w-full rounded-full text-base font-semibold shadow-sm"
-              >
-                {status === "submitting" ? content.submitting : variantCopy.cta}
-              </Button>
-              <p className="text-center text-xs leading-relaxed text-muted-foreground">{content.microcopy}</p>
+              <div className="flex gap-2.5">
+                {step !== "email" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={status === "submitting"}
+                    className="h-11 rounded-full px-5 text-sm font-semibold"
+                  >
+                    {content.backCta}
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  disabled={status === "submitting"}
+                  className="h-11 flex-1 rounded-full text-base font-semibold shadow-sm"
+                >
+                  {status === "submitting"
+                    ? content.submitting
+                    : isFinalStep
+                      ? variantCopy.cta
+                      : content.continueCta}
+                </Button>
+              </div>
+              {isFinalStep && (
+                <p className="text-center text-xs leading-relaxed text-muted-foreground">{content.microcopy}</p>
+              )}
             </form>
           </>
         )}
