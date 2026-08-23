@@ -307,11 +307,11 @@ function WelcomePopupInner() {
           <>
             <div className="relative -mx-6 -mt-6 mb-5 h-36 overflow-hidden sm:-mx-8 sm:-mt-8 sm:h-40">
               <Image
-                src="/images/Classes images/private.webp"
+                src="/images/Classes images/puppy.webp"
                 alt={content.photoAlt}
                 fill
                 sizes="(max-width: 640px) calc(100vw - 2rem), 448px"
-                className="object-cover object-[center_42%]"
+                className="object-cover object-[center_58%]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
               <p className="absolute bottom-3 left-5 text-sm font-semibold text-white drop-shadow-sm sm:left-6">
