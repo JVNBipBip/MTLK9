@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Calendar, CheckCircle2, Phone } from "lucide-react"
 import posthog from "posthog-js"
@@ -19,14 +20,6 @@ import {
   welcomePopupContent,
   type WelcomePopupVariant,
 } from "@/lib/welcome-popup-content"
-import {
-  WELCOME_EXPERIMENT_COOKIE_NAME,
-  WELCOME_EXPERIMENT_MAX_AGE_SECONDS,
-  assignWelcomeExperiment,
-  parseWelcomeExperimentCookieHeader,
-  serializeWelcomeExperiment,
-  type WelcomeExperimentCohort,
-} from "@/lib/welcome-experiment"
 import { normalizeWelcomePhone } from "@/lib/welcome-signup"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -35,10 +28,12 @@ type StoredPopupState = {
   state?: "dismissed" | "subscribed"
   at?: string
   variant?: WelcomePopupVariant
-  cohort?: WelcomeExperimentCohort
 }
 
-type WelcomePopupStep = "email" | "phone" | "message"
+type WelcomePopupStep = "email" | "phone"
+
+const WELCOME_POPUP_VARIANT: WelcomePopupVariant = "b"
+const WELCOME_POPUP_STEPS: WelcomePopupStep[] = ["email", "phone"]
 
 /** localStorage can throw (private mode, disabled storage) — never let that crash the page. */
 function readStoredState(): StoredPopupState | null {
@@ -71,24 +66,6 @@ function isSuppressed(stored: StoredPopupState | null): boolean {
   return false
 }
 
-function storedVariant(stored: StoredPopupState | null): WelcomePopupVariant | null {
-  return stored?.variant === "a" || stored?.variant === "b" ? stored.variant : null
-}
-
-function storedCohort(stored: StoredPopupState | null): WelcomeExperimentCohort | null {
-  return stored?.cohort === "holdout" || stored?.cohort === "treatment" ? stored.cohort : null
-}
-
-function writeExperimentCookie(cohort: WelcomeExperimentCohort, variant: WelcomePopupVariant | null) {
-  try {
-    const value = serializeWelcomeExperiment({ cohort, variant })
-    const secure = window.location.protocol === "https:" ? "; Secure" : ""
-    document.cookie = `${WELCOME_EXPERIMENT_COOKIE_NAME}=${encodeURIComponent(value)}; Path=/; Max-Age=${WELCOME_EXPERIMENT_MAX_AGE_SECONDS}; SameSite=Lax${secure}`
-  } catch {
-    // The PostHog super properties still preserve the experiment assignment.
-  }
-}
-
 /** Feature-flag gate — the whole popup ships dark unless NEXT_PUBLIC_WELCOME_POPUP="1". */
 export function WelcomePopup() {
   if (process.env.NEXT_PUBLIC_WELCOME_POPUP !== "1") return null
@@ -100,12 +77,10 @@ function WelcomePopupInner() {
   const locale = useAppLocale()
   const pathname = usePathname() || "/"
   const [open, setOpen] = useState(false)
-  const [variant, setVariant] = useState<WelcomePopupVariant>("a")
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
   const [step, setStep] = useState<WelcomePopupStep>("email")
   const [email, setEmail] = useState("")
   const [phone, setPhone] = useState("")
-  const [message, setMessage] = useState("")
   const [emailInvalid, setEmailInvalid] = useState(false)
   const [phoneInvalid, setPhoneInvalid] = useState(false)
   const hasShownRef = useRef(false)
@@ -119,16 +94,10 @@ function WelcomePopupInner() {
     if (hasShownRef.current) return
     hasShownRef.current = true
     const stored = readStoredState()
-    // Sticky 50/50 assignment: reuse a previously assigned variant so the
-    // visitor always sees the same copy.
-    const assigned = storedVariant(stored) ?? (Math.random() < 0.5 ? "a" : "b")
-    if (storedVariant(stored) !== assigned) {
-      writeStoredState({ ...stored, variant: assigned })
-    }
-    setVariant(assigned)
+    writeStoredState({ ...stored, variant: WELCOME_POPUP_VARIANT })
     setStep("email")
     setOpen(true)
-    posthog.capture("welcome_popup_shown", { variant: assigned, locale, path: pathname })
+    posthog.capture("welcome_popup_shown", { variant: WELCOME_POPUP_VARIANT, locale, path: pathname })
   }, [locale, pathname])
 
   // Trigger: scroll depth >= 40% of document height OR 10s on page, whichever
@@ -137,34 +106,10 @@ function WelcomePopupInner() {
     if (hasShownRef.current || blockedPath) return
     const stored = readStoredState()
     if (isSuppressed(stored)) return
-
-    const cookieAssignment = parseWelcomeExperimentCookieHeader(document.cookie)
-    const previousCohort = storedCohort(stored) || cookieAssignment?.cohort || null
-    const previousVariant = storedVariant(stored) || cookieAssignment?.variant || null
-    const freshAssignment = assignWelcomeExperiment(Math.random(), Math.random())
-    const cohort = previousCohort || freshAssignment.cohort
-    const assignedVariant = cohort === "treatment" ? previousVariant || freshAssignment.variant || "a" : null
-
-    if (previousCohort !== cohort || previousVariant !== assignedVariant) {
-      writeStoredState({ ...stored, cohort, variant: assignedVariant || undefined })
-    }
-    writeExperimentCookie(cohort, assignedVariant)
     posthog.register({
-      welcome_flow_cohort: cohort,
-      welcome_flow_variant: assignedVariant || "none",
+      welcome_flow_cohort: "treatment",
+      welcome_flow_variant: WELCOME_POPUP_VARIANT,
     })
-
-    if (!previousCohort) {
-      posthog.capture("welcome_flow_cohort_assigned", {
-        cohort,
-        variant: assignedVariant || "none",
-        locale,
-        path: pathname,
-      })
-    }
-
-    if (cohort === "holdout") return
-    setVariant(assignedVariant || "a")
 
     let fired = false
     const cleanup = () => {
@@ -186,7 +131,7 @@ function WelcomePopupInner() {
     const timer = window.setTimeout(trigger, WELCOME_POPUP_TIME_TRIGGER_MS)
     window.addEventListener("scroll", onScroll, { passive: true })
     return cleanup
-  }, [blockedPath, locale, openPopup, pathname])
+  }, [blockedPath, openPopup])
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -197,10 +142,15 @@ function WelcomePopupInner() {
       if (statusRef.current === "success") return
       const stored = readStoredState()
       if (stored?.state === "subscribed") return
-      writeStoredState({ ...stored, state: "dismissed", at: new Date().toISOString(), variant })
-      posthog.capture("welcome_popup_dismissed", { variant, locale })
+      writeStoredState({
+        ...stored,
+        state: "dismissed",
+        at: new Date().toISOString(),
+        variant: WELCOME_POPUP_VARIANT,
+      })
+      posthog.capture("welcome_popup_dismissed", { variant: WELCOME_POPUP_VARIANT, locale })
     },
-    [locale, variant],
+    [locale],
   )
 
   const submitSignup = useCallback(
@@ -226,28 +176,30 @@ function WelcomePopupInner() {
           body: JSON.stringify({
             email: trimmedEmail,
             phone: normalizedPhone || undefined,
-            message: variant === "a" && message.trim() ? message.trim() : undefined,
-            variant,
+            variant: WELCOME_POPUP_VARIANT,
             locale,
             path: pathname,
           }),
         })
         if (!res.ok) throw new Error(`welcome-signup failed (${res.status})`)
-        writeStoredState({ ...readStoredState(), state: "subscribed", variant })
-        posthog.capture("welcome_popup_submitted", { variant, locale })
+        writeStoredState({
+          ...readStoredState(),
+          state: "subscribed",
+          variant: WELCOME_POPUP_VARIANT,
+        })
+        posthog.capture("welcome_popup_submitted", { variant: WELCOME_POPUP_VARIANT, locale })
         setStatus("success")
       } catch {
         setStatus("error")
       }
     },
-    [email, locale, message, pathname, phone, variant],
+    [email, locale, pathname, phone],
   )
 
   const content = welcomePopupContent[locale]
-  const variantCopy = content.variants[variant]
-  const steps: WelcomePopupStep[] = variant === "a" ? ["email", "phone", "message"] : ["email", "phone"]
-  const stepIndex = Math.max(0, steps.indexOf(step))
-  const isFinalStep = stepIndex === steps.length - 1
+  const variantCopy = content.variants[WELCOME_POPUP_VARIANT]
+  const stepIndex = Math.max(0, WELCOME_POPUP_STEPS.indexOf(step))
+  const isFinalStep = stepIndex === WELCOME_POPUP_STEPS.length - 1
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -259,7 +211,11 @@ function WelcomePopupInner() {
           return
         }
         setEmailInvalid(false)
-        posthog.capture("welcome_popup_step_completed", { step, variant, locale })
+        posthog.capture("welcome_popup_step_completed", {
+          step,
+          variant: WELCOME_POPUP_VARIANT,
+          locale,
+        })
         setStep("phone")
         return
       }
@@ -271,36 +227,44 @@ function WelcomePopupInner() {
           return
         }
         setPhoneInvalid(false)
-        posthog.capture("welcome_popup_step_completed", { step, variant, locale })
-        if (variant === "a") {
-          setStep("message")
-          return
-        }
+        posthog.capture("welcome_popup_step_completed", {
+          step,
+          variant: WELCOME_POPUP_VARIANT,
+          locale,
+        })
       }
 
       await submitSignup()
     },
-    [email, locale, phone, step, submitSignup, variant],
+    [email, locale, phone, step, submitSignup],
   )
 
   const handleBack = () => {
     setStatus("idle")
-    setStep(step === "message" ? "phone" : "email")
+    setStep("email")
   }
 
   const handleStartConsultation = () => {
-    posthog.capture("welcome_popup_consultation_clicked", { variant, locale, path: pathname })
+    posthog.capture("welcome_popup_consultation_clicked", {
+      variant: WELCOME_POPUP_VARIANT,
+      locale,
+      path: pathname,
+    })
     setOpen(false)
     openBookingForm({ source: "welcome_popup" })
   }
 
   const handleCallNick = () => {
-    posthog.capture("welcome_popup_call_clicked", { variant, locale, path: pathname })
+    posthog.capture("welcome_popup_call_clicked", {
+      variant: WELCOME_POPUP_VARIANT,
+      locale,
+      path: pathname,
+    })
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md gap-0 rounded-3xl border-border/60 p-6 shadow-2xl sm:p-8">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-md gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-2xl sm:p-8">
         {status === "success" ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -341,6 +305,19 @@ function WelcomePopupInner() {
           </div>
         ) : (
           <>
+            <div className="relative -mx-6 -mt-6 mb-5 h-36 overflow-hidden sm:-mx-8 sm:-mt-8 sm:h-40">
+              <Image
+                src="/images/Classes images/private.webp"
+                alt={content.photoAlt}
+                fill
+                sizes="(max-width: 640px) calc(100vw - 2rem), 448px"
+                className="object-cover object-[center_42%]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+              <p className="absolute bottom-3 left-5 text-sm font-semibold text-white drop-shadow-sm sm:left-6">
+                {content.photoBadge}
+              </p>
+            </div>
             <DialogTitle className="text-balance pr-6 font-display text-2xl font-semibold leading-snug tracking-tight text-foreground">
               {variantCopy.headline}
             </DialogTitle>
@@ -349,13 +326,13 @@ function WelcomePopupInner() {
             </DialogDescription>
             <div
               className="mt-5 flex items-center justify-between gap-3"
-              aria-label={`${content.stepLabel} ${stepIndex + 1} ${content.ofLabel} ${steps.length}`}
+              aria-label={`${content.stepLabel} ${stepIndex + 1} ${content.ofLabel} ${WELCOME_POPUP_STEPS.length}`}
             >
               <p className="shrink-0 text-xs font-medium text-muted-foreground">
-                {content.stepLabel} {stepIndex + 1} {content.ofLabel} {steps.length}
+                {content.stepLabel} {stepIndex + 1} {content.ofLabel} {WELCOME_POPUP_STEPS.length}
               </p>
               <div className="flex w-full max-w-28 gap-1.5" aria-hidden="true">
-                {steps.map((item, index) => (
+                {WELCOME_POPUP_STEPS.map((item, index) => (
                   <span
                     key={item}
                     className={`h-1.5 flex-1 rounded-full ${index <= stepIndex ? "bg-primary" : "bg-muted"}`}
@@ -421,24 +398,6 @@ function WelcomePopupInner() {
                       {content.phoneError}
                     </p>
                   )}
-                </div>
-              )}
-              {step === "message" && variant === "a" && (
-                <div>
-                  <label htmlFor="welcome-popup-message" className="sr-only">
-                    {variantCopy.messageLabel}
-                  </label>
-                  <Input
-                    id="welcome-popup-message"
-                    name="message"
-                    type="text"
-                    maxLength={280}
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    placeholder={variantCopy.messagePlaceholder}
-                    autoFocus
-                    className="h-11 rounded-xl"
-                  />
                 </div>
               )}
               {status === "error" && (

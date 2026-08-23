@@ -46,6 +46,8 @@ export type WelcomePopupCopy = {
   ofLabel: string
   continueCta: string
   backCta: string
+  photoAlt: string
+  photoBadge: string
   microcopy: string
   submitting: string
   successHeadline: string
@@ -67,9 +69,9 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
         messagePlaceholder: "Pulling, barking, anxiety…",
       },
       b: {
-        headline: "Trainer advice that actually works",
-        body: "Get our best tips for life with a dog in Montreal — from the team behind 130+ five-star reviews.",
-        cta: "Send me the tips",
+        headline: "Get practical advice for your dog",
+        body: "Join Montreal dog owners receiving useful guidance from our real training team.",
+        cta: "Send me the advice",
       },
     },
     emailLabel: "Email address",
@@ -82,6 +84,8 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     ofLabel: "of",
     continueCta: "Continue",
     backCta: "Back",
+    photoAlt: "A Montreal Canine Training trainer working with a dog outdoors",
+    photoBadge: "Real trainers. Real dogs. Practical results.",
     microcopy: "By signing up, you agree to receive helpful emails from Montreal Canine Training. Unsubscribe anytime.",
     submitting: "Sending…",
     successHeadline: "You're in. What would help most right now?",
@@ -101,8 +105,8 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
         messagePlaceholder: "Tire en laisse, jappements, anxiété…",
       },
       b: {
-        headline: "Des conseils d'entraîneurs qui fonctionnent vraiment",
-        body: "Recevez nos meilleurs conseils pour la vie avec un chien à Montréal — de l'équipe derrière plus de 130 avis cinq étoiles.",
+        headline: "Des conseils pratiques pour votre chien",
+        body: "Joignez-vous aux propriétaires montréalais qui reçoivent des conseils utiles de notre véritable équipe d'entraîneurs.",
         cta: "Envoyez-moi les conseils",
       },
     },
@@ -116,6 +120,8 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     ofLabel: "sur",
     continueCta: "Continuer",
     backCta: "Retour",
+    photoAlt: "Une entraîneuse d'Entraînement Canin Montréal travaillant avec un chien à l'extérieur",
+    photoBadge: "De vrais entraîneurs. De vrais chiens. Des résultats concrets.",
     microcopy: "En vous inscrivant, vous acceptez de recevoir des courriels utiles d'Entraînement Canin Montréal. Désabonnez-vous en tout temps.",
     submitting: "Envoi en cours…",
     successHeadline: "C'est fait. De quoi avez-vous le plus besoin maintenant ?",
