@@ -81,6 +81,8 @@ export function TransformationsSection() {
                       className="aspect-[16/10]"
                       sizes="(min-width: 1024px) 30vw, 92vw"
                       fitStrategy="contain"
+                      playbackMode="portrait-modal"
+                      closeLabel={locale === "fr" ? "Fermer la vidéo" : "Close video"}
                     />
                   ) : (
                     <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
