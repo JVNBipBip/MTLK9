@@ -17,8 +17,8 @@ jest.mock("@/components/scroll-animated-text", () => ({
     require("react").createElement("h2", { className }, text),
 }))
 jest.mock("@/components/wistia-click-to-play", () => ({
-  WistiaClickToPlay: ({ className, fitStrategy, playbackMode }: { className?: string; fitStrategy?: string; playbackMode?: string }) =>
-    require("react").createElement("div", { "data-video-preview": true, "data-fit": fitStrategy, "data-mode": playbackMode, className }),
+  WistiaClickToPlay: ({ className, fitStrategy }: { className?: string; fitStrategy?: string }) =>
+    require("react").createElement("div", { "data-video-preview": true, "data-fit": fitStrategy, className }),
 }))
 
 describe("homepage transformation stories", () => {
@@ -40,8 +40,8 @@ describe("homepage transformation stories", () => {
     expect(html).toContain("line-clamp-2")
     expect(html).toContain("line-clamp-3")
     expect(html).toContain('data-fit="contain"')
-    expect(html).toContain('data-mode="portrait-modal"')
-    expect(html).toContain("aspect-[16/10]")
+    expect(html).toContain("aspect-[9/16]")
+    expect(html).not.toContain('data-mode="portrait-modal"')
     expect(html).toContain("I had no control over Sasha.")
     expect(html).toContain("I can finally enjoy being around other dogs.")
     expect(html).not.toContain("She was so reactive")

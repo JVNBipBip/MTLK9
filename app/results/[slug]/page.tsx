@@ -87,10 +87,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
             {story.wistiaId ? (
               <WistiaClickToPlay
                 wistiaId={story.wistiaId}
-                posterSrc={story.posterSrc}
                 title={story.mediaAlt}
-                playLabel={locale === "fr" ? "Lire la vidéo" : "Play video"}
-                sizes="(min-width: 640px) 384px, 92vw"
               />
             ) : story.mediaSrc ? (
               <img src={story.mediaSrc} alt={story.mediaAlt} className="h-full w-full object-cover" />

@@ -69,10 +69,7 @@ export default function ResultsPage() {
                     {study.wistiaId && (
                       <WistiaClickToPlay
                         wistiaId={study.wistiaId}
-                        posterSrc={study.posterSrc}
                         title={study.mediaAlt}
-                        playLabel={locale === "fr" ? "Lire la vidéo" : "Play video"}
-                        sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 92vw"
                       />
                     )}
 

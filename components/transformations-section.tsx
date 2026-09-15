@@ -75,14 +75,9 @@ export function TransformationsSection() {
                   {story.wistiaId ? (
                     <WistiaClickToPlay
                       wistiaId={story.wistiaId}
-                      posterSrc={story.posterSrc}
                       title={story.mediaAlt}
-                      playLabel={locale === "fr" ? "Lire la vidéo" : "Play video"}
-                      className="aspect-[16/10]"
-                      sizes="(min-width: 1024px) 30vw, 92vw"
+                      className="aspect-[9/16]"
                       fitStrategy="contain"
-                      playbackMode="portrait-modal"
-                      closeLabel={locale === "fr" ? "Fermer la vidéo" : "Close video"}
                     />
                   ) : (
                     <div className="relative aspect-[16/10] bg-muted flex items-center justify-center overflow-hidden">
