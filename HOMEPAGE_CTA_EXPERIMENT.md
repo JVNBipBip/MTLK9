@@ -12,6 +12,8 @@ phone number and inquiry flow. The underline styling was updated on September 15
 for both allocations; only the CTA copy differs between A and B. Hero copy is
 visible immediately rather than waiting for video readiness or staggered text
 animations. These shared presentation updates are not separate test variants.
+The transformation-story cards and their mobile navigation are also shared by
+both allocations; they are not part of the CTA comparison.
 The popup is not part of this experiment and still uses one version.
 
 ## PostHog reporting

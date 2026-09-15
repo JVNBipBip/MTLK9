@@ -11,6 +11,7 @@ type WistiaClickToPlayProps = {
   className?: string
   sizes?: string
   playLabel?: string
+  fitStrategy?: "cover" | "contain"
 }
 
 export function WistiaClickToPlay({
@@ -20,6 +21,7 @@ export function WistiaClickToPlay({
   className = "aspect-[9/16]",
   sizes = "(min-width: 1024px) 360px, 86vw",
   playLabel = "Play video",
+  fitStrategy = "cover",
 }: WistiaClickToPlayProps) {
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -27,7 +29,7 @@ export function WistiaClickToPlay({
     <div className={`relative overflow-hidden bg-muted ${className}`}>
       {isPlaying ? (
         <iframe
-          src={`https://fast.wistia.net/embed/iframe/${wistiaId}?videoFoam=true&fitStrategy=cover&autoPlay=true`}
+          src={`https://fast.wistia.net/embed/iframe/${wistiaId}?videoFoam=true&fitStrategy=${fitStrategy}&autoPlay=true`}
           title={title}
           allow="autoplay; fullscreen"
           allowFullScreen
