@@ -6,7 +6,9 @@ Only the primary homepage button copy changes:
 - A: Send an Inquiry / Envoyer une demande
 - B: Get a training plan / Obtenir un plan d’entraînement
 
-Both versions retain the same underlined headline, layout, phone number and inquiry flow.
+Both versions retain the same headline with its green hand-drawn underline, layout,
+phone number and inquiry flow. The underline styling was updated on September 15
+for both allocations; only the CTA copy differs between A and B.
 The popup is not part of this experiment and still uses one version.
 
 ## PostHog reporting

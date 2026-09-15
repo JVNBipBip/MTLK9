@@ -170,8 +170,22 @@ export function HeroSection() {
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
             <AnimatedText text={t("Montreal dog training.")} delay={0.3} />
             <br />
-            <span className="text-background [&>span]:underline [&>span]:decoration-2 [&>span]:decoration-white/80 [&>span]:underline-offset-8 md:[&>span]:decoration-3">
+            <span className="relative inline-block pb-[0.2em] text-background">
               <AnimatedText text={t("Get your life back.")} delay={0.8} />
+              <svg
+                data-hero-benefit-scribble
+                aria-hidden="true"
+                focusable="false"
+                viewBox="0 0 500 28"
+                preserveAspectRatio="none"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-[0.3em] w-full overflow-visible text-accent"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+              >
+                <path d="M7 16C105 5 225 4 328 9C389 12 445 15 493 8" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
+                <path d="M31 23C160 12 333 11 464 17" strokeWidth="2" vectorEffect="non-scaling-stroke" opacity="0.8" />
+              </svg>
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">

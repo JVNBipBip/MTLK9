@@ -81,9 +81,15 @@ describe("homepage hero readability", () => {
     expect(heading).toContain("Montreal dog training.")
     expect(heading).toContain("Get your life back.")
     expect(heading).not.toContain("gives you your")
-    expect(heading).not.toContain("text-accent")
+    expect(heading).toContain('class="relative inline-block pb-[0.2em] text-background"')
     expect(html).toContain("from-black/85 via-black/65")
-    expect(heading).toContain("[&amp;&gt;span]:underline")
+    expect(heading).not.toContain("]:underline")
+    const scribble = heading?.match(/<svg[\s\S]*?<\/svg>/)?.[0]
+    expect(scribble).toContain("data-hero-benefit-scribble")
+    expect(scribble).toContain('aria-hidden="true"')
+    expect(scribble).toContain("text-accent")
+    expect(scribble).toContain('stroke="currentColor"')
+    expect(scribble?.match(/<path /g)).toHaveLength(2)
   })
 
   it("translates the new benefit into French", () => {
