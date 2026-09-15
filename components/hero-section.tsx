@@ -5,7 +5,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
-import { AnimatedText } from "@/components/animated-text"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useHeroCtaExperiment } from "@/components/use-hero-cta-experiment"
@@ -40,21 +39,6 @@ export function HeroSection() {
     mediaQuery.addEventListener("change", update)
     return () => mediaQuery.removeEventListener("change", update)
   }, [])
-
-  useEffect(() => {
-    if (!isVideoReady) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("animate-fade-up")
-        })
-      },
-      { threshold: 0.1 },
-    )
-    const elements = sectionRef.current?.querySelectorAll(".reveal")
-    elements?.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
-  }, [isVideoReady])
 
   useEffect(() => {
     if (!videoVariant) return
@@ -154,7 +138,7 @@ export function HeroSection() {
       <div className="relative max-w-7xl mx-auto px-5 md:px-6 lg:px-8 pb-12 pt-16 md:py-20 lg:py-32 w-full">
         <div className="max-w-2xl">
           <p
-            className="reveal opacity-0 text-sm md:text-base text-background/95 font-semibold mb-2"
+            className="text-sm md:text-base text-background/95 font-semibold mb-2"
             aria-label={t("5.0 ★★★★★ · 130+ Google reviews")}
           >
             <span>{t("5.0")}</span>
@@ -164,34 +148,36 @@ export function HeroSection() {
             </span>
             <span>{t(" · 130+ Google reviews")}</span>
           </p>
-          <p className="reveal opacity-0 text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
+          <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
             {t("Montreal #1 Dog School")}
           </p>
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
-            <AnimatedText text={t("Montreal dog training.")} delay={0.3} />
+            <span className="inline-block">{t("Montreal dog training.")}</span>
             <br />
-            <span className="relative inline-block pb-[0.2em] text-background">
-              <AnimatedText text={t("Get your life back.")} delay={0.8} />
-              <svg
-                data-hero-benefit-scribble
-                aria-hidden="true"
-                focusable="false"
-                viewBox="0 0 500 28"
-                preserveAspectRatio="none"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-[0.3em] w-full overflow-visible text-accent"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-              >
-                <path d="M7 16C105 5 225 4 328 9C389 12 445 15 493 8" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
-                <path d="M31 23C160 12 333 11 464 17" strokeWidth="2" vectorEffect="non-scaling-stroke" opacity="0.8" />
-              </svg>
+            <span data-hero-benefit className="inline-block text-background">
+              {t("Get your")}{" "}
+              <span className="relative inline-block whitespace-nowrap pb-[0.12em]">
+                {t("life back.")}
+                <svg
+                  data-hero-benefit-scribble
+                  aria-hidden="true"
+                  focusable="false"
+                  viewBox="0 0 300 20"
+                  preserveAspectRatio="none"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-[0.18em] w-full overflow-visible text-accent/90"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                >
+                  <path d="M5 14C81 5 198 5 295 11" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+                </svg>
+              </span>
             </span>
           </h1>
-          <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
+          <p className="text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
             {t("Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.")}
           </p>
-          <div ref={ctaRef} data-hero-cta-variant={ctaVariant || "pending"} className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
+          <div ref={ctaRef} data-hero-cta-variant={ctaVariant || "pending"} className="flex flex-col sm:flex-row gap-3 md:gap-4">
             <FreeCallLink className="w-full sm:w-auto" onClick={trackCtaClick}>
               <Button
                 size="lg"

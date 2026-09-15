@@ -6,9 +6,12 @@ Only the primary homepage button copy changes:
 - A: Send an Inquiry / Envoyer une demande
 - B: Get a training plan / Obtenir un plan d’entraînement
 
-Both versions retain the same headline with its green hand-drawn underline, layout,
+Both versions retain the same headline with its subtle green stroke under the
+life-back benefit, layout,
 phone number and inquiry flow. The underline styling was updated on September 15
-for both allocations; only the CTA copy differs between A and B.
+for both allocations; only the CTA copy differs between A and B. Hero copy is
+visible immediately rather than waiting for video readiness or staggered text
+animations. These shared presentation updates are not separate test variants.
 The popup is not part of this experiment and still uses one version.
 
 ## PostHog reporting

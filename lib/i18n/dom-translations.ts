@@ -56,6 +56,8 @@ export const frenchTextTranslations: Record<string, string> = {
     "Envoyez-nous une demande rapide décrivant la situation. Nous confirmerons que votre chien est un bon candidat pour une évaluation et vous dirigerons vers le bon programme — gratuit, sans engagement.",
   "that gives you your life back": "qui vous redonne votre quotidien",
   "Get your life back.": "Retrouvez votre liberté.",
+  "Get your": "Retrouvez",
+  "life back.": "votre liberté.",
   "Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.":
     "Un entraînement concret pour la traction en laisse, la réactivité, le comportement et les bonnes manières du quotidien, conçu pour produire des résultats efficaces et durables.",
   "Sound Familiar?": "Ça vous semble familier?",

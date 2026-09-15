@@ -16,9 +16,6 @@ jest.mock("@/components/booking-form-provider", () => ({
   useBookingForm: () => ({ openBookingForm: jest.fn() }),
   FreeCallLink: ({ children }: { children: unknown }) => children,
 }))
-jest.mock("@/components/animated-text", () => ({
-  AnimatedText: ({ text }: { text: string }) => require("react").createElement("span", null, text),
-}))
 jest.mock("@/components/use-hero-cta-experiment", () => ({
   useHeroCtaExperiment: jest.fn(() => ({ variant: "a", ctaRef: { current: null }, trackCtaClick: jest.fn() })),
 }))
@@ -79,9 +76,10 @@ describe("homepage hero readability", () => {
     const html = renderToStaticMarkup(<HeroSection />)
     const heading = html.match(/<h1[\s\S]*?<\/h1>/)?.[0]
     expect(heading).toContain("Montreal dog training.")
-    expect(heading).toContain("Get your life back.")
+    expect(heading?.replace(/<[^>]*>/g, "")).toContain("Get your life back.")
     expect(heading).not.toContain("gives you your")
-    expect(heading).toContain('class="relative inline-block pb-[0.2em] text-background"')
+    expect(heading).toContain('class="inline-block text-background"')
+    expect(heading).toContain("relative inline-block whitespace-nowrap pb-[0.12em]")
     expect(html).toContain("from-black/85 via-black/65")
     expect(heading).not.toContain("]:underline")
     const scribble = heading?.match(/<svg[\s\S]*?<\/svg>/)?.[0]
@@ -89,12 +87,14 @@ describe("homepage hero readability", () => {
     expect(scribble).toContain('aria-hidden="true"')
     expect(scribble).toContain("text-accent")
     expect(scribble).toContain('stroke="currentColor"')
-    expect(scribble?.match(/<path /g)).toHaveLength(2)
+    expect(scribble?.match(/<path /g)).toHaveLength(1)
   })
 
   it("translates the new benefit into French", () => {
     jest.mocked(useAppLocale).mockReturnValue("fr")
-    expect(renderToStaticMarkup(<HeroSection />)).toContain("Retrouvez votre liberté.")
+    const html = renderToStaticMarkup(<HeroSection />)
+    expect(html.replace(/<[^>]*>/g, "")).toContain("Retrouvez votre liberté.")
+    expect(html).toContain("votre liberté.<svg")
   })
 
   it("renders the challenger CTA in English and French without changing the headline", () => {
@@ -103,8 +103,19 @@ describe("homepage hero readability", () => {
     const html = renderToStaticMarkup(<HeroSection />)
     expect(html).toContain('data-hero-cta-variant="b"')
     expect(html).toContain("Get a training plan")
-    expect(html).toContain("Get your life back.")
+    expect(html.replace(/<[^>]*>/g, "")).toContain("Get your life back.")
     jest.mocked(useAppLocale).mockReturnValue("fr")
     expect(renderToStaticMarkup(<HeroSection />)).toContain("Obtenir un plan d’entraînement")
+  })
+
+  it("renders hero copy and its accent together without waiting for video or delayed animations", () => {
+    jest.mocked(useAppLocale).mockReturnValue("en")
+    const html = renderToStaticMarkup(<HeroSection />)
+    const benefit = html.match(/<span data-hero-benefit[\s\S]*?<\/svg><\/span><\/span>/)?.[0]
+    expect(benefit?.replace(/<[^>]*>/g, "")).toBe("Get your life back.")
+    expect(benefit).toContain("data-hero-benefit-scribble")
+    expect(html).not.toContain("opacity-0")
+    expect(html).not.toContain("animation-delay")
+    expect(html).not.toContain("will-change-transform")
   })
 })
