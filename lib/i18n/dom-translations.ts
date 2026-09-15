@@ -49,10 +49,12 @@ export const frenchTextTranslations: Record<string, string> = {
   "All rights reserved.": "Tous droits réservés.",
   "Montreal #1 Dog School": "École canine no 1 à Montréal",
   "Montreal dog training": "Un dressage de chiens à Montréal",
+  "Montreal dog training.": "Entraînement canin à Montréal.",
   "See If Your Dog Qualifies": "Vérifiez si votre chien est admissible",
   "Send a quick inquiry about what's going on. We'll confirm your dog is a fit for an evaluation and point you to the right program — free, no commitment.":
     "Envoyez-nous une demande rapide décrivant la situation. Nous confirmerons que votre chien est un bon candidat pour une évaluation et vous dirigerons vers le bon programme — gratuit, sans engagement.",
   "that gives you your life back": "qui vous redonne votre quotidien",
+  "Get your life back.": "Retrouvez votre liberté.",
   "Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.":
     "Un entraînement concret pour la traction en laisse, la réactivité, le comportement et les bonnes manières du quotidien, conçu pour produire des résultats efficaces et durables.",
   "Sound Familiar?": "Ça vous semble familier?",

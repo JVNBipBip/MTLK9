@@ -135,7 +135,7 @@ export function HeroSection() {
           </video>
         )}
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/50 to-foreground/20 md:bg-gradient-to-r md:from-foreground/70 md:via-foreground/50 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/65 to-black/25 md:bg-gradient-to-r md:from-black/80 md:via-black/65 md:to-black/25" />
         {/* Loading overlay appears only when video startup is actually slow */}
         {showLoader && !isVideoReady && (
           <div className="absolute inset-0 transition-opacity duration-500 opacity-100">
@@ -165,10 +165,10 @@ export function HeroSection() {
             {t("Montreal #1 Dog School")}
           </p>
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
-            <AnimatedText text={t("Montreal dog training")} delay={0.3} />
+            <AnimatedText text={t("Montreal dog training.")} delay={0.3} />
             <br />
-            <span className="text-accent">
-              <AnimatedText text={t("that gives you your life back")} delay={0.8} />
+            <span className="text-background">
+              <AnimatedText text={t("Get your life back.")} delay={0.8} />
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">

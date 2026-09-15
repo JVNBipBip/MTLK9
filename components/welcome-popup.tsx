@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Calendar, CheckCircle2, Phone } from "lucide-react"
+import { Calendar, CheckCircle2, Phone, X } from "lucide-react"
 import posthog from "posthog-js"
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useBookingForm } from "@/components/booking-form-provider"
@@ -84,6 +84,7 @@ function WelcomePopupInner() {
   const [emailInvalid, setEmailInvalid] = useState(false)
   const [phoneInvalid, setPhoneInvalid] = useState(false)
   const hasShownRef = useRef(false)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const statusRef = useRef(status)
   statusRef.current = status
 
@@ -264,9 +265,18 @@ function WelcomePopupInner() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-md gap-0 overflow-hidden rounded-3xl border-border/60 p-6 shadow-2xl sm:p-8">
+      <DialogContent
+        data-testid="welcome-popup"
+        showCloseButton={false}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          closeButtonRef.current?.focus({ preventScroll: true })
+        }}
+        className="block h-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-3xl border-border/60 p-0 shadow-2xl sm:max-w-md"
+      >
+        <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain">
         {status === "success" ? (
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
+          <div className="flex flex-col items-center gap-4 px-6 pb-6 pt-16 text-center sm:px-7 sm:pb-7">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
             </span>
@@ -305,7 +315,7 @@ function WelcomePopupInner() {
           </div>
         ) : (
           <>
-            <div className="relative -mx-6 -mt-6 mb-5 h-48 overflow-hidden sm:-mx-8 sm:-mt-8 sm:h-56">
+            <div data-testid="welcome-popup-photo" className="relative h-44 w-full overflow-hidden sm:h-52">
               <Image
                 src="/images/Classes images/in-home.webp"
                 alt={content.photoAlt}
@@ -314,10 +324,11 @@ function WelcomePopupInner() {
                 className="object-cover object-[center_48%]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-              <p className="absolute bottom-3 left-5 text-sm font-semibold text-white drop-shadow-sm sm:left-6">
+              <p className="absolute bottom-3 left-5 right-5 text-sm font-semibold leading-snug text-white drop-shadow-sm sm:left-7 sm:right-7">
                 {content.photoBadge}
               </p>
             </div>
+            <div data-testid="welcome-popup-body" className="px-5 pb-5 pt-5 sm:px-7 sm:pb-7">
             <DialogTitle className="text-balance pr-6 font-display text-2xl font-semibold leading-snug tracking-tight text-foreground">
               {variantCopy.headline}
             </DialogTitle>
@@ -361,8 +372,7 @@ function WelcomePopupInner() {
                     }}
                     placeholder={content.emailPlaceholder}
                     aria-invalid={emailInvalid || undefined}
-                    autoFocus
-                    className="h-11 rounded-xl"
+                    className="h-12 rounded-xl text-base md:text-base"
                   />
                   {emailInvalid && (
                     <p className="mt-1.5 text-xs text-destructive" role="alert">
@@ -390,8 +400,7 @@ function WelcomePopupInner() {
                     }}
                     placeholder={content.phonePlaceholder}
                     aria-invalid={phoneInvalid || undefined}
-                    autoFocus
-                    className="h-11 rounded-xl"
+                    className="h-12 rounded-xl text-base md:text-base"
                   />
                   {phoneInvalid && (
                     <p className="mt-1.5 text-xs text-destructive" role="alert">
@@ -433,8 +442,17 @@ function WelcomePopupInner() {
                 <p className="text-center text-xs leading-relaxed text-muted-foreground">{content.microcopy}</p>
               )}
             </form>
+            </div>
           </>
         )}
+        </div>
+        <DialogClose
+          ref={closeButtonRef}
+          aria-label={content.closeLabel}
+          className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/15 bg-white text-black shadow-lg transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        >
+          <X className="h-6 w-6" strokeWidth={2.5} aria-hidden="true" />
+        </DialogClose>
       </DialogContent>
     </Dialog>
   )

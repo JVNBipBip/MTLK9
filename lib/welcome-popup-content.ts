@@ -46,6 +46,7 @@ export type WelcomePopupCopy = {
   ofLabel: string
   continueCta: string
   backCta: string
+  closeLabel: string
   photoAlt: string
   photoBadge: string
   microcopy: string
@@ -84,6 +85,7 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     ofLabel: "of",
     continueCta: "Continue",
     backCta: "Back",
+    closeLabel: "Close popup",
     photoAlt: "Two smiling dog owners with their dog in Montreal",
     photoBadge: "Better days with your dog start here.",
     microcopy: "By signing up, you agree to receive helpful emails from Montreal Canine Training. Unsubscribe anytime.",
@@ -120,6 +122,7 @@ export const welcomePopupContent: Record<AppLocale, WelcomePopupCopy> = {
     ofLabel: "sur",
     continueCta: "Continuer",
     backCta: "Retour",
+    closeLabel: "Fermer la fenêtre",
     photoAlt: "Deux propriétaires souriants avec leur chien à Montréal",
     photoBadge: "De meilleurs moments avec votre chien commencent ici.",
     microcopy: "En vous inscrivant, vous acceptez de recevoir des courriels utiles d'Entraînement Canin Montréal. Désabonnez-vous en tout temps.",
