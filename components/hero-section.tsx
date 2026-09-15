@@ -182,10 +182,10 @@ export function HeroSection() {
               <Button
                 size="lg"
                 disabled={!ctaVariant}
-                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
+                className="w-full sm:w-auto lg:min-w-[240px] bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 lg:px-12 lg:py-8 text-base lg:text-lg lg:font-semibold group shine-effect animate-shine"
               >
                 {t(heroCtaLabel(ctaVariant))}
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 lg:w-5 lg:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>
             <Link
@@ -196,9 +196,9 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto rounded-full px-8 py-6 text-base bg-background text-foreground border-background backdrop-blur-sm transition-all duration-300 hover:bg-transparent hover:text-background hover:border-background/30"
+                className="w-full sm:w-auto lg:min-w-[180px] rounded-full px-8 py-6 lg:px-10 lg:py-8 text-base lg:text-lg lg:font-semibold bg-background text-foreground border-background backdrop-blur-sm transition-all duration-300 hover:bg-transparent hover:text-background hover:border-background/30"
               >
-                <Phone className="mr-2 w-4 h-4" />
+                <Phone className="mr-2 w-4 h-4 lg:w-5 lg:h-5" />
                 {t("Call Now")}
               </Button>
             </Link>

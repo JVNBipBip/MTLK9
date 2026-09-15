@@ -56,7 +56,7 @@ export function Header() {
               alt="MTL Canine Training"
               width={180}
               height={50}
-              className="h-12 md:h-14 w-auto"
+              className="h-12 md:h-14 w-auto brightness-0"
               priority
               fetchPriority="high"
             />

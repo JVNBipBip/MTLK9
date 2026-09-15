@@ -118,4 +118,13 @@ describe("homepage hero readability", () => {
     expect(html).not.toContain("animation-delay")
     expect(html).not.toContain("will-change-transform")
   })
+
+  it("gives the desktop inquiry CTA stronger visual priority", () => {
+    jest.mocked(useAppLocale).mockReturnValue("en")
+    const html = renderToStaticMarkup(<HeroSection />)
+    expect(html).toContain("lg:min-w-[240px]")
+    expect(html).toContain("lg:px-12 lg:py-8")
+    expect(html).toContain("lg:min-w-[180px]")
+    expect(html).toContain("lg:px-10 lg:py-8")
+  })
 })
