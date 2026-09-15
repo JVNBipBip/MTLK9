@@ -5,6 +5,7 @@ import {
   parseConversionEventPayload,
 } from "@/lib/conversion-event-schema"
 import { getAdminDb } from "@/lib/firebase-admin"
+import { heroCtaExperimentProperties, parseHeroCtaCookieHeader } from "@/lib/hero-cta-experiment"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
   try {
     await getAdminDb().collection(CONVERSION_EVENTS_COLLECTION).add({
       ...payload,
+      ...heroCtaExperimentProperties(parseHeroCtaCookieHeader(request.headers.get("cookie"))),
       observedAtIso: new Date().toISOString(),
       createdAt: FieldValue.serverTimestamp(),
     })

@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import posthog from "posthog-js"
 import { useAppLocale } from "@/components/locale-provider"
+import { heroCtaExperimentProperties } from "@/lib/hero-cta-experiment"
 
 export function ConversionTracker() {
   const locale = useAppLocale()
@@ -16,6 +17,7 @@ export function ConversionTracker() {
       if (!link) return
 
       posthog.capture("phone_link_clicked", {
+        ...heroCtaExperimentProperties(),
         locale,
         location: link.dataset.conversionLocation || "site",
         path: pathname,

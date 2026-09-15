@@ -8,6 +8,8 @@ import { ArrowRight, Phone } from "lucide-react"
 import { AnimatedText } from "@/components/animated-text"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useHeroCtaExperiment } from "@/components/use-hero-cta-experiment"
+import { heroCtaLabel } from "@/lib/hero-cta-experiment"
 
 const HERO_FALLBACK = "/images/hero-fallback.webp"
 
@@ -20,6 +22,7 @@ type HeroVideoVariant = keyof typeof HERO_VIDEO_SOURCES
 
 export function HeroSection() {
   const t = useLocalizedText()
+  const { variant: ctaVariant, ctaRef, trackCtaClick } = useHeroCtaExperiment()
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -167,20 +170,21 @@ export function HeroSection() {
           <h1 className="font-display text-[2.5rem] leading-[1.08] md:text-5xl lg:text-6xl xl:text-7xl font-bold md:leading-[1.1] text-background text-balance mb-5 md:mb-8 tracking-tight">
             <AnimatedText text={t("Montreal dog training.")} delay={0.3} />
             <br />
-            <span className="text-background">
+            <span className="text-background [&>span]:underline [&>span]:decoration-2 [&>span]:decoration-white/80 [&>span]:underline-offset-8 md:[&>span]:decoration-3">
               <AnimatedText text={t("Get your life back.")} delay={0.8} />
             </span>
           </h1>
           <p className="reveal opacity-0 animation-delay-400 text-base md:text-lg text-background/90 leading-relaxed mb-8 md:mb-10 max-w-xl">
             {t("Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.")}
           </p>
-          <div className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
-            <FreeCallLink className="w-full sm:w-auto">
+          <div ref={ctaRef} data-hero-cta-variant={ctaVariant || "pending"} className="reveal opacity-0 animation-delay-600 flex flex-col sm:flex-row gap-3 md:gap-4">
+            <FreeCallLink className="w-full sm:w-auto" onClick={trackCtaClick}>
               <Button
                 size="lg"
+                disabled={!ctaVariant}
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group shine-effect animate-shine"
               >
-                {t("Send an Inquiry")}
+                {t(heroCtaLabel(ctaVariant))}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </FreeCallLink>

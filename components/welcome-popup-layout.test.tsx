@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { WelcomePopup } from "@/components/welcome-popup"
 import { HeroSection } from "@/components/hero-section"
 import { useAppLocale } from "@/components/locale-provider"
+import { useHeroCtaExperiment } from "@/components/use-hero-cta-experiment"
 
 jest.mock("next/navigation", () => ({ usePathname: () => "/en" }))
 jest.mock("next/image", () => ({
@@ -17,6 +18,9 @@ jest.mock("@/components/booking-form-provider", () => ({
 }))
 jest.mock("@/components/animated-text", () => ({
   AnimatedText: ({ text }: { text: string }) => require("react").createElement("span", null, text),
+}))
+jest.mock("@/components/use-hero-cta-experiment", () => ({
+  useHeroCtaExperiment: jest.fn(() => ({ variant: "a", ctaRef: { current: null }, trackCtaClick: jest.fn() })),
 }))
 jest.mock("@/components/ui/dialog", () => {
   const React = require("react")
@@ -79,10 +83,22 @@ describe("homepage hero readability", () => {
     expect(heading).not.toContain("gives you your")
     expect(heading).not.toContain("text-accent")
     expect(html).toContain("from-black/85 via-black/65")
+    expect(heading).toContain("[&amp;&gt;span]:underline")
   })
 
   it("translates the new benefit into French", () => {
     jest.mocked(useAppLocale).mockReturnValue("fr")
     expect(renderToStaticMarkup(<HeroSection />)).toContain("Retrouvez votre liberté.")
+  })
+
+  it("renders the challenger CTA in English and French without changing the headline", () => {
+    jest.mocked(useHeroCtaExperiment).mockReturnValue({ variant: "b", ctaRef: { current: null }, trackCtaClick: jest.fn() })
+    jest.mocked(useAppLocale).mockReturnValue("en")
+    const html = renderToStaticMarkup(<HeroSection />)
+    expect(html).toContain('data-hero-cta-variant="b"')
+    expect(html).toContain("Get a training plan")
+    expect(html).toContain("Get your life back.")
+    jest.mocked(useAppLocale).mockReturnValue("fr")
+    expect(renderToStaticMarkup(<HeroSection />)).toContain("Obtenir un plan d’entraînement")
   })
 })

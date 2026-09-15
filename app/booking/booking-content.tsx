@@ -18,6 +18,7 @@ import { ContractAcceptanceAccordion } from "@/components/contract-acceptance-ac
 import { INITIAL_FORM_DATA, type BookingFormData } from "./types"
 import { trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
+import { heroCtaExperimentProperties } from "@/lib/hero-cta-experiment"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 
 const CONSULTATION_LOCATION = "7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2"
@@ -546,6 +547,7 @@ export function BookingContent({
             content_category: "Dog Training Lead",
           })
           posthog.capture("consultation_inquiry_completed", {
+            ...heroCtaExperimentProperties(),
             connectMethod: formData.connectMethod,
             issue: formData.issue,
             locale,
@@ -580,6 +582,7 @@ export function BookingContent({
           content_category: "Dog Training Lead",
         })
         posthog.capture("booking_form_completed", {
+          ...heroCtaExperimentProperties(),
           connectMethod: formData.connectMethod,
           issue: formData.issue,
           locale,

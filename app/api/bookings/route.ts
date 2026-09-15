@@ -35,6 +35,7 @@ import {
 } from "@/lib/square-service-config"
 import { generateAccessToken, hashAccessToken } from "@/lib/tokens"
 import { parseWelcomeExperimentCookieHeader } from "@/lib/welcome-experiment"
+import { heroCtaExperimentProperties, parseHeroCtaCookieHeader } from "@/lib/hero-cta-experiment"
 
 export const runtime = "nodejs"
 
@@ -124,6 +125,7 @@ async function findReplaceableConsultationId(db: Firestore, clientId: string, do
 export async function POST(request: Request) {
   let locale: AppLocale = defaultLocale
   const welcomeExperiment = parseWelcomeExperimentCookieHeader(request.headers.get("cookie"))
+  const heroCtaExperiment = heroCtaExperimentProperties(parseHeroCtaCookieHeader(request.headers.get("cookie")))
   try {
     const payload = (await request.json()) as {
       formData?: unknown
@@ -347,6 +349,7 @@ export async function POST(request: Request) {
       source: bookingSource,
       welcomeFlowCohort: welcomeExperiment?.cohort || null,
       welcomeFlowVariant: welcomeExperiment?.variant || null,
+      ...heroCtaExperiment,
       consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
       consultationPreferredTrainerName: isConsultationInquiry ? preferredTrainerLabel : null,
       consultationPreferredTrainerTeamMemberId: isConsultation ? trainerTeamMemberIdFromPayload : null,
@@ -568,6 +571,7 @@ export async function POST(request: Request) {
         bookingSource,
         welcomeFlowCohort: welcomeExperiment?.cohort || null,
         welcomeFlowVariant: welcomeExperiment?.variant || null,
+        ...heroCtaExperiment,
         highPriority: submission.highPriority,
         consultationSubmissionKind: isConsultation ? consultationSubmissionKind : null,
         preferredTrainerLabel,

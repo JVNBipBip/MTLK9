@@ -27,6 +27,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "Private training portal": "Portail d'entraînement privé",
   "Book a Consultation": "Réserver une consultation",
   "Send an Inquiry": "Envoyer une demande",
+  "Get a training plan": "Obtenir un plan d’entraînement",
   "Start with an evaluation": "Commencer par une évaluation",
   "Meet a trainer so we understand your goals and recommend the best path — private training, group classes, or both.":
     "Rencontrez un entraîneur pour que nous comprenions vos objectifs et recommandions la meilleure voie — entraînement privé, cours de groupe, ou les deux.",
