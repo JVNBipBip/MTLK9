@@ -5,9 +5,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Menu, Phone } from "lucide-react"
+import { Menu, Phone, ChevronDown } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppLocale } from "@/components/locale-provider"
@@ -16,6 +17,10 @@ import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
 const navLinks = [
   { labelKey: "trainingPrograms", href: "/services" },
   { labelKey: "groupClasses", href: "/group-classes" },
+  { labelKey: "daycare", href: "/daycare" },
+  { labelKey: "grooming", href: "/grooming" },
+  { labelKey: "trainingOffer", href: "/training-offer" },
+  { labelKey: "apprenticeships", href: "/apprenticeships" },
   { labelKey: "results", href: "/results" },
   { labelKey: "aboutUs", href: "/about" },
   { labelKey: "faq", href: "/faq" },
@@ -62,12 +67,20 @@ export function Header() {
             />
           </Link>
 
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
+          <div className="hidden xl:flex items-center gap-5">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex min-h-11 items-center gap-1 text-sm font-medium text-black focus-visible:outline-2 focus-visible:outline-primary">
+                {t("nav.trainingPrograms")}<ChevronDown className="size-3.5" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-60 rounded-2xl p-2" sideOffset={12}>
+                {navLinks.filter((link) => ["/services", "/group-classes", "/apprenticeships"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {navLinks.filter((link) => ["/daycare", "/grooming", "/training-offer", "/results"].includes(link.href)).map((link) => (
               <Link
                 key={link.href}
                 href={localeHref(link.href)}
-                className={`text-base font-medium transition-colors ${
+                className={`whitespace-nowrap text-sm font-medium transition-colors ${
                   activePathname === link.href
                     ? "text-black font-semibold"
                     : "text-black hover:text-black/70"
@@ -76,14 +89,22 @@ export function Header() {
                 {t(`nav.${link.labelKey}`)}
               </Link>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex min-h-11 items-center gap-1 text-sm font-medium text-black focus-visible:outline-2 focus-visible:outline-primary">
+                {t("nav.more")}<ChevronDown className="size-3.5" aria-hidden />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-44 rounded-2xl p-2" sideOffset={12}>
+                {navLinks.filter((link) => ["/about", "/faq", "/blog"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
             <LanguageSwitcher />
             <FreeCallLink>
               <button
                 type="button"
-                className="text-base font-medium text-black/80 hover:text-black flex items-center gap-1.5"
+                className="hidden 2xl:flex whitespace-nowrap text-sm font-medium text-black/80 hover:text-black items-center gap-1.5"
               >
                 <Phone className="w-3.5 h-3.5" />
                 514 826 9558
@@ -96,17 +117,18 @@ export function Header() {
             </FreeCallLink>
           </div>
 
-          <div className="lg:hidden">
+          <div className="xl:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <button className="p-2 text-black" aria-label="Open menu">
+                <button className="p-2 text-black" aria-label={locale === "fr" ? "Ouvrir le menu" : "Open menu"}>
                   <Menu className="w-6 h-6" />
                 </button>
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-[86vw] sm:max-w-sm border-l border-white/35 bg-background/45 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.45)]"
+                className="w-[86vw] sm:max-w-sm overflow-y-auto border-l border-white/35 bg-background/95 backdrop-blur-xl backdrop-saturate-150 shadow-[0_8px_30px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.45)]"
               >
+                <SheetTitle className="sr-only">Navigation</SheetTitle>
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/35 via-white/10 to-transparent" />
                 <div className="absolute -top-20 -left-10 h-44 w-56 rounded-full bg-white/20 blur-3xl pointer-events-none" />
                 <div className="absolute top-1/3 -right-12 h-40 w-40 rounded-full bg-white/12 blur-3xl pointer-events-none" />

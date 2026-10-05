@@ -25,6 +25,7 @@ import {
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { trackFBEvent } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
+import type { ServiceInterest } from "@/lib/service-inquiries"
 
 type OpenTrainingPortalOptions = {
   mode?: TrainingPortalMode
@@ -40,6 +41,7 @@ type OpenGroupClassesBookingOptions = {
 
 type OpenBookingFormOptions = {
   source?: string
+  serviceInterest?: ServiceInterest
 }
 
 const defaultPortalLaunch: {
@@ -82,6 +84,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
   const t = useLocalizedText()
   const [bookingOpen, setBookingOpen] = useState(false)
   const [bookingFormKey, setBookingFormKey] = useState(0)
+  const [serviceInterest, setServiceInterest] = useState<ServiceInterest | undefined>()
   const [programSignupOpen, setProgramSignupOpen] = useState(false)
   const [programSignupKey, setProgramSignupKey] = useState(0)
   const [freeCallOpen, setFreeCallOpen] = useState(false)
@@ -96,7 +99,9 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
     posthog.capture("consultation_form_opened", {
       source: opts?.source || "site_cta",
       path: window.location.pathname,
+      service_interest: opts?.serviceInterest,
     })
+    setServiceInterest(opts?.serviceInterest)
     setBookingFormKey((k) => k + 1) // reset form state on each open
     setBookingOpen(true)
   }, [])
@@ -169,6 +174,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
 
   const handleOpenAssessmentFromFreeCall = useCallback(() => {
     closeFreeCallModal()
+    setServiceInterest(undefined)
     posthog.capture("consultation_form_opened", {
       source: "inquiry_modal",
       path: window.location.pathname,
@@ -206,7 +212,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
         >
           <DialogTitle className="sr-only">{t("Submit an inquiry")}</DialogTitle>
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <BookingContent key={bookingFormKey} onClose={closeBookingForm} inquiryOnly />
+            <BookingContent key={bookingFormKey} onClose={closeBookingForm} inquiryOnly serviceInterest={serviceInterest} />
           </div>
         </DialogContent>
       </Dialog>

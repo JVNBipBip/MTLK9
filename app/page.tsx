@@ -8,6 +8,7 @@ import { TransformationsSection } from "@/components/transformations-section"
 import { StatsSection } from "@/components/stats-section"
 import { FinalCTASection } from "@/components/final-cta-section"
 import { Footer } from "@/components/footer"
+import { ServicesOverview } from "@/components/services-overview"
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
       <Header />
       <HeroSection />
       <TrustStrip />
+      <ServicesOverview />
       <PainPointsSection />
       <TransformationsSection />
       <HowItWorksSection />

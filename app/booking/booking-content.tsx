@@ -1,4 +1,5 @@
 "use client"
+import { serviceInquiryNotes, type ServiceInterest } from "@/lib/service-inquiries"
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -190,6 +191,7 @@ export function BookingContent({
   trainerPageDisplayName = null,
   /** Submit inquiry directly after intake — no scheduling or deposit step */
   inquiryOnly = false,
+  serviceInterest,
 }: {
   onClose: () => void
   pinnedTeamMemberId?: string | null
@@ -204,6 +206,7 @@ export function BookingContent({
   /** Shown as preferred trainer on inquiry when slots (names) have not been loaded yet. */
   trainerPageDisplayName?: string | null
   inquiryOnly?: boolean
+  serviceInterest?: ServiceInterest
 }) {
   const locale = useAppLocale()
   const copy = bookingContentCopy[locale]
@@ -483,7 +486,7 @@ export function BookingContent({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            formData,
+            formData: { ...formData, contactNotes: serviceInquiryNotes(serviceInterest, formData.contactNotes) },
             locale,
             consultationSubmissionKind: submissionMode === "inquiry" ? "inquiry" : "deposit",
             bookingSource: trainerPageSlug
@@ -551,6 +554,7 @@ export function BookingContent({
             connectMethod: formData.connectMethod,
             issue: formData.issue,
             locale,
+            service_interest: serviceInterest,
           })
           return
         }
@@ -595,7 +599,7 @@ export function BookingContent({
         setIsSubmitting(false)
       }
     },
-    [copy, formData, locale, pinnedTeamMemberId, pinnedTrainerDisplayName, trainerPageDisplayName, trainerPageSlug],
+    [copy, formData, locale, pinnedTeamMemberId, pinnedTrainerDisplayName, trainerPageDisplayName, trainerPageSlug, serviceInterest],
   )
 
   const handleSubmit = useCallback(async () => {
@@ -705,6 +709,12 @@ export function BookingContent({
       {/* Step content — scrollable */}
       <div className={stepScrollClass}>
         <div className={cn(contentWidthClass, "mx-auto w-full")}>
+          {serviceInterest && !showSchedulingStep && (
+            <div className="mb-5 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <p className="font-semibold text-primary">{serviceInterest === "daycare" ? (locale === "fr" ? "Demande pour la garderie" : "Daycare meet & greet request") : serviceInterest === "day-training" ? (locale === "fr" ? "Demande pour l’entraînement de jour" : "Day Training evaluation request") : (locale === "fr" ? "Offre de documentation à 30 %" : "30% Training Documentation Offer")}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{locale === "fr" ? "Parlez-nous de votre chien. Notre équipe vous répondra au sujet de ce programme; aucun rendez-vous n’est confirmé ici." : "Tell us about your dog. Our team will follow up about this program; no appointment is confirmed here."}</p>
+            </div>
+          )}
           {showSchedulingStep ? (
             <div className="space-y-6">
               <div>

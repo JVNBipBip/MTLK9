@@ -4,6 +4,7 @@ import { groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { locales, type AppLocale } from "@/lib/i18n/config"
 import { transformationStories } from "@/lib/transformation-stories"
 import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
+import { facilityServices } from "@/lib/facility-services"
 
 /** Canonical origin for sitemap URLs (matches robots.ts and page canonicals). */
 export const SITEMAP_BASE_URL = "https://www.mtlcaninetraining.com"
@@ -23,8 +24,9 @@ type RouteSpec = {
 }
 
 const STATIC_ROUTES: RouteSpec[] = [
-  { path: "", changeFrequency: "weekly", priority: 1 },
+  { path: "", changeFrequency: "weekly", priority: 1, lastModified: new Date("2026-10-05") },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
+  ...Object.values(facilityServices).map((service) => ({ path: service.path, changeFrequency: "monthly" as const, priority: 0.8, lastModified: new Date("2026-10-05") })),
   { path: "/services/reactivity", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/aggression", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/separation-anxiety", changeFrequency: "monthly", priority: 0.85 },

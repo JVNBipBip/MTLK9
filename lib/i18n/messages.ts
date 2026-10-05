@@ -11,6 +11,11 @@ export const messages = {
       bookFreeDiscoveryCall: "Contact Us for a Free Discovery Call",
       nav: {
         trainingPrograms: "Training Programs",
+        daycare: "Daycare",
+        grooming: "Grooming",
+        trainingOffer: "Save 30%",
+        apprenticeships: "Trainer Apprenticeships",
+        more: "More",
         groupClasses: "Group Classes",
         results: "Results",
         aboutUs: "About Us",
@@ -33,11 +38,11 @@ export const messages = {
       title: "Dog Training Montreal | MTL Canine Training",
       template: "%s | Montreal Canine Training",
       description:
-        "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
+        "Montreal’s dog training school and canine facility. Explore private and group training, Day Training, Daycare, grooming, and dog trainer apprenticeships.",
       ogTitle: "Dog Training Montreal | MTL Canine Training",
       ogDescription:
-        "Real-world behavioral coaching for Montreal dog owners. Best in town for reactivity, anxiety, puppy skills and obedience training.",
-      imageAlt: "Dog training at Montreal Canine Training",
+        "Private and group dog training, Day Training, Daycare, grooming, and trainer apprenticeships in Montreal.",
+      imageAlt: "Dog owners with their German Shepherd at Montreal Canine Training",
     },
   },
   fr: {
@@ -50,6 +55,11 @@ export const messages = {
       bookFreeDiscoveryCall: "Contactez-nous pour un appel découverte gratuit",
       nav: {
         trainingPrograms: "Entraînement",
+        daycare: "Garderie",
+        grooming: "Toilettage",
+        trainingOffer: "Rabais de 30 %",
+        apprenticeships: "Apprentissage pour entraîneurs",
+        more: "Plus",
         groupClasses: "Cours de groupe",
         results: "Résultats",
         aboutUs: "À propos",
@@ -72,11 +82,11 @@ export const messages = {
       title: "Dressage chien Montréal | MTL Canine Training",
       template: "%s | Entraînement Canin Montréal",
       description:
-        "Coaching canin concret à Montréal pour la réactivité, l'anxiété, les chiots, l'obéissance et les promenades plus calmes.",
+        "École d’entraînement et centre canin à Montréal. Cours privés et de groupe, entraînement de jour, garderie, toilettage et apprentissage pour entraîneurs.",
       ogTitle: "Dressage chien Montréal | MTL Canine Training",
       ogDescription:
-        "Coaching canin concret à Montréal pour la réactivité, l'anxiété, les chiots, l'obéissance et les promenades plus calmes.",
-      imageAlt: "Dressage chien Montréal avec MTL Canine Training",
+        "Cours privés et de groupe, entraînement de jour, garderie, toilettage et programmes d’apprentissage à Montréal.",
+      imageAlt: "Des propriétaires avec leur berger allemand chez MTL Canine Training",
     },
   },
 } as const

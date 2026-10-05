@@ -3,8 +3,9 @@ import { blogPosts } from "@/lib/blog"
 import { groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { transformationStories } from "@/lib/transformation-stories"
 import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
+import { facilityServices } from "@/lib/facility-services"
 
-const STATIC_ROUTE_COUNT = 19
+const STATIC_ROUTE_COUNT = 19 + Object.keys(facilityServices).length
 
 describe("buildSitemapEntries", () => {
   it("includes group class detail pages, all result stories, and trainer booking pages", () => {
@@ -48,8 +49,15 @@ describe("buildSitemapEntries", () => {
     const entries = buildSitemapEntries()
     const home = entries.find((entry) => entry.url === `${SITEMAP_BASE_URL}/en`)
     const services = entries.find((entry) => entry.url === `${SITEMAP_BASE_URL}/fr/services`)
-    expect(home?.lastModified).toEqual(SITE_LAST_UPDATED)
+    expect(home?.lastModified).toEqual(new Date("2026-10-05"))
     expect(services?.lastModified).toEqual(SITE_LAST_UPDATED)
+  })
+
+  it("includes the new facility pages in both languages", () => {
+    const urls = buildSitemapEntries().map((entry) => entry.url)
+    for (const service of Object.values(facilityServices)) {
+      for (const locale of ["en", "fr"]) expect(urls).toContain(`${SITEMAP_BASE_URL}/${locale}${service.path}`)
+    }
   })
 
   it("covers every route in both locales", () => {

@@ -10,6 +10,11 @@ import { addLocaleToPathname } from "@/lib/i18n/config"
 
 const footerLinks = {
   training: [
+    { label: { en: "Day Training", fr: "Entraînement de jour" }, href: "/day-training" },
+    { label: { en: "Daycare", fr: "Garderie" }, href: "/daycare" },
+    { label: { en: "Grooming · MTL Canine Spa", fr: "Toilettage · MTL Canine Spa" }, href: "/grooming" },
+    { label: { en: "Trainer Apprenticeships", fr: "Apprentissage pour entraîneurs" }, href: "/apprenticeships" },
+    { label: { en: "Save 30% on Your Training", fr: "Économisez 30 % sur l’entraînement" }, href: "/training-offer" },
     { label: { en: "Consultation", fr: "Consultation" }, href: "/services/consultation" },
     { label: { en: "Reactivity Training", fr: "Réactivité" }, href: "/services/reactivity" },
     { label: { en: "Aggressive Dog Training", fr: "Chien agressif" }, href: "/services/aggression" },

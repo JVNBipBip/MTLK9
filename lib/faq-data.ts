@@ -37,7 +37,7 @@ export const faqData: FaqCategory[] = [
       {
         question: "What type of services do you offer?",
         answer:
-          "We offer consultations, pet obedience, behaviour modification, intro to dog sports and apprenticeship courses. Our services are mostly private classes and group classes. The obedience group classes consists of different levels that are accustomed to the dog's age, level of training and handler skills.",
+          "We offer consultations, private training, group classes, obedience, behaviour modification, an introduction to dog sports, and dog trainer apprenticeship programs. Our Day Training and Regular Daycare programs launch November 1, 2026, with full-day and half-day options and an initial assessment. We also offer grooming through MTL Canine Spa. Group obedience classes have different levels based on your dog's age, training level, and your handling skills.",
       },
     ],
   },
@@ -85,7 +85,7 @@ export const faqDataFr: FaqCategory[] = [
       {
         question: "Quels types de services offrez-vous?",
         answer:
-          "Nous offrons des consultations, de l'obéissance pour animaux de compagnie, de la modification du comportement, une introduction aux sports canins et des cours d'apprentissage. Nos services sont principalement des cours privés et des cours de groupe. Les cours d'obéissance en groupe comprennent différents niveaux adaptés à l'âge du chien, à son niveau d'entraînement et aux habiletés du maître.",
+          "Nous offrons des consultations, des cours privés et de groupe, de l’obéissance, de la modification du comportement, une introduction aux sports canins et des programmes d’apprentissage pour entraîneurs canins. Nos programmes d’entraînement de jour et de garderie commencent le 1er novembre 2026, avec des journées et des demi-journées et une évaluation préalable. Nous offrons aussi du toilettage chez MTL Canine Spa. Les cours d’obéissance en groupe proposent différents niveaux selon l’âge et le niveau du chien et les habiletés du maître.",
       },
     ],
   },

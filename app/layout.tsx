@@ -14,6 +14,7 @@ import { LocaleProvider } from "@/components/locale-provider"
 import { WelcomePopup } from "@/components/welcome-popup"
 import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 import { getMessages } from "@/lib/i18n/messages"
+import { DEFAULT_OG_IMAGE } from "@/lib/seo"
 import "./globals.css"
 
 const BASE_URL = "https://www.mtlcaninetraining.com"
@@ -73,9 +74,9 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: "/images/og-default.jpg",
-          width: 1200,
-          height: 630,
+          url: DEFAULT_OG_IMAGE,
+          width: 1394,
+          height: 929,
           alt: localeMessages.metadata.imageAlt,
         },
       ],
@@ -84,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: localeMessages.metadata.ogTitle,
       description: localeMessages.metadata.ogDescription,
-      images: ["/images/og-default.jpg"],
+      images: [DEFAULT_OG_IMAGE],
     },
     robots: {
       index: true,

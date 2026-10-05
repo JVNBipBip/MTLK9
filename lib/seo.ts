@@ -37,8 +37,8 @@ export function localizedUrl(locale: AppLocale, path: string) {
 
 /** Sitewide fallback OG/Twitter image — page-level `openGraph` replaces the
  * root layout's wholesale, so every page needs an image of its own.
- * 1200x630 JPEG generated from the private-training photo. */
-const DEFAULT_OG_IMAGE = "/images/og-default.jpg"
+ * Versioned real client photo avoids reusing the old social-image cache. */
+export const DEFAULT_OG_IMAGE = "/images/social-preview-owners-2026.webp"
 
 const OG_SITE_NAME = "MTL Canine Training"
 
