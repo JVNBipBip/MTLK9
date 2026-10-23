@@ -1,4 +1,5 @@
 import { onRequest } from "firebase-functions/v2/https"
+import { onSchedule } from "firebase-functions/v2/scheduler"
 import { logger } from "firebase-functions"
 import { defineSecret, defineString } from "firebase-functions/params"
 import { initializeApp, getApps } from "firebase-admin/app"
@@ -337,6 +338,137 @@ export const squareOAuthCallback = onRequest(
   }
 )
 
+/**
+ * Refresh when the access token is already expired or expires within this window.
+ * Square access tokens last 30 days; with a daily schedule this gives ~7 retries
+ * before a token can lapse.
+ */
+const REFRESH_WHEN_EXPIRING_WITHIN_MS = 7 * 24 * 60 * 60 * 1000
+
+type TokenDoc = FirebaseFirestore.QueryDocumentSnapshot
+
+type RefreshResult =
+  | { ok: true; docId: string; expiresAt: string; updatedAt: string }
+  | { ok: false; docId: string; error: string; httpStatus: number }
+
+/** True when the stored token is expired, near expiry, or carries no expiry we can trust. */
+function isRefreshDue(expiresAt?: string | null): boolean {
+  if (!expiresAt) return true // unknown expiry - refresh so Square hands us a real one
+  const ms = Date.parse(expiresAt)
+  if (Number.isNaN(ms)) return true
+  return ms - Date.now() <= REFRESH_WHEN_EXPIRING_WITHIN_MS
+}
+
+/** Exchange one doc's stored refresh_token for a new access token and persist it. */
+async function refreshSquareTokenDoc(doc: TokenDoc): Promise<RefreshResult> {
+  const data = doc.data() as {
+    refreshToken?: string
+    merchantId?: string
+    env?: string
+    expiresAt?: string
+  }
+  const refreshToken = data?.refreshToken?.trim()
+  if (!refreshToken) {
+    return { ok: false, docId: doc.id, error: "Missing refresh_token", httpStatus: 400 }
+  }
+
+  // Use env from token doc if present (set at OAuth connect), else from config
+  const env = data?.env || squareEnv.value()
+  const isSandbox = env === "sandbox"
+  const clientId = isSandbox ? sandboxSquareAppId.value() : squareAppId.value()
+  const clientSecret = isSandbox ? sandboxSquareAppSecret.value() : squareAppSecret.value()
+  if (!clientId || !clientSecret) {
+    logger.error("squareRefresh: missing OAuth credentials", { env, isSandbox, docId: doc.id })
+    return {
+      ok: false,
+      docId: doc.id,
+      error: `${isSandbox ? "SANDBOX_" : ""}SQUARE_APPLICATION_ID/SECRET not configured`,
+      httpStatus: 500,
+    }
+  }
+
+  const tokenUrl = SQUARE_TOKEN_BY_ENV[env] || SQUARE_TOKEN_BY_ENV.sandbox
+
+  const refreshRes = await fetch(tokenUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    }),
+  })
+
+  const rawText = await refreshRes.text()
+  const tokenData = (() => {
+    try {
+      return JSON.parse(rawText) as {
+        access_token?: string
+        refresh_token?: string
+        expires_at?: string
+        merchant_id?: string
+        errors?: Array<{ code?: string; detail?: string }>
+      }
+    } catch {
+      return null
+    }
+  })()
+
+  if (!refreshRes.ok || !tokenData?.access_token) {
+    const firstErr = tokenData?.errors?.[0]
+    logger.warn("squareRefresh: Square refresh failed", {
+      docId: doc.id,
+      status: refreshRes.status,
+      err: firstErr,
+    })
+    return {
+      ok: false,
+      docId: doc.id,
+      error: firstErr?.detail || firstErr?.code || "Token refresh failed",
+      httpStatus: 502,
+    }
+  }
+
+  // Square should return expires_at; fallback to 30 days from now if missing
+  let newExpiresAt = tokenData.expires_at?.trim() || null
+  if (!newExpiresAt) {
+    const fallback = new Date()
+    fallback.setDate(fallback.getDate() + 30)
+    newExpiresAt = fallback.toISOString()
+    logger.warn("squareRefresh: Square did not return expires_at, using fallback", {
+      docId: doc.id,
+      fallback: newExpiresAt,
+    })
+  }
+
+  const updatedAt = new Date().toISOString()
+  await doc.ref.update({
+    accessToken: tokenData.access_token,
+    expiresAt: newExpiresAt,
+    updatedAt,
+    lastRefreshedAt: updatedAt,
+    lastRefreshError: null,
+    ...(tokenData.refresh_token ? { refreshToken: tokenData.refresh_token } : {}),
+  })
+
+  logger.info("squareRefresh: success", {
+    docId: doc.id,
+    merchantId: tokenData.merchant_id || data.merchantId,
+    expiresAt: newExpiresAt,
+  })
+  return { ok: true, docId: doc.id, expiresAt: newExpiresAt, updatedAt }
+}
+
+/** Record a failed refresh on the doc so the admin can see why sync is down. */
+async function recordRefreshFailure(doc: TokenDoc, error: string) {
+  try {
+    await doc.ref.update({ lastRefreshError: error, lastRefreshAttemptAt: new Date().toISOString() })
+  } catch (err) {
+    logger.warn("squareRefresh: could not record failure on token doc", { docId: doc.id, err })
+  }
+}
+
 /** Refresh Square OAuth access token using stored refresh_token. Call when access token is expired. */
 export const squareOAuthRefresh = onRequest(
   {
@@ -362,86 +494,79 @@ export const squareOAuthRefresh = onRequest(
       return
     }
 
-    const data = doc.data() as { refreshToken?: string; merchantId?: string; env?: string }
-    const refreshToken = data?.refreshToken?.trim()
-    if (!refreshToken) {
-      res.status(400).json({ ok: false, error: "Missing refresh_token" })
+    // On-demand: always refresh. The caller asked because a Square call just failed.
+    const result = await refreshSquareTokenDoc(doc)
+    if (!result.ok) {
+      await recordRefreshFailure(doc, result.error)
+      res.status(result.httpStatus).json({ ok: false, error: result.error })
+      return
+    }
+    res.status(200).json({ ok: true, expiresAt: result.expiresAt, updatedAt: result.updatedAt })
+  }
+)
+
+/**
+ * Keeps Square OAuth tokens alive without anyone touching the admin.
+ *
+ * Square access tokens expire 30 days after connect. Before this existed the only
+ * refresh path was on-demand (app -> SQUARE_OAUTH_REFRESH_URL) which, if it ever
+ * failed, left the token dead and every outbound Square call failing silently.
+ * Runs daily so a token has ~7 chances to renew inside the expiry window.
+ */
+export const squareTokenScheduledRefresh = onSchedule(
+  {
+    schedule: "0 3 * * *",
+    timeZone: "America/Toronto",
+    secrets: [squareAppId, squareAppSecret, sandboxSquareAppId, sandboxSquareAppSecret],
+    retryCount: 3,
+  },
+  async () => {
+    const db = getDb()
+    const snap = await db.collection(SQUARE_TOKENS_COLLECTION).get()
+    const docs = snap.docs.filter((d) => (d.data() as { refreshToken?: string })?.refreshToken?.trim())
+
+    if (docs.length === 0) {
+      logger.warn("squareTokenScheduledRefresh: no token docs with a refresh_token")
       return
     }
 
-    // Use env from token doc if present (set at OAuth connect), else from config
-    const env = data?.env || squareEnv.value()
-    const isSandbox = env === "sandbox"
-    const clientId = isSandbox ? sandboxSquareAppId.value() : squareAppId.value()
-    const clientSecret = isSandbox ? sandboxSquareAppSecret.value() : squareAppSecret.value()
-    if (!clientId || !clientSecret) {
-      logger.error("squareOAuthRefresh: missing OAuth credentials", { env, isSandbox })
-      res.status(500).json({ ok: false, error: `${isSandbox ? "SANDBOX_" : ""}SQUARE_APPLICATION_ID/SECRET not configured` })
-      return
-    }
+    let refreshed = 0
+    let skipped = 0
+    let failed = 0
 
-    const tokenUrl = SQUARE_TOKEN_BY_ENV[env] || SQUARE_TOKEN_BY_ENV.sandbox
-
-    const refreshRes = await fetch(tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }),
-    })
-
-    const rawText = await refreshRes.text()
-    const tokenData = (() => {
-      try {
-        return JSON.parse(rawText) as {
-          access_token?: string
-          refresh_token?: string
-          expires_at?: string
-          merchant_id?: string
-          errors?: Array<{ code?: string; detail?: string }>
-        }
-      } catch {
-        return null
+    for (const doc of docs) {
+      const data = doc.data() as { expiresAt?: string; merchantId?: string }
+      if (!isRefreshDue(data?.expiresAt)) {
+        skipped += 1
+        logger.info("squareTokenScheduledRefresh: not due yet", {
+          docId: doc.id,
+          expiresAt: data?.expiresAt,
+        })
+        continue
       }
-    })()
 
-    if (!refreshRes.ok || !tokenData?.access_token) {
-      const firstErr = tokenData?.errors?.[0]
-      logger.warn("squareOAuthRefresh: Square refresh failed", {
-        status: refreshRes.status,
-        err: firstErr,
-      })
-      res.status(502).json({
-        ok: false,
-        error: firstErr?.detail || firstErr?.code || "Token refresh failed",
-      })
-      return
+      try {
+        const result = await refreshSquareTokenDoc(doc)
+        if (result.ok) {
+          refreshed += 1
+        } else {
+          failed += 1
+          await recordRefreshFailure(doc, result.error)
+          logger.error("squareTokenScheduledRefresh: refresh failed - Square sync will break", {
+            docId: doc.id,
+            merchantId: data?.merchantId,
+            expiresAt: data?.expiresAt,
+            error: result.error,
+          })
+        }
+      } catch (err) {
+        failed += 1
+        const message = err instanceof Error ? err.message : String(err)
+        await recordRefreshFailure(doc, message)
+        logger.error("squareTokenScheduledRefresh: unexpected error", { docId: doc.id, error: message })
+      }
     }
 
-    // Square should return expires_at; fallback to 30 days from now if missing
-    let newExpiresAt = tokenData.expires_at?.trim() || null
-    if (!newExpiresAt) {
-      const fallback = new Date()
-      fallback.setDate(fallback.getDate() + 30)
-      newExpiresAt = fallback.toISOString()
-      logger.warn("squareOAuthRefresh: Square did not return expires_at, using fallback", { fallback: newExpiresAt })
-    } else {
-      logger.info("squareOAuthRefresh: Square response", { expiresAt: newExpiresAt })
-    }
-
-    const docId = doc.id
-    const updatedAt = new Date().toISOString()
-    await doc.ref.update({
-      accessToken: tokenData.access_token,
-      expiresAt: newExpiresAt,
-      updatedAt,
-      ...(tokenData.refresh_token ? { refreshToken: tokenData.refresh_token } : {}),
-    })
-
-    logger.info("squareOAuthRefresh: success", { docId, merchantId: tokenData.merchant_id, expiresAt: newExpiresAt })
-    res.status(200).json({ ok: true, expiresAt: newExpiresAt, updatedAt })
+    logger.info("squareTokenScheduledRefresh: done", { total: docs.length, refreshed, skipped, failed })
   }
 )
