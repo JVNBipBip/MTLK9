@@ -16,3 +16,9 @@ it.each(["../clients", '<script>alert(1)</script>', "", "b".repeat(65)])("reject
 it("permits local HTTP for development and strips an irrelevant base path", () => {
   expect(buildDaycareNotification(id, "http://localhost:3101/ignored").html).toContain(`http://localhost:3101/daycare-applications/${id}`)
 })
+it("clearly identifies an internal test without asking staff to approve a real application", () => {
+  const email = buildDaycareNotification(id, "https://admin.example", true)
+  expect(email.subject).toMatch(/^\[TEST\]/)
+  expect(email.html).toContain("not a customer application")
+  expect(email.html).not.toContain("Please review the answers")
+})
