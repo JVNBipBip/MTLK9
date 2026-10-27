@@ -19,6 +19,7 @@ export const WELCOME_POPUP_TIME_TRIGGER_MS = 10_000
  * (compare against `stripLocaleFromPathname(usePathname())`). */
 export const WELCOME_POPUP_BLOCKED_PATH_PREFIXES = [
   "/booking",
+  "/daycare/apply",
   "/training-portal",
   "/checkout",
   "/privacy",

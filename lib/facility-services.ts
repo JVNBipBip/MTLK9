@@ -10,6 +10,7 @@ export type FacilityService = {
   eyebrow: Copy
   heading: Copy
   intro: Copy
+  price?: Copy
   image: string
   imageAlt: Copy
   interest?: ServiceInterest
@@ -21,7 +22,7 @@ export const facilityServices = {
   daycare: {
     path: "/daycare",
     title: { en: "Dog Daycare & Day Training in Montreal | MTL Canine Training", fr: "Garderie et entraînement de jour à Montréal | MTL Canine Training" },
-    description: { en: "Discover Day Training and Regular Daycare in Montreal. Full-day and half-day options starting November 1, with an assessment before joining.", fr: "Découvrez l’entraînement de jour et la garderie canine à Montréal. Journées et demi-journées dès le 1er novembre, avec une évaluation avant l’inscription." },
+    description: { en: "Dog daycare in Montreal, Mondays and Tuesdays, 7:30 AM–6:30 PM. Half days $40, full days $55, plus tax. Add training, treadmill exercise or one-on-one play.", fr: "Garderie canine à Montréal, les lundis et mardis de 7 h 30 à 18 h 30. Demi-journée 40 $, journée 55 $, taxes en sus. Entraînement et activités en option." },
     eyebrow: { en: "Starting November 1, 2026", fr: "Dès le 1er novembre 2026" },
     heading: { en: "A better day for your dog. A lighter day for you.", fr: "Une belle journée pour votre chien. L’esprit tranquille pour vous." },
     intro: { en: "Professional training or a supervised day of play? Choose the support your dog needs while you take care of your day. Both programs offer full days and half days, with an initial assessment before joining.", fr: "Un entraînement professionnel ou une journée de jeux supervisés? Choisissez ce qui convient à votre chien pendant que vous vaquez à vos occupations. Les deux programmes offrent des journées et des demi-journées, avec une évaluation préalable." },
@@ -33,7 +34,7 @@ export const facilityServices = {
   "day-training": {
     path: "/day-training",
     title: { en: "Day Training for Dogs in Montreal | MTL Canine Training", fr: "Entraînement de jour pour chiens à Montréal | MTL Canine Training" },
-    description: { en: "Let our trainers work on your dog’s obedience, manners and engagement during your busy day. Full days and half days, with an evaluation before joining.", fr: "Nos entraîneurs travaillent l’obéissance, les bonnes manières et l’engagement de votre chien pendant votre journée. Journées et demi-journées, avec une évaluation préalable." },
+    description: { en: "Add complete training to your dog’s daycare for $35 per visit, plus tax. Half-day and full-day options in Montreal, Mondays and Tuesdays. Approval required.", fr: "Ajoutez un entraînement complet à la garderie de votre chien pour 35 $ par visite, taxes en sus. Journées et demi-journées à Montréal, les lundis et mardis." },
     eyebrow: { en: "Day Training · Starting November 1, 2026", fr: "Entraînement de jour · Dès le 1er novembre 2026" },
     heading: { en: "Leave the training to us.", fr: "Confiez-nous l’entraînement." },
     intro: { en: "Between work, school, family, and everything life throws at you, finding the time and energy to train your dog can feel overwhelming. While you’re tackling your busy day, your dog will be learning, exercising, and getting the mental and physical stimulation they need with a professional trainer.", fr: "Entre le travail, les études, la famille et les imprévus, trouver le temps et l’énergie pour entraîner votre chien peut être difficile. Pendant votre journée, votre chien apprend, bouge et reçoit la stimulation mentale et physique dont il a besoin avec un entraîneur professionnel." },
@@ -74,7 +75,7 @@ export const facilityServices = {
   "regular-daycare": {
     path: "/regular-daycare",
     title: { en: "Dog Daycare in Montreal | MTL Canine Training", fr: "Garderie canine à Montréal | MTL Canine Training" },
-    description: { en: "Supervised play, socialization, enrichment and rest at Montreal Canine Training’s daycare. Full-day and half-day options with a meet and greet before joining.", fr: "Jeux supervisés, socialisation, enrichissement et repos à la garderie de MTL Canine Training. Journées et demi-journées avec une rencontre préalable." },
+    description: { en: "Supervised care, enrichment and structured rest in Montreal. Half days $40, full days $55, plus tax. Start with a questionnaire and complimentary phone evaluation.", fr: "Garderie supervisée, enrichissement et repos structuré à Montréal. Demi-journée 40 $, journée 55 $, taxes en sus. Questionnaire et évaluation téléphonique gratuite." },
     eyebrow: { en: "Regular Daycare · Starting November 1, 2026", fr: "Garderie canine · Dès le 1er novembre 2026" },
     heading: { en: "Play. Explore. Rest. Repeat.", fr: "Jouer. Explorer. Se reposer." },
     intro: { en: "Give your dog a fun, active, and enriching day in a safe and professionally supervised environment. Our Regular Daycare offers appropriate social interaction, exercise, and enrichment while you’re at work or need a place for your dog to spend the day.", fr: "Offrez à votre chien une journée active et enrichissante dans un environnement sécuritaire et supervisé par des professionnels. Notre garderie propose des interactions sociales appropriées, de l’exercice et de l’enrichissement pendant que vous travaillez ou avez besoin de faire garder votre chien." },
@@ -148,15 +149,31 @@ export const facilityServices = {
   },
   apprenticeships: {
     path: "/apprenticeships",
-    title: { en: "Dog Trainer Apprenticeship Programs | MTL Canine Training", fr: "Programmes d’apprentissage en entraînement canin | MTL Canine Training" },
-    description: { en: "Interested in becoming a dog trainer? Contact Montreal Canine Training about our apprenticeship programs and current opportunities.", fr: "Vous souhaitez devenir entraîneur canin? Contactez MTL Canine Training pour connaître nos programmes d’apprentissage et les possibilités actuelles." },
-    eyebrow: { en: "Dog Trainer Apprenticeship Programs", fr: "Programmes d’apprentissage en entraînement canin" },
+    title: { en: "Dog Trainer Apprenticeship · January 2027 | MTL Canine Training", fr: "Apprentissage en entraînement canin · Janvier 2027 | MTL Canine Training" },
+    description: { en: "Our January 2027 apprenticeship combines six online theory classes, five shadowing half days and five practical half days. Learn from Montreal Canine Training.", fr: "Notre programme de janvier 2027 comprend six cours théoriques en ligne, cinq demi-journées d’observation et cinq demi-journées de pratique à Montréal." },
+    eyebrow: { en: "Dog Trainer Apprenticeship · January 2027", fr: "Apprentissage en entraînement canin · Janvier 2027" },
     heading: { en: "Turn your passion into a path.", fr: "Donnez une direction à votre passion." },
-    intro: { en: "Interested in pursuing a career working with dogs? Montreal Canine Training offers dog trainer apprenticeship programs. Speak with our team about current opportunities and the right next step for you.", fr: "Vous souhaitez faire carrière avec les chiens? MTL Canine Training offre des programmes d’apprentissage pour futurs entraîneurs canins. Parlez à notre équipe des possibilités actuelles et de la prochaine étape qui vous convient." },
-    image: "/images/hero-fallback.webp",
-    imageAlt: { en: "Montreal Canine Training trainers working with dogs outdoors", fr: "Des entraîneurs de MTL Canine Training travaillent avec des chiens à l’extérieur" },
-    cta: { en: "Ask about apprenticeship programs", fr: "Se renseigner sur les programmes d’apprentissage" },
-    sections: [],
+    price: { en: "$3,000 CAD + tax", fr: "3 000 $ CA + taxes" },
+    intro: { en: "Build real knowledge and hands-on experience, whether you want a career with dogs or a deeper understanding of your own. Starting January 2027, our program brings together theory, observation and practical training with the Montreal Canine Training team.", fr: "Développez vos connaissances et votre expérience pratique, que vous souhaitiez travailler avec les chiens ou mieux comprendre le vôtre. Dès janvier 2027, notre programme combine théorie, observation et entraînement pratique avec l’équipe de MTL Canine Training." },
+    image: "/images/october-2026/apprenticeship-practice.webp",
+    imageAlt: { en: "Apprentices learning hands-on dog handling at Montreal Canine Training", fr: "Des apprentis s’exercent au maniement des chiens chez MTL Canine Training" },
+    cta: { en: "Ask about the January program", fr: "Se renseigner sur le programme de janvier" },
+    sections: [
+      { title: { en: "January · Learn the foundations", fr: "Janvier · Acquérir les bases" }, paragraphs: [
+        { en: "Phase 1: six weekly online theory classes, up to three hours per seminar. Build your understanding of dog behaviour and the principles behind effective training.", fr: "Phase 1 : six cours théoriques hebdomadaires en ligne, jusqu’à trois heures par séminaire. Développez votre compréhension du comportement canin et des principes d’un entraînement efficace." },
+      ] },
+      { title: { en: "February · Watch it in practice", fr: "Février · Observer sur le terrain" }, paragraphs: [
+        { en: "Phase 2: five half days shadowing our trainers during private lessons and consultations. Observe how they assess dogs, communicate with clients and adapt their approach.", fr: "Phase 2 : cinq demi-journées d’observation auprès de nos entraîneurs lors de cours privés et de consultations. Observez leur évaluation des chiens, leur communication avec les clients et leur adaptation à chaque situation." },
+      ] },
+      { title: { en: "March · Build your skills", fr: "Mars · Développer vos habiletés" }, paragraphs: [
+        { en: "Phase 3: five half days of hands-on practice. Put the theory and observations into action and develop your handling skills with our team.", fr: "Phase 3 : cinq demi-journées de pratique. Mettez en application vos connaissances et vos observations, puis développez vos habiletés de maniement avec notre équipe." },
+        { en: "Participants who complete these first three phases receive a Certificate of Completion from Montreal Canine Training.", fr: "Les participants qui terminent les trois premières phases reçoivent une attestation de fin de formation de MTL Canine Training." },
+      ] },
+      { title: { en: "April · A possible next step", fr: "Avril · Une suite possible" }, paragraphs: [
+        { en: "Phase 4 is an 80-hour placement for selected candidates being considered for future recruitment. It is not included in the standard program and is not guaranteed to every participant.", fr: "La phase 4 est un stage de 80 heures pour les candidats sélectionnés dans une perspective de recrutement. Elle n’est pas incluse dans le programme standard et n’est pas garantie à chaque participant." },
+        { en: "The program can open a conversation about future opportunities with our team; it does not guarantee employment.", fr: "Le programme peut ouvrir la discussion sur de futures possibilités au sein de notre équipe; il ne garantit pas un emploi." },
+      ] },
+    ],
   },
 } satisfies Record<string, FacilityService>
 

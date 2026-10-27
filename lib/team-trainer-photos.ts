@@ -5,7 +5,7 @@
  */
 
 export const TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG = {
-  nick: "/images/team/nick.png",
+  nick: "/images/october-2026/nick-bio.webp",
   tyson: "/images/team/tyson.jpg",
   mia: "/images/team/mia.jpeg",
 } as const
@@ -14,7 +14,7 @@ export type CanonicalTrainerBookingSlug = keyof typeof TEAM_TRAINER_PHOTOS_BY_BO
 
 /** Object-fit positions for bios (and optionally booking hero — same cropping intent). */
 export const TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG = {
-  nick: "object-[50%_8%]",
+  nick: "object-[50%_30%]",
   mia: "object-[50%_30%]",
 } as const satisfies Partial<Record<CanonicalTrainerBookingSlug, string>>
 

@@ -114,7 +114,7 @@ describe("homepage hero readability", () => {
     const benefit = html.match(/<span data-hero-benefit[\s\S]*?<\/svg><\/span><\/span>/)?.[0]
     expect(benefit?.replace(/<[^>]*>/g, "")).toBe("Get your life back.")
     expect(benefit).toContain("data-hero-benefit-scribble")
-    expect(html).not.toContain("opacity-0")
+    expect(benefit).not.toContain("opacity-0")
     expect(html).not.toContain("animation-delay")
     expect(html).not.toContain("will-change-transform")
   })
@@ -126,5 +126,12 @@ describe("homepage hero readability", () => {
     expect(html).toContain("lg:px-12 lg:py-8")
     expect(html).toContain("lg:min-w-[180px]")
     expect(html).toContain("lg:px-10 lg:py-8")
+  })
+
+  it("replaces the old indoor scenes with supplied training photos", () => {
+    const html = renderToStaticMarkup(<HeroSection />)
+    expect(html).toContain("/images/october-2026/home-training.webp")
+    expect(html).toContain("/images/october-2026/group-walk.webp")
+    expect(html).not.toContain("hero-lite")
   })
 })

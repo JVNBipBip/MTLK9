@@ -44,6 +44,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
               <p className="mb-5 text-sm font-semibold tracking-wide text-primary">{t(service.eyebrow)}</p>
               <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{t(service.heading)}</h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t(service.intro)}</p>
+              {service.price && <p className="mt-6 text-2xl font-semibold text-primary">{t(service.price)}</p>}
               <div className="mt-8">{action}</div>
               {(id === "day-training" || id === "regular-daycare" || id === "daycare") && (
                 <p className="mt-5 text-sm text-muted-foreground">{locale === "fr" ? "Journées et demi-journées · Évaluation préalable" : "Full days & half days · Assessment required"}</p>
@@ -85,7 +86,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
               </div>
             </section>
           ))}
-          <div className="rounded-3xl bg-secondary p-7 md:p-10">
+          <div className="rounded-3xl bg-secondary/15 p-7 md:p-10">
             <h2 className="mb-5 text-2xl font-semibold">{locale === "fr" ? "Parlons de la prochaine étape." : "Let’s talk about the next step."}</h2>
             {action}
             <a href="tel:+15148269558" className="mt-5 block w-fit text-sm font-medium text-primary underline underline-offset-4">{locale === "fr" ? "Une question? Appelez le" : "Questions? Call"} 514 826 9558</a>
@@ -94,6 +95,16 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
       )}
 
       {id === "grooming" && <section className="mx-auto max-w-7xl px-5 pb-16 md:px-8"><a href="https://www.instagram.com/mtlcaninespa/" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-3 font-medium text-primary hover:underline"><Instagram className="size-5" aria-hidden />{locale === "fr" ? "Suivre @mtlcaninespa" : "Follow @mtlcaninespa"}<ArrowUpRight className="size-4" aria-hidden /></a></section>}
+      {id === "apprenticeships" && <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
+        <h2 className="mb-6 text-2xl font-semibold">{locale === "fr" ? "Apprendre auprès de notre équipe" : "Learn alongside our team"}</h2>
+        <div className="grid gap-5 sm:grid-cols-3">
+          {[
+            { src: "/images/october-2026/apprenticeship-graduate.webp", en: "A participant and two dogs at Montreal Canine Training", fr: "Une participante et deux chiens chez MTL Canine Training" },
+            { src: "/images/october-2026/apprenticeship-graduate-2.webp", en: "A participant with a dog and certificate at our school", fr: "Une participante avec son chien et son certificat à notre école" },
+          ].map(photo => <div key={photo.src} className="relative aspect-[3/4] overflow-hidden rounded-3xl"><Image src={photo.src} alt={photo[locale]} fill sizes="(max-width: 639px) 100vw, 33vw" className="object-cover" /></div>)}
+          <a href="/images/october-2026/apprenticeship-poster.webp" target="_blank" rel="noopener noreferrer" className="relative block aspect-[3/4] overflow-hidden rounded-3xl bg-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" aria-label={locale === "fr" ? "Voir l’affiche du programme de janvier 2027" : "View the January 2027 program poster"}><Image src="/images/october-2026/apprenticeship-poster.webp" alt={locale === "fr" ? "Affiche : apprentissage en entraînement canin, dès janvier 2027. Informations au 514 826 9558." : "Dog trainer apprenticeship poster: starts January 2027. Information: 514 826 9558."} fill sizes="(max-width: 639px) 100vw, 33vw" className="object-contain" /></a>
+        </div>
+      </section>}
       <Footer />
     </main>
   )

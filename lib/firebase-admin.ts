@@ -25,8 +25,9 @@ function initFirebaseAdmin() {
     process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
     path.resolve(process.cwd(), "mtl-k9-firebase-adminsdk-fbsvc-c0be956248.json")
 
-  if (fs.existsSync(jsonPath)) {
-    const serviceAccount = JSON.parse(fs.readFileSync(jsonPath, "utf8")) as {
+  // Local convenience only: production credentials come from server environment variables.
+  if (process.env.NODE_ENV !== "production" && fs.existsSync(/* turbopackIgnore: true */ jsonPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(/* turbopackIgnore: true */ jsonPath, "utf8")) as {
       project_id: string
       client_email: string
       private_key: string

@@ -1,10 +1,15 @@
 "use client"
 
 import Script from "next/script"
+import { usePathname } from "next/navigation"
 import { FB_PIXEL_ID } from "@/lib/facebook-pixel"
+import { stripLocaleFromPathname } from "@/lib/i18n/config"
 
 export function FacebookPixel() {
-  if (!FB_PIXEL_ID) return null
+  const path = stripLocaleFromPathname(usePathname() || "/")
+  // Intake links use full navigation so an advertising script from another
+  // page cannot remain mounted while contact/emergency details are entered.
+  if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production" || path.startsWith("/daycare/apply")) return null
 
   return (
     <>

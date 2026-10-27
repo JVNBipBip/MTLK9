@@ -24,7 +24,6 @@ const navLinks = [
   { labelKey: "results", href: "/results" },
   { labelKey: "aboutUs", href: "/about" },
   { labelKey: "faq", href: "/faq" },
-  { labelKey: "blog", href: "/blog" },
 ]
 
 export function Header() {
@@ -94,7 +93,7 @@ export function Header() {
                 {t("nav.more")}<ChevronDown className="size-3.5" aria-hidden />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-44 rounded-2xl p-2" sideOffset={12}>
-                {navLinks.filter((link) => ["/about", "/faq", "/blog"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
+                {navLinks.filter((link) => ["/about", "/faq"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

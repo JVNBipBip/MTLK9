@@ -23,7 +23,8 @@ export async function ServicesOverview() {
           <div className="mb-5 flex items-center justify-between"><Icon className="size-6 text-primary" aria-hidden /><ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden /></div>
           <h3 className="text-lg font-semibold leading-tight">{service[locale]}</h3>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{locale === "fr" ? service.descFr : service.descEn}</p>
-          {(service.path === "/day-training" || service.path === "/regular-daycare") && <p className="mt-auto pt-4 text-xs font-semibold text-primary">{locale === "fr" ? "Dès le 1er novembre" : "Starting November 1"}</p>}
+          {(service.path === "/day-training" || service.path === "/regular-daycare") && <p className="mt-auto pt-4 text-xs font-semibold text-primary">{locale === "fr" ? "Lundis et mardis · Dès le 1er novembre" : "Mondays & Tuesdays · Starting November 1"}</p>}
+          {service.path === "/apprenticeships" && <p className="mt-auto pt-4 text-xs font-semibold text-primary">{locale === "fr" ? "Prochaine cohorte : janvier 2027" : "Next program: January 2027"}</p>}
         </Link>)}
       </div>
     </div>

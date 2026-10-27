@@ -1,10 +1,10 @@
-import nodemailer from "nodemailer"
+import nodemailer, { type Transporter } from "nodemailer"
 import { CLIENT_EMAIL_SHELL_MARKER } from "@/lib/client-email-layout"
 import { FieldValue } from "firebase-admin/firestore"
 import { getAdminDb } from "@/lib/firebase-admin"
 
 type EmailConfig =
-  | { method: "smtp"; from: string; transporter: nodemailer.Transporter }
+  | { method: "smtp"; from: string; transporter: Transporter }
   | { method: "resend"; apiKey: string; from: string }
 
 async function logEmailDelivery(input: {
@@ -45,6 +45,9 @@ function getEmailConfig(): EmailConfig | null {
       host: smtpHost,
       port,
       secure,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 15000,
       auth: { user: smtpUser, pass: smtpPass },
     })
     return { method: "smtp", from: emailFrom ?? smtpUser, transporter }

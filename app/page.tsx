@@ -9,6 +9,7 @@ import { StatsSection } from "@/components/stats-section"
 import { FinalCTASection } from "@/components/final-cta-section"
 import { Footer } from "@/components/footer"
 import { ServicesOverview } from "@/components/services-overview"
+import { TrainingMoments } from "@/components/training-moments"
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <ServicesOverview />
       <PainPointsSection />
       <TransformationsSection />
+      <TrainingMoments />
       <HowItWorksSection />
       <StatsSection />
       <FaqSection />
