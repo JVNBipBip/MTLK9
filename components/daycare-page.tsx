@@ -5,6 +5,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { DaycareCalculator } from "@/components/daycare-calculator"
 import { DaycarePolicy } from "@/components/daycare-policy"
+import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 
 export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "day-training" | "regular-daycare" }) {
@@ -89,6 +90,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
         <p className="mb-3 text-sm font-semibold text-primary">{t("Simple, flexible pricing", "Des tarifs simples et flexibles")}</p>
         <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">{t("Build their day. See your price.", "Composez sa journée. Voyez votre prix.")}</h2>
         <p className="mt-4 mb-10 max-w-2xl leading-relaxed text-muted-foreground">{t("Bundle 5 visits and save 5%, 10 visits and save 7%, or 20 visits and save 12%. Your selected add-ons receive the same discount.", "Économisez 5 % sur 5 visites, 7 % sur 10 visites ou 12 % sur 20 visites. Le même rabais s’applique aux options choisies.")}</p>
+        <DaycareHouseholdOffer locale={locale} />
         <DaycareCalculator locale={locale} />
       </div>
     </section>
