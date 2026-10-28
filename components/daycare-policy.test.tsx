@@ -25,7 +25,7 @@ jest.mock("@/lib/seo", () => ({
   buildLocalizedMetadata: jest.fn(),
 }))
 
-describe("Nick's October 27 daycare terms", () => {
+describe("Nick's October 27–28 daycare terms", () => {
   it("shows the cutoff, late-change consequences and penalty-free rescheduling in English", () => {
     const html = renderToStaticMarkup(<DaycarePolicy locale="en" />)
     expect(html).toContain("Book at least 24 hours before your scheduled visit.")
@@ -45,14 +45,26 @@ describe("Nick's October 27 daycare terms", () => {
 
   it.each(["en", "fr"] as const)("shows approved durations and bundle windows in the %s calculator", locale => {
     const html = renderToStaticMarkup(<DaycareCalculator locale={locale} />)
-    expect(html).toContain(locale === "fr" ? "Jusqu’à 6 heures" : "Up to 6 hours")
-    expect(html).toContain(locale === "fr" ? "6 à 11 heures" : "6–11 hours")
+    expect(html).toContain(locale === "fr" ? "Jusqu’à 6 heures inclusivement" : "Up to 6 hours (inclusive)")
+    expect(html).toContain(locale === "fr" ? "Plus de 6, jusqu’à 11 heures" : "More than 6, up to 11 hours")
+    expect(html).not.toContain(locale === "fr" ? "6 à 11 heures" : "6–11 hours")
     for (const weeks of [4, 7, 12]) {
-      expect(html).toContain(locale === "fr" ? `À utiliser en ${weeks} semaines` : `Complete within ${weeks} weeks`)
+      expect(html).toContain(locale === "fr" ? `À utiliser en ${weeks} semaines à partir de la première visite` : `Complete within ${weeks} weeks from the first visit`)
     }
     expect(html).toContain('href="#daycare-policy"')
     expect(daycareBundleWindow(1, locale)).toBeNull()
-    expect(html).not.toMatch(/from (purchase|first visit)|à partir (de l’achat|de la première visite)/)
+    expect(html).toContain(locale === "fr" ? "Votre estimation pour un chien" : "Your estimate for one dog")
+    expect(html).not.toMatch(/30\s?%/)
+  })
+
+  it.each(["en", "fr"] as const)("shows the daily dog limit and first-visit expiry anchor in %s", locale => {
+    const html = renderToStaticMarkup(<DaycarePolicy locale={locale} />)
+    expect(html).toContain(locale === "fr" ? "maximum de 15 chiens par jour" : "maximum of 15 dogs per day")
+    expect(html).toContain(locale === "fr" ? "ne réserve pas une place" : "does not reserve a place")
+    expect(html).toContain(locale === "fr" ? "première visite, et non à la date d’achat" : "first visit, not the purchase date")
+    for (const weeks of [4, 7, 12]) {
+      expect(html).toContain(locale === "fr" ? `${weeks} semaines à partir de la première visite` : `${weeks} weeks from the first visit`)
+    }
   })
 
   it.each(["daycare", "day-training", "regular-daycare"] as const)("includes the policy section on %s", async focus => {

@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/lib/i18n/config"
 import { DAYCARE_NOTICE_HOURS, daycareBundleWindow } from "@/lib/daycare-policy"
+import { DAYCARE_MAX_DOGS_PER_DAY } from "@/lib/daycare-rules"
 
 export function DaycarePolicy({ locale }: { locale: AppLocale }) {
   const fr = locale === "fr"
@@ -28,7 +29,9 @@ export function DaycarePolicy({ locale }: { locale: AppLocale }) {
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{policy.text}</p>
       </div>)}</div>
       <p className="mt-6 rounded-2xl bg-primary/5 px-6 py-5 font-medium leading-relaxed">{t(`With at least ${DAYCARE_NOTICE_HOURS} hours’ notice, you may reschedule your visit without penalty.`, `Avec un préavis d’au moins ${DAYCARE_NOTICE_HOURS} heures, vous pouvez reporter votre visite sans pénalité.`)}</p>
+      <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{t(`We accept a maximum of ${DAYCARE_MAX_DOGS_PER_DAY} dogs per day. Admission approval does not reserve a place.`, `Nous accueillons un maximum de ${DAYCARE_MAX_DOGS_PER_DAY} chiens par jour. L’approbation de votre demande ne réserve pas une place.`)}</p>
       <h3 className="mt-9 text-xl font-semibold">{t("Bundle completion windows", "Délais pour utiliser les forfaits")}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t("Your bundle period starts with your first visit, not the purchase date.", "Le délai de votre forfait commence à votre première visite, et non à la date d’achat.")}</p>
       <ul className="mt-4 grid gap-4 sm:grid-cols-3">{([5, 10, 20] as const).map(visits => <li key={visits} className="border-l-2 border-primary/30 pl-4">
         <span className="block font-semibold">{visits} {t("visits", "visites")}</span>
         <span className="mt-1 block text-sm text-muted-foreground">{daycareBundleWindow(visits, locale)}</span>

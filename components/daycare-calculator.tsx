@@ -58,7 +58,7 @@ export function DaycareCalculator({ locale }: { locale: AppLocale }) {
     </div>
     <div className="self-start rounded-3xl bg-primary p-7 text-primary-foreground sm:p-9 lg:sticky lg:top-32" aria-live="polite" aria-atomic="true">
       <p className="text-sm font-medium text-primary-foreground/75">{fr ? "Votre journée, à votre façon" : "A day designed around your dog"}</p>
-      <h3 className="mt-3 text-2xl font-semibold">{fr ? "Votre estimation" : "Your estimate"}</h3>
+      <h3 className="mt-3 text-2xl font-semibold">{fr ? "Votre estimation pour un chien" : "Your estimate for one dog"}</h3>
       <dl className="mt-7 space-y-4 text-sm">
         <div className="flex justify-between gap-4"><dt>{fr ? "Prix régulier par visite" : "Regular price per visit"}</dt><dd>{money(quote.regularPerVisitCents)}</dd></div>
         <div className="flex justify-between gap-4"><dt>{fr ? "Nombre de visites" : "Number of visits"}</dt><dd>{visits}</dd></div>
