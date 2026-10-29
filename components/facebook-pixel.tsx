@@ -9,7 +9,7 @@ export function FacebookPixel() {
   const path = stripLocaleFromPathname(usePathname() || "/")
   // Intake links use full navigation so an advertising script from another
   // page cannot remain mounted while contact/emergency details are entered.
-  if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production" || path.startsWith("/daycare/apply")) return null
+  if (!FB_PIXEL_ID || process.env.NODE_ENV !== "production" || path.startsWith("/daycare/apply") || path.startsWith("/daycare/book")) return null
 
   return (
     <>

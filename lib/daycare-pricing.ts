@@ -8,7 +8,7 @@ export type DaycareAddOn = keyof typeof DAYCARE_ADD_ON_CENTS
 export type DaycareVisits = keyof typeof DAYCARE_DISCOUNT_PERCENT
 
 /** Also validates callers at runtime; never accept a price or discount from a browser. */
-export function quoteDaycare(stay: DaycareStay, addOns: readonly DaycareAddOn[], visits: DaycareVisits) {
+export function quoteDaycare(stay: DaycareStay, addOns: readonly DaycareAddOn[], visits: DaycareVisits, secondDog = false) {
   if (!Object.hasOwn(DAYCARE_BASE_CENTS, stay) || !Object.hasOwn(DAYCARE_DISCOUNT_PERCENT, visits)) {
     throw new Error("Invalid daycare selection")
   }
@@ -18,9 +18,11 @@ export function quoteDaycare(stay: DaycareStay, addOns: readonly DaycareAddOn[],
   const regularPerVisitCents = DAYCARE_BASE_CENTS[stay] + [...new Set<DaycareAddOn>(addOns)].reduce((sum, key) => sum + DAYCARE_ADD_ON_CENTS[key], 0)
   const regularTotalCents = regularPerVisitCents * visits
   const discountPercent = DAYCARE_DISCOUNT_PERCENT[visits]
-  const savingsCents = Math.round(regularTotalCents * discountPercent / 100)
+  const bundleSavingsCents = Math.round(regularTotalCents * discountPercent / 100)
+  const secondDogSavingsCents = secondDog ? Math.round((regularTotalCents - bundleSavingsCents) * 30 / 100) : 0
+  const savingsCents = bundleSavingsCents + secondDogSavingsCents
   const totalCents = regularTotalCents - savingsCents
-  return { regularPerVisitCents, regularTotalCents, discountPercent, savingsCents, totalCents, perVisitCents: totalCents / visits, visits }
+  return { regularPerVisitCents, regularTotalCents, discountPercent, bundleSavingsCents, secondDogSavingsCents, savingsCents, totalCents, perVisitCents: totalCents / visits, visits }
 }
 
 export function daycareMoney(cents: number, locale: "en" | "fr") {

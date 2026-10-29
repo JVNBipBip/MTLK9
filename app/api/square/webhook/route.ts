@@ -727,6 +727,13 @@ export async function POST(request: Request) {
   }
 
   const eventId = payload.event_id ?? null
+  // A retryable failure must not acknowledge a daycare payment before its ledger is updated.
+  try {
+    const { reconcileDaycareWebhook } = await import("@/lib/daycare-payments")
+    await reconcileDaycareWebhook(payload)
+  } catch {
+    return NextResponse.json({ error: "Daycare payment reconciliation pending" }, { status: 503 })
+  }
   const eventType = payload.type ?? null
   const ctx = { eventId, eventType }
   const merchantId =

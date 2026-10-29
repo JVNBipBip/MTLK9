@@ -20,6 +20,7 @@ export const WELCOME_POPUP_TIME_TRIGGER_MS = 10_000
 export const WELCOME_POPUP_BLOCKED_PATH_PREFIXES = [
   "/booking",
   "/daycare/apply",
+  "/daycare/book",
   "/training-portal",
   "/checkout",
   "/privacy",

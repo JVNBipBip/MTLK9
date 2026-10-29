@@ -55,7 +55,8 @@ describe("Nick's October 27–28 daycare terms", () => {
     expect(html).toContain('href="#daycare-policy"')
     expect(daycareBundleWindow(1, locale)).toBeNull()
     expect(html).toContain(locale === "fr" ? "Votre estimation pour un chien" : "Your estimate for one dog")
-    expect(html).not.toMatch(/30\s?%/)
+    expect(html).toMatch(/30\s?%/)
+    expect(html).toContain(locale === "fr" ? "après le rabais du forfait" : "after bundle savings")
   })
 
   it.each(["en", "fr"] as const)("shows the daily dog limit and first-visit expiry anchor in %s", locale => {
@@ -76,17 +77,19 @@ describe("Nick's October 27–28 daycare terms", () => {
     expect(html).toContain("Complete within 7 weeks")
     expect(html).toContain("Complete within 12 weeks")
     expect(html).toContain("30% off your second dog")
-    expect(html).toContain("daycare, training, add-ons and bundles")
+    expect(html).toContain("daycare, training and add-ons")
+    expect(html).toContain('/en/daycare/book')
   })
 
   it.each(["en", "fr"] as const)("publishes confirmed second-dog coverage without guessing household totals in %s", locale => {
     const html = renderToStaticMarkup(<DaycareHouseholdOffer locale={locale} />)
     expect(html).toContain(locale === "fr" ? "30 % de rabais pour le deuxième" : "30% off your second dog")
     expect(html).toContain(locale === "fr" ? "deux chiens du même foyer" : "two dogs in the same household")
-    expect(html).toContain(locale === "fr" ? "garderie, à l’entraînement, aux options et aux forfaits" : "daycare, training, add-ons and bundles")
-    expect(html).toContain(locale === "fr" ? "Contactez notre équipe" : "Contact our team")
+    expect(html).toContain(locale === "fr" ? "garderie, à l’entraînement et aux options" : "daycare, training and add-ons")
+    expect(html).toContain(locale === "fr" ? "après le rabais du forfait" : "after bundle savings")
     expect(html).toContain('href="tel:+15148269558"')
-    expect(html).not.toMatch(/extra 30|additional 30|share a bundle|rabais supplémentaire|partagez un forfait/i)
+    expect(html).toContain(locale === "fr" ? "son propre solde" : "its own visit balance")
+    expect(html).not.toMatch(/share a bundle|partagez un forfait/i)
   })
 
   it.each(["en", "fr"] as const)("publishes apprenticeship tuition without promising the optional placement in %s", async locale => {

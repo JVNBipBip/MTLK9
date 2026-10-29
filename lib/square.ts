@@ -31,7 +31,7 @@ async function tryRefreshOAuthToken(): Promise<boolean> {
 }
 
 /** OAuth first. Env token is only a bootstrap fallback unless explicitly allowed after OAuth failure. */
-async function getSquareConfigAsync() {
+export async function getSquareConfigAsync() {
   const locationId = await getSquareLocationId()
   const env = (process.env.SQUARE_ENV || "sandbox") as SquareEnv
   const apiVersion = process.env.SQUARE_API_VERSION || "2025-10-16"
@@ -115,7 +115,7 @@ function sleep(ms: number) {
 
 const MAX_SQUARE_RETRIES = 5
 
-async function squareRequest<T>(path: string, init: RequestInit) {
+export async function squareRequest<T>(path: string, init: RequestInit) {
   const cfg = await getSquareConfigAsync()
   let attempt = 0
   while (true) {
