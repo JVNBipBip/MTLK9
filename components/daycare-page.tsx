@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowDown, Check, Clock3, Phone } from "lucide-react"
+import { ArrowDown, ArrowRight, CalendarDays, Check, Clock3, Phone } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { DaycareCalculator } from "@/components/daycare-calculator"
@@ -107,10 +107,25 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
           [t("A complimentary phone evaluation", "Une évaluation téléphonique gratuite"), t("Our team reviews your answers and speaks with you for up to 15 minutes. An in-person assessment may also be needed.", "Notre équipe examine vos réponses et vous appelle pendant un maximum de 15 minutes. Une évaluation en personne peut aussi être nécessaire.")],
           [t("Approval, then booking access", "Approbation, puis accès aux réservations"), t("Once approved, our team sends your personal reusable code. Purchase visits securely online, then reserve available dates in your portal. Submitting a request does not guarantee acceptance.", "Après approbation, notre équipe vous envoie votre code personnel réutilisable. Achetez vos visites en ligne, puis réservez les dates disponibles dans votre portail. Une demande ne garantit pas l’admission.")],
         ].map(([title, copy], i) => <div key={title}><span className="mb-4 flex size-10 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">0{i+1}</span><h3 className="text-xl font-semibold">{title}</h3><p className="mt-3 leading-relaxed text-muted-foreground">{copy}</p></div>)}</div>
-        <div className="mt-10 flex flex-col items-start gap-4 rounded-3xl bg-secondary/15 p-7 sm:flex-row sm:items-center sm:justify-between">
-          <div><h3 className="text-xl font-semibold">{t("Interested in joining?", "Envie de vous inscrire?")}</h3><p className="mt-2 text-sm text-muted-foreground">{t("Apply for admission first. No payment is required to apply. Already approved?", "Faites d’abord une demande d’admission, sans paiement. Déjà approuvé?")} <a href={localizedPath(locale, "/daycare/book")} className="underline underline-offset-4">{t("Open your booking portal", "Ouvrir votre portail")}</a></p></div>
-          {/* Full navigation starts a clean intake document without advertising scripts. */}
-          <a href={localizedPath(locale, "/daycare/apply")} className="inline-flex min-h-14 items-center justify-center rounded-full bg-primary px-7 py-4 text-center font-semibold text-primary-foreground">{t("Apply for daycare", "Demande d’admission")}</a>
+        <div id="daycare-next-step" className="mt-10 grid scroll-mt-28 gap-5 md:grid-cols-2">
+          <article aria-labelledby="daycare-approved-heading" className="flex flex-col rounded-3xl bg-primary p-6 text-primary-foreground sm:p-8">
+            <h3 id="daycare-approved-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("Already approved?", "Déjà approuvé?")}</h3>
+            <p className="mt-3 mb-7 leading-relaxed text-primary-foreground/90">{t("Use your personal access code to choose your dates and book your dog’s next visit.", "Utilisez votre code d’accès personnel pour choisir vos dates et réserver la prochaine visite de votre chien.")}</p>
+            <a href={localizedPath(locale, "/daycare/book")} className="mt-auto inline-flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-background px-5 py-4 text-center text-lg font-semibold leading-snug text-primary transition-colors hover:bg-background/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-foreground sm:px-7">
+              <CalendarDays className="size-6 shrink-0" aria-hidden />
+              <span>{t("Book a daycare visit", "Réserver une visite")}</span>
+              <ArrowRight className="size-5 shrink-0" aria-hidden />
+            </a>
+          </article>
+          <article aria-labelledby="daycare-new-heading" className="flex flex-col rounded-3xl border border-border bg-secondary/10 p-6 sm:p-8">
+            <h3 id="daycare-new-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("New to daycare?", "Première visite?")}</h3>
+            <p className="mt-3 mb-7 leading-relaxed text-muted-foreground">{t("Apply for admission first. Our team will review your application before you can book. No payment is required to apply.", "Faites d’abord une demande d’admission. Notre équipe l’examinera avant que vous puissiez réserver. Aucun paiement n’est requis pour faire une demande.")}</p>
+            {/* Full navigation starts a clean intake document without advertising scripts. */}
+            <a href={localizedPath(locale, "/daycare/apply")} className="mt-auto inline-flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl border border-primary/40 bg-background px-5 py-4 text-center text-lg font-semibold leading-snug text-primary transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-7">
+              <span>{t("Apply for daycare", "Demande d’admission")}</span>
+              <ArrowRight className="size-5 shrink-0" aria-hidden />
+            </a>
+          </article>
         </div>
         <a href="tel:+15148269558" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4"><Phone className="size-4" aria-hidden />{t("Questions? Call", "Une question? Appelez le")} 514 826 9558</a>
       </div>

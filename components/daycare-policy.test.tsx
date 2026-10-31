@@ -28,6 +28,27 @@ jest.mock("@/lib/seo", () => ({
 }))
 
 describe("Nick's October 27–28 daycare terms", () => {
+  it.each(["en", "fr"] as const)("separates approved-client booking from new applications with prominent buttons in %s", async locale => {
+    jest.mocked(getRequestLocale).mockResolvedValue(locale)
+    for (const focus of ["daycare", "day-training", "regular-daycare"] as const) {
+      const html = renderToStaticMarkup(await DaycarePage({ focus }))
+      const approvedCard = html.match(/<article aria-labelledby="daycare-approved-heading"[\s\S]*?<\/article>/)?.[0]
+      const applicationCard = html.match(/<article aria-labelledby="daycare-new-heading"[\s\S]*?<\/article>/)?.[0]
+      expect(approvedCard).toBeDefined()
+      expect(applicationCard).toBeDefined()
+      expect(approvedCard).toContain(locale === "fr" ? "Déjà approuvé?" : "Already approved?")
+      expect(approvedCard).toContain(locale === "fr" ? "Réserver une visite" : "Book a daycare visit")
+      expect(approvedCard).toContain(locale === "fr" ? "code d’accès personnel" : "personal access code")
+      expect(approvedCard).toContain(`href="/${locale}/daycare/book"`)
+      expect(approvedCard).toContain("min-h-16 w-full")
+      expect(approvedCard).toContain("focus-visible:outline")
+      expect(approvedCard).not.toContain("/daycare/apply")
+      expect(applicationCard).toContain(`href="/${locale}/daycare/apply"`)
+      expect(applicationCard).not.toContain("/daycare/book")
+      expect(html.indexOf('aria-labelledby="daycare-approved-heading"')).toBeLessThan(html.indexOf('aria-labelledby="daycare-new-heading"'))
+      expect(html).not.toContain(locale === "fr" ? "Ouvrir votre portail" : "Open your booking portal")
+    }
+  })
   it.each(["en", "fr"] as const)("uses revised pricing and keeps the household offer at the end in %s", async locale => {
     jest.mocked(getRequestLocale).mockResolvedValue(locale)
     const description = locale === "fr" ? "Bénéfique pour les chiens très énergiques qui ont besoin de beaucoup de stimulation physique." : "Beneficial for high energy dogs that need lots of physical stimulation."
