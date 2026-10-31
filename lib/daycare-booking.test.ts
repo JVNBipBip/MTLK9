@@ -131,6 +131,6 @@ test("second dog receives additional30% after bundle savings on all selected ser
   expect(
     quoteDaycare("full", ["training", "treadmill", "individual"], 20, true)
       .totalCents,
-  ).toBe(154000);
+  ).toBe(160160);
   expect(quoteDaycare("half", [], 1, true).totalCents).toBe(2800);
 });

@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer"
 import { DaycareCalculator } from "@/components/daycare-calculator"
 import { DaycarePolicy } from "@/components/daycare-policy"
 import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
+import { DAYCARE_ADD_ON_CENTS, daycareMoney, quoteDaycare } from "@/lib/daycare-pricing"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 
 export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "day-training" | "regular-daycare" }) {
@@ -13,6 +14,8 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
   const fr = locale === "fr"
   const t = (en: string, french: string) => fr ? french : en
   const training = focus === "day-training"
+  const money = (cents: number) => daycareMoney(cents, locale)
+  const fullExperience = (stay: "half" | "full") => money(quoteDaycare(stay, ["training", "treadmill", "individual"], 1).totalCents)
   const heading = training
     ? t("Their day. Your training goals.", "Sa journée. Vos objectifs.")
     : t("A great day for your dog. Peace of mind for you.", "Une belle journée pour votre chien. L’esprit tranquille pour vous.")
@@ -25,9 +28,9 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
     ["Structured rest and downtime", "Périodes de repos structurées"],
   ]
   const addOns = [
-    { title: t("Complete Training", "Entraînement complet"), price: "+$35", frPrice: "+35 $", kicker: t("Purposeful progress", "Des progrès concrets"), copy: t("Obedience, leash walking, engagement, impulse control, behaviour work and your personal goals. We give you guidance to continue at home.", "Obéissance, marche en laisse, engagement, contrôle des impulsions, comportement et objectifs personnels. Nous vous guidons pour poursuivre à la maison."), detail: t("Half day: 2–3 sessions · Full day: 4–6 sessions", "Demi-journée : 2–3 séances · Journée : 4–6 séances") },
-    { title: t("Treadmill Exercise", "Exercice sur tapis roulant"), price: "+$15", frPrice: "+15 $", kicker: t("An outlet for their energy", "Une façon de dépenser son énergie"), copy: t("Supervised exercise adjusted to your dog’s fitness and comfort. Each session lasts up to 15 minutes.", "Exercice supervisé adapté à la condition physique et au confort de votre chien. Chaque séance dure jusqu’à 15 minutes."), detail: t("Half day: 2–3 sessions · Full day: 4–6 sessions", "Demi-journée : 2–3 séances · Journée : 4–6 séances") },
-    { title: t("One-on-One Play", "Jeux individuels"), price: "+$20", frPrice: "+20 $", kicker: t("All the attention, just for them", "Toute notre attention, juste pour lui"), copy: t("Fetch, tug, individual walks, enrichment and confidence-building. A personalized option for dogs who aren’t comfortable in group play.", "Rapport d’objet, jeux de traction, promenades individuelles, enrichissement et confiance. Une option personnalisée pour les chiens moins à l’aise en groupe."), detail: t("Interactive play tailored to your dog", "Des activités choisies pour votre chien") },
+    { title: t("Complete Training", "Entraînement complet"), price: DAYCARE_ADD_ON_CENTS.training, kicker: t("Purposeful progress", "Des progrès concrets"), copy: t("Obedience, leash walking, engagement, impulse control, behaviour work and your personal goals. We give you guidance to continue at home.", "Obéissance, marche en laisse, engagement, contrôle des impulsions, comportement et objectifs personnels. Nous vous guidons pour poursuivre à la maison."), detail: t("Half day: 2–3 sessions · Full day: 4–6 sessions", "Demi-journée : 2–3 séances · Journée : 4–6 séances") },
+    { title: t("Treadmill Exercise", "Exercice sur tapis roulant"), price: DAYCARE_ADD_ON_CENTS.treadmill, kicker: t("An outlet for their energy", "Une façon de dépenser son énergie"), copy: t("Supervised exercise adjusted to your dog’s fitness and comfort. Each session lasts up to 15 minutes. Beneficial for high energy dogs that need lots of physical stimulation.", "Exercice supervisé adapté à la condition physique et au confort de votre chien. Chaque séance dure jusqu’à 15 minutes. Bénéfique pour les chiens très énergiques qui ont besoin de beaucoup de stimulation physique."), detail: t("Half day: 2–3 sessions · Full day: 4–6 sessions", "Demi-journée : 2–3 séances · Journée : 4–6 séances") },
+    { title: t("One-on-One Play", "Jeux individuels"), price: DAYCARE_ADD_ON_CENTS.individual, kicker: t("All the attention, just for them", "Toute notre attention, juste pour lui"), copy: t("Fetch, tug, individual walks, enrichment and confidence-building. A personalized option for dogs who aren’t comfortable in group play.", "Rapport d’objet, jeux de traction, promenades individuelles, enrichissement et confiance. Une option personnalisée pour les chiens moins à l’aise en groupe."), detail: t("Interactive play tailored to your dog", "Des activités choisies pour votre chien") },
   ]
 
   return <main className="min-h-screen bg-background">
@@ -74,13 +77,13 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
         <div className="mt-9 grid gap-5 lg:grid-cols-3">{addOns.map((option, i) => <article key={option.title} className="flex flex-col rounded-3xl border border-border p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">0{i+1} · {option.kicker}</p>
           <h3 className="mt-5 text-2xl font-semibold">{option.title}</h3>
-          <p className="mt-4 text-4xl font-semibold tracking-tight text-primary">{fr ? option.frPrice : option.price}<span className="ml-2 text-sm font-normal text-muted-foreground">{t("/ visit + tax", "/ visite + taxes")}</span></p>
+          <p className="mt-4 text-4xl font-semibold tracking-tight text-primary">+{money(option.price)}<span className="ml-2 text-sm font-normal text-muted-foreground">{t("/ visit + tax", "/ visite + taxes")}</span></p>
           <p className="mt-5 flex-1 leading-relaxed text-muted-foreground">{option.copy}</p>
           <p className="mt-6 border-t border-border pt-5 text-sm font-medium">{option.detail}</p>
         </article>)}</div>
         <div className="mt-5 flex flex-col justify-between gap-5 rounded-3xl bg-secondary/15 px-7 py-6 sm:flex-row sm:items-center">
           <div><h3 className="text-xl font-semibold">{t("The full experience", "L’expérience complète")}</h3><p className="mt-1 text-sm text-muted-foreground">{t("Daycare + all three add-ons", "Garderie + les trois options")}</p></div>
-          <p className="text-lg font-semibold">{t("Half day $110 · Full day $125", "Demi-journée 110 $ · Journée 125 $")}<span className="mt-1 block text-sm font-normal text-muted-foreground">{t("CAD, plus applicable taxes", "Dollars canadiens, taxes en sus")}</span></p>
+          <p className="text-lg font-semibold">{t(`Half day ${fullExperience("half")} · Full day ${fullExperience("full")}`, `Demi-journée ${fullExperience("half")} · Journée ${fullExperience("full")}`)}<span className="mt-1 block text-sm font-normal text-muted-foreground">{t("CAD, plus applicable taxes", "Dollars canadiens, taxes en sus")}</span></p>
         </div>
       </div>
     </section>
@@ -90,7 +93,6 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
         <p className="mb-3 text-sm font-semibold text-primary">{t("Simple, flexible pricing", "Des tarifs simples et flexibles")}</p>
         <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">{t("Build their day. See your price.", "Composez sa journée. Voyez votre prix.")}</h2>
         <p className="mt-4 mb-10 max-w-2xl leading-relaxed text-muted-foreground">{t("Bundle 5 visits and save 5%, 10 visits and save 7%, or 20 visits and save 12%. Your selected add-ons receive the same discount.", "Économisez 5 % sur 5 visites, 7 % sur 10 visites ou 12 % sur 20 visites. Le même rabais s’applique aux options choisies.")}</p>
-        <DaycareHouseholdOffer locale={locale} />
         <DaycareCalculator locale={locale} />
       </div>
     </section>
@@ -122,6 +124,9 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
           {t("Your browser does not support this video.", "Votre navigateur ne prend pas en charge cette vidéo.")}
         </video>
       </div>
+    </section>
+    <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">
+      <DaycareHouseholdOffer locale={locale} />
     </section>
     <Footer />
   </main>

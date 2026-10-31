@@ -8,7 +8,7 @@ import type { AppLocale } from "@/lib/i18n/config"
 
 const options = [
   { key: "training", en: "Complete Training", fr: "Entraînement complet", detailEn: "Obedience, manners and your own training goals.", detailFr: "Obéissance, bonnes manières et vos objectifs." },
-  { key: "treadmill", en: "Treadmill Exercise", fr: "Exercice sur tapis roulant", detailEn: "Supervised exercise adapted to your dog.", detailFr: "Exercice supervisé, adapté à votre chien." },
+  { key: "treadmill", en: "Treadmill Exercise", fr: "Exercice sur tapis roulant", detailEn: "Supervised exercise adapted to your dog. Beneficial for high energy dogs that need lots of physical stimulation.", detailFr: "Exercice supervisé, adapté à votre chien. Bénéfique pour les chiens très énergiques qui ont besoin de beaucoup de stimulation physique." },
   { key: "individual", en: "One-on-One Play", fr: "Jeux individuels", detailEn: "Personal attention, play and enrichment.", detailFr: "Attention personnalisée, jeux et enrichissement." },
 ] as const
 

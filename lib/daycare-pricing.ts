@@ -1,6 +1,6 @@
-/** Approved October 21, 2026 daycare brief. All amounts are CAD cents, before tax. */
+/** Approved daycare brief, training add-on updated October 30, 2026. CAD cents, before tax. */
 export const DAYCARE_BASE_CENTS = { half: 4000, full: 5500 } as const
-export const DAYCARE_ADD_ON_CENTS = { training: 3500, treadmill: 1500, individual: 2000 } as const
+export const DAYCARE_ADD_ON_CENTS = { training: 4000, treadmill: 1500, individual: 2000 } as const
 export const DAYCARE_DISCOUNT_PERCENT = { 1: 0, 5: 5, 10: 7, 20: 12 } as const
 
 export type DaycareStay = keyof typeof DAYCARE_BASE_CENTS

@@ -11,12 +11,13 @@ describe("approved daycare pricing", () => {
   })
   it("prices the full experience and applies bundle savings to add-ons too", () => {
     const addOns: DaycareAddOn[] = ["training", "treadmill", "individual"]
-    expect(quoteDaycare("half", addOns, 1).totalCents).toBe(11000)
-    expect(quoteDaycare("full", addOns, 1).totalCents).toBe(12500)
-    expect(quoteDaycare("full", addOns, 20)).toMatchObject({ totalCents: 220000, savingsCents: 30000, perVisitCents: 11000 })
+    expect(quoteDaycare("half", addOns, 1).totalCents).toBe(11500)
+    expect(quoteDaycare("full", addOns, 1).totalCents).toBe(13000)
+    expect(quoteDaycare("full", addOns, 20)).toMatchObject({ totalCents: 228800, savingsCents: 31200, perVisitCents: 11440 })
+    expect(quoteDaycare("full", addOns, 20, true)).toMatchObject({ totalCents: 160160, bundleSavingsCents: 31200, secondDogSavingsCents: 68640 })
   })
   it("never double charges duplicate selections", () => {
-    expect(quoteDaycare("half", ["training", "training"], 1).totalCents).toBe(7500)
+    expect(quoteDaycare("half", ["training", "training"], 1).totalCents).toBe(8000)
   })
   it("rejects unsupported selections and inherited object keys", () => {
     expect(() => quoteDaycare("overnight" as DaycareStay, [], 1)).toThrow()

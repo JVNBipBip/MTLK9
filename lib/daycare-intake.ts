@@ -32,11 +32,9 @@ export const DAYCARE_FIELDS: DaycareField[] = [
   { id: "dogs", step: 2, label: copy("Generally comfortable and social with other dogs?", "Généralement à l’aise et sociable avec les autres chiens?"), kind: "radio", required: true, options: social },
   { id: "service", step: 3, label: copy("Which service interests you?", "Quel service vous intéresse?"), kind: "radio", required: true, options: opts(["daycare", "Daycare", "Garderie"], ["day-training", "Day Training", "Entraînement de jour"], ["both", "Both / unsure", "Les deux / je ne sais pas"]) },
   { id: "stay", step: 3, label: copy("Preferred stay", "Durée souhaitée"), kind: "radio", required: true, options: opts(["half", "Half day", "Demi-journée"], ["full", "Full day", "Journée complète"], ["unsure", "Not sure yet", "Je ne sais pas encore"]) },
-  { id: "goals", step: 3, label: copy("What would you like us to work on?", "Quels objectifs aimeriez-vous travailler?"), kind: "multi", when: { field: "service", values: ["day-training", "both"] }, options: opts(["leash", "Leash walking", "Marche en laisse"], ["recall", "Recall", "Rappel"], ["obedience", "Basic obedience", "Obéissance de base"], ["jumping", "Jumping", "Sauts"], ["calmness", "Calmness / settling", "Calme et détente"], ["focus", "Engagement / focus", "Engagement et attention"], ["confidence", "Confidence", "Confiance"], ["other", "Other", "Autre"]) },
+  { id: "goals", step: 3, label: copy("What would you like us to work on?", "Quels objectifs aimeriez-vous travailler?"), kind: "multi", when: { field: "service", values: ["day-training", "both"] }, options: opts(["leash", "Leash walking", "Marche en laisse"], ["recall", "Recall", "Rappel"], ["obedience", "Basic obedience", "Obéissance de base"], ["calmness", "Calmness / settling", "Calme et détente"], ["focus", "Engagement / focus", "Engagement et attention"], ["confidence", "Confidence", "Confiance"], ["other", "Other", "Autre"]) },
   { id: "otherGoal", step: 3, label: copy("Other goal (optional)", "Autre objectif (facultatif)"), kind: "text", when: { field: "goals", values: ["other"] }, maxLength: 500 },
   { id: "vaccinated", step: 4, label: copy("Vaccinations up to date?", "Vaccins à jour?"), kind: "radio", required: true, options: unsure },
-  { id: "veterinarian", step: 4, label: copy("Veterinary clinic / veterinarian", "Clinique vétérinaire / vétérinaire"), kind: "text", required: true },
-  { id: "vetPhone", step: 4, label: copy("Veterinary clinic phone", "Téléphone de la clinique"), kind: "tel", required: true },
   { id: "emergencyName", step: 4, label: copy("Emergency contact’s full name", "Nom complet du contact d’urgence"), kind: "text", required: true },
   { id: "emergencyPhone", step: 4, label: copy("Emergency contact’s phone", "Téléphone du contact d’urgence"), kind: "tel", required: true },
   { id: "emergencyRelationship", step: 4, label: copy("Relationship", "Lien avec cette personne"), kind: "radio", required: true, options: opts(["partner", "Partner / spouse", "Conjoint ou conjointe"], ["family", "Family", "Famille"], ["friend", "Friend", "Ami ou amie"], ["other", "Other", "Autre"]) },
@@ -89,6 +87,7 @@ export function validateDaycareAnswers(raw: unknown, step?: number): { answers: 
 
 export function daycareAnswerLabel(field: DaycareField, value: DaycareAnswers[string], locale: DaycareLocale): string {
   if (typeof value === "boolean") return value ? (locale === "fr" ? "Oui" : "Yes") : (locale === "fr" ? "Non" : "No")
-  const label = (v: string) => field.options?.find(option => option.value === v)?.[locale] || v
+  // Preserve readable historical answers without offering removed goals on new applications.
+  const label = (v: string) => field.id === "goals" && v === "jumping" ? (locale === "fr" ? "Sauts" : "Jumping") : field.options?.find(option => option.value === v)?.[locale] || v
   return Array.isArray(value) ? value.map(label).join(", ") : label(value || "")
 }

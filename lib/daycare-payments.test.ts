@@ -67,7 +67,7 @@ function checkoutMock() {
     if (path.startsWith("/v2/catalog")) return { objects: taxes } as any;
     if (path === "/v2/orders/calculate")
       return {
-        order: { total_money: { amount: 4599, currency: "CAD" } },
+        order: { total_money: { amount: Math.round(JSON.parse(String(init.body)).order.line_items[0].base_price_money.amount * 1.14975), currency: "CAD" } },
       } as any;
     if (path === "/v2/online-checkout/payment-links")
       return {
@@ -111,6 +111,22 @@ test("checkout uses server prices, merchant taxes, stable idempotency and no PII
   await expect(
     createDaycareCheckout(account, { ...input, stay: "full" }),
   ).rejects.toThrow("request_conflict");
+});
+test("new training purchases use $40 while existing checkout quotes retain their saved prices", async () => {
+  checkoutMock();
+  const trainingInput = { ...input, addOns: ["training" as const] };
+  const result = await createDaycareCheckout(account, trainingInput);
+  const pass = memory.data.get(`daycare_passes/${result.id}`);
+  expect(pass.subtotalCents).toBe(8000);
+  expect(pass.totalCents).toBe(9198);
+  // Model an already-issued $35-training checkout: price changes must not rewrite its order.
+  pass.subtotalCents = 7500;
+  pass.totalCents = 8623;
+  pass.order.line_items[0].base_price_money.amount = 7500;
+  await createDaycareCheckout(account, trainingInput);
+  expect(pass.subtotalCents).toBe(7500);
+  expect(pass.totalCents).toBe(8623);
+  expect(jest.mocked(squareRequest).mock.calls.filter(([path]) => path.includes("payment-links"))).toHaveLength(1);
 });
 test("missing or altered tax configuration fails closed", async () => {
   jest.mocked(squareRequest).mockResolvedValue({ objects: [taxes[0]] });

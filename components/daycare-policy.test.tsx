@@ -5,6 +5,7 @@ import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
 import { DaycarePage } from "@/components/daycare-page"
 import { FacilityServicePage } from "@/components/facility-service-page"
 import { daycareBundleWindow } from "@/lib/daycare-policy"
+import { daycareMoney } from "@/lib/daycare-pricing"
 import { getRequestLocale } from "@/lib/seo"
 
 jest.mock("next/image", () => ({
@@ -27,6 +28,20 @@ jest.mock("@/lib/seo", () => ({
 }))
 
 describe("Nick's October 27–28 daycare terms", () => {
+  it.each(["en", "fr"] as const)("uses revised pricing and keeps the household offer at the end in %s", async locale => {
+    jest.mocked(getRequestLocale).mockResolvedValue(locale)
+    const description = locale === "fr" ? "Bénéfique pour les chiens très énergiques qui ont besoin de beaucoup de stimulation physique." : "Beneficial for high energy dogs that need lots of physical stimulation."
+    for (const focus of ["daycare", "day-training", "regular-daycare"] as const) {
+      const html = renderToStaticMarkup(await DaycarePage({ focus }))
+      expect(html).toContain(`+${daycareMoney(4000, locale)}`)
+      expect(html).toContain(daycareMoney(11500, locale))
+      expect(html).toContain(daycareMoney(13000, locale))
+      expect(html).toContain(description)
+      expect(html.indexOf('id="daycare-household-offer"')).toBeGreaterThan(html.indexOf('</video>'))
+      expect(html.indexOf('id="daycare-household-offer"')).toBeGreaterThan(html.indexOf('id="daycare-pricing"'))
+    }
+    expect(renderToStaticMarkup(<DaycareCalculator locale={locale} />)).toContain(description)
+  })
   it("shows the cutoff, late-change consequences and penalty-free rescheduling in English", () => {
     const html = renderToStaticMarkup(<DaycarePolicy locale="en" />)
     expect(html).toContain("Book at least 24 hours before your scheduled visit.")
