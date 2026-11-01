@@ -10,6 +10,7 @@ import {
   type DaycareSlot,
 } from "./daycare-booking";
 import { DAYCARE_MAX_DOGS_PER_DAY } from "./daycare-rules";
+import { daycareHouseholdAccounts, type DaycarePrincipal } from "./daycare-household";
 
 export const daycareHash = (value: string) =>
   createHash("sha256").update(value).digest("hex");
@@ -117,6 +118,7 @@ export async function changeDaycareBooking(
     action: "book" | "cancel" | "reschedule";
     slot?: DaycareSlot;
     staffName?: string;
+    principal?: DaycarePrincipal;
   },
   now = Date.now(),
 ) {
@@ -127,6 +129,10 @@ export async function changeDaycareBooking(
   const passRef = db.collection("daycare_passes").doc(passId);
   const bookingRef = db.collection("daycare_bookings").doc(bookingId);
   return db.runTransaction(async (tx) => {
+    if (input.principal) {
+      const accounts = await daycareHouseholdAccounts(db, input.principal, tx);
+      if (!accounts.some(account => account.id === applicationId)) throw new DaycareError("unauthorized", 401);
+    }
     const [appSnap, passSnap, bookingSnap] = await Promise.all([
       tx.get(appRef),
       tx.get(passRef),

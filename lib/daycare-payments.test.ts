@@ -6,6 +6,7 @@ import {
   daycareTaxIds,
   reconcileDaycarePass,
 } from "./daycare-payments";
+import { daycareHash } from "./daycare-booking-store";
 jest.mock("./firebase-admin", () => ({ getAdminDb: jest.fn() }));
 jest.mock("./square", () => ({
   getSquareConfigAsync: jest.fn(),
@@ -127,6 +128,20 @@ test("new training purchases use $40 while existing checkout quotes retain their
   expect(pass.subtotalCents).toBe(7500);
   expect(pass.totalCents).toBe(8623);
   expect(jest.mocked(squareRequest).mock.calls.filter(([path]) => path.includes("payment-links"))).toHaveLength(1);
+});
+test("a household login purchases for the second dog with its own balance and the extra 30%", async () => {
+  checkoutMock();
+  const secondId="b".repeat(64);
+  memory.data.get(`daycare_applications/${account.id}`).answers.dogName="First dog";
+  memory.data.set(`daycare_applications/${secondId}`,{status:"approved",accessHash:"second-hash",secondDogOf:account.id,answers:{ownerEmail:"qa@example.com",dogName:"Second dog"}});
+  memory.data.set(`daycare_households/${daycareHash("qa@example.com")}`,{primaryId:account.id,secondDogId:secondId});
+  const secondAccount={...account,id:secondId,accessHash:"second-hash",secondDog:true,principal:account};
+  const result=await createDaycareCheckout(secondAccount,{...input,visits:5,addOns:["training"]});
+  expect(memory.data.get(`daycare_passes/${result.id}`)).toMatchObject({applicationId:secondId,secondDog:true,subtotalCents:26600});
+  memory.data.get(`daycare_applications/${account.id}`).status="revoked";
+  jest.mocked(squareRequest).mockClear();
+  await expect(createDaycareCheckout(secondAccount,{...input,requestId:"55555555-1111-4444-9999-222222222222"})).rejects.toThrow("unauthorized");
+  expect(jest.mocked(squareRequest).mock.calls.some(([path])=>path.includes("payment-links"))).toBe(false);
 });
 test("missing or altered tax configuration fails closed", async () => {
   jest.mocked(squareRequest).mockResolvedValue({ objects: [taxes[0]] });

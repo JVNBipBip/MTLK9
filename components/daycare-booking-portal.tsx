@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   daycareMoney,
   quoteDaycare,
@@ -8,26 +8,9 @@ import {
   type DaycareVisits,
 } from "@/lib/daycare-pricing";
 import { torontoDate, type DaycareSlot } from "@/lib/daycare-booking";
-
-type Pass = {
-  id: string;
-  stay: DaycareStay;
-  addOns: DaycareAddOn[];
-  visits: number;
-  status: string;
-  remaining: number;
-  expiresOn: string | null;
-  checkoutUrl?: string;
-  totalCents: number;
-};
-type Booking = DaycareSlot & { id: string; passId: string; status: string };
-type Portal = {
-  dogName: string;
-  secondDog: boolean;
-  passes: Pass[];
-  bookings: Booking[];
-  availability: { date: string; remaining: number }[];
-};
+import type { DaycarePortal as Portal, DaycarePortalBooking } from "@/lib/daycare-portal-types";
+import { DaycareHouseholdReservationForm } from "./daycare-household-reservation-form";
+type Booking = DaycarePortalBooking & { applicationId: string; dogName: string };
 const errors: Record<string, [string, string]> = {
   unauthorized: [
     "Enter your current booking code. Contact Nick if it was revoked or replaced.",
@@ -42,12 +25,12 @@ const errors: Record<string, [string, string]> = {
     "Réservez au moins 24 heures avant l’arrivée.",
   ],
   day_full: [
-    "That date just filled up. Please select another day.",
-    "Cette date vient d’être remplie. Choisissez un autre jour.",
+    "There aren’t enough spots for the selected dogs. No new reservations were saved. Please select another day.",
+    "Il ne reste pas assez de places pour les chiens sélectionnés. Aucune nouvelle réservation n’a été enregistrée. Choisissez un autre jour.",
   ],
   already_booked: [
-    "Your dog already has a visit on that date.",
-    "Votre chien a déjà une visite à cette date.",
+    "One of the selected dogs already has a visit on that date. Check your upcoming visits below.",
+    "Un des chiens sélectionnés a déjà une visite à cette date. Vérifiez vos prochaines visites ci-dessous.",
   ],
   no_visits: [
     "There are no visits left on this pass.",
@@ -86,12 +69,11 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   const [code, setCode] = useState(""),
+    [selectedDogId, setSelectedDogId] = useState(""),
     [stay, setStay] = useState<DaycareStay>("full"),
     [visits, setVisits] = useState<DaycareVisits>(1),
     [addOns, setAddOns] = useState<DaycareAddOn[]>([]);
-  const [purchaseId, setPurchaseId] = useState(""),
-    [passId, setPassId] = useState(""),
-    [bookingId, setBookingId] = useState("");
+  const [purchaseId, setPurchaseId] = useState("");
   const [editing, setEditing] = useState<Booking | null>(null),
     [slot, setSlot] = useState<DaycareSlot>({
       date: "",
@@ -99,6 +81,13 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
       departure: "18:30",
     });
   const [cancelling, setCancelling] = useState<Booking | null>(null);
+  const messageRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (message) {
+      messageRef.current?.focus({ preventScroll: true });
+      messageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [message]);
   const fail = (key: string) =>
     setMessage(
       errors[key]?.[fr ? 1 : 0] ||
@@ -126,6 +115,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     const body = await r.json();
     if (!r.ok) throw new Error(body.error);
     setData(body);
+    setSelectedDogId(current => body.dogs.some((dog: { id: string }) => dog.id === current) ? current : body.defaultDogId);
   }
   useEffect(() => {
     load()
@@ -156,20 +146,23 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
       day: "numeric",
       timeZone: "America/Toronto",
     });
-  const quote = quoteDaycare(stay, addOns, visits, data?.secondDog);
+  const selectedDog = data?.dogs.find(dog => dog.id === selectedDogId) || data?.dogs[0];
+  const quote = quoteDaycare(stay, addOns, visits, selectedDog?.secondDog);
   const today = torontoDate();
   const upcoming =
-    data?.bookings.filter((b) => b.status === "booked" && b.date >= today) ||
+    data?.dogs.flatMap(dog => dog.bookings.map(b => ({ ...b, applicationId: dog.id, dogName: dog.dogName }))).filter((b) => b.status === "booked" && b.date >= today).sort((a,b)=>a.date.localeCompare(b.date) || a.arrival.localeCompare(b.arrival)) ||
     [];
-  const selectedPass = data?.passes.find(
-    (p) => p.id === (editing?.passId || passId),
+  const selectedPass = data?.dogs.find(dog => dog.id === editing?.applicationId)?.passes.find(
+    (p) => p.id === editing?.passId,
   );
   return (
     <div className="ph-no-capture space-y-7" data-private>
       {message && (
         <p
+          ref={messageRef}
+          tabIndex={-1}
           role="status"
-          className="rounded-xl border border-primary/30 bg-primary/5 p-4 leading-relaxed"
+          className="scroll-mt-28 rounded-xl border border-primary/30 bg-primary/5 p-4 leading-relaxed outline-none"
         >
           {message}
         </p>
@@ -193,8 +186,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
           </h2>
           <p className="mt-3 leading-relaxed text-muted-foreground">
             {t(
-              "Use the personal booking code Nick sent you after your dog’s evaluation. Each dog has its own code and visit balance.",
-              "Utilisez le code personnel envoyé par Nick après l’évaluation de votre chien. Chaque chien a son code et son solde de visites.",
+              "Use the personal booking code Nick sent you. If our team has approved and linked both dogs in your household, either active code opens both profiles. Each dog keeps its own visit balance.",
+              "Utilisez le code personnel envoyé par Nick. Si notre équipe a approuvé et lié les deux chiens de votre foyer, un des codes actifs ouvre les deux profils. Chaque chien garde son propre solde de visites.",
             )}
           </p>
           <label className="mt-6 block font-medium">
@@ -224,12 +217,12 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
             )}
           </a>
         </form>
-      ) : (
+      ) : selectedDog && (
         <>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-3xl font-semibold">
-                {t("A great day for", "Une belle journée pour")} {data.dogName}
+                {data.dogs.length > 1 ? t("Your daycare household", "Votre foyer à la garderie") : <>{t("A great day for", "Une belle journée pour")} {selectedDog.dogName}</>}
               </h2>
               <p className="mt-2 text-muted-foreground">
                 {t(
@@ -237,6 +230,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                   "Lundis et mardis · 7 h 30 à 18 h 30 · Heure de Montréal",
                 )}
               </p>
+              {data.dogs.length > 1 && <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">{t("One login for both approved dogs. Reserve together or individually, with separate visit balances.", "Un seul accès pour vos deux chiens approuvés. Réservez ensemble ou séparément, avec des soldes de visites distincts.")}</p>}
             </div>
             <button
               className="min-h-11 underline"
@@ -248,7 +242,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 })
               }
             >
-              {t("Sign out / switch dog", "Déconnexion / autre chien")}
+              {t("Sign out", "Déconnexion")}
             </button>
           </div>
           <section className="rounded-3xl border bg-background p-6 sm:p-8">
@@ -258,8 +252,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
             {!upcoming.length && (
               <p className="mt-4 text-muted-foreground">
                 {t(
-                  "No visits reserved yet. Buy a visit or bundle below, then choose your dates.",
-                  "Aucune visite réservée. Achetez une visite ou un forfait ci-dessous, puis choisissez vos dates.",
+                  "No visits reserved yet. Choose your dates below. If needed, add paid visits to the appropriate dog’s balance.",
+                  "Aucune visite réservée. Choisissez vos dates ci-dessous. Au besoin, ajoutez des visites payées au solde du bon chien.",
                 )}
               </p>
             )}
@@ -270,7 +264,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                   className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-secondary/30 p-4"
                 >
                   <div>
-                    <strong>{dateLabel(b.date)}</strong>
+                    <strong>{b.dogName} · {dateLabel(b.date)}</strong>
                     <p className="mt-1 text-sm">
                       {b.arrival}–{b.departure}
                     </p>
@@ -320,6 +314,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                       run(async () => {
                         await post({
                           action: "cancel",
+                          applicationId: cancelling.applicationId,
                           passId: cancelling.passId,
                           bookingId: cancelling.id,
                         });
@@ -352,7 +347,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
             >
               <h3 className="text-2xl font-semibold">
                 {editing
-                  ? t("Move your visit", "Déplacer votre visite")
+                  ? `${t("Move the visit for", "Déplacer la visite de")} ${editing.dogName}`
                   : t("Reserve a date", "Réserver une date")}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -361,21 +356,31 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                   "Maximum de 15 chiens par jour. Réservez au moins 24 heures à l’avance. La place est confirmée à l’enregistrement de la réservation.",
                 )}
               </p>
-              <form
+              {!editing && <DaycareHouseholdReservationForm key={data.dogs.map(dog => dog.id).join(":")} dogs={data.dogs} availability={data.availability} locale={locale} busy={busy} onBook={async (requestId, reservations) => {
+                let saved = false;
+                await run(async () => {
+                  const result = await post({ action: "book-household", requestId, reservations });
+                  await load();
+                  setMessage(result.bookings.every((booking: { status: string }) => booking.status === "booked")
+                    ? reservations.length > 1 ? t("Both dogs’ visits are confirmed.", "Les visites des deux chiens sont confirmées.") : t("Your dog’s visit is confirmed.", "La visite de votre chien est confirmée.")
+                    : t("This request was already processed. Your visits are up to date below.", "Cette demande a déjà été traitée. Vos visites à jour sont affichées ci-dessous."));
+                  saved = true;
+                });
+                return saved;
+              }} />}
+              {editing && <form
                 className="mt-5 space-y-4"
                 onSubmit={(e) => {
                   e.preventDefault();
                   run(async () => {
-                    const id = bookingId || crypto.randomUUID();
-                    setBookingId(id);
                     await post({
-                      action: editing ? "reschedule" : "book",
-                      passId: editing?.passId || passId,
-                      bookingId: editing?.id || id,
+                      action: "reschedule",
+                      applicationId: editing.applicationId,
+                      passId: editing.passId,
+                      bookingId: editing.id,
                       slot,
                     });
                     setEditing(null);
-                    setBookingId("");
                     await load();
                     setMessage(
                       t(
@@ -386,49 +391,6 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                   });
                 }}
               >
-                {!editing && (
-                  <label className="block font-medium">
-                    {t("Use a paid visit", "Utiliser une visite payée")}
-                    <select
-                      required
-                      className={field}
-                      value={passId}
-                      onChange={(e) => {
-                        setPassId(e.target.value);
-                        const p = data.passes.find(
-                          (p) => p.id === e.target.value,
-                        );
-                        setSlot((s) => ({
-                          ...s,
-                          departure: p?.stay === "half" ? "13:30" : "18:30",
-                        }));
-                      }}
-                    >
-                      <option value="">
-                        {t("Select a balance", "Choisir un solde")}
-                      </option>
-                      {data.passes
-                        .filter(
-                          (p) =>
-                            p.status === "paid" &&
-                            p.remaining > 0 &&
-                            (!p.expiresOn || p.expiresOn >= today),
-                        )
-                        .map((p) => (
-                          <option value={p.id} key={p.id}>
-                            {p.stay === "half"
-                              ? t("Half day", "Demi-journée")
-                              : t("Full day", "Journée complète")}{" "}
-                            · {p.remaining} {t("left", "restantes")}
-                            {p.addOns.length ? ` · ${p.addOns.join(", ")}` : ""}
-                            {p.expiresOn
-                              ? ` · ${t("until", "jusqu’au")} ${p.expiresOn}`
-                              : ""}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                )}
                 {selectedPass && (
                   <p className="text-sm">
                     {selectedPass.stay === "half"
@@ -490,11 +452,9 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 </div>
                 <button
                   className={`${button} w-full`}
-                  disabled={busy || (!passId && !editing)}
+                  disabled={busy}
                 >
-                  {editing
-                    ? t("Save new date", "Confirmer la nouvelle date")
-                    : t("Confirm my visit", "Confirmer ma visite")}
+                  {t("Save new date", "Confirmer la nouvelle date")}
                 </button>
                 {editing && (
                   <button
@@ -505,22 +465,29 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                     {t("Keep current visit", "Garder la visite actuelle")}
                   </button>
                 )}
-              </form>
+              </form>}
             </section>
-            <section className="rounded-3xl bg-primary p-6 text-primary-foreground sm:p-8">
+            <section id="daycare-purchases" className="scroll-mt-28 rounded-3xl bg-primary p-6 text-primary-foreground sm:p-8">
               <h3 className="text-2xl font-semibold">
                 {t(
-                  "Add visits to your balance",
-                  "Ajouter des visites à votre solde",
+                  "Add visits for",
+                  "Ajouter des visites pour",
                 )}
+                {" "}{selectedDog.dogName}
               </h3>
+              {data.dogs.length > 1 && <label className="mt-5 block font-medium">{t("Which dog are these visits for?", "Pour quel chien sont ces visites?")}
+                <select className={`${field} text-foreground`} disabled={busy} value={selectedDog.id} onChange={event => { setSelectedDogId(event.target.value); setPurchaseId(""); }}>
+                  {data.dogs.map(dog => <option key={dog.id} value={dog.id}>{dog.dogName}{dog.secondDog ? t(" · second dog 30% off", " · deuxième chien : −30 %") : ""}</option>)}
+                </select>
+              </label>}
               <p className="mt-3 text-sm leading-relaxed opacity-85">
                 {t(
                   "Pay securely through Square, return here, then reserve your dates. Purchasing visits does not reserve a place. Check the available dates in this portal before paying.",
                   "Payez de façon sécurisée avec Square, puis revenez réserver vos dates. L’achat de visites ne réserve pas une place. Vérifiez les disponibilités avant de payer.",
                 )}
               </p>
-              {data.secondDog && (
+              {data.dogs.length > 1 && <p className="mt-3 text-sm leading-relaxed opacity-85">{t("Buying for both dogs? Add visits to each dog’s balance separately, then reserve their dates together.", "Vous achetez pour les deux chiens? Ajoutez des visites au solde de chaque chien séparément, puis réservez leurs dates ensemble.")}</p>}
+              {selectedDog.secondDog && (
                 <p className="mt-4 rounded-xl bg-white/15 p-3 font-medium">
                   {t(
                     "Your second-dog price includes an extra 30% off after bundle savings.",
@@ -538,6 +505,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                     setPurchaseId(requestId);
                     const result = await post({
                       action: "checkout",
+                      applicationId: selectedDog.id,
                       requestId,
                       stay,
                       addOns,
@@ -661,7 +629,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 className="min-h-11 underline"
                 onClick={() =>
                   run(async () => {
-                    await post({ action: "refresh" });
+                    await Promise.all(data.dogs.map(dog => post({ action: "refresh", applicationId: dog.id })));
                     await load();
                     setMessage(
                       t(
@@ -679,7 +647,10 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
               </button>
             </div>
             <div className="mt-4 space-y-3">
-              {data.passes.map((p) => (
+              {data.dogs.map(dog => <div key={dog.id} className="rounded-2xl border border-border p-4 sm:p-5">
+                <h4 className="text-lg font-semibold">{dog.dogName}</h4>
+                {!dog.passes.length && <p className="mt-3 text-sm text-muted-foreground">{t("No visits purchased for this dog yet.", "Aucune visite achetée pour ce chien pour le moment.")}</p>}
+                {dog.passes.map((p) => (
                 <div
                   className="flex flex-wrap justify-between gap-4 border-t pt-4"
                   key={p.id}
@@ -718,6 +689,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                   </div>
                 </div>
               ))}
+              </div>)}
             </div>
           </section>
         </>

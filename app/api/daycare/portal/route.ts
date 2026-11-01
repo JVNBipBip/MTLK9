@@ -26,6 +26,7 @@ import {
   reconcileDaycarePass,
 } from "@/lib/daycare-payments";
 import { notifyDaycareBooking } from "@/lib/daycare-booking-notification";
+import { bookDaycareHousehold, daycareHouseholdAccounts, parseDaycareReservations } from "@/lib/daycare-household";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
@@ -33,14 +34,24 @@ export async function GET(request: NextRequest) {
   try {
     const account = await currentDaycareAccount(request),
       db = getAdminDb();
-    const passes = await db
-      .collection("daycare_passes")
-      .where("applicationId", "==", account.id)
-      .get();
-    const bookings = await db
-      .collection("daycare_bookings")
-      .where("applicationId", "==", account.id)
-      .get();
+    const accounts = await daycareHouseholdAccounts(db, account);
+    const dogs = await Promise.all(accounts.map(async dog => {
+      const [passes, bookings] = await Promise.all([
+        db.collection("daycare_passes").where("applicationId", "==", dog.id).get(),
+        db.collection("daycare_bookings").where("applicationId", "==", dog.id).get(),
+      ]);
+      return {
+        id: dog.id, dogName: dog.dogName, secondDog: dog.secondDog,
+        passes: passes.docs.map(d => {
+          const p = d.data() as DaycarePass;
+          return { id: d.id, stay: p.stay, addOns: p.addOns, visits: p.visits, status: p.status, subtotalCents: p.subtotalCents, totalCents: p.totalCents, ...passBalance(p), checkoutUrl: p.status === "pending" ? p.checkoutUrl : undefined, createdAtIso: p.createdAtIso };
+        }).sort((a, b) => b.createdAtIso.localeCompare(a.createdAtIso)),
+        bookings: bookings.docs.map(d => {
+          const b = d.data();
+          return { id: d.id, passId: b.passId, date: b.date, arrival: b.arrival, departure: b.departure, status: b.status, stay: b.stay, addOns: b.addOns };
+        }).sort((a, b) => a.date.localeCompare(b.date)),
+      };
+    }));
     const dates = Array.from({ length: 91 }, (_, i) =>
       addDays(torontoDate(), i),
     ).filter(operatingDay);
@@ -48,40 +59,10 @@ export async function GET(request: NextRequest) {
       ...dates.map((d) => db.collection("daycare_days").doc(d)),
     );
     return daycareJson({
-      dogName: account.dogName,
-      secondDog: account.secondDog,
-      passes: passes.docs
-        .map((d) => {
-          const p = d.data() as DaycarePass;
-          return {
-            id: d.id,
-            stay: p.stay,
-            addOns: p.addOns,
-            visits: p.visits,
-            status: p.status,
-            subtotalCents: p.subtotalCents,
-            totalCents: p.totalCents,
-            ...passBalance(p),
-            checkoutUrl: p.status === "pending" ? p.checkoutUrl : undefined,
-            createdAtIso: p.createdAtIso,
-          };
-        })
-        .sort((a, b) => b.createdAtIso.localeCompare(a.createdAtIso)),
-      bookings: bookings.docs
-        .map((d) => {
-          const b = d.data();
-          return {
-            id: d.id,
-            passId: b.passId,
-            date: b.date,
-            arrival: b.arrival,
-            departure: b.departure,
-            status: b.status,
-            stay: b.stay,
-            addOns: b.addOns,
-          };
-        })
-        .sort((a, b) => a.date.localeCompare(b.date)),
+      // Keep the original single-dog fields for clients open during deployment.
+      ...dogs.find(dog => dog.id === account.id),
+      dogs,
+      defaultDogId: account.id,
       availability: dates.map((date, i) => ({
         date,
         remaining: Math.max(
@@ -126,9 +107,24 @@ export async function POST(request: NextRequest) {
       });
       return response;
     }
-    const account = await currentDaycareAccount(request);
+    const principal = await currentDaycareAccount(request);
+    const accounts = await daycareHouseholdAccounts(db, principal);
+    if (body.action === "book-household") {
+      const reservations = parseDaycareReservations(body.reservations);
+      for (const reservation of reservations) {
+        if (!accounts.some(a => a.id === reservation.applicationId)) throw new DaycareError("unauthorized", 401);
+        const pass = await db.collection("daycare_passes").doc(reservation.passId).get();
+        if (pass.data()?.applicationId !== reservation.applicationId) throw new DaycareError("not_found", 404);
+      }
+      await Promise.all(reservations.map(r => reconcileDaycarePass(r.passId)));
+      const result = await bookDaycareHousehold(db, principal, body.requestId, reservations);
+      await Promise.all(result.bookings.map(b => notifyDaycareBooking(db, b.id).catch(() => {})));
+      return daycareJson(result);
+    }
+    const account = accounts.find(a => a.id === (body.applicationId || principal.id));
+    if (!account) throw new DaycareError("unauthorized", 401);
     if (body.action === "checkout")
-      return daycareJson(await createDaycareCheckout(account, body));
+      return daycareJson(await createDaycareCheckout({ ...account, principal }, body));
     if (body.action === "refresh") {
       const passes = await db
         .collection("daycare_passes")
@@ -157,6 +153,7 @@ export async function POST(request: NextRequest) {
       const result = await changeDaycareBooking(db, {
         applicationId: account.id,
         accessHash: account.accessHash,
+        principal,
         passId: body.passId,
         bookingId: body.bookingId,
         action: body.action,

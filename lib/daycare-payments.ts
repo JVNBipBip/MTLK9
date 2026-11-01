@@ -2,6 +2,7 @@ import { getSquareConfigAsync, squareRequest } from "./square";
 import { getAdminDb } from "./firebase-admin";
 import { DaycareError, type DaycarePass } from "./daycare-booking";
 import { daycareHash } from "./daycare-booking-store";
+import { daycareHouseholdAccounts, type DaycarePrincipal } from "./daycare-household";
 import {
   quoteDaycare,
   type DaycareAddOn,
@@ -59,6 +60,7 @@ export async function createDaycareCheckout(
     accessHash: string;
     secondDog: boolean;
     locale: "en" | "fr";
+    principal?: DaycarePrincipal;
   },
   input: {
     requestId: string;
@@ -132,6 +134,10 @@ export async function createDaycareCheckout(
     )
       throw new DaycareError("tax_configuration", 503);
     await db.runTransaction(async (tx) => {
+      if (account.principal) {
+        const members = await daycareHouseholdAccounts(db, account.principal, tx);
+        if (!members.some(member => member.id === account.id)) throw new DaycareError("unauthorized", 401);
+      }
       const [pass, app] = await Promise.all([
         tx.get(ref),
         tx.get(db.collection("daycare_applications").doc(account.id)),
