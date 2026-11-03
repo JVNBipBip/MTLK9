@@ -4,7 +4,10 @@ export type AppLocale = (typeof locales)[number]
 
 export const defaultLocale: AppLocale = "en"
 
-export const localeCookieName = "NEXT_LOCALE"
+// No locale cookie by design: `i18n/request.ts` reads the locale from
+// `localeHeaderName`, which the middleware sets from the URL prefix. A
+// `Set-Cookie` on public HTML also stops the CDN caching it — see
+// `lib/public-routes.ts`.
 
 export const localeHeaderName = "x-mtl-locale"
 

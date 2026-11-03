@@ -3,14 +3,11 @@ import {
   addLocaleToPathname,
   defaultLocale,
   getPathLocale,
-  isAppLocale,
-  localeCookieName,
   localeHeaderName,
   pathnameHeaderName,
   stripLocaleFromPathname,
 } from "@/lib/i18n/config"
-
-const ONE_YEAR = 60 * 60 * 24 * 365
+import { PUBLIC_CACHE_CONTROL, isPublicCacheablePath } from "@/lib/public-routes"
 
 function hasPublicFileExtension(pathname: string) {
   return /\.[^/]+$/.test(pathname)
@@ -29,15 +26,6 @@ function shouldSkip(pathname: string) {
     pathname === "/sitemap.xml" ||
     hasPublicFileExtension(pathname)
   )
-}
-
-function rememberLocale(response: NextResponse, locale: string) {
-  if (!isAppLocale(locale)) return
-  response.cookies.set(localeCookieName, locale, {
-    maxAge: ONE_YEAR,
-    path: "/",
-    sameSite: "lax",
-  })
 }
 
 const CANONICAL_ORIGIN = "https://www.mtlcaninetraining.com"
@@ -131,7 +119,6 @@ export function proxy(request: NextRequest) {
     url.pathname = addLocaleToPathname(pathname, defaultLocale)
 
     const response = NextResponse.redirect(url, 308)
-    rememberLocale(response, defaultLocale)
     return isImpactDashboard ? withPrivateRobotsHeaders(response) : response
   }
 
@@ -158,8 +145,21 @@ export function proxy(request: NextRequest) {
       headers: requestHeaders,
     },
   })
-  rememberLocale(response, pathLocale)
-  return strippedPathname === IMPACT_DASHBOARD_PATH ? withPrivateRobotsHeaders(response) : response
+
+  if (strippedPathname === IMPACT_DASHBOARD_PATH) {
+    return withPrivateRobotsHeaders(response)
+  }
+
+  // Public content pages are identical for every visitor, so let the shared CDN
+  // serve them. Without this Next's dynamic-render default (`private, no-cache,
+  // no-store`) sends every Googlebot fetch to the origin — the cause of the
+  // sixteen sitemap URLs that had never been crawled as of 2026-08-10. Anything
+  // not on the allowlist keeps the private default.
+  if (isPublicCacheablePath(strippedPathname)) {
+    response.headers.set("Cache-Control", PUBLIC_CACHE_CONTROL)
+  }
+
+  return response
 }
 
 export const config = {
