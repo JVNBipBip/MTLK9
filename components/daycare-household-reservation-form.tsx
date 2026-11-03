@@ -45,6 +45,13 @@ export function DaycareHouseholdReservationForm({
   const field =
     "mt-2 min-h-12 w-full rounded-xl border border-border bg-background px-3 py-3 text-base focus:outline-2 focus:outline-primary disabled:opacity-50";
   const picked = dogs.filter((dog) => selected.includes(dog.id));
+  const passLabel = (pass: ReturnType<typeof bookableDaycarePasses>[number]) =>
+    [
+      pass.stay === "half" ? t("Half day", "Demi-journée") : t("Full day", "Journée complète"),
+      `${pass.remaining} ${t("left", "restantes")}`,
+      ...pass.addOns.map((a) => ({ training: t("training", "entraînement"), treadmill: t("treadmill", "tapis roulant"), individual: t("one-on-one play", "jeux individuels") })[a]),
+      ...(pass.expiresOn ? [`${t("until", "jusqu’au")} ${pass.expiresOn}`] : []),
+    ].join(" · ");
   const choiceFor = (dog: DaycarePortal["dogs"][number]) => {
     const passes = bookableDaycarePasses(dog, today);
     const choice = choices[dog.id] || {};
@@ -206,26 +213,6 @@ export function DaycareHouseholdReservationForm({
           </p>
         </fieldset>
       )}
-      {ready && (
-        <DaycareDatePicker
-          availability={availability}
-          windows={windows}
-          limit={limit}
-          dates={dates}
-          onChange={setDates}
-          canUseDay={canUseDay}
-          locale={locale}
-          disabled={busy}
-        />
-      )}
-      {ready && dates.length > 0 && !validSelection && (
-        <p role="alert">
-          {t(
-            "One or more dates no longer fit. Adjust the hours or choose new dates before confirming.",
-            "Certaines dates ne sont plus disponibles. Ajustez les heures ou choisissez de nouvelles dates avant de confirmer.",
-          )}
-        </p>
-      )}
       {picked.map((dog) => {
         const choice = choiceFor(dog);
         return (
@@ -252,6 +239,12 @@ export function DaycareHouseholdReservationForm({
               </p>
             ) : (
               <>
+                {choice.passes.length === 1 && choice.pass ? (
+                  <p className="text-sm">
+                    <span className="font-medium">{t("Using", "Utilise")}</span>{" "}
+                    <span className="text-muted-foreground">{passLabel(choice.pass)}</span>
+                  </p>
+                ) : (
                 <label className="block font-medium">
                   {t("Use a paid visit", "Utiliser une visite payée")}
                   <DaycareSelect
@@ -271,33 +264,12 @@ export function DaycareHouseholdReservationForm({
                     </option>
                     {choice.passes.map((pass) => (
                       <option value={pass.id} key={pass.id}>
-                        {pass.stay === "half"
-                          ? t("Half day", "Demi-journée")
-                          : t("Full day", "Journée complète")}{" "}
-                        · {pass.remaining} {t("left", "restantes")}
-                        {pass.addOns.length
-                          ? " · " +
-                            pass.addOns
-                              .map(
-                                (a) =>
-                                  ({
-                                    training: t("training", "entraînement"),
-                                    treadmill: t("treadmill", "tapis roulant"),
-                                    individual: t(
-                                      "one-on-one play",
-                                      "jeux individuels",
-                                    ),
-                                  })[a],
-                              )
-                              .join(", ")
-                          : ""}
-                        {pass.expiresOn
-                          ? ` · ${t("until", "jusqu’au")} ${pass.expiresOn}`
-                          : ""}
+                        {passLabel(pass)}
                       </option>
                     ))}
                   </DaycareSelect>
                 </label>
+                )}
                 {choice.pass && (
                   <p className="mt-2 text-sm text-muted-foreground">
                     {choice.pass.stay === "half"
@@ -337,8 +309,28 @@ export function DaycareHouseholdReservationForm({
           </fieldset>
         );
       })}
+      {ready && (
+        <DaycareDatePicker
+          availability={availability}
+          windows={windows}
+          limit={limit}
+          dates={dates}
+          onChange={setDates}
+          canUseDay={canUseDay}
+          locale={locale}
+          disabled={busy}
+        />
+      )}
+      {ready && dates.length > 0 && !validSelection && (
+        <p role="alert">
+          {t(
+            "One or more dates no longer fit. Adjust the hours or choose new dates before confirming.",
+            "Certaines dates ne sont plus disponibles. Ajustez les heures ou choisissez de nouvelles dates avant de confirmer.",
+          )}
+        </p>
+      )}
       {(picked.length > 1 || dates.length > 1) && (
-        <p className="rounded-xl bg-primary/5 p-4 text-sm leading-relaxed">
+        <p className="rounded-xl bg-secondary/25 p-4 text-sm leading-relaxed">
           {t(
             "These hours apply to every selected date. All dates are confirmed together. If a spot is taken, none of your credits are used.",
             "Ces heures s’appliquent à chaque date choisie. Toutes les dates sont confirmées ensemble. Si une place n’est plus libre, aucune visite n’est déduite.",
@@ -353,7 +345,7 @@ export function DaycareHouseholdReservationForm({
       <button
         type="submit"
         disabled={busy || !validSelection}
-        className="inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-primary px-5 py-4 text-center font-semibold text-primary-foreground disabled:opacity-50"
+        className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-primary px-5 py-4 text-center font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
       >
         {busy
           ? t("Saving…", "Enregistrement…")

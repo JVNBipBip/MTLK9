@@ -51,7 +51,9 @@ it("does not allow an expired or unpaid second balance to silently use the first
   await render({dogs:[dogs[0],inactive]});
   expect(container.textContent).toContain("This dog needs paid visits before booking.");
   expect(container.querySelector('button')!.disabled).toBe(true);
-  await pickDate();await submit();expect(onBook).not.toHaveBeenCalled();
+  // No usable balance for one selected dog means no dates are offered at all.
+  expect(container.querySelector('[aria-label="Available dates"], select')).toBeNull();
+  await submit();expect(onBook).not.toHaveBeenCalled();
 });
 it("retains the same request ID on an uncertain retry and creates a new one for a changed selection",async()=>{
   onBook.mockResolvedValue(false);await render();await pickDate();await submit();await submit();

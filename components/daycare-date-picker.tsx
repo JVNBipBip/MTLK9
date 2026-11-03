@@ -1,5 +1,5 @@
 "use client";
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import type { SelectHTMLAttributes } from "react";
 import { lastBundleDay, type DaycareDateWindow } from "@/lib/daycare-plan";
 import type { DaycarePortal } from "@/lib/daycare-portal-types";
@@ -45,13 +45,9 @@ export function DaycareDatePicker({
 }) {
   const fr = locale === "fr",
     t = (en: string, french: string) => (fr ? french : en);
-  const label = (day: string) =>
-    new Date(day + "T12:00:00Z").toLocaleDateString(fr ? "fr-CA" : "en-CA", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      timeZone: "America/Toronto",
-    });
+  const format = (day: string, options: Intl.DateTimeFormatOptions) =>
+    new Date(day + "T12:00:00Z").toLocaleDateString(fr ? "fr-CA" : "en-CA", { ...options, timeZone: "America/Toronto" });
+  const label = (day: string) => format(day, { weekday: "short", month: "short", day: "numeric" });
   const first = dates[0] || "";
   const validFirst = (d: string) =>
     windows.every((w) => {
@@ -74,7 +70,7 @@ export function DaycareDatePicker({
           : t("Choose your visit dates", "Choisissez vos dates de visite")}
       </legend>
       <label className="block text-sm font-medium">
-        {t("First date to book", "Première date à réserver")}
+        {limit > 1 ? t("First date", "Première date") : t("Date", "Date")}
         <DaycareSelect
           required={!preview}
           aria-label={t("First visit date", "Première date de visite")}
@@ -87,23 +83,22 @@ export function DaycareDatePicker({
             .filter((d) => validFirst(d.date) || first === d.date)
             .map((d) => (
               <option key={d.date} value={d.date} disabled={!canUseDay(d.date)}>
-                {label(d.date)} · {d.remaining}{" "}
-                {t("spots available", "places disponibles")}
+                {label(d.date)} · {d.remaining} {t("spots left", "places")}
               </option>
             ))}
         </DaycareSelect>
       </label>
       {first && limit > 1 && (
         <>
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {t(
-              "Tap the other dates you want, or select the next available dates together.",
-              "Cochez les autres dates souhaitées ou sélectionnez les prochaines disponibilités en un clic.",
+              "Tap the other dates you want, or fill the next available dates in one click.",
+              "Touchez les autres dates souhaitées, ou remplissez les prochaines disponibilités en un clic.",
             )}
             {until && (
               <>
                 {" "}
-                {t("Book through", "Jusqu’au")} <strong>{label(until)}</strong>.
+                {t("Book through", "Jusqu’au")} <strong>{label(until)}</strong>{label(until).endsWith(".") ? "" : "."}
               </>
             )}
           </p>
@@ -117,7 +112,7 @@ export function DaycareDatePicker({
               onClick={() =>
                 onChange(eligible.slice(0, limit).map((d) => d.date))
               }
-              className="min-h-11 rounded-lg border border-current px-3 text-sm font-semibold"
+              className="min-h-11 rounded-full border border-primary/40 px-4 text-sm font-semibold text-primary transition-colors hover:bg-primary/5 disabled:opacity-50"
             >
               {t(
                 "Select next available dates",
@@ -126,19 +121,20 @@ export function DaycareDatePicker({
             </button>
           </div>
           <div
-            className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+            className="grid grid-cols-3 gap-2 sm:grid-cols-4"
             aria-label={t("Available dates", "Dates disponibles")}
           >
             {days.map((day) => {
               const picked = dates.includes(day.date);
+              const usable = canUseDay(day.date);
               return (
                 <label
                   key={day.date}
-                  className="flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border border-current/25 p-2.5 text-sm has-[:checked]:border-primary has-[:checked]:bg-secondary has-[:checked]:text-foreground has-[:disabled]:cursor-default"
+                  className={`relative flex min-h-14 min-w-0 items-center rounded-xl border px-2.5 py-2 text-sm transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary ${picked ? "border-primary bg-primary text-primary-foreground" : usable && dates.length < limit ? "cursor-pointer border-border bg-background hover:border-primary/50" : "border-dashed border-border text-muted-foreground"}`}
                 >
                   <input
                     type="checkbox"
-                    className="size-4 shrink-0 accent-primary"
+                    className="sr-only"
                     checked={picked}
                     disabled={
                       day.date === first ||
@@ -153,14 +149,14 @@ export function DaycareDatePicker({
                       )
                     }
                   />
-                  <span>
-                    {label(day.date)}
-                    {!canUseDay(day.date) && (
-                      <small className="block">
-                        {t("Unavailable", "Non disponible")}
-                      </small>
+                  <span className="min-w-0 flex-1 leading-tight">
+                    <span className="block text-xs font-semibold uppercase tracking-wide opacity-80">{format(day.date, { weekday: "short" })}</span>
+                    <span className="block whitespace-nowrap font-semibold">{format(day.date, { month: "short", day: "numeric" })}</span>
+                    {!usable && !picked && (
+                      <small className="block">{t("Unavailable", "Non disponible")}</small>
                     )}
                   </span>
+                  {picked && <Check aria-hidden className="absolute top-2 right-2 size-3.5" />}
                 </label>
               );
             })}
