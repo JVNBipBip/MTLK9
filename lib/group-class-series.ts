@@ -1,4 +1,5 @@
 import { FieldValue, type DocumentReference, type Firestore } from "firebase-admin/firestore"
+import { groupSessionCanRun } from "./training-week"
 import type { ClassSessionRecord } from "@/lib/domain"
 import { CLASS_SESSIONS_COLLECTION, CLIENTS_COLLECTION } from "@/lib/domain"
 import {
@@ -345,6 +346,7 @@ export function groupSessionsIntoSeriesList(
   allowedClassTypes: Set<string>,
   nowIso: string,
   groupProgramSlotOrder?: string[],
+  nickId?: string | null,
 ): GroupSeriesListItem[] {
   const upcoming = raw.filter((s) => {
     const classType = canonicalGroupClassTypeId(String(s.classType || "").trim())
@@ -363,6 +365,8 @@ export function groupSessionsIntoSeriesList(
   }
   const out: GroupSeriesListItem[] = []
   for (const [seriesId, list] of bySeries) {
+    // Don't silently sell a truncated series at the full package price.
+    if (list.some(s=>!groupSessionCanRun(s,nickId))) continue
     const sorted = [...list].sort((a, b) => a.startsAtIso.localeCompare(b.startsAtIso))
     const classTypes = new Set(sorted.map((s) => canonicalGroupClassTypeId(String(s.classType || "").trim())))
     if (classTypes.size !== 1) continue

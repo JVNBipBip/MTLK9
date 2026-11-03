@@ -3,6 +3,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { DaycareHouseholdReservationForm } from "./daycare-household-reservation-form";
 import type { DaycarePortal } from "@/lib/daycare-portal-types";
+import {addDays,operatingDay} from "@/lib/daycare-booking";
 let root: Root, container: HTMLDivElement;
 const onBook=jest.fn();
 const dogs:DaycarePortal["dogs"]=["Milo","Luna"].map((dogName,i)=>({id:String(i+1).repeat(64),dogName,secondDog:i===1,bookings:[],passes:[{id:`qa-pass-000${i}`,stay:i===0?"half":"full",addOns:[],visits:5,status:"paid",remaining:5,expiresOn:null,totalCents:100}]}));
@@ -62,6 +63,20 @@ it("renders a one-dog household without a misleading second-dog selector",async(
   await render({dogs:[dogs[0]]});
   expect(container.querySelector('input[type="checkbox"]')).toBeNull();
   expect(container.querySelector('button')!.textContent).toBe("Confirm my dog’s visit");
+});
+it.each([5,10,20] as const)("one click can select a whole %i-visit bundle, never dates outside the validity window",async count=>{
+  const days=Array.from({length:110},(_,i)=>addDays("2026-11-02",i)).filter(operatingDay).map(date=>({date,remaining:15}));
+  await render({dogs:[{...dogs[0],passes:[{...dogs[0].passes[0],visits:count,remaining:count}]}],availability:days});
+  await pickDate();const quick=[...container.querySelectorAll("button")].find(b=>b.textContent==="Select next available dates")!;
+  await act(async()=>quick.click());
+  expect(container.querySelector('button[type=submit]')!.textContent).toBe("Confirm "+count+" dates");
+  expect(container.querySelectorAll("input[type=checkbox]")).toHaveLength(({5:4,10:7,20:12})[count]*2);
+  await submit();expect(onBook.mock.calls[0][1]).toHaveLength(count);expect(new Set(onBook.mock.calls[0][1].map((r:any)=>r.slot.date)).size).toBe(count);
+});
+it("restores tentative dates from a paid pass but does not confirm any until the owner submits",async()=>{
+  await render({dogs:[{...dogs[0],passes:[{...dogs[0].passes[0],plannedDates:["2026-11-02","2026-11-03"]}]}]});
+  expect((container.querySelector("select") as HTMLSelectElement).value).toBe("2026-11-02");
+  expect(onBook).not.toHaveBeenCalled();await submit();expect(onBook.mock.calls[0][1]).toHaveLength(2);
 });
 it("prevents empty selections, concurrent edits and already-reserved dates",async()=>{
   await render({dogs:[{...dogs[0],bookings:[{id:"old",passId:"old",status:"booked",date:"2026-11-02",arrival:"07:30",departure:"13:30"}]},dogs[1]]});

@@ -27,6 +27,7 @@ import {
   consultationDepositResumeExpiryIso,
 } from "@/lib/consultation-deposit"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
+import { trainingSlotStillAvailable } from "@/lib/training-slot-check"
 import { createSquareBooking, getOrCreateSquareCustomer, syncInquirySquareCustomer } from "@/lib/square"
 import { buildInquirySquareCustomerNoteAppendixLines } from "@/lib/square-customer-note"
 import {
@@ -222,6 +223,8 @@ export async function POST(request: Request) {
       if (!primaryConsultationVariationId) {
         return NextResponse.json({ error: errorText.configIncomplete }, { status: 500 })
       }
+      if (!await trainingSlotStillAvailable(slotStartAt,slotServiceVariationId,slotTeamMemberId))
+        return NextResponse.json({error:errorText.slotExpired},{status:409})
       requestedScheduledAtIso = new Date(slotStartAt).toISOString()
       consultationServiceVariationId = primaryConsultationVariationId
       consultationTeamMemberId = slotTeamMemberId

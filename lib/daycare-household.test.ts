@@ -1,7 +1,7 @@
 import { bookDaycareHousehold, daycareHouseholdAccounts, parseDaycareReservations } from "./daycare-household";
 import { daycareMemoryDb } from "./daycare-test-db";
 import { changeDaycareBooking, daycareAccount, daycareHash, issueDaycareAccess } from "./daycare-booking-store";
-import { torontoTime } from "./daycare-booking";
+import { addDays, operatingDay, torontoTime } from "./daycare-booking";
 
 const now = Date.parse("2026-10-29T14:00:00Z");
 const slot = { date: "2026-11-02", arrival: "07:30", departure: "13:30" };
@@ -134,4 +134,38 @@ it.each([null, [], [null], [{applicationId:"not-an-id"}], [1,2,3]])("rejects mal
 it("rejects duplicate dogs, shared passes and different dates before writing", async () => {
   const f=await fixture();
   for(const selections of [[f.reservations[0],f.reservations[0]],[f.reservations[0],{...f.reservations[1],passId:f.reservations[0].passId}],[f.reservations[0],{...f.reservations[1],slot:{...slot,date:"2026-11-03"}}]]) expect(()=>parseDaycareReservations(selections)).toThrow();
+});
+
+const nextDates = (count: number) => Array.from({length:120},(_,i)=>addDays(slot.date,i)).filter(operatingDay).slice(0,count);
+it.each([5,10,20])("books a whole %i-visit bundle for both dogs and can safely retry it",async(count)=>{
+  const f=await fixture();
+  for(const r of f.reservations) f.data.get("daycare_passes/"+r.passId).visits=count;
+  const dates=nextDates(count), series=dates.flatMap(date=>f.reservations.map(r=>({...r,slot:{...slot,date}})));
+  const saved=await bookDaycareHousehold(f.db,f.principal,requestId,series,now);
+  expect(new Set(saved.bookings.map(b=>b.id)).size).toBe(count*2);
+  for(const date of dates) expect(Object.keys(f.data.get("daycare_days/"+date).occupants)).toEqual(f.ids);
+  for(const r of f.reservations){
+    const pass=f.data.get("daycare_passes/"+r.passId);
+    expect(Object.keys(pass.allocations)).toHaveLength(count);
+    expect(pass.firstVisitDate).toBe(dates[0]);
+  }
+  const before=structuredClone([...f.data]);
+  const replay=await bookDaycareHousehold(f.db,f.principal,requestId,[...series].reverse(),now);
+  expect(replay.bookings.every(b=>b.repeated)).toBe(true);expect([...f.data]).toEqual(before);
+  await expect(bookDaycareHousehold(f.db,f.principal,requestId,series.slice(2),now)).rejects.toThrow("request_conflict");
+});
+it.each(["day_full","bundle_window","no_visits","already_booked"])("rolls back every date and credit on a late failure: %s",async(reason)=>{
+  const f=await fixture();
+  const dates=nextDates(reason==="no_visits"?6:5);
+  if(reason==="bundle_window") dates[4]=addDays(slot.date,28);
+  if(reason==="day_full") f.data.set("daycare_days/"+dates[4],{occupants:Object.fromEntries(Array.from({length:14},(_,i)=>["other"+i,"booking"+i]))});
+  if(reason==="already_booked") f.data.set("daycare_days/"+dates[4],{occupants:{[f.ids[1]]:"prior"}});
+  const before=structuredClone([...f.data]);
+  await expect(bookDaycareHousehold(f.db,f.principal,requestId,dates.flatMap(date=>f.reservations.map(r=>({...r,slot:{...slot,date}}))),now)).rejects.toThrow(reason);
+  expect([...f.data]).toEqual(before);
+});
+it("rejects more than 20 dates and more than one balance per dog",async()=>{
+  const f=await fixture(),r=f.reservations[0];
+  expect(()=>parseDaycareReservations(nextDates(21).map(date=>({...r,slot:{...slot,date}})))).toThrow("invalid_request");
+  expect(()=>parseDaycareReservations([r,{...r,passId:"other-pass-123",slot:{...slot,date:"2026-11-03"}}])).toThrow("invalid_request");
 });

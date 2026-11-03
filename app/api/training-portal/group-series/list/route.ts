@@ -3,7 +3,7 @@ import { CLASS_SESSIONS_COLLECTION } from "@/lib/domain"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { groupSessionsIntoSeriesList, releaseStaleGroupSeriesHolds, type SessionForSeries } from "@/lib/group-class-series"
 import { programLabel } from "@/lib/programs"
-import { getPrivateServiceVariationIds } from "@/lib/square-service-config"
+import { getPrivateServiceVariationIds, getNickTeamMemberIdForConsultation } from "@/lib/square-service-config"
 import { loadTrainingPortalContext } from "@/lib/training-portal"
 import { PUPPY_SOCIALIZATION_CLASS_TYPE_ID } from "@/lib/puppy-social-drop-in"
 
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     return { id: doc.id, ...d }
   })
 
-  const series = groupSessionsIntoSeriesList(raw, allowedClassTypes, nowIso)
+  const series = groupSessionsIntoSeriesList(raw, allowedClassTypes, nowIso, undefined, await getNickTeamMemberIdForConsultation())
   const seriesWithLabels = series.map((row) => ({
     ...row,
     programLabel: programLabel(row.classType),

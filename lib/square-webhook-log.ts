@@ -4,6 +4,9 @@ import type { ReconcileOutcome } from "@/lib/square-webhook-bookings"
 
 export type WebhookLogStage =
   | "received"
+  | "daycare_payment_ok"
+  | "daycare_payment_skipped"
+  | "daycare_payment_error"
   | "signature_failed"
   | "payload_parse_failed"
   | "reconcile_ok"
@@ -44,20 +47,25 @@ export type WebhookLogEntry = {
   details?: Record<string, unknown> | null
   /** Error message if a stage threw. */
   error?: string | null
-  /** Truncated raw body for debugging — capped to keep doc size reasonable. */
-  rawBodyPreview?: string
   /** Request URL used for HMAC verification (helpful for debugging mismatches). */
   requestUrl?: string
   /** Wall-clock ISO time when we logged this entry. */
   receivedAtIso: string
 }
 
-const MAX_RAW_BODY_PREVIEW = 4000
-
-function trimBody(body: string | null | undefined): string | undefined {
-  if (!body) return undefined
-  if (body.length <= MAX_RAW_BODY_PREVIEW) return body
-  return `${body.slice(0, MAX_RAW_BODY_PREVIEW)}…`
+/** Only machine-generated identifiers, counters and known diagnostic fields.
+ * Never persist raw bodies, provider exception text, or customer contact details. */
+export function webhookDetails(input?: Record<string, unknown> | null) {
+  const out:Record<string,unknown> = {};
+  for (const [key,value] of Object.entries(input || {})) {
+    if (["step","outcome","reason","state","hintedState","squareOrderId","squareBookingId","consultationId","bookingId","deliveryId"].includes(key) && typeof value==="string" && /^[a-zA-Z0-9._:-]{1,100}$/.test(value)) out[key]=value;
+    if (["bodyChars","durationMs","retryNumber","httpStatus","amountCents","hintedAmountCents","expectedDepositAmountCents","depositAmountCents"].includes(key) && typeof value==="number" && Number.isFinite(value)) out[key]=value;
+    if ((key.startsWith("has") || ["paid","hintedPaid","retryable"].includes(key)) && typeof value==="boolean") out[key]=value;
+  }
+  return out;
+}
+export function safeReconcile(r?: ReconcileOutcome | null) {
+  return r ? {action:r.action,collection:r.collection,matchedBy:r.matchedBy,isConsultation:r.isConsultation,squareBookingId:r.squareBookingId} : null;
 }
 
 function withoutUndefined<T>(value: T): T | null {
@@ -86,25 +94,23 @@ function cleanDoc<T extends Record<string, unknown>>(doc: T): T {
  */
 export async function logSquareWebhookEvent(
   db: Firestore,
-  entry: Omit<WebhookLogEntry, "receivedAtIso" | "rawBodyPreview"> & { rawBody?: string | null },
+  entry: Omit<WebhookLogEntry, "receivedAtIso">,
 ) {
   const doc = cleanDoc({
     stage: entry.stage,
     eventId: entry.eventId,
     eventType: entry.eventType,
     signatureValid: entry.signatureValid,
-    reconcile: withoutUndefined(entry.reconcile),
+    reconcile: safeReconcile(entry.reconcile),
     classSync: withoutUndefined(entry.classSync),
-    details: withoutUndefined(entry.details),
-    error: entry.error ?? null,
-    requestUrl: entry.requestUrl,
-    rawBodyPreview: trimBody(entry.rawBody),
+    details: webhookDetails(entry.details),
+    error: entry.error ? entry.stage : null,
+    requestUrl: entry.requestUrl ? "/api/square/webhook" : undefined,
     receivedAtIso: new Date().toISOString(),
-    createdAt: FieldValue.serverTimestamp(),
   })
   try {
-    await db.collection(SQUARE_WEBHOOK_EVENTS_COLLECTION).add(doc)
-  } catch (err) {
-    console.error("[square webhook] failed to persist webhook log entry:", err)
+    await db.collection(SQUARE_WEBHOOK_EVENTS_COLLECTION).add({...doc,createdAt:FieldValue.serverTimestamp()})
+  } catch {
+    console.error("[square webhook] log persistence failed", {stage:entry.stage,eventId:entry.eventId})
   }
 }

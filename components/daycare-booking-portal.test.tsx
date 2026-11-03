@@ -8,6 +8,7 @@ const fetchMock=jest.fn();
 const ids=["a".repeat(64),"b".repeat(64)];
 const data={defaultDogId:ids[0],dogs:ids.map((id,i)=>({id,dogName:i?"Luna":"Milo",secondDog:!!i,bookings:[],passes:[{id:`qa-pass-000${i}`,stay:"half",visits:5,addOns:[],status:"paid",remaining:5,totalCents:100,expiresOn:null}]})),availability:[{date:"2026-11-03",remaining:15}]};
 beforeEach(async()=>{
+  jest.spyOn(Date,"now").mockReturnValue(Date.parse("2026-10-29T14:00:00Z"));
   (globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;
   Object.defineProperty(HTMLElement.prototype,"scrollIntoView",{configurable:true,value:jest.fn()});
   Object.defineProperty(crypto,"randomUUID",{configurable:true,value:()=>"55555555-1111-4444-9999-111111111111"});
@@ -16,7 +17,7 @@ beforeEach(async()=>{
   container=document.createElement("div");document.body.append(container);root=createRoot(container);
   await act(async()=>root.render(<DaycareBookingPortal locale="en"/>));
 });
-afterEach(async()=>{await act(async()=>root.unmount());container.remove();globalThis.fetch=originalFetch;});
+afterEach(async()=>{await act(async()=>root.unmount());container.remove();globalThis.fetch=originalFetch;jest.restoreAllMocks();});
 function posts(){return fetchMock.mock.calls.filter(([,init])=>init?.method==="POST").map(([,init])=>JSON.parse(init.body));}
 it("shows both separate balances and the shared-household overview",()=>{
   expect(container.textContent).toContain("Your daycare household");

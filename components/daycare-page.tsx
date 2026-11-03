@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer"
 import { DaycareCalculator } from "@/components/daycare-calculator"
 import { DaycarePolicy } from "@/components/daycare-policy"
 import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
-import { DAYCARE_ADD_ON_CENTS, daycareMoney, quoteDaycare } from "@/lib/daycare-pricing"
+import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, daycareMoney, quoteDaycare } from "@/lib/daycare-pricing"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 
 export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "day-training" | "regular-daycare" }) {
@@ -57,7 +57,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
           </div>
           <div className="absolute bottom-5 right-5 left-5 rounded-2xl bg-background/95 p-5 shadow-sm backdrop-blur-sm">
             <p className="text-sm font-medium">{t("A balanced day, supervised by our team.", "Une journée équilibrée, supervisée par notre équipe.")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("Half day $40 · Full day $55 · Plus tax", "Demi-journée 40 $ · Journée 55 $ · Taxes en sus")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Half day", "Demi-journée")} {money(DAYCARE_BASE_CENTS.half)} · {t("Full day", "Journée")} {money(DAYCARE_BASE_CENTS.full)} · {t("Plus tax","Taxes en sus")}</p>
           </div>
         </div>
       </div>

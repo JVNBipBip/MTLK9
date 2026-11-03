@@ -1,6 +1,7 @@
 import { getSquareConfigAsync, squareRequest } from "./square";
 import { getAdminDb } from "./firebase-admin";
-import { DaycareError, type DaycarePass } from "./daycare-booking";
+import { DaycareError, torontoDate, type DaycarePass } from "./daycare-booking";
+import { parseDaycarePlan } from "./daycare-plan";
 import { daycareHash } from "./daycare-booking-store";
 import { daycareHouseholdAccounts, type DaycarePrincipal } from "./daycare-household";
 import {
@@ -67,6 +68,7 @@ export async function createDaycareCheckout(
     stay: DaycareStay;
     addOns: DaycareAddOn[];
     visits: DaycareVisits;
+    plannedDates?: unknown;
   },
 ) {
   if (
@@ -75,6 +77,7 @@ export async function createDaycareCheckout(
     )
   )
     throw new DaycareError("invalid_request");
+  if (![1,5,10,20].includes(input.visits)) throw new DaycareError("invalid_request");
   const quote = quoteDaycare(
     input.stay,
     input.addOns,
@@ -85,11 +88,14 @@ export async function createDaycareCheckout(
     db = getAdminDb(),
     ref = db.collection("daycare_passes").doc(id);
   const existing = await ref.get();
+  const createdMs = Date.parse(existing.data()?.createdAtIso || "");
+  const plannedDates = parseDaycarePlan(input.plannedDates, input.visits, Number.isFinite(createdMs) ? torontoDate(createdMs) : undefined);
+  const samePlan = (p: Record<string, any> | undefined) => JSON.stringify(p?.plannedDates || []) === JSON.stringify(plannedDates);
   if (existing.exists && existing.data()?.applicationId !== account.id)
     throw new DaycareError("request_conflict", 409);
   if (
     existing.exists &&
-    (existing.data()?.stay !== input.stay ||
+    (!samePlan(existing.data()) || existing.data()?.stay !== input.stay ||
       existing.data()?.visits !== input.visits ||
       JSON.stringify(existing.data()?.addOns) !==
         JSON.stringify([...new Set(input.addOns)].sort()))
@@ -153,7 +159,7 @@ export async function createDaycareCheckout(
       if (
         pass.exists &&
         (pass.data()?.applicationId !== account.id ||
-          pass.data()?.stay !== input.stay ||
+          !samePlan(pass.data()) || pass.data()?.stay !== input.stay ||
           pass.data()?.visits !== input.visits ||
           JSON.stringify(pass.data()?.addOns) !==
             JSON.stringify([...new Set(input.addOns)].sort()))
@@ -183,6 +189,7 @@ export async function createDaycareCheckout(
           order,
           status: "pending",
           allocations: {},
+          plannedDates,
           createdAtIso: new Date().toISOString(),
           locale: account.locale,
         });
@@ -198,7 +205,7 @@ export async function createDaycareCheckout(
       idempotency_key: id,
       order: pass.order,
       checkout_options: {
-        redirect_url: `https://www.mtlcaninetraining.com/${pass.locale}/daycare/book`,
+        redirect_url: `https://www.mtlcaninetraining.com/${pass.locale}/daycare/book?checkout=returned`,
         allow_tipping: false,
         ask_for_shipping_address: false,
       },
@@ -216,12 +223,13 @@ export async function createDaycareCheckout(
 }
 
 /** Fetches Square, never trusts the return URL or a browser-supplied paid flag. */
-export async function reconcileDaycarePass(id: string) {
-  if (!/^dc_[a-f0-9-]{36}$/.test(id)) return;
+export type DaycarePaymentOutcome = "not_daycare" | "pending" | "credited" | "already_paid" | "refund_review" | "already_in_review";
+export async function reconcileDaycarePass(id: string, expectRefund = false): Promise<DaycarePaymentOutcome> {
+  if (!/^dc_[a-f0-9-]{36}$/.test(id)) return "not_daycare";
   const db = getAdminDb(),
     ref = db.collection("daycare_passes").doc(id);
   const data = (await ref.get()).data() as DaycarePass | undefined;
-  if (!data?.orderId) return;
+  if (!data?.orderId) return "not_daycare";
   const config = await getSquareConfigAsync();
   const response = await squareRequest<{
     order?: {
@@ -245,7 +253,7 @@ export async function reconcileDaycarePass(id: string) {
   const paymentIds = [
     ...new Set((order.tenders || []).map((t) => t.payment_id).filter(Boolean)),
   ] as string[];
-  if (!paymentIds.length) return;
+  if (!paymentIds.length) return "pending";
   const payments = await Promise.all(
     paymentIds.map(async (paymentId) => {
       const result = await squareRequest<{
@@ -264,6 +272,7 @@ export async function reconcileDaycarePass(id: string) {
   const refunded = payments.some(
     (p) => Number(p?.refunded_money?.amount || 0) > 0,
   );
+  if (expectRefund && !refunded) throw new DaycareError("settlement_pending",503);
   const paid =
     payments.every(
       (p) =>
@@ -276,38 +285,49 @@ export async function reconcileDaycarePass(id: string) {
       (sum, p) => sum + Number(p?.amount_money?.amount || 0),
       0,
     ) === data.totalCents;
-  if (!paid && !refunded) return;
-  await db.runTransaction(async (tx) => {
+  if (!paid && !refunded) return "pending";
+  return db.runTransaction(async (tx) => {
     const current = (await tx.get(ref)).data();
     if (!current || current.orderId !== data.orderId)
       throw new DaycareError("payment_mismatch", 503);
-    if (refunded)
+    if (current.status === "payment_review") return "already_in_review";
+    if (refunded) {
       tx.update(ref, {
         status: "payment_review",
         paymentIssue: "Square refund detected; review existing reservations.",
         updatedAtIso: new Date().toISOString(),
       });
-    else if (current.status === "pending")
+      return "refund_review";
+    } else if (current.status === "pending") {
       tx.update(ref, {
         status: "paid",
         paidAtIso: new Date().toISOString(),
         paymentIds,
       });
+      return "credited";
+    }
+    return "already_paid";
   });
 }
 
-export async function reconcileDaycareWebhook(payload: any) {
+export async function reconcileDaycareWebhook(payload: any): Promise<DaycarePaymentOutcome | "no_order"> {
   const object = payload?.data?.object;
   const orderId =
     object?.payment?.order_id ||
     object?.order?.id ||
+    object?.order_created?.order_id ||
     object?.order_updated?.order_id ||
     object?.refund?.order_id;
-  if (!orderId || typeof orderId !== "string") return;
+  if (!orderId || typeof orderId !== "string") return "no_order";
   const matches = await getAdminDb()
     .collection("daycare_passes")
     .where("orderId", "==", orderId)
     .limit(1)
     .get();
-  if (!matches.empty) await reconcileDaycarePass(matches.docs[0].id);
+  if (matches.empty) return "not_daycare";
+  const outcome = await reconcileDaycarePass(matches.docs[0].id, object?.refund?.status === "COMPLETED");
+  if ((outcome === "pending" && (object?.payment?.status === "COMPLETED" || object?.order?.state === "COMPLETED")) ||
+      (object?.refund?.status === "COMPLETED" && outcome !== "refund_review" && outcome !== "already_in_review"))
+    throw new DaycareError("settlement_pending",503);
+  return outcome;
 }

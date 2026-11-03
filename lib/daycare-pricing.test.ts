@@ -1,6 +1,14 @@
 import { quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "./daycare-pricing"
 
 describe("approved daycare pricing", () => {
+  it("matches all 128 combinations against Nick’s rates, bundle percentages and additional second-dog discount",()=>{
+    for(const stay of ["half","full"] as const) for(let mask=0;mask<8;mask++) for(const visits of [1,5,10,20] as const) for(const second of [false,true]){
+      const extras=(["training","treadmill","individual"] as const).filter((_,i)=>mask&(1<<i));
+      const gross=((stay==="half"?4000:5500)+extras.reduce((sum,k)=>sum+({training:4000,treadmill:1500,individual:2000})[k],0))*visits;
+      const bundle=gross-Math.round(gross*({1:0,5:5,10:7,20:12})[visits]/100);
+      expect(quoteDaycare(stay,extras,visits,second).totalCents).toBe(bundle-(second?Math.round(bundle*0.30):0));
+    }
+  });
   test.each([
     ["half", 1, 4000], ["full", 1, 5500],
     ["half", 5, 19000], ["full", 5, 26125],

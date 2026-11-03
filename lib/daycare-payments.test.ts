@@ -5,6 +5,7 @@ import {
   createDaycareCheckout,
   daycareTaxIds,
   reconcileDaycarePass,
+  reconcileDaycareWebhook,
 } from "./daycare-payments";
 import { daycareHash } from "./daycare-booking-store";
 jest.mock("./firebase-admin", () => ({ getAdminDb: jest.fn() }));
@@ -100,7 +101,7 @@ test("checkout uses server prices, merchant taxes, stable idempotency and no PII
   expect(body.order.taxes).toHaveLength(2);
   expect(body.idempotency_key).toBe(result.id);
   expect(body.checkout_options.redirect_url).toBe(
-    "https://www.mtlcaninetraining.com/en/daycare/book",
+    "https://www.mtlcaninetraining.com/en/daycare/book?checkout=returned",
   );
   expect(memory.data.get(`daycare_passes/${result.id}`).status).toBe("pending");
   await createDaycareCheckout(account, input);
@@ -232,4 +233,27 @@ test("refund detection blocks additional usage and flags existing bookings for s
   const id = paymentFixture({ refunded: 100 });
   await reconcileDaycarePass(id);
   expect(memory.data.get(`daycare_passes/${id}`).status).toBe("payment_review");
+});
+
+test("matches a payment webhook to its order, records repeat vs new credits and fails closed while Square is settling",async()=>{
+  const id=paymentFixture();
+  jest.mocked(getAdminDb).mockReturnValue({...memory.db,collection:(n:string)=>({...memory.db.collection(n),where:(_f:string,_op:string,order:string)=>({limit:()=>({get:async()=>({empty:order!=="order",docs:[{id}]})})})})} as any);
+  const event={data:{object:{payment:{order_id:"order",status:"COMPLETED"}}}};
+  await expect(reconcileDaycareWebhook(event)).resolves.toBe("credited");
+  await expect(reconcileDaycareWebhook(event)).resolves.toBe("already_paid");
+  await expect(reconcileDaycareWebhook({data:{object:{order_updated:{order_id:"unrelated"}}}})).resolves.toBe("not_daycare");
+  paymentFixture({status:"APPROVED"});
+  await expect(reconcileDaycareWebhook(event)).rejects.toThrow("settlement_pending");
+  await expect(reconcileDaycareWebhook({data:{object:{refund:{order_id:"order",status:"COMPLETED"}}}})).rejects.toThrow("settlement_pending");
+  expect(memory.data.get("daycare_passes/"+id).status).toBe("pending");
+});
+test("persists an optional unpaid itinerary without creating bookings or allowing an out-of-window wishlist",async()=>{
+  checkoutMock();
+  jest.spyOn(Date,"now").mockReturnValue(Date.parse("2026-11-03T16:00:00Z"));
+  try{
+    const result=await createDaycareCheckout(account,{...input,visits:5,plannedDates:["2026-11-10","2026-11-09"]});
+    expect(memory.data.get("daycare_passes/"+result.id)).toMatchObject({plannedDates:["2026-11-09","2026-11-10"],allocations:{},status:"pending"});
+    expect([...memory.data.keys()].some(k=>k.startsWith("daycare_days/"))).toBe(false);
+    await expect(createDaycareCheckout(account,{...input,visits:5,plannedDates:["2026-11-09","2026-12-07"]})).rejects.toThrow("bundle_window");
+  }finally{jest.restoreAllMocks();}
 });

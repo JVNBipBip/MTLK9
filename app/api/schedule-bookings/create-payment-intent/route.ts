@@ -6,6 +6,8 @@ import { programLabel } from "@/lib/programs"
 import { getProgramServiceVariationId, getSquareServiceConfig } from "@/lib/square-service-config"
 import { hashAccessToken } from "@/lib/tokens"
 import { createSquareBooking, getOrCreateSquareCustomer } from "@/lib/square"
+import { trainingSlotStillAvailable } from "@/lib/training-slot-check"
+import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { clientBookingRef, clientBookingsCollection, findClientConsultationByAccessTokenHash, upsertClientProfile } from "@/lib/client-records"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
 import { captureServerEvent } from "@/lib/posthog-server"
@@ -74,7 +76,10 @@ export async function POST(request: Request) {
   if (!recommendedSet.has(programId)) {
     return NextResponse.json({ error: "Selected slot is outside approved class types." }, { status: 400 })
   }
-  const serviceVariationId = serviceVariationFromSlot || (await getProgramServiceVariationId(programId))
+  const approved = await buildApprovedGroupClassesForClientDog(bookingClientEmail,consultation.dogName || "")
+  const serviceVariationId = approved.find(row=>row.classTypeId===programId)?.squareServiceVariationId || await getProgramServiceVariationId(programId)
+  if (serviceVariationFromSlot && serviceVariationFromSlot!==serviceVariationId)
+    return NextResponse.json({error:"Selected slot does not match the approved class."},{status:400})
   if (!serviceVariationId) {
     return NextResponse.json({ error: "Selected class is not mapped to a Square service variation." }, { status: 400 })
   }
@@ -91,6 +96,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, bookingId: duplicateSnap.docs[0].id, duplicate: true })
   }
 
+  if (!await trainingSlotStillAvailable(startAt,serviceVariationId,teamMemberId))
+    return NextResponse.json({error:"This training time is no longer available. Please pick another slot.",code:"slot_unavailable"},{status:409})
   const customerId = await getOrCreateSquareCustomer({
     name: consultation.clientName || "",
     email: consultation.clientEmail || "",

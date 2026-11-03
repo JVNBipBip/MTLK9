@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { getNickTeamMemberIdForConsultation } from "@/lib/square-service-config"
+import { trainerCanWork } from "@/lib/training-week"
 import { findClientConsultationByAccessTokenHash } from "@/lib/client-records"
 import { buildApprovedGroupClassesForClientDog } from "@/lib/group-dog-program-access"
 import { getAdminDb } from "@/lib/firebase-admin"
@@ -110,7 +112,8 @@ export async function GET(request: Request) {
       }
     }),
   )
-  const slots = rawSlots.map((s) => ({
+  const nickId = await getNickTeamMemberIdForConsultation()
+  const slots = rawSlots.filter(s=>trainerCanWork(s.startAt,teamNames.get(s.teamMemberId || ""),s.teamMemberId,nickId)).map((s) => ({
     ...s,
     teamMemberName: s.teamMemberId ? teamNames.get(s.teamMemberId) ?? null : null,
   }))

@@ -1,3 +1,4 @@
+import { trainerCanWork } from "@/lib/training-week"
 import { NextResponse } from "next/server"
 import { retrieveSquareTeamMember, searchSquareAvailability } from "@/lib/square"
 import {
@@ -300,7 +301,7 @@ async function respondWithConsultationSlots(
         }),
       )
     : publicTrainerPool
-  const deduped = dedupeSlotsByTimeAndTeam(filtered)
+  const deduped = dedupeSlotsByTimeAndTeam(filtered.filter(s=>trainerCanWork(s.startAt,teamNames.get(s.teamMemberId),s.teamMemberId,nickId)))
 
   const slotsMessage =
     deduped.length === 0

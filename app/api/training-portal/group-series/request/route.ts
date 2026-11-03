@@ -1,5 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { NextResponse } from "next/server"
+import { getNickTeamMemberIdForConsultation } from "@/lib/square-service-config"
+import { groupSessionCanRun } from "@/lib/training-week"
 import { CLASS_SESSIONS_COLLECTION, type ClassSessionRecord } from "@/lib/domain"
 import { sendEmail } from "@/lib/email"
 import { getAdminDb } from "@/lib/firebase-admin"
@@ -136,6 +138,9 @@ export async function POST(request: Request) {
     .filter((row) => row.isActive !== false && String(row.startsAtIso || "") > nowIso)
     .sort((a, b) => String(a.startsAtIso).localeCompare(String(b.startsAtIso)))
 
+  const nickId = await getNickTeamMemberIdForConsultation()
+  if (sessions.some(s=>!groupSessionCanRun(s,nickId)))
+    return NextResponse.json({error:"This series includes a date outside training hours. Please choose another series.",code:"series_not_available"},{status:409})
   if (sessions.length === 0) {
     return NextResponse.json({ error: "This series has no upcoming sessions.", code: "series_not_available" }, { status: 400 })
   }
@@ -187,7 +192,7 @@ export async function POST(request: Request) {
       for (const sSnap of sessionSnaps) {
         if (!sSnap.exists) throw new Error("Session missing")
         const sd = sSnap.data() as { capacity?: number; bookedCount?: number; reservedCount?: number; isActive?: boolean; startsAtIso?: string }
-        if (sd.isActive === false) throw new Error("Session inactive")
+        if (sd.isActive === false || !groupSessionCanRun(sd,nickId)) throw new Error("Session inactive")
         if (String(sd.startsAtIso || "") <= nowIso) throw new Error("Session already started")
         const cap = Number(sd.capacity ?? 0)
         const booked = Number(sd.bookedCount ?? 0)

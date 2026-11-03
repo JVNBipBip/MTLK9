@@ -36,6 +36,7 @@ export type DaycarePass = {
   checkoutUrl?: string;
   paymentLinkId?: string;
   paidAtIso?: string;
+  plannedDates?: string[];
 };
 export function validDate(date: unknown): date is string {
   return (

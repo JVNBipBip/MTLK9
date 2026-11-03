@@ -12,7 +12,9 @@ import {
   retrieveSquareCustomer,
   retrieveSquareOrder,
 } from "@/lib/square"
-import { logSquareWebhookEvent } from "@/lib/square-webhook-log"
+import { logSquareWebhookEvent, webhookDetails, safeReconcile } from "@/lib/square-webhook-log"
+import { DaycareError } from "@/lib/daycare-booking"
+import { trainingSlotStillAvailable } from "@/lib/training-slot-check"
 import { findClientConsultationById } from "@/lib/client-records"
 import { isFacilityRoomAvailable } from "@/lib/facility-room-capacity"
 import { notifyStaffOfBooking } from "@/lib/staff-booking-notify"
@@ -33,7 +35,8 @@ function squareWebhookLog(
     stage,
     eventId: ctx.eventId ?? null,
     eventType: ctx.eventType ?? null,
-    ...extra,
+    ...webhookDetails(extra),
+    ...(extra?.reconcile ? {reconcile:safeReconcile(extra.reconcile as Awaited<ReturnType<typeof reconcileSquareBookingWebhook>>)} : {}),
   }
   const line = `${WEBHOOK_LOG_PREFIX} ${stage}`
   if (level === "error") console.error(line, payload)
@@ -62,7 +65,8 @@ function isValidSignature(input: { signature: string; body: string; url: string;
   const hmac = crypto.createHmac("sha256", input.signatureKey)
   hmac.update(input.url + input.body)
   const digest = hmac.digest("base64")
-  return digest === input.signature
+  const expected = Buffer.from(digest), actual = Buffer.from(input.signature)
+  return expected.length === actual.length && crypto.timingSafeEqual(expected,actual)
 }
 
 function tryGetOrderCheckoutHints(payload: WebhookPayload): {
@@ -129,8 +133,8 @@ async function logConsultationDepositStep(
   console.info("[square webhook] consultation deposit:", {
     eventId: payload.event_id ?? null,
     eventType: payload.type ?? null,
-    ...details,
-    ...(error ? { error } : {}),
+    ...webhookDetails(details),
+    ...(error ? { failed: true } : {}),
   })
   await logSquareWebhookEvent(db, {
     stage: error ? "consultation_deposit_finalize_error" : "consultation_deposit_finalize_ok",
@@ -543,6 +547,8 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
   })
 
   try {
+    if (!await trainingSlotStillAvailable(claim.scheduledAtIso,claim.consultationServiceVariationId,claim.consultationTeamMemberId))
+      throw new Error("Paid consultation needs staff review: training slot no longer available.")
     const roomAvailable = await isFacilityRoomAvailable({
       startAt: claim.scheduledAtIso,
       serviceVariationId: claim.consultationServiceVariationId,
@@ -618,7 +624,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
       squareBookingId: squareConsultationBookingId,
       issueLabel: claim.issueLabel,
     }).catch((err) => {
-      console.error("[square webhook] Consultation staff notification failed:", err)
+      console.error("[square webhook] Consultation staff notification failed")
     })
     captureServerEvent({
       distinctId: claim.clientEmail.toLowerCase(),
@@ -664,6 +670,7 @@ async function maybeFinalizeConsultationDepositFromOrderWebhook(db: Firestore, p
 }
 
 export async function POST(request: Request) {
+  const startedAt = Date.now()
   const signature = request.headers.get("x-square-hmacsha256-signature") || ""
   const signatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY
   const rawBody = await request.text()
@@ -683,7 +690,6 @@ export async function POST(request: Request) {
       eventType: null,
       signatureValid: false,
       error: "Missing Square webhook signature configuration.",
-      rawBody,
       requestUrl: request.url,
     })
     return NextResponse.json({ error: "Missing Square webhook signature configuration." }, { status: 400 })
@@ -700,7 +706,6 @@ export async function POST(request: Request) {
       eventType: null,
       signatureValid: false,
       error: "Invalid webhook signature.",
-      rawBody,
       requestUrl: request.url,
     })
     return NextResponse.json({ error: "Invalid webhook signature." }, { status: 401 })
@@ -709,6 +714,7 @@ export async function POST(request: Request) {
   let payload: WebhookPayload
   try {
     payload = JSON.parse(rawBody) as WebhookPayload
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("Invalid envelope")
   } catch {
     squareWebhookLog("warn", "payload_json_parse_failed", emptyCtx, {
       requestUrl: request.url,
@@ -720,20 +726,12 @@ export async function POST(request: Request) {
       eventType: null,
       signatureValid: true,
       error: "Could not parse webhook body as JSON.",
-      rawBody,
       requestUrl: request.url,
     })
     return NextResponse.json({ ok: true })
   }
 
   const eventId = payload.event_id ?? null
-  // A retryable failure must not acknowledge a daycare payment before its ledger is updated.
-  try {
-    const { reconcileDaycareWebhook } = await import("@/lib/daycare-payments")
-    await reconcileDaycareWebhook(payload)
-  } catch {
-    return NextResponse.json({ error: "Daycare payment reconciliation pending" }, { status: 503 })
-  }
   const eventType = payload.type ?? null
   const ctx = { eventId, eventType }
   const merchantId =
@@ -751,9 +749,28 @@ export async function POST(request: Request) {
     eventId,
     eventType,
     signatureValid: true,
-    rawBody,
+    details: {bodyChars:rawBody.length,retryNumber:Number(request.headers.get("square-retry-number") || 0)},
     requestUrl: request.url,
   })
+
+  // Record receipt before doing any work, including the early 503 retry path.
+  if (/^(payment|order|refund)\./.test(eventType || "")) {
+    const delivery = {retryNumber:Number(request.headers.get("square-retry-number") || 0)};
+    try {
+      const {reconcileDaycareWebhook} = await import("@/lib/daycare-payments")
+      const outcome = await reconcileDaycareWebhook(payload)
+      const stage = outcome==="no_order" || outcome==="not_daycare" ? "daycare_payment_skipped" : "daycare_payment_ok"
+      const details = {...delivery,outcome,durationMs:Date.now()-startedAt}
+      squareWebhookLog("info",stage,ctx,details)
+      await logSquareWebhookEvent(db,{...ctx,stage,signatureValid:true,details})
+    } catch (e) {
+      const reason = e instanceof DaycareError ? e.code : "provider_or_store_unavailable"
+      const details = {...delivery,reason,retryable:true,httpStatus:503,durationMs:Date.now()-startedAt}
+      squareWebhookLog("error","daycare_payment_error",ctx,details)
+      await logSquareWebhookEvent(db,{...ctx,stage:"daycare_payment_error",signatureValid:true,details,error:reason})
+      return NextResponse.json({error:"Daycare payment reconciliation pending"},{status:503})
+    }
+  }
 
   try {
     const reconcile = await reconcileSquareBookingWebhook(db, payload, {
@@ -767,7 +784,6 @@ export async function POST(request: Request) {
       eventType,
       signatureValid: true,
       reconcile,
-      rawBody,
       requestUrl: request.url,
     })
   } catch (err) {
@@ -782,7 +798,6 @@ export async function POST(request: Request) {
       eventType,
       signatureValid: true,
       error: message,
-      rawBody,
       requestUrl: request.url,
     })
   }
@@ -796,7 +811,6 @@ export async function POST(request: Request) {
       eventId,
       eventType,
       signatureValid: true,
-      rawBody,
       requestUrl: request.url,
     })
   } catch (err) {
@@ -811,7 +825,6 @@ export async function POST(request: Request) {
       eventType,
       signatureValid: true,
       error: message,
-      rawBody,
       requestUrl: request.url,
     })
   }
@@ -825,7 +838,6 @@ export async function POST(request: Request) {
       eventId,
       eventType,
       signatureValid: true,
-      rawBody,
       requestUrl: request.url,
     })
   } catch (err) {
@@ -840,7 +852,6 @@ export async function POST(request: Request) {
       eventType,
       signatureValid: true,
       error: message,
-      rawBody,
       requestUrl: request.url,
     })
   }
@@ -867,7 +878,6 @@ export async function POST(request: Request) {
           reason: outcome.skipped ? "debounce" : null,
           lastRunAtIso: outcome.lastRunAtIso,
         },
-        rawBody,
         requestUrl: request.url,
       })
     } else {
@@ -886,7 +896,6 @@ export async function POST(request: Request) {
           reason: outcome.reason,
         },
         error: error ?? null,
-        rawBody,
         requestUrl: request.url,
       })
     }

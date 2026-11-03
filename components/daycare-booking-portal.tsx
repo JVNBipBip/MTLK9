@@ -2,12 +2,15 @@
 import { useEffect, useRef, useState } from "react";
 import {
   daycareMoney,
+  DAYCARE_BASE_CENTS, DAYCARE_ADD_ON_CENTS, DAYCARE_DISCOUNT_PERCENT,
   quoteDaycare,
   type DaycareStay,
   type DaycareAddOn,
   type DaycareVisits,
 } from "@/lib/daycare-pricing";
-import { torontoDate, type DaycareSlot } from "@/lib/daycare-booking";
+import { torontoDate, torontoTime, type DaycareSlot } from "@/lib/daycare-booking";
+import { daycareBundleWindow } from "@/lib/daycare-policy";
+import { DaycareDatePicker, DaycareSelect } from "./daycare-date-picker";
 import type { DaycarePortal as Portal, DaycarePortalBooking } from "@/lib/daycare-portal-types";
 import { DaycareHouseholdReservationForm } from "./daycare-household-reservation-form";
 type Booking = DaycarePortalBooking & { applicationId: string; dogName: string };
@@ -74,6 +77,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     [visits, setVisits] = useState<DaycareVisits>(1),
     [addOns, setAddOns] = useState<DaycareAddOn[]>([]);
   const [purchaseId, setPurchaseId] = useState("");
+  const [plannedDates,setPlannedDates] = useState<string[]>([]);
+  const [showAll,setShowAll] = useState(false);
   const [editing, setEditing] = useState<Booking | null>(null),
     [slot, setSlot] = useState<DaycareSlot>({
       date: "",
@@ -116,9 +121,19 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     if (!r.ok) throw new Error(body.error);
     setData(body);
     setSelectedDogId(current => body.dogs.some((dog: { id: string }) => dog.id === current) ? current : body.defaultDogId);
+    return body as Portal;
   }
   useEffect(() => {
-    load()
+    load().then(async initial=>{
+      const url = new URL(window.location.href);
+      if (!initial || url.searchParams.get("checkout") !== "returned") return;
+      // This URL authorizes nothing. Only reconciled Square payments unlock credits.
+      url.searchParams.delete("checkout");
+      window.history.replaceState(window.history.state,"",url.pathname+url.search+url.hash);
+      await Promise.all(initial.dogs.filter(d=>d.passes.some(p=>p.status==="pending")).map(d=>post({action:"refresh",applicationId:d.id})));
+      await load();
+      setMessage(t("Back from Square. Check your balance and confirm your dates below; payment alone does not book a place.","De retour de Square. Vérifiez votre solde et confirmez vos dates ci-dessous; le paiement seul ne réserve pas de place."));
+    })
       .catch((e) => fail(e.message))
       .finally(() => setLoading(false));
   }, []); // No analytics, storage or URL tokens.
@@ -258,7 +273,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
               </p>
             )}
             <div className="mt-4 space-y-3">
-              {upcoming.map((b) => (
+              {(showAll ? upcoming : upcoming.slice(0,4)).map((b) => (
                 <div
                   key={b.id}
                   className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-secondary/30 p-4"
@@ -298,6 +313,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 </div>
               ))}
             </div>
+            {upcoming.length>4 && <button type="button" aria-expanded={showAll} onClick={()=>setShowAll(!showAll)} className="mt-4 min-h-11 font-semibold underline">{showAll?t("Show fewer visits","Afficher moins de visites"):t("Show all "+upcoming.length+" visits","Afficher les "+upcoming.length+" visites")}</button>}
             {cancelling && (
               <div className="mt-5 rounded-xl border border-primary/30 p-5">
                 <p>
@@ -348,21 +364,24 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
               <h3 className="text-2xl font-semibold">
                 {editing
                   ? `${t("Move the visit for", "Déplacer la visite de")} ${editing.dogName}`
-                  : t("Reserve a date", "Réserver une date")}
+                  : t("Reserve your dates", "Réservez vos dates")}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 {t(
-                  "Up to 15 dogs per day. Book at least 24 hours ahead. Availability is confirmed when you save your reservation.",
-                  "Maximum de 15 chiens par jour. Réservez au moins 24 heures à l’avance. La place est confirmée à l’enregistrement de la réservation.",
+                  "With a paid balance, book one visit or your whole bundle at once. Up to 15 dogs per day. Please book at least 24 hours ahead.",
+                  "Avec un solde payé, réservez une visite ou tout votre forfait en une seule fois. Maximum de 15 chiens par jour. Réservez au moins 24 heures à l’avance.",
                 )}
               </p>
               {!editing && <DaycareHouseholdReservationForm key={data.dogs.map(dog => dog.id).join(":")} dogs={data.dogs} availability={data.availability} locale={locale} busy={busy} onBook={async (requestId, reservations) => {
                 let saved = false;
                 await run(async () => {
-                  const result = await post({ action: "book-household", requestId, reservations });
+                  let result;
+                  try {result = await post({ action: "book-household", requestId, reservations });}
+                  catch(e) {if (e instanceof Error && ["day_full","already_booked","bundle_window","no_visits","notice_24h"].includes(e.message)) await load();throw e;}
                   await load();
+                  const dateCount = new Set(reservations.map(r=>r.slot.date)).size;
                   setMessage(result.bookings.every((booking: { status: string }) => booking.status === "booked")
-                    ? reservations.length > 1 ? t("Both dogs’ visits are confirmed.", "Les visites des deux chiens sont confirmées.") : t("Your dog’s visit is confirmed.", "La visite de votre chien est confirmée.")
+                    ? dateCount>1 ? t("Your "+dateCount+" daycare dates are confirmed.","Vos "+dateCount+" dates de garderie sont confirmées.") : reservations.length > 1 ? t("Both dogs’ visits are confirmed.", "Les visites des deux chiens sont confirmées.") : t("Your dog’s visit is confirmed.", "La visite de votre chien est confirmée.")
                     : t("This request was already processed. Your visits are up to date below.", "Cette demande a déjà été traitée. Vos visites à jour sont affichées ci-dessous."));
                   saved = true;
                 });
@@ -406,7 +425,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 )}
                 <label className="block font-medium">
                   {t("Date", "Date")}
-                  <select
+                  <DaycareSelect
                     required
                     className={field}
                     value={slot.date}
@@ -427,7 +446,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                         {t("spots available", "places disponibles")}
                       </option>
                     ))}
-                  </select>
+                  </DaycareSelect>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {(["arrival", "departure"] as const).map((key) => (
@@ -476,9 +495,9 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                 {" "}{selectedDog.dogName}
               </h3>
               {data.dogs.length > 1 && <label className="mt-5 block font-medium">{t("Which dog are these visits for?", "Pour quel chien sont ces visites?")}
-                <select className={`${field} text-foreground`} disabled={busy} value={selectedDog.id} onChange={event => { setSelectedDogId(event.target.value); setPurchaseId(""); }}>
+                <DaycareSelect className={`${field} text-foreground`} disabled={busy} value={selectedDog.id} onChange={event => { setSelectedDogId(event.target.value); setPurchaseId("");setPlannedDates([]); }}>
                   {data.dogs.map(dog => <option key={dog.id} value={dog.id}>{dog.dogName}{dog.secondDog ? t(" · second dog 30% off", " · deuxième chien : −30 %") : ""}</option>)}
-                </select>
+                </DaycareSelect>
               </label>}
               <p className="mt-3 text-sm leading-relaxed opacity-85">
                 {t(
@@ -509,7 +528,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                       requestId,
                       stay,
                       addOns,
-                      visits,
+                      visits, plannedDates,
                     });
                     if (result.url) window.location.assign(result.url);
                     else await load();
@@ -518,7 +537,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
               >
                 <label className="block font-medium">
                   {t("Day length", "Durée")}
-                  <select
+                  <DaycareSelect
                     className={`${field} text-foreground`}
                     value={stay}
                     onChange={(e) => setStay(e.target.value as DaycareStay)}
@@ -527,15 +546,15 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                       {t(
                         "Half day · up to 6 hours",
                         "Demi-journée · jusqu’à 6 h",
-                      )}
+                      )} · {money(DAYCARE_BASE_CENTS.half)}
                     </option>
                     <option value="full">
                       {t(
                         "Full day · more than 6 hours",
                         "Journée complète · plus de 6 h",
-                      )}
+                      )} · {money(DAYCARE_BASE_CENTS.full)}
                     </option>
-                  </select>
+                  </DaycareSelect>
                 </label>
                 <fieldset>
                   <legend className="mb-3 font-medium">
@@ -570,26 +589,32 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                           )
                         }
                       />
-                      {label}
+                      {label} · +{money(DAYCARE_ADD_ON_CENTS[key])}
                     </label>
                   ))}
                 </fieldset>
+                {addOns.includes("training") && <p className="text-sm leading-relaxed">{t("Complete Training takes place during daycare. You don’t need to book a separate trainer time.","L’entraînement complet a lieu pendant la garderie. Vous n’avez pas à réserver une heure avec un entraîneur.")}</p>}
                 <label className="block font-medium">
                   {t("Number of visits", "Nombre de visites")}
-                  <select
+                  <DaycareSelect
                     className={`${field} text-foreground`}
                     value={visits}
-                    onChange={(e) =>
-                      setVisits(Number(e.target.value) as DaycareVisits)
-                    }
+                    onChange={(e) => {setVisits(Number(e.target.value) as DaycareVisits);setPlannedDates([]);}}
                   >
-                    {[1, 5, 10, 20].map((n) => (
+                    {([1, 5, 10, 20] as const).map((n) => (
                       <option key={n} value={n}>
-                        {n} {t("visit(s)", "visite(s)")}
+                        {n} {n===1?t("visit","visite"):t("visits","visites")}{n>1?" · −"+DAYCARE_DISCOUNT_PERCENT[n]+"%":""}
                       </option>
                     ))}
-                  </select>
+                  </DaycareSelect>
                 </label>
+                {visits>1 && <p className="text-sm">{daycareBundleWindow(visits,locale)}</p>}
+                <details className="rounded-xl border border-white/40 p-3">
+                  <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t("Preview dates before paying (optional)","Voir les dates avant de payer (facultatif)")}</summary>
+                  <p className="my-3 text-sm">{t("We’ll remember these dates. No spots are held: after payment, return to confirm the dates that are still available.","Vos choix seront mémorisés. Aucune place n’est retenue : après le paiement, revenez confirmer les dates encore disponibles.")}</p>
+                  <DaycareDatePicker preview availability={data.availability} windows={[{visits}]} limit={visits} dates={plannedDates} onChange={ds=>{setPlannedDates(ds);setPurchaseId("");}} locale={locale} disabled={busy}
+                    canUseDay={date=>!!data.availability.find(d=>d.date===date && d.remaining>0) && !selectedDog.bookings.some(b=>b.status==="booked" && b.date===date) && torontoTime(date,stay==="half"?"18:15":"12:15")-Date.now()>=86400000}/>
+                </details>
                 <div className="border-t border-white/25 pt-5">
                   <p className="text-sm opacity-80">
                     {t("Before GST & QST", "Avant TPS et TVQ")}

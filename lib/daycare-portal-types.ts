@@ -3,7 +3,7 @@ import type { DaycareSlot } from "./daycare-booking";
 
 export type DaycarePortalPass = {
   id: string; stay: DaycareStay; addOns: DaycareAddOn[]; visits: DaycareVisits;
-  status: string; remaining: number; expiresOn: string | null; checkoutUrl?: string; totalCents: number;
+  status: string; remaining: number; firstVisitDate?: string | null; expiresOn: string | null; plannedDates?: string[]; checkoutUrl?: string; totalCents: number;
 };
 export type DaycarePortalBooking = DaycareSlot & { id: string; passId: string; status: string };
 export type DaycarePortalDog = {

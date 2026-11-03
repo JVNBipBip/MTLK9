@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
+import { getNickTeamMemberIdForConsultation, getPrivateServiceVariationId, getPrivateServiceVariationIds } from "@/lib/square-service-config"
+import { trainerCanWork } from "@/lib/training-week"
 import {
   listBookableTeamMemberIdsForLocation,
   retrieveSquareTeamMember,
@@ -254,7 +255,8 @@ export async function POST(request: Request) {
       clientEmail,
       (trust?.consultation ?? portal.latestConsultation) as Record<string, unknown> | undefined,
     )
-    let scoped = slotsWithNames
+    const nickId = await getNickTeamMemberIdForConsultation()
+    let scoped = slotsWithNames.filter(s=>trainerCanWork(s.startAt,s.teamMemberName,s.teamMemberId,nickId))
     if (allowList && allowList.length > 0) {
       scoped = scoped.filter((s) => trainerAllowedByList(s.teamMemberId, allowList))
     }

@@ -5,9 +5,12 @@ import { daycareMemoryDb } from "@/lib/daycare-test-db";
 import { daycareAccount, issueDaycareAccess } from "@/lib/daycare-booking-store";
 import { createDaycareCheckout, reconcileDaycarePass } from "@/lib/daycare-payments";
 import { notifyDaycareBooking } from "@/lib/daycare-booking-notification";
+import { notifyDaycareItinerary } from "@/lib/daycare-itinerary-notification";
+import { addDays,operatingDay } from "@/lib/daycare-booking";
 jest.mock("@/lib/firebase-admin", () => ({ getAdminDb: jest.fn() }));
 jest.mock("@/lib/daycare-payments", () => ({ createDaycareCheckout: jest.fn(), reconcileDaycarePass: jest.fn() }));
 jest.mock("@/lib/daycare-booking-notification", () => ({ notifyDaycareBooking: jest.fn() }));
+jest.mock("@/lib/daycare-itinerary-notification", () => ({notifyDaycareItinerary:jest.fn()}));
 let memory: ReturnType<typeof daycareMemoryDb>;
 let token: string;
 const ids=["a".repeat(64),"b".repeat(64),"c".repeat(64)];
@@ -18,6 +21,8 @@ function request(body?: unknown, options:{origin?:string;authenticated?:boolean}
 }
 beforeEach(async()=>{
   jest.clearAllMocks();
+  jest.mocked(notifyDaycareBooking).mockResolvedValue(undefined);
+  jest.mocked(notifyDaycareItinerary).mockResolvedValue(undefined);
   jest.spyOn(Date,"now").mockReturnValue(Date.parse("2026-10-29T14:00:00Z"));
   memory=daycareMemoryDb();
   const base=memory.db;
@@ -50,6 +55,15 @@ it("saves both bookings before scheduling per-dog notifications",async()=>{
   expect(response.status).toBe(200);
   expect((await response.json()).bookings).toHaveLength(2);
   expect(notifyDaycareBooking).toHaveBeenCalledTimes(2);
+});
+it("accepts a 40-reservation body; reconciles each paid balance once and sends one itinerary",async()=>{
+  const dates=Array.from({length:90},(_,i)=>addDays("2026-11-02",i)).filter(operatingDay).slice(0,20);
+  for(const r of reservations)memory.data.get("daycare_passes/"+r.passId).visits=20;
+  const rows=dates.flatMap(date=>reservations.map(r=>({...r,slot:{...r.slot,date}})));
+  const response=await POST(request({action:"book-household",requestId,reservations:rows}));
+  expect(response.status).toBe(200);expect((await response.json()).bookings).toHaveLength(40);
+  expect(reconcileDaycarePass).toHaveBeenCalledTimes(2);
+  expect(notifyDaycareItinerary).toHaveBeenCalledTimes(1);expect(notifyDaycareBooking).not.toHaveBeenCalled();
 });
 it("returns an atomic capacity failure without notifications or deductions",async()=>{
   memory.data.set("daycare_days/2026-11-02",{occupants:Object.fromEntries(Array.from({length:14},(_,i)=>[`other-${i}`,`b-${i}`]))});

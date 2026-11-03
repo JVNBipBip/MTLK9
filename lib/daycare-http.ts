@@ -33,7 +33,8 @@ export async function daycareBody(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > 4096) {
+    // At most two dogs × 20 dates; the reservation parser also bounds individual fields.
+    if (size > 16 * 1024) {
       await reader.cancel();
       throw new DaycareError("too_large", 413);
     }
