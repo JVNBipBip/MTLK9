@@ -20,7 +20,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
   const action = service.interest ? (
     <ServiceInquiryButton interest={service.interest}>{t(service.cta)}</ServiceInquiryButton>
   ) : id === "grooming" ? (
-    <a href="https://mtlcaninespa.com" target="_blank" rel="noopener noreferrer" data-conversion-location="grooming_page" className={linkClass}>
+    <a href="https://www.mtlcaninespa.com" target="_blank" rel="noopener noreferrer" data-conversion-location="grooming_page" className={linkClass}>
       {t(service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
     </a>
   ) : id === "apprenticeships" ? (

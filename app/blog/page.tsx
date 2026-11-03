@@ -12,7 +12,7 @@ export function generateMetadata() {
     path: "/blog",
     title: {
       en: "Dog Training Tips & Guides Montreal | MTL Canine Training",
-      fr: "Conseils et guides d'entraînement canin à Montréal | MTL Canine Training",
+      fr: "Conseils d'entraînement canin à Montréal | MTL Canine Training",
     },
     description: {
       en: "Practical dog training guides from Montreal trainers: reactivity, separation anxiety, puppy socialization, and choosing the right trainer.",

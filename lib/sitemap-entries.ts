@@ -4,7 +4,7 @@ import { groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { locales, type AppLocale } from "@/lib/i18n/config"
 import { transformationStories } from "@/lib/transformation-stories"
 import { ABOUT_TEAM_SLUG_ORDER } from "@/lib/team-trainer-public-bios"
-import { facilityServices } from "@/lib/facility-services"
+import { facilityServices, type FacilityServiceId } from "@/lib/facility-services"
 
 /** Canonical origin for sitemap URLs (matches robots.ts and page canonicals). */
 export const SITEMAP_BASE_URL = "https://www.mtlcaninetraining.com"
@@ -23,10 +23,20 @@ type RouteSpec = {
   lastModified?: Date
 }
 
+/** Last significant content change per facility page (git history of the page, its template and its data). */
+const FACILITY_LAST_MODIFIED: Record<FacilityServiceId, string> = {
+  daycare: "2026-11-03",
+  "day-training": "2026-10-27",
+  "regular-daycare": "2026-10-27",
+  grooming: "2026-10-27",
+  "training-offer": "2026-10-27",
+  apprenticeships: "2026-10-27",
+}
+
 const STATIC_ROUTES: RouteSpec[] = [
-  { path: "", changeFrequency: "weekly", priority: 1, lastModified: new Date("2026-10-05") },
+  { path: "", changeFrequency: "weekly", priority: 1, lastModified: new Date("2026-10-27") },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
-  ...Object.values(facilityServices).map((service) => ({ path: service.path, changeFrequency: "monthly" as const, priority: 0.8, lastModified: new Date("2026-10-05") })),
+  ...(Object.keys(facilityServices) as FacilityServiceId[]).map((id) => ({ path: facilityServices[id].path, changeFrequency: "monthly" as const, priority: 0.8, lastModified: new Date(FACILITY_LAST_MODIFIED[id]) })),
   { path: "/services/reactivity", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/aggression", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/separation-anxiety", changeFrequency: "monthly", priority: 0.85 },
@@ -35,13 +45,13 @@ const STATIC_ROUTES: RouteSpec[] = [
   { path: "/services/obedience", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/puppy-training", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/in-home", changeFrequency: "monthly", priority: 0.85 },
-  { path: "/dog-training-west-island", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/dog-training-west-island", changeFrequency: "monthly", priority: 0.8, lastModified: new Date("2026-07-09") },
   { path: "/group-classes", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/results", changeFrequency: "weekly", priority: 0.75 },
+  { path: "/results", changeFrequency: "weekly", priority: 0.75, lastModified: new Date("2026-09-15") },
   { path: "/about", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/faq", changeFrequency: "monthly", priority: 0.65 },
-  { path: "/blog", changeFrequency: "weekly", priority: 0.55 },
-  { path: "/booking", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/faq", changeFrequency: "monthly", priority: 0.65, lastModified: new Date("2026-10-05") },
+  { path: "/blog", changeFrequency: "weekly", priority: 0.55, lastModified: new Date("2026-07-08") },
+  { path: "/booking", changeFrequency: "monthly", priority: 0.7, lastModified: new Date("2026-10-05") },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.25 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.25 },
 ]

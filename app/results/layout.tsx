@@ -5,12 +5,12 @@ export function generateMetadata(): Promise<Metadata> {
   return buildLocalizedMetadata({
     path: "/results",
     title: {
-      en: "Dog Training Results in Montreal",
-      fr: "Résultats d'entraînement canin à Montréal",
+      en: "Dog Training Before & After Stories in Montreal | MTL Canine Training",
+      fr: "Avant et après : résultats d'entraînement canin à Montréal | MTL Canine Training",
     },
     description: {
-      en: "Real dogs. Real Montreal. Real results. See transformation stories from our training programs.",
-      fr: "De vrais chiens, de vrais progrès et des histoires de transformation à Montréal.",
+      en: "Video stories from real Montreal dog owners, from reactive walks and puppy struggles to calm, confident dogs. See what changed and how we trained them.",
+      fr: "Témoignages vidéo de vrais propriétaires à Montréal, de la réactivité en promenade aux défis du chiot, jusqu’à un chien calme et confiant. Voyez ce qui a changé et comment.",
     },
   })
 }

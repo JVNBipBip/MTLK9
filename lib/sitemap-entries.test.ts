@@ -49,7 +49,9 @@ describe("buildSitemapEntries", () => {
     const entries = buildSitemapEntries()
     const home = entries.find((entry) => entry.url === `${SITEMAP_BASE_URL}/en`)
     const services = entries.find((entry) => entry.url === `${SITEMAP_BASE_URL}/fr/services`)
-    expect(home?.lastModified).toEqual(new Date("2026-10-05"))
+    expect(home?.lastModified).toEqual(new Date("2026-10-27"))
+    const daycare = entries.find((entry) => entry.url === `${SITEMAP_BASE_URL}/fr/daycare`)
+    expect(daycare?.lastModified).toEqual(new Date("2026-11-03"))
     expect(services?.lastModified).toEqual(SITE_LAST_UPDATED)
   })
 
