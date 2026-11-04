@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/inquiry-impact",
       "schedule": "15 12 * * *"
+    },
+    {
+      "path": "/api/cron/daycare-reminders",
+      "schedule": "0 10 * * *"
     }
   ]
 }

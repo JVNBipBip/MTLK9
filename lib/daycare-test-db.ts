@@ -24,6 +24,18 @@ export function daycareMemoryDb() {
   const db = {
     collection: (name: string) => ({
       doc: (id = `auto-${++sequence}`) => ref(`${name}/${id}`),
+      where: (field: string, _op: "==", value: unknown) => ({
+        get: async () => ({
+          docs: [...data.keys()]
+            .filter(
+              (path) =>
+                path.split("/").length === 2 &&
+                path.startsWith(`${name}/`) &&
+                data.get(path)[field] === value,
+            )
+            .map(snapshot),
+        }),
+      }),
     }),
     runTransaction: (handler: any) => {
       const run = queue.then(async () => {

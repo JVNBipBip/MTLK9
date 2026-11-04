@@ -110,6 +110,11 @@ export async function notifyDaycareItinerary(db: Firestore, ids: string[]) {
           htmlLang: fr ? "fr" : "en",
           innerHtml:
             list(customerRows) +
+            "<p>" +
+            (fr
+              ? "Vous pouvez déplacer ou annuler une date dans votre portail. Un préavis d’au moins 24 heures est requis pour éviter de perdre la visite."
+              : "You can reschedule or cancel a date in your portal. At least 24 hours’ notice is required to avoid forfeiting the visit.") +
+            "</p>" +
             '<p><a href="https://www.mtlcaninetraining.com/' +
             (fr ? "fr" : "en") +
             '/daycare/book">' +
