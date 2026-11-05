@@ -63,8 +63,8 @@ export async function notifyDaycareBooking(db: Firestore, id: string) {
       staffSent = (
         await sendEmail({
           to: "mtlcaninetraining@gmail.com",
-          subject: `Daycare ${cancelled ? "cancellation" : "reservation"} · ${claimed.date}`,
-          html: `<p>A daycare reservation was ${cancelled ? "cancelled" : "saved"}.</p><p><a href="https://mltk-9-admin.vercel.app/daycare-bookings?date=${claimed.date}">Open the daycare calendar</a></p>`,
+          subject: `Daycare ${cancelled ? "cancellation" : "reservation"} · ${claimed.dogName} · ${claimed.date}`,
+          html: `<p>${escapeHtmlForEmail(String(claimed.dogName))} · ${escapeHtmlForEmail(String(claimed.ownerName || ""))}</p><p>${escapeHtmlForEmail(claimed.date)} · ${escapeHtmlForEmail(claimed.arrival)}–${escapeHtmlForEmail(claimed.departure)} · ${claimed.stay === "half" ? "Half day" : "Full day"}</p><p>The reservation was ${cancelled ? "cancelled" : "saved"}.</p><p><a href="https://mltk-9-admin.vercel.app/daycare-bookings?date=${claimed.date}">Open the daycare calendar</a></p>`,
         })
       ).sent;
   } catch {
