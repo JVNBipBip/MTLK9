@@ -1,8 +1,13 @@
 import { daycareMemoryDb } from "./daycare-test-db";
 import { getAdminDb } from "./firebase-admin";
-import { getSquareConfigAsync, squareRequest } from "./square";
+import {
+  getOrCreateSquareCustomer,
+  getSquareConfigAsync,
+  squareRequest,
+} from "./square";
 import {
   createDaycareCheckout,
+  daycareSquarePhone,
   daycareTaxIds,
   reconcileDaycarePass,
   reconcileDaycareWebhook,
@@ -10,6 +15,7 @@ import {
 import { daycareHash } from "./daycare-booking-store";
 jest.mock("./firebase-admin", () => ({ getAdminDb: jest.fn() }));
 jest.mock("./square", () => ({
+  getOrCreateSquareCustomer: jest.fn(),
   getSquareConfigAsync: jest.fn(),
   squareRequest: jest.fn(),
 }));
@@ -58,6 +64,7 @@ beforeEach(() => {
     apiVersion: "test",
     baseUrl: "https://connect.squareupsandbox.com",
   });
+  jest.mocked(getOrCreateSquareCustomer).mockResolvedValue("customer");
   memory.data.set(`daycare_applications/${account.id}`, {
     status: "approved",
     accessHash: "hash",
@@ -144,6 +151,82 @@ test("a household login purchases for the second dog with its own balance and th
   await expect(createDaycareCheckout(secondAccount,{...input,requestId:"55555555-1111-4444-9999-222222222222"})).rejects.toThrow("unauthorized");
   expect(jest.mocked(squareRequest).mock.calls.some(([path])=>path.includes("payment-links"))).toBe(false);
 });
+function paymentLinkBody() {
+  return JSON.parse(
+    String(
+      jest
+        .mocked(squareRequest)
+        .mock.calls.find(([p]) => p === "/v2/online-checkout/payment-links")![1]
+        .body,
+    ),
+  );
+}
+test("checkout links the owner's Square customer once and prefills email and phone", async () => {
+  checkoutMock();
+  Object.assign(memory.data.get(`daycare_applications/${account.id}`).answers, {
+    ownerName: "Q A",
+    ownerEmail: " QA@Example.com ",
+    ownerPhone: "(514) 555-0100",
+  });
+  const result = await createDaycareCheckout(account, input);
+  expect(getOrCreateSquareCustomer).toHaveBeenCalledWith({
+    name: "Q A",
+    email: "qa@example.com",
+    phone: "+15145550100",
+  });
+  const body = paymentLinkBody();
+  expect(body.order.customer_id).toBe("customer");
+  expect(body.pre_populated_data).toEqual({
+    buyer_email: "qa@example.com",
+    buyer_phone_number: "+15145550100",
+  });
+  expect(memory.data.get(`daycare_passes/${result.id}`).squareCustomerId).toBe("customer");
+  expect(memory.data.get(`daycare_applications/${account.id}`)).toMatchObject({
+    squareCustomerId: "customer",
+    squareCustomerStatus: "linked",
+  });
+  // A later purchase reuses the saved link instead of searching Square again.
+  await createDaycareCheckout(account, {
+    ...input,
+    requestId: "55555555-1111-4444-9999-333333333333",
+  });
+  expect(getOrCreateSquareCustomer).toHaveBeenCalledTimes(1);
+});
+test("a phone Square rejects is retried without it", async () => {
+  checkoutMock();
+  memory.data.get(`daycare_applications/${account.id}`).answers.ownerPhone = "514 555 0100";
+  jest
+    .mocked(getOrCreateSquareCustomer)
+    .mockRejectedValueOnce(new Error("INVALID_PHONE_NUMBER"))
+    .mockResolvedValueOnce("customer");
+  await createDaycareCheckout(account, input);
+  expect(jest.mocked(getOrCreateSquareCustomer).mock.calls[1][0]).toEqual({
+    name: "",
+    email: "qa@example.com",
+  });
+  expect(paymentLinkBody().order.customer_id).toBe("customer");
+});
+test("a Square customer outage never blocks checkout", async () => {
+  checkoutMock();
+  jest.mocked(getOrCreateSquareCustomer).mockRejectedValue(new Error("Square down"));
+  const result = await createDaycareCheckout(account, input);
+  expect(result.url).toBe("https://sandbox.square.link/test");
+  expect(paymentLinkBody().order.customer_id).toBeUndefined();
+  expect(memory.data.get(`daycare_passes/${result.id}`).squareCustomerId).toBeNull();
+  expect(memory.data.get(`daycare_applications/${account.id}`)).toMatchObject({
+    squareCustomerStatus: "failed",
+    squareCustomerError: "Square down",
+  });
+});
+test.each([
+  ["514-555-0100", "+15145550100"],
+  ["+1 (514) 555-0100", "+15145550100"],
+  ["555-0100", undefined],
+  ["+33 1 23 45 67 89", undefined],
+  [undefined, undefined],
+])("phone %p normalizes to %p", (raw, expected) => {
+  expect(daycareSquarePhone(raw)).toBe(expected);
+});
 test("missing or altered tax configuration fails closed", async () => {
   jest.mocked(squareRequest).mockResolvedValue({ objects: [taxes[0]] });
   await expect(daycareTaxIds()).rejects.toThrow("tax_configuration");
@@ -164,6 +247,8 @@ function paymentFixture(
     currency?: string;
     location?: string;
     reference?: string;
+    expectedCustomer?: string;
+    paymentCustomer?: string;
   } = {},
 ) {
   const id = `dc_${"a".repeat(36)}`;
@@ -173,6 +258,7 @@ function paymentFixture(
     totalCents: 4599,
     status: "pending",
     allocations: {},
+    ...(options.expectedCustomer ? { squareCustomerId: options.expectedCustomer } : {}),
   });
   jest.mocked(squareRequest).mockImplementation(async (path) =>
     path.startsWith("/v2/orders/")
@@ -194,6 +280,7 @@ function paymentFixture(
             order_id: "order",
             location_id: "location",
             status: options.status || "COMPLETED",
+            customer_id: options.paymentCustomer,
             amount_money: { amount: options.amount ?? 4599, currency: "CAD" },
             refunded_money: { amount: options.refunded || 0 },
           },
@@ -228,6 +315,19 @@ test.each([
 ])("mismatched order fails closed: %p", async (options) => {
   const id = paymentFixture(options);
   await expect(reconcileDaycarePass(id)).rejects.toThrow("payment_mismatch");
+});
+test.each([
+  [{ expectedCustomer: "customer", paymentCustomer: "customer" }, false],
+  [{ expectedCustomer: "customer", paymentCustomer: "duplicate" }, true],
+  [{ paymentCustomer: "duplicate" }, false],
+])("payment customer check %p flags mismatch: %p", async (options, mismatch) => {
+  const id = paymentFixture(options);
+  await reconcileDaycarePass(id);
+  expect(memory.data.get(`daycare_passes/${id}`)).toMatchObject({
+    status: "paid",
+    paymentCustomerIds: [options.paymentCustomer],
+    squareCustomerMismatch: mismatch,
+  });
 });
 test("refund detection blocks additional usage and flags existing bookings for staff", async () => {
   const id = paymentFixture({ refunded: 100 });

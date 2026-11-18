@@ -37,6 +37,11 @@ export type DaycarePass = {
   paymentLinkId?: string;
   paidAtIso?: string;
   plannedDates?: string[];
+  /** Square customer the order was created for; null when linking failed. */
+  squareCustomerId?: string | null;
+  /** Customers Square attached to the payments, and whether any differs from squareCustomerId. */
+  paymentCustomerIds?: string[];
+  squareCustomerMismatch?: boolean;
 };
 export function validDate(date: unknown): date is string {
   return (

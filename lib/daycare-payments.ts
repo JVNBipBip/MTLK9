@@ -1,4 +1,9 @@
-import { getSquareConfigAsync, squareRequest } from "./square";
+import type { Firestore } from "firebase-admin/firestore";
+import {
+  getOrCreateSquareCustomer,
+  getSquareConfigAsync,
+  squareRequest,
+} from "./square";
 import { getAdminDb } from "./firebase-admin";
 import { DaycareError, torontoDate, type DaycarePass } from "./daycare-booking";
 import { parseDaycarePlan } from "./daycare-plan";
@@ -55,6 +60,71 @@ export async function daycareTaxIds() {
     throw new DaycareError("tax_configuration", 503);
   return active.map((t) => t.id);
 }
+
+/** Square checkout rejects malformed phones; send only numbers that normalize to North American E.164. */
+export function daycareSquarePhone(raw: unknown) {
+  const digits = String(raw ?? "").replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  return undefined;
+}
+
+/**
+ * Links an approved application to the owner's Square customer, matched by email like inquiries.
+ * Never blocks checkout: a Square failure leaves the purchase unlinked and records why.
+ */
+export async function daycareSquareCustomer(db: Firestore, applicationId: string) {
+  const ref = db.collection("daycare_applications").doc(applicationId);
+  const app = (await ref.get()).data();
+  const email = String(app?.answers?.ownerEmail || "").trim().toLowerCase();
+  const phone = daycareSquarePhone(app?.answers?.ownerPhone);
+  const prefill = {
+    ...(email ? { buyer_email: email } : {}),
+    ...(phone ? { buyer_phone_number: phone } : {}),
+  };
+  if (!app || !email) return { customerId: null, prefill };
+  if (app.squareCustomerId) return { customerId: String(app.squareCustomerId), prefill };
+  const name = String(app.answers.ownerName || "").trim();
+  // Retry without the phone: Square can reject a number the intake form accepted.
+  const attempts = phone ? [{ name, email, phone }, { name, email }] : [{ name, email }];
+  let found: string | null = null,
+    lastError = "";
+  for (const attempt of attempts) {
+    try {
+      found = await getOrCreateSquareCustomer(attempt);
+      break;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+  }
+  const now = new Date().toISOString();
+  try {
+    if (!found) {
+      await ref.update({
+        squareCustomerStatus: "failed",
+        squareCustomerError: lastError.slice(0, 300),
+        squareCustomerAttemptAtIso: now,
+      });
+      return { customerId: null, prefill };
+    }
+    const customerId = found;
+    // Concurrent first checkouts keep whichever link was saved first.
+    const saved = await db.runTransaction(async (tx) => {
+      const current = (await tx.get(ref)).data();
+      if (current?.squareCustomerId) return String(current.squareCustomerId);
+      tx.update(ref, {
+        squareCustomerId: customerId,
+        squareCustomerStatus: "linked",
+        squareCustomerLinkedAtIso: now,
+      });
+      return customerId;
+    });
+    return { customerId: saved, prefill };
+  } catch {
+    return { customerId: found, prefill };
+  }
+}
+
 export async function createDaycareCheckout(
   account: {
     id: string;
@@ -108,10 +178,12 @@ export async function createDaycareCheckout(
     return { id, url: existing.data()!.checkoutUrl };
   const config = await getSquareConfigAsync();
   if (!existing.exists) {
+    const customer = await daycareSquareCustomer(db, account.id);
     const taxIds = await daycareTaxIds();
     const order = {
       location_id: config.locationId,
       reference_id: id,
+      ...(customer.customerId ? { customer_id: customer.customerId } : {}),
       line_items: [
         {
           name: `Daycare · ${input.stay === "half" ? "Half day" : "Full day"} · ${input.visits} visit(s)${input.addOns.length ? ` · ${input.addOns.join(", ")}` : ""}${account.secondDog ? " · second dog 30%" : ""}`,
@@ -187,6 +259,8 @@ export async function createDaycareCheckout(
           subtotalCents: quote.totalCents,
           totalCents,
           order,
+          squareCustomerId: customer.customerId,
+          prefill: customer.prefill,
           status: "pending",
           allocations: {},
           plannedDates,
@@ -209,6 +283,9 @@ export async function createDaycareCheckout(
         allow_tipping: false,
         ask_for_shipping_address: false,
       },
+      ...(pass.prefill && Object.keys(pass.prefill).length
+        ? { pre_populated_data: pass.prefill }
+        : {}),
     }),
   });
   const paymentLink = link.payment_link;
@@ -262,6 +339,7 @@ export async function reconcileDaycarePass(id: string, expectRefund = false): Pr
           order_id?: string;
           location_id?: string;
           status?: string;
+          customer_id?: string;
           amount_money?: { amount?: number; currency?: string };
           refunded_money?: { amount?: number };
         };
@@ -286,6 +364,13 @@ export async function reconcileDaycarePass(id: string, expectRefund = false): Pr
       0,
     ) === data.totalCents;
   if (!paid && !refunded) return "pending";
+  // Square can file a payment-link payment under a new profile; staff merge any mismatch in Square.
+  const paymentCustomerIds = [
+    ...new Set(payments.map((p) => p?.customer_id).filter(Boolean)),
+  ] as string[];
+  const squareCustomerMismatch =
+    !!data.squareCustomerId &&
+    paymentCustomerIds.some((customerId) => customerId !== data.squareCustomerId);
   return db.runTransaction(async (tx) => {
     const current = (await tx.get(ref)).data();
     if (!current || current.orderId !== data.orderId)
@@ -303,6 +388,8 @@ export async function reconcileDaycarePass(id: string, expectRefund = false): Pr
         status: "paid",
         paidAtIso: new Date().toISOString(),
         paymentIds,
+        paymentCustomerIds,
+        squareCustomerMismatch,
       });
       return "credited";
     }
