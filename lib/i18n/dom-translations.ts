@@ -387,8 +387,7 @@ export const frenchTextTranslations: Record<string, string> = {
     "Vous rassurer et vous motiver à développer un lien plus fort avec votre chien.",
   "Puppy (2 months–5 months)": "Chiot (2 à 5 mois)",
   "Adolescent/Adult (5 months +)": "Adolescent/adulte (5 mois et plus)",
-  "$135+tx | 75 minutes": "135 $ + taxes | 75 minutes",
-  "$145+tx | 75 minutes": "145 $ + taxes | 75 minutes",
+  "{price}+tx | 75 minutes": "{price} + taxes | 75 minutes",
   "Pricing": "Tarification",
   "You're new to structured training and want clarity before committing to a package.":
     "Vous découvrez l'entraînement structuré et vous voulez y voir clair avant de vous engager dans un forfait.",
@@ -547,7 +546,8 @@ export const frenchTextTranslations: Record<string, string> = {
   "Sit, down, stay, heel, come and place": "Assis, couché, reste, au pied, viens et place",
   "Neutrality and impulse control around distractions":
     "Neutralité et contrôle des impulsions autour des distractions",
-  "Package: 4 classes · $360 + tax": "Forfait : 4 cours · 360 $ + taxes",
+  "Package: 4 classes · {price} + tax": "Forfait : 4 cours · {price} + taxes",
+  "Package: 5 classes · {price} + tax": "Forfait : 5 cours · {price} + taxes",
   "Six basic commands: sit, down, stay, heel, come, and place — with engagement and neutral behavior around distractions":
     "Six commandes de base : assis, couché, reste, au pied, viens et place — avec engagement et comportement neutre autour des distractions",
   "4-class series · basic obedience": "Série de 4 cours · obéissance de base",
@@ -558,20 +558,20 @@ export const frenchTextTranslations: Record<string, string> = {
     "Rejoignez la meute! Marches en groupe à Montréal pour renforcer la confiance, améliorer l'obéissance et pratiquer l'entraînement en conditions réelles.",
   "As of 12 months": "À partir de 12 mois",
   "Real-world training and proofing": "Entraînement et généralisation en conditions réelles",
-  "$25/class for the lifetime of the dog after package completion!":
-    "25 $/cours pour la vie du chien après la fin du forfait!",
+  "{price}/class for the lifetime of the dog after package completion!":
+    "{price}/cours pour la vie du chien après la fin du forfait!",
   "for 5 classes": "pour 5 cours",
   "5-class series · pack walks": "Série de 5 cours · marches en meute",
   "Group walks across Montreal — real-world training and proofing":
     "Marches en groupe à Montréal — entraînement et généralisation en conditions réelles",
-  "After graduation, rejoin this class for the lifetime of your dog for $25 per class":
-    "Après la graduation, rejoignez ce cours pour la vie de votre chien à 25 $ par cours",
+  "After graduation, rejoin this class for the lifetime of your dog for {price} per class":
+    "Après la graduation, rejoignez ce cours pour la vie de votre chien à {price} par cours",
   "Level 3 Obedience Class": "Cours d'obéissance niveau 3",
   "Level 3 Obedience": "Obéissance niveau 3",
   "Advanced Obedience": "Obéissance avancée",
   "Taking training to the next Level!": "Passez l'entraînement au niveau supérieur!",
   "Off-Leash Reliability": "Fiabilité sans laisse",
-  "Package: 5 classes · $450 + tax · Coming soon": "Forfait : 5 cours · 450 $ + taxes · Bientôt disponible",
+  "Package: 5 classes · {price} + tax · Coming soon": "Forfait : 5 cours · {price} + taxes · Bientôt disponible",
   "Off-leash reliability — basic commands and engagement performed off-leash":
     "Fiabilité sans laisse — commandes de base et engagement sans laisse",
   Puppies: "Chiots",
@@ -588,19 +588,19 @@ export const frenchTextTranslations: Record<string, string> = {
     "Socialisation en groupe pour chiots de 10 à 20 semaines — jeu, manipulation et confiance dans un cours encadré.",
   "Drop-in class": "Cours à la carte",
   "Must show proof of vaccination": "Preuve de vaccination obligatoire",
-  "Cost per class: $50 + tax per class": "Coût par cours : 50 $ + taxes par cours",
+  "Cost per class: {price} + tax per class": "Coût par cours : {price} + taxes par cours",
   "Group class setting": "Cours en groupe",
   "10–20 weeks": "10 à 20 semaines",
-  "$30 + tax per class": "30 $ + taxes par cours",
-  "$50 + tax per class": "50 $ + taxes par cours",
+  "{price} + tax per class": "{price} + taxes par cours",
+  // Every row of the in-facility price list is written in this one shape.
+  "{price} + tax": "{price} + taxes",
   "per class · 10–20 weeks": "par cours · 10 à 20 semaines",
   "Group class · puppies 10–20 weeks": "Cours en groupe · chiots 10 à 20 semaines",
   "Drop-in · puppies 10–20 weeks": "À la carte · chiots 10 à 20 semaines",
   "Trainer-guided group classes for puppies 10–20 weeks — interactive play, proper greetings, body handling, and confidence-building in a safe, supervised setting.":
     "Cours en groupe encadrés pour chiots de 10 à 20 semaines — jeu interactif, salutations appropriées, manipulation corporelle et renforcement de la confiance dans un cadre sécuritaire.",
   "Age group: 10 weeks to 20 weeks old": "Groupe d'âge : 10 à 20 semaines",
-  "Cost: $30 + tax per class": "Coût : 30 $ + taxes par cours",
-  "Cost: $50 + tax per class": "Coût : 50 $ + taxes par cours",
+  "Cost: {price} + tax per class": "Coût : {price} + taxes par cours",
   "Booking: classes available upon demand": "Réservation : cours offerts sur demande",
   "Puppy must be at least 10 weeks old and vaccinated. Send proof of vaccinations to mtlcaninetraining@gmail.com before your first class.":
     "Le chiot doit avoir au moins 10 semaines et être vacciné. Envoyez la preuve de vaccination à mtlcaninetraining@gmail.com avant votre premier cours.",
@@ -632,7 +632,6 @@ export const frenchTextTranslations: Record<string, string> = {
   "for 4 classes": "pour 4 cours",
   "Age: 5 months to 9 months old": "Âge : 5 à 9 mois",
   "4-class series · dogs 5–9 months": "Série de 4 cours · chiens de 5 à 9 mois",
-  "Package: 4 classes · $350 + tax": "Forfait : 4 cours · 350 $ + taxes",
   "Structured reactivity work with distance management and controlled reps.":
     "Travail structuré de réactivité avec gestion de la distance et répétitions contrôlées.",
   "Designed for reactive dogs that need gradual exposure to a group setting while working through distractions and overcoming reactivity.":
