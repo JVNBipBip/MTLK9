@@ -105,6 +105,8 @@ function WelcomePopupInner() {
   // comes first. Re-armed per pathname so blocked pages stay quiet.
   useEffect(() => {
     if (hasShownRef.current || blockedPath) return
+    // Framed = the owner editing in the admin's Website editor; never pop up over that.
+    if (window.self !== window.top) return
     const stored = readStoredState()
     if (isSuppressed(stored)) return
     posthog.register({

@@ -11,6 +11,7 @@ import { FacebookPixel } from "@/components/facebook-pixel"
 import { ConversionTracker } from "@/components/conversion-tracker"
 import { JsonLd, buildWebSiteJsonLd, localBusinessJsonLd } from "@/components/json-ld"
 import { LocaleProvider } from "@/components/locale-provider"
+import { SiteEditBridge } from "@/components/site-edit-bridge"
 import { SiteEditPreviewBanner } from "@/components/site-edit-preview-banner"
 import { WelcomePopup } from "@/components/welcome-popup"
 import { defaultLocale, isAppLocale, localeConfig, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
@@ -117,6 +118,7 @@ export default async function RootLayout({
           <LocaleProvider locale={locale}>
             <ClientLocaleEffects locale={locale} />
             <SiteEditPreviewBanner locale={locale} />
+            <SiteEditBridge />
             <JsonLd
               data={{
                 ...localBusinessJsonLd,

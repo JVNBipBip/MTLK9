@@ -17,7 +17,9 @@ export function FacebookPixel() {
         id="facebook-pixel"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
+          // Skipped when framed: that's the owner editing in the admin, not a visitor.
           __html: `
+            if (window.self === window.top) {
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -28,6 +30,7 @@ export function FacebookPixel() {
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', ${JSON.stringify(FB_PIXEL_ID)});
             fbq('track', 'PageView');
+            }
           `,
         }}
       />

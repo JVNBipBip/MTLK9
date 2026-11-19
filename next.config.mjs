@@ -34,8 +34,33 @@ const CSP_REPORT_ONLY = [
   "form-action 'self'",
 ].join("; ")
 
+// The admin's Website editor shows this site in a frame so the owner can click
+// text and photos to change them. Only these origins may frame it (enforced by
+// `frame-ancestors`, which replaced `X-Frame-Options: SAMEORIGIN` — that header
+// can't name another origin), and the in-page editing script only talks to them.
+const SITE_EDIT_ADMIN_ORIGINS = [
+  ...new Set(
+    [
+      process.env.NEXT_PUBLIC_ADMIN_BASE_URL,
+      "https://mltk-9-admin.vercel.app",
+      ...(process.env.NODE_ENV === "development" ? ["http://localhost:3001"] : []),
+    ]
+      .map((url) => {
+        try {
+          return url ? new URL(url.trim()).origin : null
+        } catch {
+          return null
+        }
+      })
+      .filter(Boolean),
+  ),
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_SITE_EDIT_ADMIN_ORIGINS: SITE_EDIT_ADMIN_ORIGINS.join(","),
+  },
   experimental: {
     externalDir: true,
   },
@@ -70,7 +95,8 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Enforced on its own; the rest of the CSP is still report-only (below).
+          { key: "Content-Security-Policy", value: `frame-ancestors 'self' ${SITE_EDIT_ADMIN_ORIGINS.join(" ")}` },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           // Two-year HSTS with preload — required for hstspreload.org submission.
