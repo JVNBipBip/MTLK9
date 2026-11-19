@@ -38,20 +38,40 @@ const CSP_REPORT_ONLY = [
 // text and photos to change them. Only these origins may frame it (enforced by
 // `frame-ancestors`, which replaced `X-Frame-Options: SAMEORIGIN` — that header
 // can't name another origin), and the in-page editing script only talks to them.
+//
+// SITE_EDIT_EXTRA_ADMIN_ORIGINS adds more, comma-separated — e.g. an admin
+// preview deployment's URL for testing. Read at build time: changing it needs a
+// redeploy. Exact https origins only (http only for localhost); wildcards are
+// ignored, since `*.vercel.app` would let any Vercel site frame this one.
+function toOrigin(url) {
+  try {
+    const parsed = new URL(url.trim())
+    const local = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1"
+    if (parsed.protocol !== "https:" && !(local && parsed.protocol === "http:")) return null
+    if (parsed.hostname.includes("*")) return null
+    return parsed.origin
+  } catch {
+    return null
+  }
+}
+
+const extraAdminOrigins = (process.env.SITE_EDIT_EXTRA_ADMIN_ORIGINS ?? "")
+  .split(",")
+  .map((entry) => entry.trim())
+  .filter(Boolean)
+for (const entry of extraAdminOrigins) {
+  if (!toOrigin(entry) || entry.includes("*")) console.warn(`[site-editing] Ignoring SITE_EDIT_EXTRA_ADMIN_ORIGINS entry "${entry}": use an exact https origin`)
+}
+
 const SITE_EDIT_ADMIN_ORIGINS = [
   ...new Set(
     [
       process.env.NEXT_PUBLIC_ADMIN_BASE_URL,
       "https://mltk-9-admin.vercel.app",
       ...(process.env.NODE_ENV === "development" ? ["http://localhost:3001"] : []),
+      ...extraAdminOrigins.filter((entry) => !entry.includes("*")),
     ]
-      .map((url) => {
-        try {
-          return url ? new URL(url.trim()).origin : null
-        } catch {
-          return null
-        }
-      })
+      .map((url) => (url ? toOrigin(url) : null))
       .filter(Boolean),
   ),
 ]
