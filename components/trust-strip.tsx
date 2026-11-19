@@ -2,17 +2,18 @@
 
 import { useEffect, useRef } from "react"
 import { Shield, MapPin, Users, Clock } from "lucide-react"
-import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 const trustItems = [
-  { icon: Clock, text: "10–15+ Years Experience" },
-  { icon: Shield, text: "Customized Training Programs" },
-  { icon: MapPin, text: "Real Training, Real Results" },
-  { icon: Users, text: "A Team of Professionals" },
-]
+  { icon: Clock, id: "home.trust.1", text: "10–15+ Years Experience" },
+  { icon: Shield, id: "home.trust.2", text: "Customized Training Programs" },
+  { icon: MapPin, id: "home.trust.3", text: "Real Training, Real Results" },
+  { icon: Users, id: "home.trust.4", text: "A Team of Professionals" },
+] as const satisfies { icon: unknown; id: TextFieldId; text: string }[]
 
 export function TrustStrip() {
-  const t = useLocalizedText()
+  const text = useEditableText()
   const sectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function TrustStrip() {
           {trustItems.map((item) => (
             <div key={item.text} className="flex items-center gap-2.5 text-muted-foreground">
               <item.icon className="w-5 h-5 text-primary shrink-0" />
-              <span className="text-sm font-medium whitespace-nowrap">{t(item.text)}</span>
+              <span className="text-sm font-medium whitespace-nowrap">{text(item.id, item.text)}</span>
             </div>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 
 interface ScrollAnimatedTextProps {
-  text: string
+  text: React.ReactNode
   className?: string
   as?: "h1" | "h2" | "h3" | "p" | "span"
   delay?: number

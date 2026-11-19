@@ -5,12 +5,15 @@ import { Send, MapPin, ClipboardList, Handshake, ArrowRight } from "lucide-react
 import { Button } from "@/components/ui/button"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
-import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 const steps = [
   {
     icon: Send,
     number: "01",
+    titleId: "home.steps.1.title",
+    descriptionId: "home.steps.1.description",
     title: "See If Your Dog Qualifies",
     description:
       "Send a quick inquiry about what's going on. We'll confirm your dog is a fit for an evaluation and point you to the right program — free, no commitment.",
@@ -18,6 +21,8 @@ const steps = [
   {
     icon: MapPin,
     number: "02",
+    titleId: "home.steps.2.title",
+    descriptionId: "home.steps.2.description",
     title: "Evaluation Session",
     description:
       "We meet you and your dog, assess their needs, create a custom training plan, and start hands-on training right away.",
@@ -25,6 +30,8 @@ const steps = [
   {
     icon: ClipboardList,
     number: "03",
+    titleId: "home.steps.3.title",
+    descriptionId: "home.steps.3.description",
     title: "Your Custom Training Plan",
     description:
       "You get a clear roadmap: what we'll work on, how many sessions, what you'll practice between sessions, and what success looks like.",
@@ -32,14 +39,16 @@ const steps = [
   {
     icon: Handshake,
     number: "04",
+    titleId: "home.steps.4.title",
+    descriptionId: "home.steps.4.description",
     title: "Training + Ongoing Support",
     description:
       "We train together in real environments. You get homework, video check-ins, and support between sessions. We're with you until it clicks.",
   },
-]
+] as const satisfies readonly ({ titleId: TextFieldId; descriptionId: TextFieldId } & Record<string, unknown>)[]
 
 export function HowItWorksSection() {
-  const t = useLocalizedText()
+  const text = useEditableText()
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -61,14 +70,14 @@ export function HowItWorksSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            {t("Simple Process")}
+            {text("home.steps.eyebrow", "Simple Process")}
           </p>
           <ScrollAnimatedText
-            text={t("How it works")}
+            text={text("home.steps.heading", "How it works")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            {t("From your first call to a stable, trained and confident dog, here's how to start.")}
+            {text("home.steps.intro", "From your first call to a stable, trained and confident dog, here's how to start.")}
           </p>
         </div>
 
@@ -86,9 +95,9 @@ export function HowItWorksSection() {
                   {step.number}
                 </span>
                 <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-3">
-                  {t(step.title)}
+                  {text(step.titleId, step.title)}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">{t(step.description)}</p>
+                <p className="text-muted-foreground leading-relaxed">{text(step.descriptionId, step.description)}</p>
               </div>
             </div>
           ))}
@@ -97,7 +106,7 @@ export function HowItWorksSection() {
         <div className="text-center mt-16">
           <FreeCallLink>
             <Button className="rounded-full px-8 py-6 text-base group bg-primary text-primary-foreground hover:bg-primary/90">
-              {t("Get Started")}
+              {text("home.steps.button", "Get Started")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </FreeCallLink>

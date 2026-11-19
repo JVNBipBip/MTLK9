@@ -10,6 +10,7 @@ import {
   type SiteEdits,
   type TextFieldId,
 } from "@/lib/site-editing/fields"
+import { getLocalizedText } from "@/lib/i18n/localized-text"
 
 const ROOT = path.resolve(__dirname, "../..")
 const PUBLIC_DIR = path.join(ROOT, "public")
@@ -82,6 +83,31 @@ describe("editable field registry", () => {
       .join("\n")
     const unused = [...textIds, ...imageIds].filter((id) => !source.includes(`"${id}"`))
     expect(unused).toEqual([])
+  })
+})
+
+describe("fields whose default lives in a client component", () => {
+  const source = () =>
+    [...sourceFiles(path.join(ROOT, "app")), ...sourceFiles(path.join(ROOT, "components"))].map((file) => fs.readFileSync(file, "utf8")).join("\n")
+  const codeText = textIds.filter((id) => textFields[id].source === "code")
+  const codeImages = imageIds.filter((id) => imageFields[id].source === "code")
+
+  it("exist (home page)", () => {
+    expect(codeText.length).toBeGreaterThan(0)
+  })
+
+  it.each(codeText)("%s: registry default matches the component and the French table", (id) => {
+    const field = textFields[id]
+    // The English is still written in a component exactly as registered…
+    expect(source()).toContain(JSON.stringify(field.default.en))
+    // …and its French is what the translation table renders today.
+    expect(field.default.fr).toBe(getLocalizedText("fr", field.default.en))
+  })
+
+  it.each(codeImages)("%s: registry default matches the component", (id) => {
+    const field = imageFields[id]
+    expect(source()).toContain(JSON.stringify(field.default.src))
+    expect(field.default.alt.fr).toBe(getLocalizedText("fr", field.default.alt.en))
   })
 })
 

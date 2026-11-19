@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { FaqAccordion } from "@/components/faq-accordion"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 export function FaqSection() {
-  const t = useLocalizedText()
+  const text = useEditableText()
   const locale = useAppLocale()
 
   return (
@@ -24,7 +24,7 @@ export function FaqSection() {
             viewport={{ once: true, margin: "-8% 0px" }}
             transition={{ duration: 0.45, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
-            {t("Common Questions")}
+            {text("home.faq.eyebrow", "Common Questions")}
           </motion.p>
           <motion.h2
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
@@ -42,7 +42,7 @@ export function FaqSection() {
             viewport={{ once: true, margin: "-8% 0px" }}
             transition={{ duration: 0.45, delay: 0.16, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
-            {t("Everything you need to know before getting started.")}
+            {text("home.faq.intro", "Everything you need to know before getting started.")}
           </motion.p>
         </div>
 
@@ -51,7 +51,7 @@ export function FaqSection() {
         <div className="text-center mt-12">
           <Link href={addLocaleToPathname("/faq", locale)}>
             <Button variant="outline" className="rounded-full px-8 group">
-              {t("View All FAQs")}
+              {text("home.faq.button", "View All FAQs")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

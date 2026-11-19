@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 const stats = [
   {
@@ -32,6 +33,7 @@ const studySource = "Texas A&M, 43,517 dogs studied"
 
 export function StatsSection() {
   const t = useLocalizedText()
+  const text = useEditableText()
   const sectionRef = useRef<HTMLElement>(null)
   const [animatedValues, setAnimatedValues] = useState<{ [key: string]: number }>({})
   const [hasAnimated, setHasAnimated] = useState(false)
@@ -79,10 +81,10 @@ export function StatsSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-16 lg:mb-20">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/90 font-medium mb-4">
-            {t("You're Not Alone")}
+            {text("home.stats.eyebrow", "You're Not Alone")}
           </p>
           <ScrollAnimatedText
-            text={t("The numbers tell the story")}
+            text={text("home.stats.heading", "The numbers tell the story")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-primary-foreground text-balance mb-6 font-semibold tracking-tight"
           />
         </div>
@@ -109,7 +111,7 @@ export function StatsSection() {
 
         <div className="reveal opacity-0 animation-delay-600 text-center border-t border-primary-foreground/35 pt-12">
           <p className="font-display text-2xl md:text-3xl tracking-tight text-primary-foreground max-w-2xl mx-auto leading-relaxed">
-            {t("You don't have a bad dog. You have a dog that needs a plan.")}
+            {text("home.stats.closing", "You don't have a bad dog. You have a dog that needs a plan.")}
           </p>
         </div>
       </div>

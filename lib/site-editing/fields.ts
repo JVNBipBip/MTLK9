@@ -20,6 +20,12 @@ import type { AppLocale } from "@/lib/i18n/config"
 export type LocalizedString = Record<AppLocale, string>
 
 type FieldBase = {
+  /**
+   * "code": the default English lives in a client component (via
+   * useEditableText / EditablePhoto) and this entry mirrors it. Omitted: the
+   * registry is the source of the default (server components).
+   */
+  source?: "code"
   /** No-locale paths the field renders on, e.g. "/daycare". */
   pages: string[]
   /** Group heading in the admin editor, e.g. "Top of page". */

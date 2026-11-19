@@ -94,7 +94,8 @@ describe("homepage hero readability", () => {
     jest.mocked(useAppLocale).mockReturnValue("fr")
     const html = renderToStaticMarkup(<HeroSection />)
     expect(html.replace(/<[^>]*>/g, "")).toContain("Retrouvez votre liberté.")
-    expect(html).toContain("votre liberté.<svg")
+    // The scribble must sit right after the underlined words (the editable-text span may close in between).
+    expect(html).toMatch(/votre liberté\.(<\/span>)?<svg/)
   })
 
   it("renders the challenger CTA in English and French without changing the headline", () => {

@@ -1,7 +1,11 @@
 {
   "text": {
     "daycare.hero.eyebrow": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Small line above the headline",
       "default": {
@@ -11,7 +15,10 @@
       "maxLength": 60
     },
     "daycare.hero.heading": {
-      "pages": ["/daycare", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Main headline",
       "default": {
@@ -21,7 +28,9 @@
       "maxLength": 80
     },
     "daycare.hero.headingDayTraining": {
-      "pages": ["/day-training"],
+      "pages": [
+        "/day-training"
+      ],
       "section": "Top of page",
       "label": "Main headline (day training page)",
       "default": {
@@ -31,7 +40,10 @@
       "maxLength": 80
     },
     "daycare.hero.intro": {
-      "pages": ["/daycare", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Paragraph under the headline",
       "default": {
@@ -41,7 +53,9 @@
       "maxLength": 240
     },
     "daycare.hero.introDayTraining": {
-      "pages": ["/day-training"],
+      "pages": [
+        "/day-training"
+      ],
       "section": "Top of page",
       "label": "Paragraph under the headline (day training page)",
       "default": {
@@ -51,7 +65,11 @@
       "maxLength": 260
     },
     "daycare.hero.primaryButton": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Main button",
       "default": {
@@ -61,7 +79,11 @@
       "maxLength": 30
     },
     "daycare.hero.secondaryButton": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Second button",
       "default": {
@@ -71,7 +93,11 @@
       "maxLength": 30
     },
     "daycare.hero.photoCaption": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Line on the card over the main photo",
       "default": {
@@ -81,7 +107,11 @@
       "maxLength": 70
     },
     "daycare.included.eyebrow": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Small line above the section title",
       "default": {
@@ -91,7 +121,11 @@
       "maxLength": 40
     },
     "daycare.included.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Section title",
       "default": {
@@ -101,7 +135,11 @@
       "maxLength": 70
     },
     "daycare.included.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Paragraph under the section title",
       "default": {
@@ -111,7 +149,11 @@
       "maxLength": 260
     },
     "daycare.included.item1": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 1",
       "default": {
@@ -121,7 +163,11 @@
       "maxLength": 70
     },
     "daycare.included.item2": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 2",
       "default": {
@@ -131,7 +177,11 @@
       "maxLength": 70
     },
     "daycare.included.item3": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 3",
       "default": {
@@ -141,7 +191,11 @@
       "maxLength": 70
     },
     "daycare.included.item4": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 4",
       "default": {
@@ -151,7 +205,11 @@
       "maxLength": 70
     },
     "daycare.included.item5": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 5",
       "default": {
@@ -161,7 +219,11 @@
       "maxLength": 70
     },
     "daycare.included.item6": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "What’s included",
       "label": "Checklist item 6",
       "default": {
@@ -171,7 +233,11 @@
       "maxLength": 70
     },
     "daycare.addOns.eyebrow": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Small line above the section title",
       "default": {
@@ -181,7 +247,11 @@
       "maxLength": 40
     },
     "daycare.addOns.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Section title",
       "default": {
@@ -191,7 +261,11 @@
       "maxLength": 70
     },
     "daycare.addOns.training.kicker": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Complete Training card: small line above the name",
       "default": {
@@ -201,7 +275,11 @@
       "maxLength": 40
     },
     "daycare.addOns.training.description": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Complete Training card: description",
       "default": {
@@ -211,7 +289,11 @@
       "maxLength": 240
     },
     "daycare.addOns.training.sessions": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Complete Training card: bottom line",
       "default": {
@@ -221,7 +303,11 @@
       "maxLength": 70
     },
     "daycare.addOns.treadmill.kicker": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Treadmill card: small line above the name",
       "default": {
@@ -231,7 +317,11 @@
       "maxLength": 50
     },
     "daycare.addOns.treadmill.description": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Treadmill card: description",
       "default": {
@@ -241,7 +331,11 @@
       "maxLength": 280
     },
     "daycare.addOns.treadmill.sessions": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Treadmill card: bottom line",
       "default": {
@@ -251,7 +345,11 @@
       "maxLength": 70
     },
     "daycare.addOns.individual.kicker": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "One-on-One Play card: small line above the name",
       "default": {
@@ -261,7 +359,11 @@
       "maxLength": 50
     },
     "daycare.addOns.individual.description": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "One-on-One Play card: description",
       "default": {
@@ -271,7 +373,11 @@
       "maxLength": 240
     },
     "daycare.addOns.individual.detail": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "One-on-One Play card: bottom line",
       "default": {
@@ -281,7 +387,11 @@
       "maxLength": 70
     },
     "daycare.addOns.fullExperience.title": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Full experience box: title",
       "default": {
@@ -291,7 +401,11 @@
       "maxLength": 40
     },
     "daycare.addOns.fullExperience.subtitle": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Add-ons",
       "label": "Full experience box: line under the title",
       "default": {
@@ -301,7 +415,11 @@
       "maxLength": 50
     },
     "daycare.pricing.eyebrow": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Pricing calculator",
       "label": "Small line above the section title",
       "default": {
@@ -311,7 +429,11 @@
       "maxLength": 40
     },
     "daycare.pricing.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Pricing calculator",
       "label": "Section title",
       "default": {
@@ -321,7 +443,11 @@
       "maxLength": 60
     },
     "daycare.steps.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Section title",
       "default": {
@@ -331,7 +457,11 @@
       "maxLength": 70
     },
     "daycare.steps.step1.title": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 1: title",
       "default": {
@@ -341,7 +471,11 @@
       "maxLength": 50
     },
     "daycare.steps.step1.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 1: text",
       "default": {
@@ -351,7 +485,11 @@
       "maxLength": 200
     },
     "daycare.steps.step2.title": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 2: title",
       "default": {
@@ -361,7 +499,11 @@
       "maxLength": 50
     },
     "daycare.steps.step2.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 2: text",
       "default": {
@@ -371,7 +513,11 @@
       "maxLength": 220
     },
     "daycare.steps.step3.title": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 3: title",
       "default": {
@@ -381,7 +527,11 @@
       "maxLength": 50
     },
     "daycare.steps.step3.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Step 3: text",
       "default": {
@@ -391,7 +541,11 @@
       "maxLength": 280
     },
     "daycare.approved.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Already-approved box: title",
       "default": {
@@ -401,7 +555,11 @@
       "maxLength": 40
     },
     "daycare.approved.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Already-approved box: text",
       "default": {
@@ -411,7 +569,11 @@
       "maxLength": 160
     },
     "daycare.approved.button": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "Already-approved box: button",
       "default": {
@@ -421,7 +583,11 @@
       "maxLength": 30
     },
     "daycare.new.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "New-client box: title",
       "default": {
@@ -431,7 +597,11 @@
       "maxLength": 40
     },
     "daycare.new.body": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "New-client box: text",
       "default": {
@@ -441,7 +611,11 @@
       "maxLength": 200
     },
     "daycare.new.button": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "How to join",
       "label": "New-client box: button",
       "default": {
@@ -451,7 +625,11 @@
       "maxLength": 30
     },
     "daycare.gallery.heading": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Photos & video",
       "label": "Section title",
       "default": {
@@ -459,11 +637,709 @@
         "fr": "Un aperçu de notre garderie"
       },
       "maxLength": 50
+    },
+    "home.hero.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Small line above the big headline",
+      "default": {
+        "en": "Montreal #1 Dog School",
+        "fr": "École canine no 1 à Montréal"
+      },
+      "maxLength": 40
+    },
+    "home.hero.headline1": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Big headline: first line",
+      "default": {
+        "en": "Montreal dog training.",
+        "fr": "Entraînement canin à Montréal."
+      },
+      "maxLength": 45
+    },
+    "home.hero.headline2": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Big headline: second line (before the underlined words)",
+      "default": {
+        "en": "Get your",
+        "fr": "Retrouvez"
+      },
+      "maxLength": 30
+    },
+    "home.hero.headline3": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Big headline: underlined words",
+      "default": {
+        "en": "life back.",
+        "fr": "votre liberté."
+      },
+      "maxLength": 30
+    },
+    "home.hero.intro": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Real-World training for leash pulling, reactivity, behaviour and everyday manners — built to deliver effective, lasting results.",
+        "fr": "Un entraînement concret pour la traction en laisse, la réactivité, le comportement et les bonnes manières du quotidien, conçu pour produire des résultats efficaces et durables."
+      },
+      "maxLength": 250
+    },
+    "home.hero.callButton": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Top of page",
+      "label": "Call button",
+      "default": {
+        "en": "Call Now",
+        "fr": "Appelez maintenant"
+      },
+      "maxLength": 25
+    },
+    "home.trust.1": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Strip under the top",
+      "label": "Strip item 1",
+      "default": {
+        "en": "10–15+ Years Experience",
+        "fr": "10 à 15+ ans d'expérience"
+      },
+      "maxLength": 35
+    },
+    "home.trust.2": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Strip under the top",
+      "label": "Strip item 2",
+      "default": {
+        "en": "Customized Training Programs",
+        "fr": "Entraînement personnalisé"
+      },
+      "maxLength": 40
+    },
+    "home.trust.3": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Strip under the top",
+      "label": "Strip item 3",
+      "default": {
+        "en": "Real Training, Real Results",
+        "fr": "Entraînement concret, résultats réels"
+      },
+      "maxLength": 55
+    },
+    "home.trust.4": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Strip under the top",
+      "label": "Strip item 4",
+      "default": {
+        "en": "A Team of Professionals",
+        "fr": "Une équipe de professionnels"
+      },
+      "maxLength": 40
+    },
+    "home.painPoints.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "Sound Familiar?",
+        "fr": "Ça vous semble familier?"
+      },
+      "maxLength": 35
+    },
+    "home.painPoints.heading": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Section title",
+      "default": {
+        "en": "Does your dog...",
+        "fr": "Votre chien..."
+      },
+      "maxLength": 30
+    },
+    "home.painPoints.intro": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "You're not a bad owner. These are the most common reasons Montreal dog owners reach out to us.",
+        "fr": "Vous n'êtes pas un mauvais propriétaire. Ce sont les raisons les plus courantes pour lesquelles les propriétaires de chiens à Montréal nous contactent."
+      },
+      "maxLength": 215
+    },
+    "home.painPoints.1.question": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 1: question",
+      "default": {
+        "en": "Pull on every walk?",
+        "fr": "Tire à chaque promenade?"
+      },
+      "maxLength": 35
+    },
+    "home.painPoints.1.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 1: text",
+      "default": {
+        "en": "You dread taking them out. Every walk is a battle.",
+        "fr": "Vous redoutez les sorties. Chaque promenade devient un combat."
+      },
+      "maxLength": 90
+    },
+    "home.painPoints.2.question": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 2: question",
+      "default": {
+        "en": "Lunge or bark at other dogs?",
+        "fr": "Se lance ou jappe après les autres chiens?"
+      },
+      "maxLength": 60
+    },
+    "home.painPoints.2.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 2: text",
+      "default": {
+        "en": "You cross the street, avoid the park, walk at odd hours.",
+        "fr": "Vous traversez la rue, évitez le parc et sortez à des heures inhabituelles."
+      },
+      "maxLength": 105
+    },
+    "home.painPoints.3.question": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 3: question",
+      "default": {
+        "en": "Destroy things when left alone?",
+        "fr": "Détruit des objets lorsqu'il est seul?"
+      },
+      "maxLength": 55
+    },
+    "home.painPoints.3.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 3: text",
+      "default": {
+        "en": "You can't leave the house without worrying.",
+        "fr": "Vous ne pouvez pas quitter la maison sans vous inquiéter."
+      },
+      "maxLength": 80
+    },
+    "home.painPoints.4.question": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 4: question",
+      "default": {
+        "en": "Bite, nip, or jump on people?",
+        "fr": "Mord, pince ou saute sur les gens?"
+      },
+      "maxLength": 50
+    },
+    "home.painPoints.4.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 4: text",
+      "default": {
+        "en": "Guests are afraid. You're embarrassed and on edge.",
+        "fr": "Les invités ont peur. Vous êtes gêné et constamment sur vos gardes."
+      },
+      "maxLength": 95
+    },
+    "home.painPoints.button": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Button on each card (all 4 change together)",
+      "default": {
+        "en": "Find your training path",
+        "fr": "Trouver votre parcours d'entraînement"
+      },
+      "maxLength": 50
+    },
+    "home.steps.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "Simple Process",
+        "fr": "Processus simple"
+      },
+      "maxLength": 30
+    },
+    "home.steps.heading": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Section title",
+      "default": {
+        "en": "How it works",
+        "fr": "Comment ça fonctionne"
+      },
+      "maxLength": 30
+    },
+    "home.steps.intro": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "From your first call to a stable, trained and confident dog, here's how to start.",
+        "fr": "De votre premier appel à un chien stable, entraîné et confiant, voici comment commencer."
+      },
+      "maxLength": 125
+    },
+    "home.steps.1.title": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 1: title",
+      "default": {
+        "en": "See If Your Dog Qualifies",
+        "fr": "Vérifiez si votre chien est admissible"
+      },
+      "maxLength": 55
+    },
+    "home.steps.1.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 1: text",
+      "default": {
+        "en": "Send a quick inquiry about what's going on. We'll confirm your dog is a fit for an evaluation and point you to the right program — free, no commitment.",
+        "fr": "Envoyez-nous une demande rapide décrivant la situation. Nous confirmerons que votre chien est un bon candidat pour une évaluation et vous dirigerons vers le bon programme — gratuit, sans engagement."
+      },
+      "maxLength": 280
+    },
+    "home.steps.2.title": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 2: title",
+      "default": {
+        "en": "Evaluation Session",
+        "fr": "Séance d'évaluation"
+      },
+      "maxLength": 30
+    },
+    "home.steps.2.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 2: text",
+      "default": {
+        "en": "We meet you and your dog, assess their needs, create a custom training plan, and start hands-on training right away.",
+        "fr": "Nous rencontrons votre chien, évaluons ses besoins, créons un plan personnalisé et commençons le travail pratique tout de suite."
+      },
+      "maxLength": 180
+    },
+    "home.steps.3.title": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 3: title",
+      "default": {
+        "en": "Your Custom Training Plan",
+        "fr": "Votre plan d'entraînement personnalisé"
+      },
+      "maxLength": 55
+    },
+    "home.steps.3.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 3: text",
+      "default": {
+        "en": "You get a clear roadmap: what we'll work on, how many sessions, what you'll practice between sessions, and what success looks like.",
+        "fr": "Vous recevez une feuille de route claire : les objectifs, le nombre de séances, les exercices entre les séances et les critères de réussite."
+      },
+      "maxLength": 200
+    },
+    "home.steps.4.title": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 4: title",
+      "default": {
+        "en": "Training + Ongoing Support",
+        "fr": "Entraînement et soutien continu"
+      },
+      "maxLength": 45
+    },
+    "home.steps.4.description": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Step 4: text",
+      "default": {
+        "en": "We train together in real environments. You get homework, video check-ins, and support between sessions. We're with you until it clicks.",
+        "fr": "Nous travaillons ensemble dans de vrais environnements. Vous avez des devoirs, des suivis vidéo et du soutien entre les séances. Nous restons avec vous jusqu'à ce que ça fonctionne."
+      },
+      "maxLength": 255
+    },
+    "home.steps.button": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "How it works",
+      "label": "Button under the steps",
+      "default": {
+        "en": "Get Started",
+        "fr": "Commencer"
+      },
+      "maxLength": 20
+    },
+    "home.stats.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "The numbers",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "You're Not Alone",
+        "fr": "Vous n'êtes pas seul"
+      },
+      "maxLength": 30
+    },
+    "home.stats.heading": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "The numbers",
+      "label": "Section title",
+      "default": {
+        "en": "The numbers tell the story",
+        "fr": "Les chiffres parlent d'eux-mêmes"
+      },
+      "maxLength": 45
+    },
+    "home.stats.closing": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "The numbers",
+      "label": "Line under the figures",
+      "default": {
+        "en": "You don't have a bad dog. You have a dog that needs a plan.",
+        "fr": "Vous n'avez pas un mauvais chien. Vous avez un chien qui a besoin d'un plan."
+      },
+      "maxLength": 110
+    },
+    "home.faq.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Questions",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "Common Questions",
+        "fr": "Questions courantes"
+      },
+      "maxLength": 30
+    },
+    "home.faq.intro": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Questions",
+      "label": "Line under the section title",
+      "default": {
+        "en": "Everything you need to know before getting started.",
+        "fr": "Tout ce que vous devez savoir avant de commencer."
+      },
+      "maxLength": 75
+    },
+    "home.faq.button": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Questions",
+      "label": "Button under the questions",
+      "default": {
+        "en": "View All FAQs",
+        "fr": "Voir toutes les FAQ"
+      },
+      "maxLength": 25
+    },
+    "home.finalCta.eyebrow": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Small line above the title",
+      "default": {
+        "en": "Ready to Start?",
+        "fr": "Prêt à commencer?"
+      },
+      "maxLength": 30
+    },
+    "home.finalCta.heading": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Title",
+      "default": {
+        "en": "Start with a free 15-minute discovery call",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes"
+      },
+      "maxLength": 80
+    },
+    "home.finalCta.body": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Paragraph",
+      "default": {
+        "en": "Tell us what's going on with your dog. We'll listen, answer your questions, and figure out the right path together. No pressure, no commitment.",
+        "fr": "Parlez-nous de votre chien. Nous écouterons, répondrons à vos questions et trouverons le bon parcours ensemble. Sans pression ni engagement."
+      },
+      "maxLength": 205
+    },
+    "home.finalCta.button": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Main button",
+      "default": {
+        "en": "Contact Us for a Free Call",
+        "fr": "Contactez-nous pour un appel gratuit"
+      },
+      "maxLength": 45
+    },
+    "home.finalCta.notSure": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Small line before the link",
+      "default": {
+        "en": "Not sure yet?",
+        "fr": "Pas encore certain?"
+      },
+      "maxLength": 30
+    },
+    "home.finalCta.programsLink": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Bottom of page",
+      "label": "Link to the training programs",
+      "default": {
+        "en": "Take a look at our training programs",
+        "fr": "Découvrez nos entraînements"
+      },
+      "maxLength": 55
+    },
+    "home.services.eyebrow": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "One school. A whole team.",
+        "fr": "Une école. Toute une équipe."
+      },
+      "maxLength": 40
+    },
+    "home.services.heading": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Section title",
+      "default": {
+        "en": "More than dog training.",
+        "fr": "Bien plus que l’entraînement canin."
+      },
+      "maxLength": 50
+    },
+    "home.services.intro": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "Training, daycare, grooming, and professional programs. Discover our full-service dog school and canine facility in Montreal.",
+        "fr": "Entraînement, garderie, toilettage et programmes professionnels : découvrez notre école et notre centre canin à Montréal."
+      },
+      "maxLength": 175
+    },
+    "home.services.training.description": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Dog Training card: text",
+      "default": {
+        "en": "A clear plan for your dog’s behaviour and everyday skills.",
+        "fr": "Un plan clair pour le comportement et les habiletés de votre chien."
+      },
+      "maxLength": 95
+    },
+    "home.services.dayTraining.description": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Day Training card: text",
+      "default": {
+        "en": "Professional training while you get on with your day.",
+        "fr": "Un entraînement professionnel pendant votre journée."
+      },
+      "maxLength": 75
+    },
+    "home.services.daycare.description": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Daycare card: text",
+      "default": {
+        "en": "Supervised play, enrichment, socialization, and rest.",
+        "fr": "Jeux supervisés, enrichissement, socialisation et repos."
+      },
+      "maxLength": 80
+    },
+    "home.services.grooming.description": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Grooming card: text",
+      "default": {
+        "en": "Discover the grooming side of our canine family.",
+        "fr": "Découvrez le côté toilettage de notre famille canine."
+      },
+      "maxLength": 75
+    },
+    "home.services.apprenticeships.description": {
+      "pages": [
+        "/"
+      ],
+      "section": "Our services",
+      "label": "Apprenticeships card: text",
+      "default": {
+        "en": "Explore a professional path working with dogs.",
+        "fr": "Explorez un parcours professionnel avec les chiens."
+      },
+      "maxLength": 75
     }
   },
   "images": {
     "daycare.hero.photo": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Top of page",
       "label": "Main photo",
       "default": {
@@ -476,7 +1352,11 @@
       "aspect": "4/5"
     },
     "daycare.gallery.photo": {
-      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "pages": [
+        "/daycare",
+        "/day-training",
+        "/regular-daycare"
+      ],
       "section": "Photos & video",
       "label": "Photo next to the video",
       "default": {
@@ -487,6 +1367,70 @@
         }
       },
       "aspect": "4/5"
+    },
+    "home.painPoints.1.photo": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 1: photo",
+      "default": {
+        "src": "/images/pain-points/pulling.webp",
+        "alt": {
+          "en": "Pull on every walk?",
+          "fr": "Tire à chaque promenade?"
+        }
+      },
+      "aspect": "3/2"
+    },
+    "home.painPoints.2.photo": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 2: photo",
+      "default": {
+        "src": "/images/pain-points/generated-options/barking-option-2.webp",
+        "alt": {
+          "en": "Lunge or bark at other dogs?",
+          "fr": "Se lance ou jappe après les autres chiens?"
+        }
+      },
+      "aspect": "3/2"
+    },
+    "home.painPoints.3.photo": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 3: photo",
+      "default": {
+        "src": "/images/pain-points/generated-options/destroying-option-1.webp",
+        "alt": {
+          "en": "Destroy things when left alone?",
+          "fr": "Détruit des objets lorsqu'il est seul?"
+        }
+      },
+      "aspect": "3/2"
+    },
+    "home.painPoints.4.photo": {
+      "source": "code",
+      "pages": [
+        "/"
+      ],
+      "section": "Sound familiar?",
+      "label": "Card 4: photo",
+      "default": {
+        "src": "/images/pain-points/generated-options/jumping-option-1.webp",
+        "alt": {
+          "en": "Bite, nip, or jump on people?",
+          "fr": "Mord, pince ou saute sur les gens?"
+        }
+      },
+      "aspect": "3/2"
     }
   }
 }
