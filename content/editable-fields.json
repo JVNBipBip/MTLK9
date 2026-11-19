@@ -3248,6 +3248,78 @@
         "fr": "Des étapes claires, des répétitions concrètes et des devoirs pratiques pour bâtir un comportement durable."
       },
       "maxLength": 150
+    },
+    "faq.page.heading": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "The Questions Every Montreal Dog Owner Asks",
+        "fr": "Les questions que se posent les propriétaires de chiens à Montréal"
+      },
+      "maxLength": 95
+    },
+    "faq.page.intro": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Methods, costs, timelines, safety — everything you need to know before booking.",
+        "fr": "Méthodes, coûts, délais, sécurité : tout ce qu'il faut savoir avant de réserver."
+      },
+      "maxLength": 115
+    },
+    "faq.page.ctaLabel": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Bottom of page",
+      "label": "Small line above the title",
+      "default": {
+        "en": "Still Have Questions?",
+        "fr": "Vous avez encore des questions?"
+      },
+      "maxLength": 45
+    },
+    "faq.page.ctaHeading": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Bottom of page",
+      "label": "Title",
+      "default": {
+        "en": "Start with a free 15-minute discovery call",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes"
+      },
+      "maxLength": 80
+    },
+    "faq.page.ctaBody": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Bottom of page",
+      "label": "Paragraph",
+      "default": {
+        "en": "We'll answer your questions personally and help you figure out the right path for your dog.",
+        "fr": "Nous répondrons personnellement à vos questions et vous aiderons à trouver le bon parcours pour votre chien."
+      },
+      "maxLength": 155
+    },
+    "faq.page.ctaButton": {
+      "pages": [
+        "/faq"
+      ],
+      "section": "Bottom of page",
+      "label": "Main button",
+      "default": {
+        "en": "Contact Us for a Free Call",
+        "fr": "Contactez-nous pour un appel gratuit"
+      },
+      "maxLength": 45
     }
   },
   "images": {

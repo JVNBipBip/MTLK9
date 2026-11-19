@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
+import { EditableText } from "@/components/editable-text"
 import { FaqAccordion } from "@/components/faq-accordion"
 import { getFaqData } from "@/lib/faq-data"
 import { JsonLd, buildFaqJsonLd } from "@/components/json-ld"
@@ -30,29 +31,10 @@ async function getRequestLocale(): Promise<AppLocale> {
   return isAppLocale(locale) ? locale : defaultLocale
 }
 
-const pageCopy = {
-  en: {
-    heading: "The Questions Every Montreal Dog Owner Asks",
-    intro: "Methods, costs, timelines, safety — everything you need to know before booking.",
-    ctaLabel: "Still Have Questions?",
-    ctaHeading: "Start with a free 15-minute discovery call",
-    ctaBody: "We'll answer your questions personally and help you figure out the right path for your dog.",
-    ctaButton: "Contact Us for a Free Call",
-  },
-  fr: {
-    heading: "Les questions que se posent les propriétaires de chiens à Montréal",
-    intro: "Méthodes, coûts, délais, sécurité : tout ce qu'il faut savoir avant de réserver.",
-    ctaLabel: "Vous avez encore des questions?",
-    ctaHeading: "Commencez par un appel découverte gratuit de 15 minutes",
-    ctaBody:
-      "Nous répondrons personnellement à vos questions et vous aiderons à trouver le bon parcours pour votre chien.",
-    ctaButton: "Contactez-nous pour un appel gratuit",
-  },
-} satisfies Record<AppLocale, Record<string, string>>
+// The page's own copy is owner-editable: content/editable-fields.json (faq.page.*).
 
 export default async function FaqPage() {
   const locale = await getRequestLocale()
-  const copy = pageCopy[locale]
   const faqCategories = getFaqData(locale)
   const allFaqItems = faqCategories.flatMap((cat) => cat.items)
 
@@ -63,10 +45,10 @@ export default async function FaqPage() {
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4 animate-fade-up">
-            {copy.heading}
+            <EditableText id="faq.page.heading" locale={locale} />
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-12 md:mb-16 animate-fade-up animation-delay-200">
-            {copy.intro}
+            <EditableText id="faq.page.intro" locale={locale} />
           </p>
           <FaqAccordion categories={faqCategories} />
         </div>
@@ -77,13 +59,13 @@ export default async function FaqPage() {
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-secondary" />
             <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
               <p className="text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-                {copy.ctaLabel}
+                <EditableText id="faq.page.ctaLabel" locale={locale} />
               </p>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-primary-foreground text-balance mb-6 max-w-3xl mx-auto">
-                {copy.ctaHeading}
+                <EditableText id="faq.page.ctaHeading" locale={locale} />
               </h2>
               <p className="text-lg text-primary-foreground/80 max-w-xl mx-auto leading-relaxed mb-10">
-                {copy.ctaBody}
+                <EditableText id="faq.page.ctaBody" locale={locale} />
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <FreeCallLink>
@@ -91,7 +73,7 @@ export default async function FaqPage() {
                     size="lg"
                     className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
                   >
-                    {copy.ctaButton}
+                    <EditableText id="faq.page.ctaButton" locale={locale} />
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </FreeCallLink>
