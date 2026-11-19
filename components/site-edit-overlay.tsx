@@ -93,7 +93,7 @@ export default function SiteEditOverlay() {
   // Messages from the admin.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (!ADMIN_ORIGINS.includes(event.origin)) return
+      if (!ADMIN_ORIGINS.includes(event.origin) || event.source !== window.parent) return
       const data = event.data as (AdminToSite & { ns?: string }) | null
       if (!data || data.ns !== SITE_EDIT_NS) return
       switch (data.type) {
@@ -112,7 +112,11 @@ export default function SiteEditOverlay() {
         case "navigate":
           // A full load, not router.push: the locale lives in the root layout, which
           // a client-side navigation from /en/… to /fr/… would not re-render.
-          if (data.path.startsWith("/") && !data.path.startsWith("//")) window.location.assign(data.path)
+          // Only pages on this site: never another address or a javascript: link.
+          if (typeof data.path === "string" && /^\/(?![/\\])/.test(data.path)) {
+            const target = new URL(data.path, window.location.origin)
+            if (target.origin === window.location.origin) window.location.assign(target.pathname + target.search + target.hash)
+          }
           break
       }
     }

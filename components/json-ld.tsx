@@ -3,11 +3,19 @@ import type { AppLocale } from "@/lib/i18n/config"
 import type { BlogPost } from "@/lib/blog/types"
 import { getBusinessDetails } from "@/lib/business-details"
 
+/**
+ * JSON for an inline <script>. Escapes <, > and & so edited text (FAQ answers,
+ * business details) containing "</script>" can never end the tag early.
+ */
+export function serializeJsonLd(data: unknown) {
+  return JSON.stringify(data).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026")
+}
+
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
     />
   )
 }
