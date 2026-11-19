@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
 import { BookingLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
 
 const consultationCovers = [
   "Meet and Greet",
@@ -30,6 +30,7 @@ const forYouIf = [
 
 export default function ConsultationPage() {
   const t = useLocalizedText()
+  const text = useEditableText()
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -62,10 +63,10 @@ export default function ConsultationPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              {t("In-person evaluation — where every training path begins")}
+              {text("services.consultation.inPersonEvaluationWhere", "In-person evaluation — where every training path begins")}
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              {t("Dog Training Consultations in Montreal")}
+              {text("services.consultation.dogTrainingConsultationsIn", "Dog Training Consultations in Montreal")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
               {t(
@@ -75,7 +76,7 @@ export default function ConsultationPage() {
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <BookingLink>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
-                  {t("Send an Inquiry")}
+                  {text("services.consultation.sendAnInquiry", "Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>
@@ -88,19 +89,21 @@ export default function ConsultationPage() {
             <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
               <div className="lg:col-span-5 lg:sticky lg:top-32">
                 <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-                  {t("Initial 75-minute consultation")}
+                  {text("services.consultation.initial75MinuteConsultation", "Initial 75-minute consultation")}
                 </p>
                 <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
-                  {t("What we'll cover")}
+                  {text("services.consultation.whatWeLlCover", "What we'll cover")}
                 </h2>
                 <div className="reveal opacity-0 animation-delay-400 space-y-6">
                   <p className="text-lg text-muted-foreground leading-relaxed">
-                    {t("What we will cover during this initial 75-minute consultation session:")}
+                    {text("services.consultation.whatWeWillCover", "What we will cover during this initial 75-minute consultation session:")}
                   </p>
                   <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-border/50 shadow-md">
-                    <Image
+                    <EditablePhoto
+                      id="services.consultation.photo"
                       src="/images/park_image.jpg"
-                      alt={t("Dog training consultation in a Montreal park")}
+                      alt="Dog training consultation in a Montreal park"
+                      aspect="3/4"
                       fill
                       className="object-cover"
                       sizes="(max-width: 1024px) 100vw, 400px"
@@ -113,11 +116,11 @@ export default function ConsultationPage() {
                 <article className="reveal opacity-0 animation-delay-200 bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 p-8 md:p-10">
                   <div className="mb-8 pb-8 border-b border-border/50 space-y-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-1">
-                      {t("Pricing")}
+                      {text("services.consultation.pricing", "Pricing")}
                     </p>
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
                       <p className="font-display text-lg md:text-xl tracking-tight text-foreground">
-                        {t("Puppy (2 months–5 months)")}
+                        {text("services.consultation.puppy2Months5", "Puppy (2 months–5 months)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
                         {t("$135+tx | 75 minutes")}
@@ -125,7 +128,7 @@ export default function ConsultationPage() {
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
                       <p className="font-display text-lg md:text-xl tracking-tight text-foreground">
-                        {t("Adolescent/Adult (5 months +)")}
+                        {text("services.consultation.adolescentAdult5Months", "Adolescent/Adult (5 months +)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
                         {t("$145+tx | 75 minutes")}
@@ -147,13 +150,13 @@ export default function ConsultationPage() {
           </div>
         </section>
 
-        <ServiceForYouSection items={forYouIf} />
+        <ServiceForYouSection items={forYouIf} idPrefix="services.consultation.forYouIf" />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              {t("Ready to schedule your consultation?")}
+              {text("services.consultation.readyToScheduleYour", "Ready to schedule your consultation?")}
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
               {t(
@@ -163,7 +166,7 @@ export default function ConsultationPage() {
             <div className="reveal opacity-0 animation-delay-300">
               <BookingLink>
                 <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group">
-                  {t("Send an Inquiry")}
+                  {text("services.consultation.sendAnInquiry2", "Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>

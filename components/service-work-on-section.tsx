@@ -5,18 +5,23 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BookingLink, ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 export type ServiceDetailCtaMode = "program_signup" | "book_consultation"
 
 type ServiceWorkOnSectionProps = {
   goals: string[]
+  /** Makes goal n owner-editable as `${idPrefix}.${n}` (registered per page). */
+  idPrefix?: string
   ctaMode?: ServiceDetailCtaMode
   /** i18n key; when omitted, uses the default private-training carousel body. */
   goalCardBodyText?: string
 }
 
-export function ServiceWorkOnSection({ goals, ctaMode = "program_signup", goalCardBodyText }: ServiceWorkOnSectionProps) {
+export function ServiceWorkOnSection({ goals, idPrefix, ctaMode = "program_signup", goalCardBodyText }: ServiceWorkOnSectionProps) {
   const t = useLocalizedText()
+  const text = useEditableText()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -61,7 +66,7 @@ export function ServiceWorkOnSection({ goals, ctaMode = "program_signup", goalCa
     <section className="py-20 lg:py-28 px-6 lg:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
         <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-8">
-          {t("What we'll work on")}
+          {text("services.shared.workOnHeading", "What we'll work on")}
         </h2>
 
         <div className="reveal opacity-0">
@@ -100,15 +105,15 @@ export function ServiceWorkOnSection({ goals, ctaMode = "program_signup", goalCa
               >
                 <div className="p-7 md:p-8 min-h-[220px] flex flex-col">
                   <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
-                    {t("Training Focus")}
+                    {text("services.shared.focusLabel", "Training Focus")}
                   </p>
                   <h3 className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-4">
-                    {t(goal)}
+                    {idPrefix ? text(`${idPrefix}.${index + 1}` as TextFieldId, goal) : t(goal)}
                   </h3>
                   <p className="text-muted-foreground text-base leading-relaxed mt-auto">
                     {goalCardBodyText
                       ? t(goalCardBodyText)
-                      : t("Clear steps, real-world reps, and practical homework to build lasting behavior.")}
+                      : text("services.shared.focusBody", "Clear steps, real-world reps, and practical homework to build lasting behavior.")}
                   </p>
                   <Check className="w-5 h-5 text-primary mt-5" />
                 </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
 import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 
 const privatePackageRows =
@@ -69,6 +69,7 @@ const focusedPrivateSupportLinks = [
 
 export default function PrivateClassesPage() {
   const t = useLocalizedText()
+  const text = useEditableText()
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -101,18 +102,18 @@ export default function PrivateClassesPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              {t("Most Popular Option — 3, 5, or 7 Session Packages")}
+              {text("services.private.mostPopularOption3", "Most Popular Option — 3, 5, or 7 Session Packages")}
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              {t("Private Dog Training in Montreal")}
+              {text("services.private.privateDogTrainingIn", "Private Dog Training in Montreal")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              {t("One-on-one sessions designed to provide personalized, hands-on training tailored specifically to your dog's needs.")}
+              {text("services.private.oneOnOneSessions", "One-on-one sessions designed to provide personalized, hands-on training tailored specifically to your dog's needs.")}
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
-                  {t("Start Program Sign-Up")}
+                  {text("services.private.startProgramSignUp", "Start Program Sign-Up")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </ProgramSignupLink>
@@ -125,15 +126,17 @@ export default function PrivateClassesPage() {
             <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
               <div className="lg:col-span-5 lg:sticky lg:top-32">
                 <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-                  {t("Our most popular program")}
+                  {text("services.private.ourMostPopularProgram", "Our most popular program")}
                 </p>
                 <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground text-balance mb-6">
-                  {t("Private classes")}
+                  {text("services.private.privateClasses", "Private classes")}
                 </h2>
                 <div className="reveal opacity-0 animation-delay-400 relative aspect-[3/4] rounded-2xl overflow-hidden border border-border/50 shadow-md">
-                  <Image
+                  <EditablePhoto
+                    id="services.private.photo"
                     src="/images/yul_image.jpg"
-                    alt={t("Private dog training session in Montreal")}
+                    alt="Private dog training session in Montreal"
+                    aspect="3/4"
                     fill
                     className="object-cover"
                     sizes="(max-width: 1024px) 100vw, 400px"
@@ -151,7 +154,7 @@ export default function PrivateClassesPage() {
 
                   <div className="mt-8 pt-8 border-t border-border/50">
                     <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                      {t("Typical topics covered in private classes:")}
+                      {text("services.private.typicalTopicsCoveredIn", "Typical topics covered in private classes:")}
                     </p>
                     <ul className="space-y-3">
                       {privateClassTopics.map((topic) => (
@@ -165,7 +168,7 @@ export default function PrivateClassesPage() {
 
                   <div className="mt-8 pt-8 border-t border-border/50 space-y-4">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold">
-                      {t("Our packages")}
+                      {text("services.private.ourPackages", "Our packages")}
                     </p>
                     {privatePackageRows.map((row) => (
                       <div
@@ -182,7 +185,7 @@ export default function PrivateClassesPage() {
 
                   <div className="mt-8 pt-8 border-t border-border/50">
                     <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
-                      {t("Our goal")}
+                      {text("services.private.ourGoal", "Our goal")}
                     </p>
                     <p className="font-display text-xl md:text-2xl tracking-tight leading-snug text-foreground">
                       {t(
@@ -196,7 +199,7 @@ export default function PrivateClassesPage() {
           </div>
         </section>
 
-        <ServiceForYouSection items={forYouIf} />
+        <ServiceForYouSection items={forYouIf} idPrefix="services.private.forYouIf" />
 
         <FocusedSupportLinksSection
           eyebrow={{
@@ -218,10 +221,10 @@ export default function PrivateClassesPage() {
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              {t("Your dog deserves a plan built for them.")}
+              {text("services.private.yourDogDeservesA", "Your dog deserves a plan built for them.")}
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
-              {t("Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.")}
+              {text("services.private.startWithAFree", "Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.")}
             </p>
             <div className="reveal opacity-0 animation-delay-300">
               <ProgramSignupLink>
@@ -229,7 +232,7 @@ export default function PrivateClassesPage() {
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                 >
-                  {t("Start Program Sign-Up")}
+                  {text("services.private.startProgramSignUp2", "Start Program Sign-Up")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </ProgramSignupLink>

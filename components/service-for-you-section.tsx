@@ -2,9 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 type ServiceForYouSectionProps = {
   items: string[]
+  /** Makes item n owner-editable as `${idPrefix}.${n}` (registered per page). */
+  idPrefix?: string
 }
 
 function AnimatedCheck({ active }: { active: boolean }) {
@@ -50,8 +54,9 @@ function AnimatedCheck({ active }: { active: boolean }) {
   )
 }
 
-export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
+export function ServiceForYouSection({ items, idPrefix }: ServiceForYouSectionProps) {
   const t = useLocalizedText()
+  const text = useEditableText()
   const itemsRef = useRef<Array<HTMLElement | null>>([])
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({})
 
@@ -79,7 +84,7 @@ export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
     <section className="py-20 lg:py-28 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-10">
-          {t("This is for you if…")}
+          {text("services.shared.forYouHeading", "This is for you if…")}
         </h2>
 
         <div className="space-y-10 md:space-y-12">
@@ -110,7 +115,7 @@ export function ServiceForYouSection({ items }: ServiceForYouSectionProps) {
                   <AnimatedCheck active={isActive} />
                 </div>
                 <p className="font-display text-2xl md:text-3xl lg:text-4xl tracking-tight leading-tight text-foreground max-w-3xl">
-                  {t(item)}
+                  {idPrefix ? text(`${idPrefix}.${index + 1}` as TextFieldId, item) : t(item)}
                 </p>
                 <div
                   className={`mt-5 h-[2px] bg-primary w-24 md:w-48 transition-transform duration-600 ease-out ${

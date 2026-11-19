@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { ServiceWorkOnSection } from "@/components/service-work-on-section"
-import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 
 const forYouIf = [
   "Your puppy is biting everything — hands, furniture, ankles.",
@@ -30,7 +30,7 @@ const trainingGoals = [
 ]
 
 export default function PuppyTrainingPage() {
-  const t = useLocalizedText()
+  const text = useEditableText()
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -63,18 +63,18 @@ export default function PuppyTrainingPage() {
           <div className="absolute inset-0 bg-black/45" aria-hidden="true" />
           <div className="relative z-10 max-w-7xl mx-auto">
             <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-primary-foreground/70 font-medium mb-4">
-              {t("Private & Group Classes — Puppies & Teens")}
+              {text("services.puppy.privateGroupClassesPuppies", "Private & Group Classes — Puppies & Teens")}
             </p>
             <h1 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-primary-foreground text-balance mb-6">
-              {t("Puppy Training in Montreal")}
+              {text("services.puppy.puppyTrainingInMontreal", "Puppy Training in Montreal")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              {t("The first few months shape the next ten years. Build confidence, manners, and a strong bond from the very beginning.")}
+              {text("services.puppy.theFirstFewMonths", "The first few months shape the next ten years. Build confidence, manners, and a strong bond from the very beginning.")}
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <ProgramSignupLink>
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-5 text-sm md:text-base group shine-effect animate-shine">
-                  {t("Start Program Sign-Up")}
+                  {text("services.puppy.startProgramSignUp", "Start Program Sign-Up")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </ProgramSignupLink>
@@ -82,18 +82,18 @@ export default function PuppyTrainingPage() {
           </div>
         </section>
 
-        <ServiceWorkOnSection goals={trainingGoals} />
+        <ServiceWorkOnSection goals={trainingGoals} idPrefix="services.puppy.goals" />
 
-        <ServiceForYouSection items={forYouIf} />
+        <ServiceForYouSection items={forYouIf} idPrefix="services.puppy.forYouIf" />
 
         {/* CTA */}
         <section className="pt-10 pb-20 lg:pt-14 lg:pb-28 px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground mb-6">
-              {t("Start your puppy off right.")}
+              {text("services.puppy.startYourPuppyOff", "Start your puppy off right.")}
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8">
-              {t("Start with a free 15-minute discovery call. We'll help you figure out which class — socialisation, teen group, or private — is the right fit for your puppy's age and needs.")}
+              {text("services.puppy.startWithAFree", "Start with a free 15-minute discovery call. We'll help you figure out which class — socialisation, teen group, or private — is the right fit for your puppy's age and needs.")}
             </p>
             <div className="reveal opacity-0 animation-delay-400">
               <ProgramSignupLink>
@@ -101,7 +101,7 @@ export default function PuppyTrainingPage() {
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                 >
-                  {t("Start Program Sign-Up")}
+                  {text("services.puppy.startProgramSignUp2", "Start Program Sign-Up")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </ProgramSignupLink>

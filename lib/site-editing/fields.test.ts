@@ -81,7 +81,13 @@ describe("editable field registry", () => {
     const source = [...sourceFiles(path.join(ROOT, "app")), ...sourceFiles(path.join(ROOT, "components")), ...sourceFiles(path.join(ROOT, "lib"))]
       .map((file) => fs.readFileSync(file, "utf8"))
       .join("\n")
-    const unused = [...textIds, ...imageIds].filter((id) => !source.includes(`"${id}"`))
+    // List items are numbered from a prefix the page passes (idPrefix="services.obedience.forYouIf").
+    const listPrefix = (id: string) => (/\.\d+$/.test(id) ? id.replace(/\.\d+$/, "") : null)
+    const unused = [...textIds, ...imageIds].filter((id) => {
+      if (source.includes(`"${id}"`)) return false
+      const prefix = listPrefix(id)
+      return !(prefix && source.includes(`idPrefix="${prefix}"`))
+    })
     expect(unused).toEqual([])
   })
 })

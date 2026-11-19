@@ -9,6 +9,7 @@ import { CardCoverImage } from "@/components/card-cover-image"
 import { ArrowRight } from "lucide-react"
 import { BookingLink, TrainingPortalLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 type TrainingPathCard = {
@@ -114,6 +115,7 @@ function PathCardCta({
   privateLearnMoreHref: string
   t: ReturnType<typeof useLocalizedText>
 }) {
+  const text = useEditableText()
   const learnMoreClasses =
     "inline-flex items-center justify-center gap-1 w-full text-sm font-medium text-primary hover:text-primary/80 transition-colors"
 
@@ -122,12 +124,12 @@ function PathCardCta({
       <div className="flex flex-col gap-3">
         <BookingLink>
           <Button variant="outline" className="w-full rounded-full border-primary/35 bg-transparent hover:bg-primary/5 group/btn">
-            {t("Send an Inquiry")}
+            {text("services.hub.sendAnInquiry", "Send an Inquiry")}
             <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Button>
         </BookingLink>
         <Link href={consultationLearnMoreHref} className={learnMoreClasses}>
-          {t("Learn More")}
+          {text("services.hub.learnMore", "Learn More")}
           <ArrowRight className="w-3.5 h-3.5 shrink-0" />
         </Link>
       </div>
@@ -138,12 +140,12 @@ function PathCardCta({
       <div className="flex flex-col gap-3">
         <TrainingPortalLink>
           <Button variant="outline" className="w-full rounded-full border-primary/35 bg-transparent hover:bg-primary/5 group/btn">
-            {t("Book Private Training")}
+            {text("services.hub.bookPrivateTraining", "Book Private Training")}
             <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Button>
         </TrainingPortalLink>
         <Link href={privateLearnMoreHref} className={learnMoreClasses}>
-          {t("Learn More")}
+          {text("services.hub.learnMore2", "Learn More")}
           <ArrowRight className="w-3.5 h-3.5 shrink-0" />
         </Link>
       </div>
@@ -152,7 +154,7 @@ function PathCardCta({
   return (
     <Button variant="outline" className="w-full rounded-full border-primary/35 bg-transparent hover:bg-primary/5 group/btn" asChild>
       <Link href={groupClassesHref}>
-        {t("Explore group classes")}
+        {text("services.hub.exploreGroupClasses", "Explore group classes")}
         <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
       </Link>
     </Button>
@@ -161,6 +163,7 @@ function PathCardCta({
 
 export default function ServicesPage() {
   const t = useLocalizedText()
+  const text = useEditableText()
   const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -207,10 +210,10 @@ export default function ServicesPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10 lg:mb-14">
               <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-4">
-                {t("Choose Your Training Path")}
+                {text("services.hub.chooseYourTrainingPath", "Choose Your Training Path")}
               </h1>
               <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                {t("Every dog is different. Every path starts with understanding yours.")}
+                {text("services.hub.everyDogIsDifferent", "Every dog is different. Every path starts with understanding yours.")}
               </p>
             </div>
 
@@ -329,10 +332,10 @@ export default function ServicesPage() {
             <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-lg bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10">
               <div className="relative px-8 lg:px-16 py-16 lg:py-24 text-center">
                 <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-                  {t("Need Guidance?")}
+                  {text("services.hub.needGuidance", "Need Guidance?")}
                 </p>
                 <h2 className="reveal opacity-0 animation-delay-200 font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground text-balance mb-6 max-w-3xl mx-auto">
-                  {t("Not Sure Where to Start?")}
+                  {text("services.hub.notSureWhereTo", "Not Sure Where to Start?")}
                 </h2>
                 <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
                   {t(
@@ -345,7 +348,7 @@ export default function ServicesPage() {
                       size="lg"
                       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-base group"
                     >
-                      {t("Send an Inquiry")}
+                      {text("services.hub.sendAnInquiry2", "Send an Inquiry")}
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </BookingLink>

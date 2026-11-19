@@ -719,10 +719,21 @@
     "home.trust.1": {
       "source": "code",
       "pages": [
-        "/"
+        "/",
+        "/about",
+        "/results",
+        "/dog-training-west-island",
+        "/services/aggression",
+        "/services/separation-anxiety",
+        "/services/consultation",
+        "/services/in-home",
+        "/services/obedience",
+        "/services/private-classes",
+        "/services/puppy-training",
+        "/services/reactivity"
       ],
       "section": "Strip under the top",
-      "label": "Strip item 1",
+      "label": "Strip item 1 (same strip on several pages)",
       "default": {
         "en": "10–15+ Years Experience",
         "fr": "10 à 15+ ans d'expérience"
@@ -732,10 +743,21 @@
     "home.trust.2": {
       "source": "code",
       "pages": [
-        "/"
+        "/",
+        "/about",
+        "/results",
+        "/dog-training-west-island",
+        "/services/aggression",
+        "/services/separation-anxiety",
+        "/services/consultation",
+        "/services/in-home",
+        "/services/obedience",
+        "/services/private-classes",
+        "/services/puppy-training",
+        "/services/reactivity"
       ],
       "section": "Strip under the top",
-      "label": "Strip item 2",
+      "label": "Strip item 2 (same strip on several pages)",
       "default": {
         "en": "Customized Training Programs",
         "fr": "Entraînement personnalisé"
@@ -745,10 +767,21 @@
     "home.trust.3": {
       "source": "code",
       "pages": [
-        "/"
+        "/",
+        "/about",
+        "/results",
+        "/dog-training-west-island",
+        "/services/aggression",
+        "/services/separation-anxiety",
+        "/services/consultation",
+        "/services/in-home",
+        "/services/obedience",
+        "/services/private-classes",
+        "/services/puppy-training",
+        "/services/reactivity"
       ],
       "section": "Strip under the top",
-      "label": "Strip item 3",
+      "label": "Strip item 3 (same strip on several pages)",
       "default": {
         "en": "Real Training, Real Results",
         "fr": "Entraînement concret, résultats réels"
@@ -758,10 +791,21 @@
     "home.trust.4": {
       "source": "code",
       "pages": [
-        "/"
+        "/",
+        "/about",
+        "/results",
+        "/dog-training-west-island",
+        "/services/aggression",
+        "/services/separation-anxiety",
+        "/services/consultation",
+        "/services/in-home",
+        "/services/obedience",
+        "/services/private-classes",
+        "/services/puppy-training",
+        "/services/reactivity"
       ],
       "section": "Strip under the top",
-      "label": "Strip item 4",
+      "label": "Strip item 4 (same strip on several pages)",
       "default": {
         "en": "A Team of Professionals",
         "fr": "Une équipe de professionnels"
@@ -1331,6 +1375,1879 @@
         "fr": "Explorez un parcours professionnel avec les chiens."
       },
       "maxLength": 75
+    },
+    "services.hub.sendAnInquiry": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Button: “Send an Inquiry”",
+      "default": {
+        "en": "Send an Inquiry",
+        "fr": "Envoyer une demande"
+      },
+      "maxLength": 25
+    },
+    "services.hub.learnMore": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Link: “Learn More”",
+      "default": {
+        "en": "Learn More",
+        "fr": "En savoir plus"
+      },
+      "maxLength": 20
+    },
+    "services.hub.bookPrivateTraining": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Button: “Book Private Training”",
+      "default": {
+        "en": "Book Private Training",
+        "fr": "Réserver un entraînement privé"
+      },
+      "maxLength": 40
+    },
+    "services.hub.learnMore2": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Link: “Learn More”",
+      "default": {
+        "en": "Learn More",
+        "fr": "En savoir plus"
+      },
+      "maxLength": 20
+    },
+    "services.hub.exploreGroupClasses": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Link: “Explore group classes”",
+      "default": {
+        "en": "Explore group classes",
+        "fr": "Découvrir les cours de groupe"
+      },
+      "maxLength": 40
+    },
+    "services.hub.chooseYourTrainingPath": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Main headline: “Choose Your Training Path”",
+      "default": {
+        "en": "Choose Your Training Path",
+        "fr": "Choisissez votre parcours d'entraînement"
+      },
+      "maxLength": 60
+    },
+    "services.hub.everyDogIsDifferent": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Paragraph: “Every dog is different. Every path starts…”",
+      "default": {
+        "en": "Every dog is different. Every path starts with understanding yours.",
+        "fr": "Chaque chien est différent. Chaque parcours commence par comprendre le vôtre."
+      },
+      "maxLength": 110
+    },
+    "services.hub.needGuidance": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Service cards",
+      "label": "Paragraph: “Need Guidance?”",
+      "default": {
+        "en": "Need Guidance?",
+        "fr": "Besoin d'aide?"
+      },
+      "maxLength": 30
+    },
+    "services.hub.notSureWhereTo": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Not Sure Where to Start?",
+      "label": "Section title: “Not Sure Where to Start?”",
+      "default": {
+        "en": "Not Sure Where to Start?",
+        "fr": "Vous ne savez pas par où commencer?"
+      },
+      "maxLength": 50
+    },
+    "services.hub.sendAnInquiry2": {
+      "source": "code",
+      "pages": [
+        "/services"
+      ],
+      "section": "Not Sure Where to Start?",
+      "label": "Button: “Send an Inquiry”",
+      "default": {
+        "en": "Send an Inquiry",
+        "fr": "Envoyer une demande"
+      },
+      "maxLength": 25
+    },
+    "services.obedience.privateGroupClassesLevel": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Private & Group Classes — Level 1…”",
+      "default": {
+        "en": "Private & Group Classes — Level 1 & Level 2",
+        "fr": "Cours privés et de groupe — niveau 1 et niveau 2"
+      },
+      "maxLength": 70
+    },
+    "services.obedience.obedienceTrainingInMontreal": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Obedience Training in Montreal”",
+      "default": {
+        "en": "Obedience Training in Montreal",
+        "fr": "Entraînement d'obéissance à Montréal"
+      },
+      "maxLength": 55
+    },
+    "services.obedience.commandsThatActuallyWork": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Commands that actually work where they matter…”",
+      "default": {
+        "en": "Commands that actually work where they matter — on Montreal sidewalks, in busy parks, and around real-world distractions.",
+        "fr": "Des commandes qui fonctionnent là où ça compte : sur les trottoirs de Montréal, dans les parcs occupés et autour de vraies distractions."
+      },
+      "maxLength": 195
+    },
+    "services.obedience.startProgramSignUp": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.obedience.readyForADog": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Ready for a dog that actually listens?",
+      "label": "Section title: “Ready for a dog that actually listens?”",
+      "default": {
+        "en": "Ready for a dog that actually listens?",
+        "fr": "Prêt pour un chien qui écoute vraiment?"
+      },
+      "maxLength": 55
+    },
+    "services.obedience.startWithAFree": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Ready for a dog that actually listens?",
+      "label": "Paragraph: “Start with a free 15-minute discovery call.…”",
+      "default": {
+        "en": "Start with a free 15-minute discovery call. We'll help you pick the right level and format — group or private — for where your dog is right now.",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le bon niveau et le bon format, groupe ou privé, selon où en est votre chien."
+      },
+      "maxLength": 230
+    },
+    "services.obedience.startProgramSignUp2": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "Ready for a dog that actually listens?",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.obedience.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "Your dog knows 'sit' at home but ignores you everywhere else.",
+        "fr": "Votre chien connaît « assis » à la maison, mais vous ignore partout ailleurs."
+      },
+      "maxLength": 110
+    },
+    "services.obedience.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You want a well-mannered dog you can take anywhere in Montreal.",
+        "fr": "Vous voulez un chien bien élevé que vous pouvez emmener partout à Montréal."
+      },
+      "maxLength": 105
+    },
+    "services.obedience.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "You're ready to move beyond basics and build real-world reliability.",
+        "fr": "Vous êtes prêt à dépasser les bases et à bâtir une fiabilité dans la vraie vie."
+      },
+      "maxLength": 115
+    },
+    "services.obedience.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "Your dog pulls on leash, ignores recall, or has zero impulse control outside.",
+        "fr": "Votre chien tire en laisse, ignore le rappel ou n'a aucun contrôle des impulsions dehors."
+      },
+      "maxLength": 125
+    },
+    "services.obedience.forYouIf.5": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "You want your dog to walk calmly past distractions, dogs, and people.",
+        "fr": "Vous voulez que votre chien passe calmement devant les distractions, les chiens et les gens."
+      },
+      "maxLength": 130
+    },
+    "services.obedience.goals.1": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 1",
+      "default": {
+        "en": "The Three D's — Duration, Distance, Distraction",
+        "fr": "Les trois D — durée, distance, distraction"
+      },
+      "maxLength": 70
+    },
+    "services.obedience.goals.2": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 2",
+      "default": {
+        "en": "Engagement and relationship building",
+        "fr": "Engagement et développement de la relation"
+      },
+      "maxLength": 60
+    },
+    "services.obedience.goals.3": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 3",
+      "default": {
+        "en": "Reliable recall in real environments",
+        "fr": "Rappel fiable dans de vrais environnements"
+      },
+      "maxLength": 60
+    },
+    "services.obedience.goals.4": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 4",
+      "default": {
+        "en": "Impulse control and focus under pressure",
+        "fr": "Contrôle des impulsions et concentration sous pression"
+      },
+      "maxLength": 80
+    },
+    "services.obedience.goals.5": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 5",
+      "default": {
+        "en": "Pack walks and new environments",
+        "fr": "Marches en groupe et nouveaux environnements"
+      },
+      "maxLength": 65
+    },
+    "services.obedience.goals.6": {
+      "source": "code",
+      "pages": [
+        "/services/obedience"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 6",
+      "default": {
+        "en": "Advanced commands in high-distraction settings",
+        "fr": "Commandes avancées dans des contextes très stimulants"
+      },
+      "maxLength": 75
+    },
+    "services.puppy.privateGroupClassesPuppies": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Private & Group Classes — Puppies &…”",
+      "default": {
+        "en": "Private & Group Classes — Puppies & Teens",
+        "fr": "Cours privés et de groupe — chiots et adolescents"
+      },
+      "maxLength": 70
+    },
+    "services.puppy.puppyTrainingInMontreal": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Puppy Training in Montreal”",
+      "default": {
+        "en": "Puppy Training in Montreal",
+        "fr": "Entraînement des chiots à Montréal"
+      },
+      "maxLength": 50
+    },
+    "services.puppy.theFirstFewMonths": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “The first few months shape the next…”",
+      "default": {
+        "en": "The first few months shape the next ten years. Build confidence, manners, and a strong bond from the very beginning.",
+        "fr": "Les premiers mois façonnent les dix prochaines années. Développez la confiance, les bonnes manières et un lien solide dès le départ."
+      },
+      "maxLength": 185
+    },
+    "services.puppy.startProgramSignUp": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.puppy.startYourPuppyOff": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Start your puppy off right.",
+      "label": "Section title: “Start your puppy off right.”",
+      "default": {
+        "en": "Start your puppy off right.",
+        "fr": "Donnez un bon départ à votre chiot."
+      },
+      "maxLength": 50
+    },
+    "services.puppy.startWithAFree": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Start your puppy off right.",
+      "label": "Paragraph: “Start with a free 15-minute discovery call.…”",
+      "default": {
+        "en": "Start with a free 15-minute discovery call. We'll help you figure out which class — socialisation, teen group, or private — is the right fit for your puppy's age and needs.",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes. Nous vous aiderons à choisir le cours qui convient à l'âge et aux besoins de votre chiot : socialisation, groupe ado ou privé."
+      },
+      "maxLength": 260
+    },
+    "services.puppy.startProgramSignUp2": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "Start your puppy off right.",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.puppy.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "Your puppy is biting everything — hands, furniture, ankles.",
+        "fr": "Votre chiot mord tout : les mains, les meubles, les chevilles."
+      },
+      "maxLength": 90
+    },
+    "services.puppy.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You're not sure how to socialise safely without overwhelming them.",
+        "fr": "Vous ne savez pas comment le socialiser en sécurité sans le submerger."
+      },
+      "maxLength": 100
+    },
+    "services.puppy.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "Your teen pup is hitting the 'selective hearing' phase.",
+        "fr": "Votre jeune chien entre dans la phase de « surdité sélective »."
+      },
+      "maxLength": 90
+    },
+    "services.puppy.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "You want to build good habits before bad ones take root.",
+        "fr": "Vous voulez bâtir de bonnes habitudes avant que les mauvaises s'installent."
+      },
+      "maxLength": 105
+    },
+    "services.puppy.forYouIf.5": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "You want a confident, well-adjusted dog — not just a trained one.",
+        "fr": "Vous voulez un chien confiant et équilibré, pas seulement entraîné."
+      },
+      "maxLength": 95
+    },
+    "services.puppy.goals.1": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 1",
+      "default": {
+        "en": "Confidence building through guided play",
+        "fr": "Développement de la confiance par le jeu guidé"
+      },
+      "maxLength": 65
+    },
+    "services.puppy.goals.2": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 2",
+      "default": {
+        "en": "Controlled socialisation with other puppies",
+        "fr": "Socialisation contrôlée avec d'autres chiots"
+      },
+      "maxLength": 65
+    },
+    "services.puppy.goals.3": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 3",
+      "default": {
+        "en": "Engagement, focus, and relationship development",
+        "fr": "Engagement, concentration et développement de la relation"
+      },
+      "maxLength": 80
+    },
+    "services.puppy.goals.4": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 4",
+      "default": {
+        "en": "Obstacle courses and novel experiences",
+        "fr": "Parcours d'obstacles et nouvelles expériences"
+      },
+      "maxLength": 65
+    },
+    "services.puppy.goals.5": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 5",
+      "default": {
+        "en": "Introduction to the six basic commands",
+        "fr": "Introduction aux six commandes de base"
+      },
+      "maxLength": 55
+    },
+    "services.puppy.goals.6": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 6",
+      "default": {
+        "en": "Marker training and distraction exposure",
+        "fr": "Marqueur et exposition aux distractions"
+      },
+      "maxLength": 60
+    },
+    "services.puppy.goals.7": {
+      "source": "code",
+      "pages": [
+        "/services/puppy-training"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 7",
+      "default": {
+        "en": "Bite inhibition and impulse control",
+        "fr": "Inhibition de la morsure et contrôle des impulsions"
+      },
+      "maxLength": 75
+    },
+    "services.reactivity.privateGroupClasses": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Private & Group Classes”",
+      "default": {
+        "en": "Private & Group Classes",
+        "fr": "Cours privés et de groupe"
+      },
+      "maxLength": 35
+    },
+    "services.reactivity.reactivityTrainingInMontreal": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Reactivity Training in Montreal”",
+      "default": {
+        "en": "Reactivity Training in Montreal",
+        "fr": "Entraînement pour la réactivité à Montréal"
+      },
+      "maxLength": 60
+    },
+    "services.reactivity.stopPlanningYourLife": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Stop planning your life around your dog's…”",
+      "default": {
+        "en": "Stop planning your life around your dog's triggers. Structured protocols for lunging, barking, fear, and shutting down — in both private and group settings.",
+        "fr": "Arrêtez d'organiser votre vie autour des déclencheurs de votre chien. Protocoles structurés pour les élans, les jappements, la peur et le figement, en cours privés ou de groupe."
+      },
+      "maxLength": 250
+    },
+    "services.reactivity.startProgramSignUp": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.reactivity.readyToTakeBack": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Ready to take back your walks?",
+      "label": "Section title: “Ready to take back your walks?”",
+      "default": {
+        "en": "Ready to take back your walks?",
+        "fr": "Prêt à reprendre vos promenades?"
+      },
+      "maxLength": 45
+    },
+    "services.reactivity.startWithAFree": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Ready to take back your walks?",
+      "label": "Paragraph: “Start with a free 15-minute discovery call.…”",
+      "default": {
+        "en": "Start with a free 15-minute discovery call. We'll talk about your dog's triggers, your goals, and which format — private or group — makes the most sense.",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes. Nous parlerons des déclencheurs de votre chien, de vos objectifs et du format privé ou de groupe qui convient le mieux."
+      },
+      "maxLength": 250
+    },
+    "services.reactivity.startProgramSignUp2": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "Ready to take back your walks?",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.reactivity.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "You cross the street every time you see another dog.",
+        "fr": "Vous traversez la rue chaque fois que vous voyez un autre chien."
+      },
+      "maxLength": 90
+    },
+    "services.reactivity.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You've rearranged your entire schedule to avoid triggers.",
+        "fr": "Vous avez réorganisé tout votre horaire pour éviter les déclencheurs."
+      },
+      "maxLength": 100
+    },
+    "services.reactivity.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "Your dog lunges, barks, or shuts down on walks.",
+        "fr": "Votre chien se lance, jappe ou fige en promenade."
+      },
+      "maxLength": 70
+    },
+    "services.reactivity.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "You feel embarrassed, frustrated, or helpless on leash.",
+        "fr": "Vous vous sentez gêné, frustré ou impuissant en laisse."
+      },
+      "maxLength": 80
+    },
+    "services.reactivity.forYouIf.5": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "Other trainers told you your dog is 'too much.'",
+        "fr": "D'autres entraîneurs vous ont dit que votre chien était « trop intense »."
+      },
+      "maxLength": 105
+    },
+    "services.reactivity.goals.1": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 1",
+      "default": {
+        "en": "The Three D's — Duration, Distance, Distraction",
+        "fr": "Les trois D — durée, distance, distraction"
+      },
+      "maxLength": 70
+    },
+    "services.reactivity.goals.2": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 2",
+      "default": {
+        "en": "Three attention cues — Name, Touch, Leash",
+        "fr": "Trois signaux d'attention — nom, toucher, laisse"
+      },
+      "maxLength": 70
+    },
+    "services.reactivity.goals.3": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 3",
+      "default": {
+        "en": "Active and static engagement",
+        "fr": "Engagement actif et statique"
+      },
+      "maxLength": 40
+    },
+    "services.reactivity.goals.4": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 4",
+      "default": {
+        "en": "Leash work and reward placement",
+        "fr": "Travail en laisse et placement des récompenses"
+      },
+      "maxLength": 65
+    },
+    "services.reactivity.goals.5": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 5",
+      "default": {
+        "en": "Stability work and confidence building",
+        "fr": "Stabilité et développement de la confiance"
+      },
+      "maxLength": 60
+    },
+    "services.reactivity.goals.6": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 6",
+      "default": {
+        "en": "Realistic scenario training",
+        "fr": "Entraînement en scénarios réalistes"
+      },
+      "maxLength": 50
+    },
+    "services.reactivity.goals.7": {
+      "source": "code",
+      "pages": [
+        "/services/reactivity"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 7",
+      "default": {
+        "en": "Structured socialization",
+        "fr": "Socialisation structurée"
+      },
+      "maxLength": 35
+    },
+    "services.inHome.consultation35Or": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Consultation + 3, 5, or 7 session…”",
+      "default": {
+        "en": "Consultation + 3, 5, or 7 session packages",
+        "fr": "Consultation + forfaits de 3, 5 ou 7 séances"
+      },
+      "maxLength": 65
+    },
+    "services.inHome.inHomeDogTraining": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “In-Home Dog Training — Montreal”",
+      "default": {
+        "en": "In-Home Dog Training — Montreal",
+        "fr": "Entraînement canin à domicile — Montréal"
+      },
+      "maxLength": 60
+    },
+    "services.inHome.trainingWhereItMatters": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Training where it matters most — in…”",
+      "default": {
+        "en": "Training where it matters most — in your home, in your neighbourhood, on your schedule. Every program starts with a personalised consultation.",
+        "fr": "L'entraînement là où il compte le plus : chez vous, dans votre quartier, selon votre horaire. Chaque programme commence par une consultation personnalisée."
+      },
+      "maxLength": 220
+    },
+    "services.inHome.startProgramSignUp": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.inHome.trainingThatComesTo": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Training that comes to you.",
+      "label": "Section title: “Training that comes to you.”",
+      "default": {
+        "en": "Training that comes to you.",
+        "fr": "L'entraînement qui vient à vous."
+      },
+      "maxLength": 45
+    },
+    "services.inHome.startWithAFree": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Training that comes to you.",
+      "label": "Paragraph: “Start with a free 15-minute discovery call.…”",
+      "default": {
+        "en": "Start with a free 15-minute discovery call. We'll learn about your dog, your home, and your goals — then recommend the right package to get started.",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes. Nous apprendrons à connaître votre chien, votre maison et vos objectifs, puis recommanderons le bon forfait pour commencer."
+      },
+      "maxLength": 255
+    },
+    "services.inHome.startProgramSignUp2": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "Training that comes to you.",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.inHome.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "Your dog's biggest issues happen at home — door manners, guests, anxiety.",
+        "fr": "Les plus grands défis de votre chien se produisent à la maison : porte, invités, anxiété."
+      },
+      "maxLength": 125
+    },
+    "services.inHome.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You want training in the exact environment where behaviour breaks down.",
+        "fr": "Vous voulez travailler exactement dans l'environnement où le comportement se dégrade."
+      },
+      "maxLength": 120
+    },
+    "services.inHome.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "Your schedule makes it hard to attend classes at a fixed location.",
+        "fr": "Votre horaire rend difficile la participation à des cours à lieu fixe."
+      },
+      "maxLength": 100
+    },
+    "services.inHome.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "You prefer one-on-one attention from an expert in your own space.",
+        "fr": "Vous préférez l'attention individuelle d'un expert dans votre propre espace."
+      },
+      "maxLength": 110
+    },
+    "services.inHome.forYouIf.5": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "You've tried facility-based training and the skills didn't transfer home.",
+        "fr": "Vous avez essayé l'entraînement en centre et les compétences ne se sont pas transférées à la maison."
+      },
+      "maxLength": 140
+    },
+    "services.inHome.goals.1": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 1",
+      "default": {
+        "en": "In-home consultation and assessment",
+        "fr": "Consultation et évaluation à domicile"
+      },
+      "maxLength": 55
+    },
+    "services.inHome.goals.2": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 2",
+      "default": {
+        "en": "Customised behaviour modification plan",
+        "fr": "Plan personnalisé de modification du comportement"
+      },
+      "maxLength": 70
+    },
+    "services.inHome.goals.3": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 3",
+      "default": {
+        "en": "Door manners and guest greeting",
+        "fr": "Bonnes manières à la porte et accueil des invités"
+      },
+      "maxLength": 70
+    },
+    "services.inHome.goals.4": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 4",
+      "default": {
+        "en": "Separation anxiety protocol",
+        "fr": "Protocole d'anxiété de séparation"
+      },
+      "maxLength": 50
+    },
+    "services.inHome.goals.5": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 5",
+      "default": {
+        "en": "House training and structure",
+        "fr": "Propreté et structure à la maison"
+      },
+      "maxLength": 50
+    },
+    "services.inHome.goals.6": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 6",
+      "default": {
+        "en": "Leash skills in your neighbourhood",
+        "fr": "Compétences en laisse dans votre quartier"
+      },
+      "maxLength": 60
+    },
+    "services.inHome.goals.7": {
+      "source": "code",
+      "pages": [
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Focus card 7",
+      "default": {
+        "en": "Handler coaching and follow-through",
+        "fr": "Coaching du maître et suivi"
+      },
+      "maxLength": 50
+    },
+    "services.private.mostPopularOption3": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Most Popular Option — 3, 5, or…”",
+      "default": {
+        "en": "Most Popular Option — 3, 5, or 7 Session Packages",
+        "fr": "Option la plus populaire — forfaits de 3, 5 ou 7 séances"
+      },
+      "maxLength": 80
+    },
+    "services.private.privateDogTrainingIn": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Private Dog Training in Montreal”",
+      "default": {
+        "en": "Private Dog Training in Montreal",
+        "fr": "Entraînement canin privé à Montréal"
+      },
+      "maxLength": 50
+    },
+    "services.private.oneOnOneSessions": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “One-on-one sessions designed to provide personalized, hands-on…”",
+      "default": {
+        "en": "One-on-one sessions designed to provide personalized, hands-on training tailored specifically to your dog's needs.",
+        "fr": "Des séances individuelles conçues pour offrir un entraînement personnalisé et pratique, adapté précisément aux besoins de votre chien."
+      },
+      "maxLength": 190
+    },
+    "services.private.startProgramSignUp": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.private.ourMostPopularProgram": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Our most popular program”",
+      "default": {
+        "en": "Our most popular program",
+        "fr": "Notre programme le plus populaire"
+      },
+      "maxLength": 50
+    },
+    "services.private.privateClasses": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Section title: “Private classes”",
+      "default": {
+        "en": "Private classes",
+        "fr": "Cours privés"
+      },
+      "maxLength": 30
+    },
+    "services.private.typicalTopicsCoveredIn": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Paragraph: “Typical topics covered in private classes:”",
+      "default": {
+        "en": "Typical topics covered in private classes:",
+        "fr": "Sujets typiques couverts en cours privés :"
+      },
+      "maxLength": 60
+    },
+    "services.private.ourPackages": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Paragraph: “Our packages”",
+      "default": {
+        "en": "Our packages",
+        "fr": "Nos forfaits"
+      },
+      "maxLength": 30
+    },
+    "services.private.ourGoal": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Paragraph: “Our goal”",
+      "default": {
+        "en": "Our goal",
+        "fr": "Notre objectif"
+      },
+      "maxLength": 30
+    },
+    "services.private.yourDogDeservesA": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Your dog deserves a plan built for them.",
+      "label": "Section title: “Your dog deserves a plan built for…”",
+      "default": {
+        "en": "Your dog deserves a plan built for them.",
+        "fr": "Votre chien mérite un plan fait pour lui."
+      },
+      "maxLength": 60
+    },
+    "services.private.startWithAFree": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Your dog deserves a plan built for them.",
+      "label": "Paragraph: “Start with a free 15-minute discovery call.…”",
+      "default": {
+        "en": "Start with a free 15-minute discovery call. Tell us what's going on and we'll recommend the right package — no pressure, no commitment.",
+        "fr": "Commencez par un appel découverte gratuit de 15 minutes. Dites-nous ce qui se passe et nous recommanderons le bon forfait, sans pression ni engagement."
+      },
+      "maxLength": 215
+    },
+    "services.private.startProgramSignUp2": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Your dog deserves a plan built for them.",
+      "label": "Button: “Start Program Sign-Up”",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription au programme"
+      },
+      "maxLength": 45
+    },
+    "services.private.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "You want a trainer's full attention on your specific situation.",
+        "fr": "Vous voulez toute l'attention d'un entraîneur sur votre situation précise."
+      },
+      "maxLength": 105
+    },
+    "services.private.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You've tried group classes and your dog needs something more tailored.",
+        "fr": "Vous avez essayé les cours de groupe et votre chien a besoin de quelque chose de plus personnalisé."
+      },
+      "maxLength": 140
+    },
+    "services.private.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "You're dealing with reactivity, anxiety, aggression, or guarding.",
+        "fr": "Vous gérez de la réactivité, de l'anxiété, de l'agressivité ou de la protection des ressources."
+      },
+      "maxLength": 135
+    },
+    "services.private.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "You want a clear plan built around your dog — not a generic curriculum.",
+        "fr": "Vous voulez un plan clair construit autour de votre chien, pas un curriculum générique."
+      },
+      "maxLength": 125
+    },
+    "services.consultation.inPersonEvaluationWhere": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “In-person evaluation — where every training path…”",
+      "default": {
+        "en": "In-person evaluation — where every training path begins",
+        "fr": "Évaluation en personne — le point de départ de tout parcours d'entraînement"
+      },
+      "maxLength": 105
+    },
+    "services.consultation.dogTrainingConsultationsIn": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Dog Training Consultations in Montreal”",
+      "default": {
+        "en": "Dog Training Consultations in Montreal",
+        "fr": "Consultations en dressage canin à Montréal"
+      },
+      "maxLength": 60
+    },
+    "services.consultation.sendAnInquiry": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Send an Inquiry”",
+      "default": {
+        "en": "Send an Inquiry",
+        "fr": "Envoyer une demande"
+      },
+      "maxLength": 25
+    },
+    "services.consultation.initial75MinuteConsultation": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Initial 75-minute consultation”",
+      "default": {
+        "en": "Initial 75-minute consultation",
+        "fr": "Consultation initiale de 75 minutes"
+      },
+      "maxLength": 50
+    },
+    "services.consultation.whatWeLlCover": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Section title: “What we'll cover”",
+      "default": {
+        "en": "What we'll cover",
+        "fr": "Ce que nous couvrirons"
+      },
+      "maxLength": 35
+    },
+    "services.consultation.whatWeWillCover": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Paragraph: “What we will cover during this initial…”",
+      "default": {
+        "en": "What we will cover during this initial 75-minute consultation session:",
+        "fr": "Ce que nous couvrirons lors de cette consultation initiale de 75 minutes :"
+      },
+      "maxLength": 105
+    },
+    "services.consultation.pricing": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Paragraph: “Pricing”",
+      "default": {
+        "en": "Pricing",
+        "fr": "Tarification"
+      },
+      "maxLength": 30
+    },
+    "services.consultation.puppy2Months5": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Paragraph: “Puppy (2 months–5 months)”",
+      "default": {
+        "en": "Puppy (2 months–5 months)",
+        "fr": "Chiot (2 à 5 mois)"
+      },
+      "maxLength": 35
+    },
+    "services.consultation.adolescentAdult5Months": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Paragraph: “Adolescent/Adult (5 months +)”",
+      "default": {
+        "en": "Adolescent/Adult (5 months +)",
+        "fr": "Adolescent/adulte (5 mois et plus)"
+      },
+      "maxLength": 50
+    },
+    "services.consultation.readyToScheduleYour": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Ready to schedule your consultation?",
+      "label": "Section title: “Ready to schedule your consultation?”",
+      "default": {
+        "en": "Ready to schedule your consultation?",
+        "fr": "Prêt à planifier votre consultation?"
+      },
+      "maxLength": 55
+    },
+    "services.consultation.sendAnInquiry2": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "Ready to schedule your consultation?",
+      "label": "Button: “Send an Inquiry”",
+      "default": {
+        "en": "Send an Inquiry",
+        "fr": "Envoyer une demande"
+      },
+      "maxLength": 25
+    },
+    "services.consultation.forYouIf.1": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "You're a first-time dog owner and don't know where to start.",
+        "fr": "Vous êtes un nouveau propriétaire de chien et vous ne savez pas par où commencer."
+      },
+      "maxLength": 115
+    },
+    "services.consultation.forYouIf.2": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "You're unsure whether private lessons or a group series would suit your dog best.",
+        "fr": "Vous ne savez pas encore si des cours privés ou une série en groupe conviendraient mieux à votre chien."
+      },
+      "maxLength": 145
+    },
+    "services.consultation.forYouIf.3": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "You've tried tips from friends, videos, or apps and want a professional read on what's happening.",
+        "fr": "Vous avez essayé des conseils d'amis, des vidéos ou des applis et vous voulez l'avis professionnel sur ce qui se passe."
+      },
+      "maxLength": 170
+    },
+    "services.consultation.forYouIf.4": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "You want time to explain the full picture — routines, triggers, and what you've already tried.",
+        "fr": "Vous voulez prendre le temps de tout expliquer — routines, déclencheurs et ce que vous avez déjà essayé."
+      },
+      "maxLength": 150
+    },
+    "services.consultation.forYouIf.5": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "You're ready for an in-person evaluation so we can recommend the safest, most realistic next step.",
+        "fr": "Vous souhaitez une évaluation en personne pour que nous puissions recommander la prochaine étape la plus sûre et réaliste."
+      },
+      "maxLength": 175
+    },
+    "about.trainingThatProtectsThe": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Training That Protects the Bond”",
+      "default": {
+        "en": "Training That Protects the Bond",
+        "fr": "Un entraînement qui protège le lien"
+      },
+      "maxLength": 50
+    },
+    "about.whoWeAreWhat": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Who we are, what we believe, and…”",
+      "default": {
+        "en": "Who we are, what we believe, and why we train the way we do.",
+        "fr": "Qui nous sommes, ce en quoi nous croyons et pourquoi nous entraînons de cette façon."
+      },
+      "maxLength": 120
+    },
+    "about.meetTheTeam": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Meet the Team",
+      "label": "Section title: “Meet the Team”",
+      "default": {
+        "en": "Meet the Team",
+        "fr": "Rencontrez l'équipe"
+      },
+      "maxLength": 30
+    },
+    "about.threeSpecialistsOneMission": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Meet the Team",
+      "label": "Paragraph: “Three specialists. One mission: help you and…”",
+      "default": {
+        "en": "Three specialists. One mission: help you and your dog thrive together.",
+        "fr": "Trois spécialistes. Une mission : aider votre chien et vous à vous épanouir ensemble."
+      },
+      "maxLength": 120
+    },
+    "about.swipeToMeetEach": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Meet the Team",
+      "label": "Paragraph: “Swipe to meet each trainer”",
+      "default": {
+        "en": "Swipe to meet each trainer",
+        "fr": "Balayez pour rencontrer chaque entraîneur"
+      },
+      "maxLength": 60
+    },
+    "about.ourPhilosophy": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Philosophy",
+      "label": "Section title: “Our Philosophy”",
+      "default": {
+        "en": "Our Philosophy",
+        "fr": "Notre philosophie"
+      },
+      "maxLength": 30
+    },
+    "about.atMontrealCanineTraining": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Philosophy",
+      "label": "Paragraph: “At Montreal Canine Training, we help build…”",
+      "default": {
+        "en": "At Montreal Canine Training, we help build strong, healthy relationships between dogs and their owners. With a proven track record, we consistently deliver real, professional, and effective training solutions.",
+        "fr": "Chez Entraînement Canin Montréal, nous aidons à bâtir des relations fortes et saines entre les chiens et leurs propriétaires. Avec des résultats éprouvés, nous offrons des solutions d'entraînement réelles, professionnelles et efficaces."
+      },
+      "maxLength": 335
+    },
+    "about.everyDogIsAssessed": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Philosophy",
+      "label": "Paragraph: “Every dog is assessed individually to create…”",
+      "default": {
+        "en": "Every dog is assessed individually to create a personalized training plan. From basic/advanced obedience to severe behavioral issues, our experienced team delivers real results. We believe training is about the human, not the dog. Your dog is already doing what makes sense to them. We help you understand why and give you the tools to guide them without breaking trust. We train in the real world, not just at our facility — progressing into everyday environments like parks, cafés, hardware stores and markets.",
+        "fr": "Chaque chien est évalué individuellement afin de créer un plan personnalisé. De l'obéissance de base ou avancée aux problèmes comportementaux sévères, notre équipe expérimentée obtient de vrais résultats. Nous croyons que l'entraînement concerne l'humain autant que le chien. Votre chien fait déjà ce qui a du sens pour lui. Nous vous aidons à comprendre pourquoi et vous donnons les outils pour le guider sans briser la confiance. Nous entraînons dans la vraie vie, pas seulement dans nos installations, en progressant vers des environnements quotidiens comme les parcs, cafés, quincailleries et marchés."
+      },
+      "maxLength": 850
+    },
+    "about.weDonTJust": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Philosophy",
+      "label": "Paragraph: “We don't just hand you techniques. We…”",
+      "default": {
+        "en": "We don't just hand you techniques. We give you a plan, ongoing support between sessions, and stay in your corner until you see results — because training isn't a one-off, it's a partnership.",
+        "fr": "Nous ne vous remettons pas simplement des techniques. Nous vous donnons un plan, du soutien entre les séances et restons dans votre coin jusqu'à ce que vous voyiez des résultats, parce que l'entraînement n'est pas un événement ponctuel, c'est un partenariat."
+      },
+      "maxLength": 365
+    },
+    "about.ourMethods": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Section title: “Our Methods”",
+      "default": {
+        "en": "Our Methods",
+        "fr": "Nos méthodes"
+      },
+      "maxLength": 30
+    },
+    "about.positiveReinforcementTrainingMotivation": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “Positive reinforcement training, motivation and reward based…”",
+      "default": {
+        "en": "Positive reinforcement training, motivation and reward based training",
+        "fr": "Entraînement par renforcement positif, motivation et récompenses"
+      },
+      "maxLength": 100
+    },
+    "about.ourApproach": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “Our approach:”",
+      "default": {
+        "en": "Our approach:",
+        "fr": "Notre approche :"
+      },
+      "maxLength": 30
+    },
+    "about.weBuildAndShape": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “We build and shape behaviours using positive…”",
+      "default": {
+        "en": "We build and shape behaviours using positive reinforcement, clear communication, and motivation, creating confident, engaged dogs. We don't use fear or pain. We adapt our approach to their needs, perception and understanding. Our expertise in a variety of proven training methods allows us to support a wider range of dogs, resulting in high success rates, from early puppy development to severe behavioral problems.",
+        "fr": "Nous construisons et façonnons les comportements avec le renforcement positif, une communication claire et la motivation, afin de créer des chiens confiants et engagés. Nous n'utilisons ni peur ni douleur. Nous adaptons notre approche à leurs besoins, leur perception et leur compréhension. Notre expertise dans plusieurs méthodes éprouvées nous permet d'aider un large éventail de chiens, du développement précoce du chiot aux problèmes comportementaux sévères."
+      },
+      "maxLength": 650
+    },
+    "about.whatToExpectIn": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “What to expect in a session:”",
+      "default": {
+        "en": "What to expect in a session:",
+        "fr": "À quoi s'attendre pendant une séance :"
+      },
+      "maxLength": 55
+    },
+    "about.weMeetYouAnd": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “We meet you and your dog where…”",
+      "default": {
+        "en": "We meet you and your dog where you are — literally and figuratively. Sessions happen in real environments: your neighborhood, a park, your home. We observe, we teach, we practice. You leave with homework, and we support you between sessions with check-ins and guidance.",
+        "fr": "Nous vous rencontrons, vous et votre chien, là où vous en êtes, littéralement et figurativement. Les séances se déroulent dans de vrais environnements : votre quartier, un parc, votre maison. Nous observons, enseignons et pratiquons. Vous repartez avec des exercices, et nous vous soutenons entre les séances avec des suivis et des conseils."
+      },
+      "maxLength": 480
+    },
+    "about.yourDogSEmotional": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “Your dog's emotional wellbeing:”",
+      "default": {
+        "en": "Your dog's emotional wellbeing:",
+        "fr": "Le bien-être émotionnel de votre chien :"
+      },
+      "maxLength": 60
+    },
+    "about.weBelieveADog": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “We believe a dog who feels safe…”",
+      "default": {
+        "en": "We believe a dog who feels safe learns faster and bonds deeper. We never push a dog past their threshold. We work at their pace, and we prioritize their emotional state in every decision we make.",
+        "fr": "Nous croyons qu'un chien qui se sent en sécurité apprend plus vite et crée un lien plus profond. Nous ne poussons jamais un chien au-delà de son seuil. Nous avançons à son rythme et priorisons son état émotionnel dans chaque décision."
+      },
+      "maxLength": 330
+    },
+    "about.dogTrainingIsUnregulated": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “Dog training is unregulated in Canada. Anyone…”",
+      "default": {
+        "en": "Dog training is unregulated in Canada. Anyone can call themselves a trainer. We hold ourselves to a higher standard: our methods are transparent, our credentials are verifiable, and we're committed to continuing education in animal behavior science.",
+        "fr": "L'entraînement canin n'est pas réglementé au Canada. N'importe qui peut se dire entraîneur. Nous nous imposons un standard plus élevé : nos méthodes sont transparentes, nos qualifications vérifiables et nous sommes engagés dans la formation continue en science du comportement animal."
+      },
+      "maxLength": 400
+    },
+    "about.readyToMeetUs": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Our Methods",
+      "label": "Paragraph: “Ready to Meet Us?”",
+      "default": {
+        "en": "Ready to Meet Us?",
+        "fr": "Prêt à nous rencontrer?"
+      },
+      "maxLength": 35
+    },
+    "about.contactUsForA": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Contact us for a free discovery call and start your dog's plan",
+      "label": "Section title: “Contact us for a free discovery call…”",
+      "default": {
+        "en": "Contact us for a free discovery call and start your dog's plan",
+        "fr": "Contactez-nous pour un appel découverte gratuit et commencez le plan de votre chien"
+      },
+      "maxLength": 120
+    },
+    "about.tellUsAboutYour": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Contact us for a free discovery call and start your dog's plan",
+      "label": "Paragraph: “Tell us about your dog. We'll listen,…”",
+      "default": {
+        "en": "Tell us about your dog. We'll listen, answer your questions, and figure out the right path together.",
+        "fr": "Parlez-nous de votre chien. Nous écouterons, répondrons à vos questions et trouverons ensemble le bon parcours."
+      },
+      "maxLength": 160
+    },
+    "about.contactUsForA2": {
+      "source": "code",
+      "pages": [
+        "/about"
+      ],
+      "section": "Contact us for a free discovery call and start your dog's plan",
+      "label": "Button: “Contact Us for a Free Call”",
+      "default": {
+        "en": "Contact Us for a Free Call",
+        "fr": "Contactez-nous pour un appel gratuit"
+      },
+      "maxLength": 45
+    },
+    "services.shared.forYouHeading": {
+      "source": "code",
+      "pages": [
+        "/services/obedience",
+        "/services/puppy-training",
+        "/services/reactivity",
+        "/services/in-home",
+        "/services/private-classes",
+        "/services/consultation"
+      ],
+      "section": "This is for you if…",
+      "label": "Section title (same on every service page)",
+      "default": {
+        "en": "This is for you if…",
+        "fr": "C'est pour vous si…"
+      },
+      "maxLength": 30
+    },
+    "services.shared.workOnHeading": {
+      "source": "code",
+      "pages": [
+        "/services/obedience",
+        "/services/puppy-training",
+        "/services/reactivity",
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Section title (same on every service page)",
+      "default": {
+        "en": "What we'll work on",
+        "fr": "Ce que nous allons travailler"
+      },
+      "maxLength": 45
+    },
+    "services.shared.focusLabel": {
+      "source": "code",
+      "pages": [
+        "/services/obedience",
+        "/services/puppy-training",
+        "/services/reactivity",
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Small line on each focus card (same everywhere)",
+      "default": {
+        "en": "Training Focus",
+        "fr": "Objectif d'entraînement"
+      },
+      "maxLength": 35
+    },
+    "services.shared.focusBody": {
+      "source": "code",
+      "pages": [
+        "/services/obedience",
+        "/services/puppy-training",
+        "/services/reactivity",
+        "/services/in-home"
+      ],
+      "section": "What we'll work on",
+      "label": "Text on each focus card (same everywhere)",
+      "default": {
+        "en": "Clear steps, real-world reps, and practical homework to build lasting behavior.",
+        "fr": "Des étapes claires, des répétitions concrètes et des devoirs pratiques pour bâtir un comportement durable."
+      },
+      "maxLength": 150
     }
   },
   "images": {
@@ -1431,6 +3348,38 @@
         }
       },
       "aspect": "3/2"
+    },
+    "services.consultation.photo": {
+      "source": "code",
+      "pages": [
+        "/services/consultation"
+      ],
+      "section": "What we'll cover",
+      "label": "Photo next to “What we'll cover”",
+      "default": {
+        "src": "/images/park_image.jpg",
+        "alt": {
+          "en": "Dog training consultation in a Montreal park",
+          "fr": "Consultation de dressage canine dans un parc montréalais"
+        }
+      },
+      "aspect": "3/4"
+    },
+    "services.private.photo": {
+      "source": "code",
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Photo in “Private classes”",
+      "default": {
+        "src": "/images/yul_image.jpg",
+        "alt": {
+          "en": "Private dog training session in Montreal",
+          "fr": "Séance de dressage privé à Montréal"
+        }
+      },
+      "aspect": "3/4"
     }
   }
 }
