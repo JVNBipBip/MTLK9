@@ -1,0 +1,492 @@
+{
+  "text": {
+    "daycare.hero.eyebrow": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Small line above the headline",
+      "default": {
+        "en": "Daycare & Day Training · Montreal",
+        "fr": "Garderie et entraînement de jour · Montréal"
+      },
+      "maxLength": 60
+    },
+    "daycare.hero.heading": {
+      "pages": ["/daycare", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "A great day for your dog. Peace of mind for you.",
+        "fr": "Une belle journée pour votre chien. L’esprit tranquille pour vous."
+      },
+      "maxLength": 80
+    },
+    "daycare.hero.headingDayTraining": {
+      "pages": ["/day-training"],
+      "section": "Top of page",
+      "label": "Main headline (day training page)",
+      "default": {
+        "en": "Their day. Your training goals.",
+        "fr": "Sa journée. Vos objectifs."
+      },
+      "maxLength": 80
+    },
+    "daycare.hero.intro": {
+      "pages": ["/daycare", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Care, play, learning and time to rest. Start with a half or full day, then add the activities your dog will benefit from most.",
+        "fr": "Soins, jeux, apprentissage et repos. Choisissez une journée ou une demi-journée, puis ajoutez les activités qui feront du bien à votre chien."
+      },
+      "maxLength": 240
+    },
+    "daycare.hero.introDayTraining": {
+      "pages": ["/day-training"],
+      "section": "Top of page",
+      "label": "Paragraph under the headline (day training page)",
+      "default": {
+        "en": "Let our team work on the skills that matter to you while you take care of your day. Add professional training to a half or full day of supervised care.",
+        "fr": "Confiez à notre équipe les habiletés qui comptent pour vous pendant que vous vaquez à vos occupations. Ajoutez un entraînement professionnel à une journée ou une demi-journée de garderie."
+      },
+      "maxLength": 260
+    },
+    "daycare.hero.primaryButton": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Main button",
+      "default": {
+        "en": "Build your dog’s day",
+        "fr": "Composer sa journée"
+      },
+      "maxLength": 30
+    },
+    "daycare.hero.secondaryButton": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Second button",
+      "default": {
+        "en": "How to join",
+        "fr": "Comment s’inscrire"
+      },
+      "maxLength": 30
+    },
+    "daycare.hero.photoCaption": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Line on the card over the main photo",
+      "default": {
+        "en": "A balanced day, supervised by our team.",
+        "fr": "Une journée équilibrée, supervisée par notre équipe."
+      },
+      "maxLength": 70
+    },
+    "daycare.included.eyebrow": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "Included in every visit",
+        "fr": "Inclus à chaque visite"
+      },
+      "maxLength": 40
+    },
+    "daycare.included.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Section title",
+      "default": {
+        "en": "More than just a place to stay.",
+        "fr": "Bien plus qu’un endroit où passer la journée."
+      },
+      "maxLength": 70
+    },
+    "daycare.included.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "We balance activity and rest, with socialization based on each dog’s comfort and compatibility. Dogs don’t have to join a playgroup to have a fulfilling day.",
+        "fr": "Nous équilibrons activité et repos. La socialisation dépend du confort et de la compatibilité des chiens. Votre chien n’a pas besoin de jouer en groupe pour profiter pleinement de sa journée."
+      },
+      "maxLength": 260
+    },
+    "daycare.included.item1": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 1",
+      "default": {
+        "en": "Supervised socialization, when appropriate",
+        "fr": "Socialisation supervisée, lorsque cela convient"
+      },
+      "maxLength": 70
+    },
+    "daycare.included.item2": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 2",
+      "default": {
+        "en": "Potty breaks throughout the day",
+        "fr": "Sorties pour les besoins durant la journée"
+      },
+      "maxLength": 70
+    },
+    "daycare.included.item3": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 3",
+      "default": {
+        "en": "Feeding as instructed",
+        "fr": "Repas selon vos consignes"
+      },
+      "maxLength": 70
+    },
+    "daycare.included.item4": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 4",
+      "default": {
+        "en": "Human interaction and attention",
+        "fr": "Interactions et attention de notre équipe"
+      },
+      "maxLength": 70
+    },
+    "daycare.included.item5": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 5",
+      "default": {
+        "en": "Mental and physical enrichment",
+        "fr": "Stimulation mentale et physique"
+      },
+      "maxLength": 70
+    },
+    "daycare.included.item6": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "What’s included",
+      "label": "Checklist item 6",
+      "default": {
+        "en": "Structured rest and downtime",
+        "fr": "Périodes de repos structurées"
+      },
+      "maxLength": 70
+    },
+    "daycare.addOns.eyebrow": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "À la carte add-ons",
+        "fr": "Options à la carte"
+      },
+      "maxLength": 40
+    },
+    "daycare.addOns.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Section title",
+      "default": {
+        "en": "A little more of what they need.",
+        "fr": "Un peu plus de ce dont il a besoin."
+      },
+      "maxLength": 70
+    },
+    "daycare.addOns.training.kicker": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Complete Training card: small line above the name",
+      "default": {
+        "en": "Purposeful progress",
+        "fr": "Des progrès concrets"
+      },
+      "maxLength": 40
+    },
+    "daycare.addOns.training.description": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Complete Training card: description",
+      "default": {
+        "en": "Obedience, leash walking, engagement, impulse control, behaviour work and your personal goals. We give you guidance to continue at home.",
+        "fr": "Obéissance, marche en laisse, engagement, contrôle des impulsions, comportement et objectifs personnels. Nous vous guidons pour poursuivre à la maison."
+      },
+      "maxLength": 240
+    },
+    "daycare.addOns.training.sessions": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Complete Training card: bottom line",
+      "default": {
+        "en": "Half day: 2–3 sessions · Full day: 4–6 sessions",
+        "fr": "Demi-journée : 2–3 séances · Journée : 4–6 séances"
+      },
+      "maxLength": 70
+    },
+    "daycare.addOns.treadmill.kicker": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Treadmill card: small line above the name",
+      "default": {
+        "en": "An outlet for their energy",
+        "fr": "Une façon de dépenser son énergie"
+      },
+      "maxLength": 50
+    },
+    "daycare.addOns.treadmill.description": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Treadmill card: description",
+      "default": {
+        "en": "Supervised exercise adjusted to your dog’s fitness and comfort. Each session lasts up to 15 minutes. Beneficial for high energy dogs that need lots of physical stimulation.",
+        "fr": "Exercice supervisé adapté à la condition physique et au confort de votre chien. Chaque séance dure jusqu’à 15 minutes. Bénéfique pour les chiens très énergiques qui ont besoin de beaucoup de stimulation physique."
+      },
+      "maxLength": 280
+    },
+    "daycare.addOns.treadmill.sessions": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Treadmill card: bottom line",
+      "default": {
+        "en": "Half day: 2–3 sessions · Full day: 4–6 sessions",
+        "fr": "Demi-journée : 2–3 séances · Journée : 4–6 séances"
+      },
+      "maxLength": 70
+    },
+    "daycare.addOns.individual.kicker": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "One-on-One Play card: small line above the name",
+      "default": {
+        "en": "All the attention, just for them",
+        "fr": "Toute notre attention, juste pour lui"
+      },
+      "maxLength": 50
+    },
+    "daycare.addOns.individual.description": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "One-on-One Play card: description",
+      "default": {
+        "en": "Fetch, tug, individual walks, enrichment and confidence-building. A personalized option for dogs who aren’t comfortable in group play.",
+        "fr": "Rapport d’objet, jeux de traction, promenades individuelles, enrichissement et confiance. Une option personnalisée pour les chiens moins à l’aise en groupe."
+      },
+      "maxLength": 240
+    },
+    "daycare.addOns.individual.detail": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "One-on-One Play card: bottom line",
+      "default": {
+        "en": "Interactive play tailored to your dog",
+        "fr": "Des activités choisies pour votre chien"
+      },
+      "maxLength": 70
+    },
+    "daycare.addOns.fullExperience.title": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Full experience box: title",
+      "default": {
+        "en": "The full experience",
+        "fr": "L’expérience complète"
+      },
+      "maxLength": 40
+    },
+    "daycare.addOns.fullExperience.subtitle": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Add-ons",
+      "label": "Full experience box: line under the title",
+      "default": {
+        "en": "Daycare + all three add-ons",
+        "fr": "Garderie + les trois options"
+      },
+      "maxLength": 50
+    },
+    "daycare.pricing.eyebrow": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Pricing calculator",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "Simple, flexible pricing",
+        "fr": "Des tarifs simples et flexibles"
+      },
+      "maxLength": 40
+    },
+    "daycare.pricing.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Pricing calculator",
+      "label": "Section title",
+      "default": {
+        "en": "Build their day. See your price.",
+        "fr": "Composez sa journée. Voyez votre prix."
+      },
+      "maxLength": 60
+    },
+    "daycare.steps.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Section title",
+      "default": {
+        "en": "Let’s make sure it’s the right fit.",
+        "fr": "Assurons-nous que le programme lui convient."
+      },
+      "maxLength": 70
+    },
+    "daycare.steps.step1.title": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 1: title",
+      "default": {
+        "en": "Tell us about your dog",
+        "fr": "Parlez-nous de votre chien"
+      },
+      "maxLength": 50
+    },
+    "daycare.steps.step1.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 1: text",
+      "default": {
+        "en": "Start with our intake questionnaire: your dog’s routine, behaviour, health and what you’re looking for.",
+        "fr": "Notre questionnaire porte sur la routine, le comportement, la santé de votre chien et vos attentes."
+      },
+      "maxLength": 200
+    },
+    "daycare.steps.step2.title": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 2: title",
+      "default": {
+        "en": "A complimentary phone evaluation",
+        "fr": "Une évaluation téléphonique gratuite"
+      },
+      "maxLength": 50
+    },
+    "daycare.steps.step2.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 2: text",
+      "default": {
+        "en": "Our team reviews your answers and speaks with you for up to 15 minutes. An in-person assessment may also be needed.",
+        "fr": "Notre équipe examine vos réponses et vous appelle pendant un maximum de 15 minutes. Une évaluation en personne peut aussi être nécessaire."
+      },
+      "maxLength": 220
+    },
+    "daycare.steps.step3.title": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 3: title",
+      "default": {
+        "en": "Approval, then booking access",
+        "fr": "Approbation, puis accès aux réservations"
+      },
+      "maxLength": 50
+    },
+    "daycare.steps.step3.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Step 3: text",
+      "default": {
+        "en": "Once approved, our team sends your personal reusable code. Purchase visits securely online, then reserve available dates in your portal. Submitting a request does not guarantee acceptance.",
+        "fr": "Après approbation, notre équipe vous envoie votre code personnel réutilisable. Achetez vos visites en ligne, puis réservez les dates disponibles dans votre portail. Une demande ne garantit pas l’admission."
+      },
+      "maxLength": 280
+    },
+    "daycare.approved.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Already-approved box: title",
+      "default": {
+        "en": "Already approved?",
+        "fr": "Déjà approuvé?"
+      },
+      "maxLength": 40
+    },
+    "daycare.approved.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Already-approved box: text",
+      "default": {
+        "en": "Use your personal access code to choose your dates and book your dog’s next visit.",
+        "fr": "Utilisez votre code d’accès personnel pour choisir vos dates et réserver la prochaine visite de votre chien."
+      },
+      "maxLength": 160
+    },
+    "daycare.approved.button": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "Already-approved box: button",
+      "default": {
+        "en": "Book a daycare visit",
+        "fr": "Réserver une visite"
+      },
+      "maxLength": 30
+    },
+    "daycare.new.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "New-client box: title",
+      "default": {
+        "en": "New to daycare?",
+        "fr": "Première visite?"
+      },
+      "maxLength": 40
+    },
+    "daycare.new.body": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "New-client box: text",
+      "default": {
+        "en": "Apply for admission first. Our team will review your application before you can book. No payment is required to apply.",
+        "fr": "Faites d’abord une demande d’admission. Notre équipe l’examinera avant que vous puissiez réserver. Aucun paiement n’est requis pour faire une demande."
+      },
+      "maxLength": 200
+    },
+    "daycare.new.button": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "How to join",
+      "label": "New-client box: button",
+      "default": {
+        "en": "Apply for daycare",
+        "fr": "Demande d’admission"
+      },
+      "maxLength": 30
+    },
+    "daycare.gallery.heading": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Photos & video",
+      "label": "Section title",
+      "default": {
+        "en": "A look inside our daycare",
+        "fr": "Un aperçu de notre garderie"
+      },
+      "maxLength": 50
+    }
+  },
+  "images": {
+    "daycare.hero.photo": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Top of page",
+      "label": "Main photo",
+      "default": {
+        "src": "/images/october-2026/daycare-dogs.webp",
+        "alt": {
+          "en": "Two dogs resting on raised beds at Montreal Canine Training",
+          "fr": "Deux chiens sur leurs lits surélevés chez MTL Canine Training"
+        }
+      },
+      "aspect": "4/5"
+    },
+    "daycare.gallery.photo": {
+      "pages": ["/daycare", "/day-training", "/regular-daycare"],
+      "section": "Photos & video",
+      "label": "Photo next to the video",
+      "default": {
+        "src": "/images/october-2026/daycare-shepherd.webp",
+        "alt": {
+          "en": "A shepherd relaxing during structured rest at our facility",
+          "fr": "Un berger se repose durant une pause structurée au centre"
+        }
+      },
+      "aspect": "4/5"
+    }
+  }
+}

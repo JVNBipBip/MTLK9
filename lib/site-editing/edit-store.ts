@@ -1,0 +1,38 @@
+import { useSyncExternalStore } from "react"
+import type { LocalizedString } from "@/lib/site-editing/fields"
+
+/**
+ * Unpublished drafts shown while the owner edits.
+ *
+ * For every visitor this stays `null` and never changes, so editable fields
+ * render their published value and nothing re-renders. Only the edit overlay
+ * (loaded inside the admin's iframe) calls `setEditDrafts`, which makes the
+ * subscribed fields re-render through React with the draft values — no DOM
+ * rewriting.
+ */
+export type EditDrafts = {
+  text: Partial<Record<string, Partial<LocalizedString>>>
+  images: Partial<Record<string, { src: string; alt?: Partial<LocalizedString> }>>
+}
+
+let drafts: EditDrafts | null = null
+const listeners = new Set<() => void>()
+
+export function setEditDrafts(next: EditDrafts | null) {
+  drafts = next
+  listeners.forEach((listener) => listener())
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+const getDrafts = () => drafts
+const getServerDrafts = () => null
+
+export function useEditDrafts(): EditDrafts | null {
+  return useSyncExternalStore(subscribe, getDrafts, getServerDrafts)
+}
