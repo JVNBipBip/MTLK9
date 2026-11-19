@@ -18,6 +18,7 @@ export type WebhookLogStage =
   | "class_sync_triggered"
   | "class_sync_skipped"
   | "class_sync_error"
+  | "daycare_reconcile_error"
 
 export type WebhookLogClassSyncInfo = {
   /** Whether the admin app ran (or was asked to run) a class sync. */

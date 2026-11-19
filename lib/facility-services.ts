@@ -34,7 +34,7 @@ export const facilityServices = {
   "day-training": {
     path: "/day-training",
     title: { en: "Day Training for Dogs in Montreal | MTL Canine Training", fr: "Entraînement de jour pour chiens à Montréal | MTL Canine Training" },
-    description: { en: "Add complete training to your dog’s daycare for $35 per visit, plus tax. Half-day and full-day options in Montreal, Mondays and Tuesdays. Approval required.", fr: "Ajoutez un entraînement complet à la garderie de votre chien pour 35 $ par visite, taxes en sus. Journées et demi-journées à Montréal, les lundis et mardis." },
+    description: { en: "Add complete training to your dog’s daycare for $40 per visit, plus tax. Half-day and full-day options in Montreal, Mondays and Tuesdays. Approval required.", fr: "Ajoutez un entraînement complet à la garderie de votre chien pour 40 $ par visite, taxes en sus. Journées et demi-journées à Montréal, les lundis et mardis." },
     eyebrow: { en: "Day Training · Starting November 1, 2026", fr: "Entraînement de jour · Dès le 1er novembre 2026" },
     heading: { en: "Leave the training to us.", fr: "Confiez-nous l’entraînement." },
     intro: { en: "Between work, school, family, and everything life throws at you, finding the time and energy to train your dog can feel overwhelming. While you’re tackling your busy day, your dog will be learning, exercising, and getting the mental and physical stimulation they need with a professional trainer.", fr: "Entre le travail, les études, la famille et les imprévus, trouver le temps et l’énergie pour entraîner votre chien peut être difficile. Pendant votre journée, votre chien apprend, bouge et reçoit la stimulation mentale et physique dont il a besoin avec un entraîneur professionnel." },
