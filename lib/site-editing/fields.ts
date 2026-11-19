@@ -1,6 +1,7 @@
 import registry from "@/content/editable-fields.json"
 import publishedEdits from "@/content/site-edits.json"
 import type { AppLocale } from "@/lib/i18n/config"
+import type { ListValue } from "@/lib/site-editing/lists"
 
 /**
  * Owner-editable website content.
@@ -45,8 +46,17 @@ export type EditableImageField = FieldBase & {
   aspect: string
 }
 
+export type { ListCategory, ListItem, ListValue } from "@/lib/site-editing/lists"
+
+export type EditableListField = Omit<FieldBase, "source"> & {
+  limits: { category: number; question: number; answer: number }
+  maxItemsPerCategory: number
+  default: ListValue
+}
+
 export type TextFieldId = keyof typeof registry.text
 export type ImageFieldId = keyof typeof registry.images
+export type ListFieldId = keyof typeof registry.lists
 
 export type TextEdit = LocalizedString & { frSource?: "auto" | "edited" }
 
@@ -60,10 +70,13 @@ export type ImageEdit = {
 export type SiteEdits = {
   text: Partial<Record<string, TextEdit>>
   images: Partial<Record<string, ImageEdit>>
+  /** A published list replaces the default wholesale (his order, his items). */
+  lists?: Partial<Record<string, ListValue>>
 }
 
 export const textFields = registry.text as Record<TextFieldId, EditableTextField>
 export const imageFields = registry.images as Record<ImageFieldId, EditableImageField>
+export const listFields = registry.lists as Record<ListFieldId, EditableListField>
 export const siteEdits = publishedEdits as unknown as SiteEdits
 
 export type ResolvedImage = { src: string; alt: string; width?: number; height?: number }
@@ -85,3 +98,10 @@ export function resolveImage(id: ImageFieldId, locale: AppLocale, edits: SiteEdi
     height: edit.height,
   }
 }
+
+/** His published list, else the registered default. */
+export function resolveList(id: ListFieldId, edits: SiteEdits = siteEdits): ListValue {
+  return edits.lists?.[id] ?? listFields[id].default
+}
+
+export { localizeList } from "@/lib/site-editing/lists"

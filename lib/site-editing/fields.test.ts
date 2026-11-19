@@ -2,15 +2,20 @@ import fs from "node:fs"
 import path from "node:path"
 import {
   imageFields,
+  listFields,
   resolveImage,
+  resolveList,
   resolveText,
   siteEdits,
   textFields,
   type ImageFieldId,
+  type ListFieldId,
+  type ListValue,
   type SiteEdits,
   type TextFieldId,
 } from "@/lib/site-editing/fields"
 import { getLocalizedText } from "@/lib/i18n/localized-text"
+import { getFaqData } from "@/lib/faq-data"
 
 const ROOT = path.resolve(__dirname, "../..")
 const PUBLIC_DIR = path.join(ROOT, "public")
@@ -169,5 +174,66 @@ describe("resolving values", () => {
     expect(resolveText(textId, "en", edits)).toBe("New English")
     expect(resolveText(textId, "fr", edits)).toBe("Nouveau français")
     expect(resolveImage(imageId, "en", edits)).toEqual({ src: "/images/edits/x.webp", alt: "A dog", width: 800, height: 1000 })
+  })
+})
+
+describe("editable lists (FAQ)", () => {
+  const listIds = Object.keys(listFields) as ListFieldId[]
+
+  function checkList(id: ListFieldId, list: ListValue) {
+    const field = listFields[id]
+    const ids = new Set<string>()
+    expect(list.categories.length).toBeGreaterThan(0)
+    for (const category of list.categories) {
+      expect(ids.has(category.id)).toBe(false)
+      ids.add(category.id)
+      expect(category.items.length).toBeLessThanOrEqual(field.maxItemsPerCategory)
+      for (const locale of ["en", "fr"] as const) {
+        expect(category.title[locale].trim()).not.toBe("")
+        expect(category.title[locale].length).toBeLessThanOrEqual(field.limits.category)
+      }
+      for (const item of category.items) {
+        expect(ids.has(item.id)).toBe(false)
+        ids.add(item.id)
+        for (const locale of ["en", "fr"] as const) {
+          expect(item.question[locale].trim()).not.toBe("")
+          expect(item.answer[locale].trim()).not.toBe("")
+          expect(item.question[locale].length).toBeLessThanOrEqual(field.limits.question)
+          expect(item.answer[locale].length).toBeLessThanOrEqual(field.limits.answer)
+          expect(`${item.question[locale]} ${item.answer[locale]}`).not.toMatch(/[<>]/)
+        }
+      }
+    }
+  }
+
+  it.each(listIds)("default %s is complete, unique and within limits", (id) => {
+    for (const page of listFields[id].pages) expect(routeExists(page)).toBe(true)
+    checkList(id, listFields[id].default)
+  })
+
+  it.each(listIds)("published %s (if any) is complete, unique, within limits and price-free", (id) => {
+    const published = siteEdits.lists?.[id]
+    if (!published) return
+    checkList(id, published)
+    const allText = published.categories.flatMap((c) => [c.title.en, c.title.fr, ...c.items.flatMap((i) => [i.question.en, i.question.fr, i.answer.en, i.answer.fr])])
+    expect(allText.filter((value) => PRICE_LIKE.test(value))).toEqual([])
+  })
+
+  it("the FAQ shows the default until he publishes his own list", () => {
+    const custom: ListValue = {
+      categories: [{ id: "c", title: { en: "Basics", fr: "Bases" }, items: [{ id: "q", question: { en: "Q?", fr: "Q ?" }, answer: { en: "A.", fr: "R." } }] }],
+    }
+    expect(resolveList("faq", { text: {}, images: {} })).toBe(listFields.faq.default)
+    expect(resolveList("faq", { text: {}, images: {}, lists: { faq: custom } })).toBe(custom)
+  })
+
+  it("getFaqData keeps the shape the FAQ page and structured data use", () => {
+    const fr = getFaqData("fr")
+    expect(fr.length).toBe(listFields.faq.default.categories.length)
+    expect(fr[0]).toMatchObject({ title: listFields.faq.default.categories[0].title.fr })
+    expect(fr[0].items[0]).toMatchObject({
+      question: listFields.faq.default.categories[0].items[0].question.fr,
+      answer: listFields.faq.default.categories[0].items[0].answer.fr,
+    })
   })
 })

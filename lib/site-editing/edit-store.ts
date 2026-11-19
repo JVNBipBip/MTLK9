@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react"
 import type { LocalizedString } from "@/lib/site-editing/fields"
+import type { ListValue } from "@/lib/site-editing/lists"
 
 /**
  * Unpublished drafts shown while the owner edits.
@@ -13,6 +14,7 @@ import type { LocalizedString } from "@/lib/site-editing/fields"
 export type EditDrafts = {
   text: Partial<Record<string, Partial<LocalizedString>>>
   images: Partial<Record<string, { src: string; alt?: Partial<LocalizedString> }>>
+  lists?: Partial<Record<string, ListValue>>
 }
 
 let drafts: EditDrafts | null = null

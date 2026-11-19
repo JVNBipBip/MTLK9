@@ -40,6 +40,11 @@ function editableFrom(target: EventTarget | null): HTMLElement | null {
   return target instanceof Element ? target.closest<HTMLElement>("[data-edit-key]") : null
 }
 
+function kindOf(element: HTMLElement): FieldKind {
+  const type = element.dataset.editType
+  return type === "image" || type === "list" ? type : "text"
+}
+
 function findField(key: string) {
   return document.querySelector<HTMLElement>(`[data-edit-key="${CSS.escape(key)}"]`)
 }
@@ -48,7 +53,7 @@ function fieldsOnPage() {
   const seen = new Map<string, FieldKind>()
   document.querySelectorAll<HTMLElement>("[data-edit-key]").forEach((element) => {
     const key = element.dataset.editKey
-    if (key && !seen.has(key)) seen.set(key, element.dataset.editType === "image" ? "image" : "text")
+    if (key && !seen.has(key)) seen.set(key, kindOf(element))
   })
   return [...seen].map(([key, kind]) => ({ key, kind }))
 }
@@ -64,7 +69,7 @@ export default function SiteEditOverlay() {
 
   const select = useCallback((element: HTMLElement, scroll: boolean) => {
     const key = element.dataset.editKey!
-    const kind: FieldKind = element.dataset.editType === "image" ? "image" : "text"
+    const kind: FieldKind = kindOf(element)
     activeEl.current = element
     if (scroll) element.scrollIntoView({ block: "center", behavior: "smooth" })
     const rect = rectOf(element)
@@ -120,7 +125,7 @@ export default function SiteEditOverlay() {
       hoverEl.current = element
       setHover(
         element
-          ? { key: element.dataset.editKey!, kind: element.dataset.editType === "image" ? "image" : "text", rect: rectOf(element) }
+          ? { key: element.dataset.editKey!, kind: kindOf(element), rect: rectOf(element) }
           : null,
       )
     }
@@ -200,7 +205,7 @@ export default function SiteEditOverlay() {
   return (
     <>
       <style>{`[data-edit-key]{cursor:pointer}`}</style>
-      {hover && hover.key !== active?.key && <Outline rect={hover.rect} label={hover.kind === "image" ? "Replace photo" : "Edit text"} dashed />}
+      {hover && hover.key !== active?.key && <Outline rect={hover.rect} label={hover.kind === "image" ? "Replace photo" : hover.kind === "list" ? "Edit questions" : "Edit text"} dashed />}
       {active && <Outline rect={active.rect} />}
     </>
   )

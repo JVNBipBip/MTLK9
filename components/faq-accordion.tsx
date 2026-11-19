@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { ChevronDown } from "lucide-react"
-import { getFaqData } from "@/lib/faq-data"
 import type { FaqCategory, FaqItem } from "@/lib/faq-data"
 import { useAppLocale } from "@/components/locale-provider"
+import { useEditDrafts } from "@/lib/site-editing/edit-store"
+import { localizeList } from "@/lib/site-editing/lists"
 
 function AccordionItem({
   item,
@@ -72,10 +73,13 @@ function AccordionItem({
 export function FaqAccordion({
   categories,
 }: {
-  categories?: FaqCategory[]
+  /** From getFaqData() on the server. */
+  categories: FaqCategory[]
 }) {
   const locale = useAppLocale()
-  const faqCategories = categories ?? getFaqData(locale)
+  // While the owner edits in the admin, his unpublished list replaces the published one.
+  const draft = useEditDrafts()?.lists?.faq
+  const faqCategories = draft ? localizeList(draft, locale) : categories
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())
 
   const toggle = (key: string) => {
@@ -91,10 +95,10 @@ export function FaqAccordion({
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12" data-edit-key="faq" data-edit-type="list">
       {faqCategories.map((category, categoryIndex) => (
         <motion.div
-          key={category.title}
+          key={category.id ?? category.title}
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-8% 0px" }}
@@ -109,7 +113,7 @@ export function FaqAccordion({
           </h2>
           <div>
             {category.items.map((item, itemIndex) => {
-              const key = `${category.title}-${item.question}`
+              const key = item.id ?? `${category.title}-${item.question}`
               return (
                 <AccordionItem
                   key={key}

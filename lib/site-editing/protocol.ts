@@ -10,7 +10,7 @@ export const SITE_EDIT_NS = "mtlk9-edit"
 /** Query flag on the first iframe URL; remembered for the frame's session. */
 export const SITE_EDIT_FLAG = "mtlk9-edit"
 
-export type FieldKind = "text" | "image"
+export type FieldKind = "text" | "image" | "list"
 
 export type FrameRect = { top: number; left: number; width: number; height: number }
 

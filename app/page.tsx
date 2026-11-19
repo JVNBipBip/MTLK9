@@ -10,8 +10,11 @@ import { FinalCTASection } from "@/components/final-cta-section"
 import { Footer } from "@/components/footer"
 import { ServicesOverview } from "@/components/services-overview"
 import { TrainingMoments } from "@/components/training-moments"
+import { getFaqData } from "@/lib/faq-data"
+import { getRequestLocale } from "@/lib/seo"
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getRequestLocale()
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -23,7 +26,7 @@ export default function Home() {
       <TrainingMoments />
       <HowItWorksSection />
       <StatsSection />
-      <FaqSection />
+      <FaqSection categories={getFaqData(locale)} />
       <FinalCTASection />
       <Footer />
     </main>

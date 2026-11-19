@@ -5,11 +5,12 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FaqAccordion } from "@/components/faq-accordion"
+import type { FaqCategory } from "@/lib/faq-data"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { useEditableText } from "@/lib/site-editing/use-editable"
 
-export function FaqSection() {
+export function FaqSection({ categories }: { categories: FaqCategory[] }) {
   const text = useEditableText()
   const locale = useAppLocale()
 
@@ -46,7 +47,7 @@ export function FaqSection() {
           </motion.p>
         </div>
 
-        <FaqAccordion />
+        <FaqAccordion categories={categories} />
 
         <div className="text-center mt-12">
           <Link href={addLocaleToPathname("/faq", locale)}>
