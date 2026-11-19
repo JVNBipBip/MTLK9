@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { addLocaleToPathname, type AppLocale } from "@/lib/i18n/config"
 import type { LocationPageData } from "@/lib/location-pages"
+import { EditableCopy } from "@/components/editable-copy"
 
 const GROUP_CLASSES_PATH = "/group-classes"
 
@@ -18,6 +19,11 @@ export function LocationPage({
   locale: AppLocale
 }) {
   const copy = page.content[locale]
+  // Owner-editable where registered (location.<slug>.<path>); plain text otherwise.
+  const pick = (content: unknown, path: string) => String(path.split(".").reduce<unknown>((at, key) => (at as Record<string, unknown>)[key], content))
+  const e = (path: string) => (
+    <EditableCopy id={`location.${page.slug}.${path}`} copy={{ en: pick(page.content.en, path), fr: pick(page.content.fr, path) }} locale={locale} />
+  )
   const secondaryCtaHref = addLocaleToPathname(page.secondaryCtaPath, locale)
 
   return (
@@ -31,18 +37,18 @@ export function LocationPage({
         <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
         <div className="relative z-10 mx-auto max-w-7xl">
           <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-primary-foreground/75">
-            {copy.eyebrow}
+            {e("eyebrow")}
           </p>
           <h1 className="mb-6 max-w-4xl text-balance font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            {copy.h1}
+            {e("h1")}
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-primary-foreground/90 md:text-xl">
-            {copy.intro}
+            {e("intro")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <ProgramSignupLink>
               <Button className="rounded-full bg-primary px-6 py-5 text-sm text-primary-foreground hover:bg-primary/90 md:text-base">
-                {copy.primaryCta}
+                {e("primaryCta")}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
             </ProgramSignupLink>
@@ -51,7 +57,7 @@ export function LocationPage({
               variant="outline"
               className="rounded-full border-white/60 bg-white/10 px-6 py-5 text-sm text-white backdrop-blur hover:bg-white/20 md:text-base"
             >
-              <Link href={secondaryCtaHref}>{copy.secondaryCta}</Link>
+              <Link href={secondaryCtaHref}>{e("secondaryCta")}</Link>
             </Button>
           </div>
         </div>
@@ -61,18 +67,18 @@ export function LocationPage({
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-4">
             <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-secondary">
-              {copy.howEyebrow}
+              {e("howEyebrow")}
             </p>
             <h2 className="text-balance font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              {copy.howTitle}
+              {e("howTitle")}
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
-              {copy.howIntro}
+              {e("howIntro")}
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:col-span-8">
             {copy.how.map((step, index) => (
-              <article key={step.title} className="rounded-3xl border border-border/50 bg-card p-6 shadow-sm">
+              <article key={index} className="rounded-3xl border border-border/50 bg-card p-6 shadow-sm">
                 <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <ClipboardCheck className="h-5 w-5" aria-hidden="true" />
                 </div>
@@ -80,10 +86,10 @@ export function LocationPage({
                   {locale === "fr" ? "Étape" : "Step"} {index + 1}
                 </p>
                 <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                  {step.title}
+                  {e(`how.${index}.title`)}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  {step.body}
+                  {e(`how.${index}.body`)}
                 </p>
               </article>
             ))}
@@ -95,23 +101,23 @@ export function LocationPage({
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
             <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              {copy.helpTitle}
+              {e("helpTitle")}
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
-              {copy.helpIntro}
+              {e("helpIntro")}
             </p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {copy.help.map((item) => (
+            {copy.help.map((item, i) => (
               <Link
                 key={item.path}
                 href={addLocaleToPathname(item.path, locale)}
                 className="group rounded-3xl border border-border/50 bg-card p-6 shadow-sm transition-colors hover:border-primary/30 hover:bg-muted/30"
               >
                 <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                  {item.label}
+                  {e(`help.${i}.label`)}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e(`help.${i}.description`)}</p>
                 <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary">
                   {locale === "fr" ? "Voir le programme" : "View program"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
@@ -126,11 +132,11 @@ export function LocationPage({
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
             <h2 className="text-balance font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              {copy.whyTitle}
+              {e("whyTitle")}
             </h2>
-            {copy.why.map((paragraph) => (
-              <p key={paragraph} className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
-                {paragraph}
+            {copy.why.map((paragraph, i) => (
+              <p key={i} className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
+                {e(`why.${i}`)}
               </p>
             ))}
           </div>
@@ -144,11 +150,11 @@ export function LocationPage({
               <MapPin className="h-5 w-5" aria-hidden="true" />
             </div>
             <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground">
-              {copy.groupTitle}
+              {e("groupTitle")}
             </h2>
-            {copy.groupBody.map((paragraph) => (
-              <p key={paragraph} className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                {paragraph}
+            {copy.groupBody.map((paragraph, i) => (
+              <p key={i} className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+                {e(`groupBody.${i}`)}
               </p>
             ))}
             <span className="mt-6 block">
@@ -156,7 +162,7 @@ export function LocationPage({
                 href={addLocaleToPathname(GROUP_CLASSES_PATH, locale)}
                 className="inline-flex items-center gap-1 text-sm font-medium text-primary"
               >
-                {copy.groupLinkLabel}
+                {e("groupLinkLabel")}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </span>
@@ -167,16 +173,16 @@ export function LocationPage({
       <section className="px-6 py-20 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-4xl">
           <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-            {copy.faqTitle}
+            {e("faqTitle")}
           </h2>
           <div className="mt-8 divide-y divide-border rounded-3xl border border-border/50 bg-card px-6 shadow-sm md:px-8">
-            {copy.faqs.map((faq) => (
-              <details key={faq.question} className="group py-6">
+            {copy.faqs.map((faq, i) => (
+              <details key={i} className="group py-6">
                 <summary className="cursor-pointer list-none text-base font-semibold text-foreground md:text-lg">
-                  {faq.question}
+                  {e(`faqs.${i}.question`)}
                 </summary>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  {faq.answer}
+                  {e(`faqs.${i}.answer`)}
                 </p>
               </details>
             ))}
@@ -187,19 +193,19 @@ export function LocationPage({
       <section className="bg-muted/30 px-6 py-20 lg:px-8 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-            {copy.relatedTitle}
+            {e("relatedTitle")}
           </h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {copy.related.map((item) => (
+            {copy.related.map((item, i) => (
               <Link
                 key={item.path}
                 href={addLocaleToPathname(item.path, locale)}
                 className="group rounded-3xl border border-border/50 bg-card p-6 shadow-sm transition-colors hover:border-primary/30 hover:bg-muted/30"
               >
                 <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                  {item.label}
+                  {e(`related.${i}.label`)}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e(`related.${i}.description`)}</p>
                 <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary">
                   {locale === "fr" ? "Voir le programme" : "View program"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
@@ -213,15 +219,15 @@ export function LocationPage({
       <section className="px-6 pb-20 lg:px-8 lg:pb-28">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-            {copy.ctaTitle}
+            {e("ctaTitle")}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            {copy.ctaBody}
+            {e("ctaBody")}
           </p>
           <div className="mt-8">
             <ProgramSignupLink>
               <Button size="lg" className="rounded-full px-8 py-6 text-base">
-                {copy.primaryCta}
+                {e("primaryCta")}
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Button>
             </ProgramSignupLink>

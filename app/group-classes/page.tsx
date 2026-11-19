@@ -10,12 +10,14 @@ import { BookingLink } from "@/components/booking-form-provider"
 import { Button } from "@/components/ui/button"
 import { useAppLocale } from "@/components/locale-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText } from "@/lib/site-editing/use-editable"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
 
 export default function GroupClassesPage() {
   const t = useLocalizedText()
+  const text = useEditableText()
   const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -66,7 +68,7 @@ export default function GroupClassesPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="reveal opacity-0 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground text-balance mb-6">
-              {t("Dog training classes in Montreal for puppies, reactivity, and obedience")}
+              {text("groupClasses.dogTrainingClassesIn", "Dog training classes in Montreal for puppies, reactivity, and obedience")}
             </h1>
             <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
               {t(
@@ -141,14 +143,14 @@ export default function GroupClassesPage() {
                       href={learnMoreHref[offering.id]}
                       className="inline-flex items-center justify-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                     >
-                      {t("Learn More")}
+                      {text("groupClasses.learnMore", "Learn More")}
                       <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                     </Link>
                     <Button
                       asChild
                       className="min-h-11 w-full rounded-full border border-primary bg-primary px-5 py-3 text-center leading-tight text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:text-primary-foreground"
                     >
-                      <a href="#group-class-availability">{t("See dates & availability")}</a>
+                      <a href="#group-class-availability">{text("groupClasses.seeDatesAvailability", "See dates & availability")}</a>
                     </Button>
                   </div>
                 </div>
@@ -163,10 +165,10 @@ export default function GroupClassesPage() {
           <div className="reveal opacity-0 rounded-3xl border border-border/60 bg-card p-6 md:p-8 lg:p-10 shadow-lg shadow-primary/5">
             <div className="text-center max-w-xl mx-auto mb-6">
               <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-secondary font-medium mb-2">
-                {t("How it works")}
+                {text("groupClasses.howItWorks", "How it works")}
               </p>
               <h2 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground text-balance">
-                {t("Three steps to the right class")}
+                {text("groupClasses.threeStepsToThe", "Three steps to the right class")}
               </h2>
             </div>
             <ol className="grid gap-4 md:grid-cols-3 md:gap-5">
@@ -231,10 +233,10 @@ export default function GroupClassesPage() {
             />
             <div className="relative px-8 py-14 md:px-16 md:py-20 text-center">
               <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/80 font-medium mb-3">
-                {t("Not sure where to start?")}
+                {text("groupClasses.notSureWhereTo", "Not sure where to start?")}
               </p>
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-primary-foreground text-balance mb-4 max-w-2xl mx-auto">
-                {t("Book an assessment and we'll point you to the right class.")}
+                {text("groupClasses.bookAnAssessmentAnd", "Book an assessment and we'll point you to the right class.")}
               </h2>
               <p className="text-primary-foreground/80 max-w-xl mx-auto mb-8 leading-relaxed">
                 {t(
@@ -246,7 +248,7 @@ export default function GroupClassesPage() {
                   size="lg"
                   className="rounded-full bg-background text-foreground hover:bg-background/90 px-8 py-6 text-base group"
                 >
-                  {t("Send an Inquiry")}
+                  {text("groupClasses.sendAnInquiry", "Send an Inquiry")}
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </BookingLink>

@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, ArrowUpRight, Check, Instagram } from "lucide-react"
+import { EditableCopy, EditableDataPhoto } from "@/components/editable-copy"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ServiceInquiryButton } from "@/components/service-inquiry-button"
@@ -16,19 +17,21 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
   const locale = await getRequestLocale()
   const service: FacilityService = facilityServices[id]
   const t = (copy: { en: string; fr: string }) => serviceCopy(copy, locale)
+  // Owner-editable where registered (facility.<id>.<path>); plain text otherwise.
+  const e = (path: string, copy: { en: string; fr: string }) => <EditableCopy id={`facility.${id}.${path}`} copy={copy} locale={locale} />
   const linkClass = "inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-primary px-7 py-4 text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
   const action = service.interest ? (
-    <ServiceInquiryButton interest={service.interest}>{t(service.cta)}</ServiceInquiryButton>
+    <ServiceInquiryButton interest={service.interest}>{e("cta", service.cta)}</ServiceInquiryButton>
   ) : id === "grooming" ? (
     <a href="https://www.mtlcaninespa.com" target="_blank" rel="noopener noreferrer" data-conversion-location="grooming_page" className={linkClass}>
-      {t(service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
+      {e("cta", service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
     </a>
   ) : id === "apprenticeships" ? (
     <a href={`mailto:mtlcaninetraining@gmail.com?subject=${encodeURIComponent(locale === "fr" ? "Programmes d’apprentissage en entraînement canin" : "Dog Trainer Apprenticeship Programs")}`} className={linkClass}>
-      {t(service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
+      {e("cta", service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
     </a>
   ) : (
-    <a href="#programs" className={linkClass}>{t(service.cta)}<ArrowRight className="size-5 shrink-0" aria-hidden /></a>
+    <a href="#programs" className={linkClass}>{e("cta", service.cta)}<ArrowRight className="size-5 shrink-0" aria-hidden /></a>
   )
 
   return (
@@ -41,9 +44,9 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
           </Link>
           <div className="grid items-center gap-9 lg:grid-cols-2 lg:gap-14">
             <div>
-              <p className="mb-5 text-sm font-semibold tracking-wide text-primary">{t(service.eyebrow)}</p>
-              <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{t(service.heading)}</h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t(service.intro)}</p>
+              <p className="mb-5 text-sm font-semibold tracking-wide text-primary">{e("eyebrow", service.eyebrow)}</p>
+              <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{e("heading", service.heading)}</h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{e("intro", service.intro)}</p>
               {service.price && <p className="mt-6 text-2xl font-semibold text-primary">{t(service.price)}</p>}
               <div className="mt-8">{action}</div>
               {(id === "day-training" || id === "regular-daycare" || id === "daycare") && (
@@ -51,7 +54,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
               )}
             </div>
             <div className={`relative overflow-hidden rounded-[2rem] bg-muted ${id === "grooming" ? "aspect-[4/3]" : "aspect-[5/4]"}`}>
-              <Image src={service.image} alt={t(service.imageAlt)} fill priority sizes="(max-width: 1023px) 100vw, 50vw" className={`object-cover ${id === "day-training" ? "object-[50%_25%]" : ""}`} />
+              <EditableDataPhoto id={`facility.${id}.photo`} src={service.image} alt={service.imageAlt} locale={locale} fill priority sizes="(max-width: 1023px) 100vw, 50vw" className={`object-cover ${id === "day-training" ? "object-[50%_25%]" : ""}`} />
             </div>
           </div>
         </div>
@@ -79,15 +82,15 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
         <div className="mx-auto max-w-6xl px-5 pb-16 md:px-8 lg:pb-24">
           {service.sections.map((section, index) => (
             <section key={section.title.en} className="grid gap-5 border-t border-border py-9 md:grid-cols-[1fr_1.7fr] md:gap-12 md:py-12">
-              <div><p className="mb-3 text-xs font-semibold tracking-widest text-primary">0{index + 1}</p><h2 className="text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{t(section.title)}</h2></div>
+              <div><p className="mb-3 text-xs font-semibold tracking-widest text-primary">0{index + 1}</p><h2 className="text-2xl font-semibold leading-tight tracking-tight md:text-3xl">{e(`sections.${index}.title`, section.title)}</h2></div>
               <div>
-                {section.paragraphs?.map((paragraph) => <p key={paragraph.en} className="mb-5 text-base leading-relaxed text-muted-foreground last:mb-0 md:text-lg">{t(paragraph)}</p>)}
-                {section.items && <ul className="mt-6 grid gap-4">{section.items.map((item) => <li key={item.en} className="flex items-start gap-3 leading-relaxed"><span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10"><Check className="size-3.5 text-primary" aria-hidden /></span><span>{t(item)}</span></li>)}</ul>}
+                {section.paragraphs?.map((paragraph, p) => <p key={paragraph.en} className="mb-5 text-base leading-relaxed text-muted-foreground last:mb-0 md:text-lg">{e(`sections.${index}.paragraphs.${p}`, paragraph)}</p>)}
+                {section.items && <ul className="mt-6 grid gap-4">{section.items.map((item, i) => <li key={item.en} className="flex items-start gap-3 leading-relaxed"><span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10"><Check className="size-3.5 text-primary" aria-hidden /></span><span>{e(`sections.${index}.items.${i}`, item)}</span></li>)}</ul>}
               </div>
             </section>
           ))}
           <div className="rounded-3xl bg-secondary/15 p-7 md:p-10">
-            <h2 className="mb-5 text-2xl font-semibold">{locale === "fr" ? "Parlons de la prochaine étape." : "Let’s talk about the next step."}</h2>
+            <h2 className="mb-5 text-2xl font-semibold"><EditableCopy id="facility.shared.nextStep" copy={{ en: "Let’s talk about the next step.", fr: "Parlons de la prochaine étape." }} locale={locale} /></h2>
             {action}
             <a href="tel:+15148269558" className="mt-5 block w-fit text-sm font-medium text-primary underline underline-offset-4">{locale === "fr" ? "Une question? Appelez le" : "Questions? Call"} 514 826 9558</a>
           </div>

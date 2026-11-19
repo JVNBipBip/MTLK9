@@ -3320,6 +3320,1442 @@
         "fr": "Contactez-nous pour un appel gratuit"
       },
       "maxLength": 45
+    },
+    "groupClasses.dogTrainingClassesIn": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Dog training classes in Montreal for puppies,…”",
+      "default": {
+        "en": "Dog training classes in Montreal for puppies, reactivity, and obedience",
+        "fr": "Cours de dressage de chiens à Montréal pour chiots, réactivité et obéissance"
+      },
+      "maxLength": 110
+    },
+    "groupClasses.learnMore": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Top of page",
+      "label": "Link: “Learn More”",
+      "default": {
+        "en": "Learn More",
+        "fr": "En savoir plus"
+      },
+      "maxLength": 20
+    },
+    "groupClasses.seeDatesAvailability": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Top of page",
+      "label": "Link: “See dates & availability”",
+      "default": {
+        "en": "See dates & availability",
+        "fr": "Voir les dates et disponibilités"
+      },
+      "maxLength": 40
+    },
+    "groupClasses.howItWorks": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “How it works”",
+      "default": {
+        "en": "How it works",
+        "fr": "Comment ça fonctionne"
+      },
+      "maxLength": 30
+    },
+    "groupClasses.threeStepsToThe": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Three steps to the right class",
+      "label": "Section title: “Three steps to the right class”",
+      "default": {
+        "en": "Three steps to the right class",
+        "fr": "Trois étapes vers le bon cours"
+      },
+      "maxLength": 45
+    },
+    "groupClasses.notSureWhereTo": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Three steps to the right class",
+      "label": "Paragraph: “Not sure where to start?”",
+      "default": {
+        "en": "Not sure where to start?",
+        "fr": "Vous ne savez pas par où commencer?"
+      },
+      "maxLength": 50
+    },
+    "groupClasses.bookAnAssessmentAnd": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Book an assessment and we'll point you to the right class.",
+      "label": "Section title: “Book an assessment and we'll point you…”",
+      "default": {
+        "en": "Book an assessment and we'll point you to the right class.",
+        "fr": "Réservez une évaluation et nous vous orienterons vers le bon cours."
+      },
+      "maxLength": 95
+    },
+    "groupClasses.sendAnInquiry": {
+      "source": "code",
+      "pages": [
+        "/group-classes"
+      ],
+      "section": "Book an assessment and we'll point you to the right class.",
+      "label": "Button: “Send an Inquiry”",
+      "default": {
+        "en": "Send an Inquiry",
+        "fr": "Envoyer une demande"
+      },
+      "maxLength": 25
+    },
+    "results.realDogsRealResults": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Top of page",
+      "label": "Main headline: “Real Dogs. Real Results.”",
+      "default": {
+        "en": "Real Dogs. Real Results.",
+        "fr": "De vrais chiens. De vrais résultats."
+      },
+      "maxLength": 55
+    },
+    "results.everyDogOnThis": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph: “Every dog on this page started exactly…”",
+      "default": {
+        "en": "Every dog on this page started exactly where yours is now.",
+        "fr": "Chaque chien sur cette page a commencé exactement là où le vôtre se trouve aujourd'hui."
+      },
+      "maxLength": 125
+    },
+    "results.bookFreeEvaluation": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Top of page",
+      "label": "Button: “Book Free Evaluation”",
+      "default": {
+        "en": "Book Free Evaluation",
+        "fr": "Réserver une évaluation gratuite"
+      },
+      "maxLength": 40
+    },
+    "results.yourDogSStory": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Your dog's story could be next.",
+      "label": "Section title: “Your dog's story could be next.”",
+      "default": {
+        "en": "Your dog's story could be next.",
+        "fr": "L'histoire de votre chien pourrait être la prochaine."
+      },
+      "maxLength": 75
+    },
+    "results.contactUsForA": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Your dog's story could be next.",
+      "label": "Paragraph: “Contact us for a free discovery call…”",
+      "default": {
+        "en": "Contact us for a free discovery call and start your dog's transformation.",
+        "fr": "Contactez-nous pour un appel découverte gratuit et commencez la transformation de votre chien."
+      },
+      "maxLength": 135
+    },
+    "results.contactUsForA2": {
+      "source": "code",
+      "pages": [
+        "/results"
+      ],
+      "section": "Your dog's story could be next.",
+      "label": "Button: “Contact Us for a Free Discovery Call”",
+      "default": {
+        "en": "Contact Us for a Free Discovery Call",
+        "fr": "Contactez-nous pour un appel découverte gratuit"
+      },
+      "maxLength": 60
+    },
+    "blog.page.heading": {
+      "pages": [
+        "/blog"
+      ],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "Real Advice for Real Dog Owners",
+        "fr": "De vrais conseils pour de vrais propriétaires de chiens"
+      },
+      "maxLength": 80
+    },
+    "blog.page.intro": {
+      "pages": [
+        "/blog"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Tips, guides, and science-backed advice written by our team of trainers.",
+        "fr": "Conseils, guides et explications fondées sur la science, écrits par notre équipe d'entraîneurs."
+      },
+      "maxLength": 135
+    },
+    "blog.page.footerNote": {
+      "pages": [
+        "/blog"
+      ],
+      "section": "Articles",
+      "label": "Line under the articles",
+      "default": {
+        "en": "New guides every month — written by our trainers.",
+        "fr": "De nouveaux guides chaque mois — rédigés par nos entraîneurs."
+      },
+      "maxLength": 90
+    },
+    "facility.grooming.eyebrow": {
+      "source": "data",
+      "dataPath": "facility/grooming/eyebrow",
+      "pages": [
+        "/grooming"
+      ],
+      "section": "Top of page",
+      "label": "Small line above the headline",
+      "default": {
+        "en": "Meet MTL Canine Spa",
+        "fr": "Découvrez MTL Canine Spa"
+      },
+      "maxLength": 35
+    },
+    "facility.grooming.heading": {
+      "source": "data",
+      "dataPath": "facility/grooming/heading",
+      "pages": [
+        "/grooming"
+      ],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "Training isn’t all we do.",
+        "fr": "Il n’y a pas que l’entraînement."
+      },
+      "maxLength": 45
+    },
+    "facility.grooming.intro": {
+      "source": "data",
+      "dataPath": "facility/grooming/intro",
+      "pages": [
+        "/grooming"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Our canine family also offers professional grooming at MTL Canine Spa. Explore the spa’s services and appointment options on our dedicated grooming website.",
+        "fr": "Notre famille canine offre aussi du toilettage professionnel chez MTL Canine Spa. Découvrez les services et les options de rendez-vous sur notre site dédié au toilettage."
+      },
+      "maxLength": 240
+    },
+    "facility.grooming.cta": {
+      "source": "data",
+      "dataPath": "facility/grooming/cta",
+      "pages": [
+        "/grooming"
+      ],
+      "section": "Top of page",
+      "label": "Main button (also at the bottom)",
+      "default": {
+        "en": "Visit MTL Canine Spa",
+        "fr": "Visiter MTL Canine Spa"
+      },
+      "maxLength": 30
+    },
+    "facility.apprenticeships.eyebrow": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/eyebrow",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Top of page",
+      "label": "Small line above the headline",
+      "default": {
+        "en": "Dog Trainer Apprenticeship · January 2027",
+        "fr": "Apprentissage en entraînement canin · Janvier 2027"
+      },
+      "maxLength": 70
+    },
+    "facility.apprenticeships.heading": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/heading",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "Turn your passion into a path.",
+        "fr": "Donnez une direction à votre passion."
+      },
+      "maxLength": 55
+    },
+    "facility.apprenticeships.intro": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/intro",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Build real knowledge and hands-on experience, whether you want a career with dogs or a deeper understanding of your own. Starting January 2027, our program brings together theory, observation and practical training with the Montreal Canine Training team.",
+        "fr": "Développez vos connaissances et votre expérience pratique, que vous souhaitiez travailler avec les chiens ou mieux comprendre le vôtre. Dès janvier 2027, notre programme combine théorie, observation et entraînement pratique avec l’équipe de MTL Canine Training."
+      },
+      "maxLength": 370
+    },
+    "facility.apprenticeships.cta": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/cta",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Top of page",
+      "label": "Main button (also at the bottom)",
+      "default": {
+        "en": "Ask about the January program",
+        "fr": "Se renseigner sur le programme de janvier"
+      },
+      "maxLength": 55
+    },
+    "facility.apprenticeships.sections.0.title": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.0.title",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "January · Learn the foundations",
+      "label": "Section 1: title",
+      "default": {
+        "en": "January · Learn the foundations",
+        "fr": "Janvier · Acquérir les bases"
+      },
+      "maxLength": 45
+    },
+    "facility.apprenticeships.sections.0.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.0.paragraphs.0",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "January · Learn the foundations",
+      "label": "Section 1: paragraph 1 “Phase 1: six weekly online theory classes,…”",
+      "default": {
+        "en": "Phase 1: six weekly online theory classes, up to three hours per seminar. Build your understanding of dog behaviour and the principles behind effective training.",
+        "fr": "Phase 1 : six cours théoriques hebdomadaires en ligne, jusqu’à trois heures par séminaire. Développez votre compréhension du comportement canin et des principes d’un entraînement efficace."
+      },
+      "maxLength": 265
+    },
+    "facility.apprenticeships.sections.1.title": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.1.title",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "February · Watch it in practice",
+      "label": "Section 2: title",
+      "default": {
+        "en": "February · Watch it in practice",
+        "fr": "Février · Observer sur le terrain"
+      },
+      "maxLength": 50
+    },
+    "facility.apprenticeships.sections.1.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.1.paragraphs.0",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "February · Watch it in practice",
+      "label": "Section 2: paragraph 1 “Phase 2: five half days shadowing our…”",
+      "default": {
+        "en": "Phase 2: five half days shadowing our trainers during private lessons and consultations. Observe how they assess dogs, communicate with clients and adapt their approach.",
+        "fr": "Phase 2 : cinq demi-journées d’observation auprès de nos entraîneurs lors de cours privés et de consultations. Observez leur évaluation des chiens, leur communication avec les clients et leur adaptation à chaque situation."
+      },
+      "maxLength": 315
+    },
+    "facility.apprenticeships.sections.2.title": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.2.title",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "March · Build your skills",
+      "label": "Section 3: title",
+      "default": {
+        "en": "March · Build your skills",
+        "fr": "Mars · Développer vos habiletés"
+      },
+      "maxLength": 45
+    },
+    "facility.apprenticeships.sections.2.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.2.paragraphs.0",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "March · Build your skills",
+      "label": "Section 3: paragraph 1 “Phase 3: five half days of hands-on…”",
+      "default": {
+        "en": "Phase 3: five half days of hands-on practice. Put the theory and observations into action and develop your handling skills with our team.",
+        "fr": "Phase 3 : cinq demi-journées de pratique. Mettez en application vos connaissances et vos observations, puis développez vos habiletés de maniement avec notre équipe."
+      },
+      "maxLength": 230
+    },
+    "facility.apprenticeships.sections.2.paragraphs.1": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.2.paragraphs.1",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "March · Build your skills",
+      "label": "Section 3: paragraph 2 “Participants who complete these first three phases…”",
+      "default": {
+        "en": "Participants who complete these first three phases receive a Certificate of Completion from Montreal Canine Training.",
+        "fr": "Les participants qui terminent les trois premières phases reçoivent une attestation de fin de formation de MTL Canine Training."
+      },
+      "maxLength": 180
+    },
+    "facility.apprenticeships.sections.3.title": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.3.title",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "April · A possible next step",
+      "label": "Section 4: title",
+      "default": {
+        "en": "April · A possible next step",
+        "fr": "Avril · Une suite possible"
+      },
+      "maxLength": 40
+    },
+    "facility.apprenticeships.sections.3.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.3.paragraphs.0",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "April · A possible next step",
+      "label": "Section 4: paragraph 1 “Phase 4 is an 80-hour placement for…”",
+      "default": {
+        "en": "Phase 4 is an 80-hour placement for selected candidates being considered for future recruitment. It is not included in the standard program and is not guaranteed to every participant.",
+        "fr": "La phase 4 est un stage de 80 heures pour les candidats sélectionnés dans une perspective de recrutement. Elle n’est pas incluse dans le programme standard et n’est pas garantie à chaque participant."
+      },
+      "maxLength": 280
+    },
+    "facility.apprenticeships.sections.3.paragraphs.1": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/sections.3.paragraphs.1",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "April · A possible next step",
+      "label": "Section 4: paragraph 2 “The program can open a conversation about…”",
+      "default": {
+        "en": "The program can open a conversation about future opportunities with our team; it does not guarantee employment.",
+        "fr": "Le programme peut ouvrir la discussion sur de futures possibilités au sein de notre équipe; il ne garantit pas un emploi."
+      },
+      "maxLength": 170
+    },
+    "facility.training-offer.eyebrow": {
+      "source": "data",
+      "dataPath": "facility/training-offer/eyebrow",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "Top of page",
+      "label": "Small line above the headline",
+      "default": {
+        "en": "The Training Documentation Offer",
+        "fr": "L’offre de documentation de votre parcours"
+      },
+      "maxLength": 60
+    },
+    "facility.training-offer.sections.0.title": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.title",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: title",
+      "default": {
+        "en": "What does this involve?",
+        "fr": "Qu’est-ce que ça implique?"
+      },
+      "maxLength": 40
+    },
+    "facility.training-offer.sections.0.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.paragraphs.0",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: paragraph 1 “Our goal is to show what a…”",
+      "default": {
+        "en": "Our goal is to show what a real training session looks like: the initial conversation and assessment, hands-on training, and progress throughout your private sessions. You’ll need to be comfortable with the following.",
+        "fr": "Notre objectif est de montrer une vraie séance : la conversation et l’évaluation initiales, le travail pratique et les progrès durant vos séances privées. Vous devez être à l’aise avec les éléments suivants."
+      },
+      "maxLength": 305
+    },
+    "facility.training-offer.sections.0.items.0": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.items.0",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: checklist item 1",
+      "default": {
+        "en": "Wearing a provided microphone to capture real conversations, questions, concerns, and your trainer’s explanations",
+        "fr": "Porter un microphone fourni pour enregistrer les conversations, les questions, les préoccupations et les explications de votre entraîneur"
+      },
+      "maxLength": 195
+    },
+    "facility.training-offer.sections.0.items.1": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.items.1",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: checklist item 2",
+      "default": {
+        "en": "Being filmed by a videographer during your consultation and private sessions, including conversations, demonstrations, exercises, and your dog’s progress",
+        "fr": "Être filmé par un vidéaste pendant la consultation et les séances privées : conversations, démonstrations, exercices et progrès de votre chien"
+      },
+      "maxLength": 215
+    },
+    "facility.training-offer.sections.0.items.2": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.items.2",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: checklist item 3",
+      "default": {
+        "en": "Showing an authentic training experience rather than staged sessions",
+        "fr": "Montrer une expérience authentique, plutôt que des séances mises en scène"
+      },
+      "maxLength": 105
+    },
+    "facility.training-offer.sections.0.items.3": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.0.items.3",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "What does this involve?",
+      "label": "Section 1: checklist item 4",
+      "default": {
+        "en": "Allowing Montreal Canine Training to edit and publish the content on Instagram, Facebook, YouTube, our website, and other brand social channels",
+        "fr": "Permettre à MTL Canine Training de monter et de publier le contenu sur Instagram, Facebook, YouTube, notre site et nos autres réseaux sociaux"
+      },
+      "maxLength": 205
+    },
+    "facility.training-offer.sections.1.title": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.1.title",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "How it works",
+      "label": "Section 2: title",
+      "default": {
+        "en": "How it works",
+        "fr": "Comment ça fonctionne"
+      },
+      "maxLength": 30
+    },
+    "facility.training-offer.sections.1.paragraphs.0": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.1.paragraphs.0",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "How it works",
+      "label": "Section 2: paragraph 1 “When you arrive for your first session,…”",
+      "default": {
+        "en": "When you arrive for your first session, we may ask you to come inside without your dog first. Our team will explain the filming process, fit your microphone, and answer your questions.",
+        "fr": "À votre première séance, nous pourrions vous demander d’entrer d’abord sans votre chien. Notre équipe explique le processus, installe votre microphone et répond à vos questions."
+      },
+      "maxLength": 260
+    },
+    "facility.training-offer.sections.1.paragraphs.1": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.1.paragraphs.1",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "How it works",
+      "label": "Section 2: paragraph 2 “Before any filming takes place, you’ll receive…”",
+      "default": {
+        "en": "Before any filming takes place, you’ll receive a Media Release / Consent Form to review and sign. It explains your permission for us to record, edit, publish, and use the video, audio, and other content captured during your sessions.",
+        "fr": "Avant de filmer, vous recevez un formulaire d’autorisation et de consentement à lire et à signer. Il décrit votre permission d’enregistrer, de monter, de publier et d’utiliser les vidéos, l’audio et les autres contenus captés pendant vos séances."
+      },
+      "maxLength": 345
+    },
+    "facility.training-offer.sections.1.paragraphs.2": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.1.paragraphs.2",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "How it works",
+      "label": "Section 2: paragraph 3 “Once the process is explained and consent…”",
+      "default": {
+        "en": "Once the process is explained and consent is signed, we’ll document the experience as naturally as possible while you focus on training your dog.",
+        "fr": "Une fois le processus expliqué et le consentement signé, nous documentons l’expérience le plus naturellement possible pendant que vous vous concentrez sur l’entraînement de votre chien."
+      },
+      "maxLength": 260
+    },
+    "facility.training-offer.sections.2.title": {
+      "source": "data",
+      "dataPath": "facility/training-offer/sections.2.title",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "Interested? Let’s see if it’s a fit.",
+      "label": "Section 3: title",
+      "default": {
+        "en": "Interested? Let’s see if it’s a fit.",
+        "fr": "Intéressé? Voyons si l’offre vous convient."
+      },
+      "maxLength": 65
+    },
+    "facility.shared.nextStep": {
+      "source": "code",
+      "pages": [
+        "/apprenticeships",
+        "/training-offer"
+      ],
+      "section": "Bottom of page",
+      "label": "Title of the closing box (same on these pages)",
+      "default": {
+        "en": "Let’s talk about the next step.",
+        "fr": "Parlons de la prochaine étape."
+      },
+      "maxLength": 60
+    },
+    "location.west-island.eyebrow": {
+      "source": "data",
+      "dataPath": "location/west-island/eyebrow",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Top of page",
+      "label": "Small line above the headline",
+      "default": {
+        "en": "In-home & private training",
+        "fr": "Entraînement privé et à domicile"
+      },
+      "maxLength": 45
+    },
+    "location.west-island.h1": {
+      "source": "data",
+      "dataPath": "location/west-island/h1",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Top of page",
+      "label": "Main headline",
+      "default": {
+        "en": "Dog training in the West Island",
+        "fr": "Dressage de chiens dans l'Ouest-de-l'Île"
+      },
+      "maxLength": 60
+    },
+    "location.west-island.intro": {
+      "source": "data",
+      "dataPath": "location/west-island/intro",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Top of page",
+      "label": "Paragraph under the headline",
+      "default": {
+        "en": "Private dog training that comes to you. Our trainers work with West Island families in their own homes and neighbourhoods — from Pointe-Claire to Pierrefonds — with group classes available at our Anjou facility for owners who want them.",
+        "fr": "Un entraînement canin privé qui se déplace chez vous. Nos entraîneurs travaillent avec les familles de l'Ouest-de-l'Île directement à la maison et dans leur quartier — de Pointe-Claire à Pierrefonds — avec des cours de groupe offerts à notre installation d'Anjou pour ceux qui le souhaitent."
+      },
+      "maxLength": 410
+    },
+    "location.west-island.primaryCta": {
+      "source": "data",
+      "dataPath": "location/west-island/primaryCta",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Top of page",
+      "label": "Main button (also at the bottom)",
+      "default": {
+        "en": "Start Program Sign-Up",
+        "fr": "Commencer l'inscription"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.secondaryCta": {
+      "source": "data",
+      "dataPath": "location/west-island/secondaryCta",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Top of page",
+      "label": "Second button",
+      "default": {
+        "en": "View in-home training",
+        "fr": "Voir l'entraînement à domicile"
+      },
+      "maxLength": 40
+    },
+    "location.west-island.howEyebrow": {
+      "source": "data",
+      "dataPath": "location/west-island/howEyebrow",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Small line above the section title",
+      "default": {
+        "en": "In-home first",
+        "fr": "À domicile d'abord"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.howTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/howTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Section title",
+      "default": {
+        "en": "How training works for West Island clients",
+        "fr": "Comment fonctionne l'entraînement dans l'Ouest-de-l'Île"
+      },
+      "maxLength": 80
+    },
+    "location.west-island.howIntro": {
+      "source": "data",
+      "dataPath": "location/west-island/howIntro",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "Let's be upfront: we do not have a West Island facility. Our training centre is in Anjou, and we serve West Island clients two ways — private in-home training, where the trainer travels to you, and group classes in Anjou for owners who are comfortable with the drive. For most West Island families, everything happens at home.",
+        "fr": "Soyons transparents : nous n'avons pas d'installation dans l'Ouest-de-l'Île. Notre centre d'entraînement est situé à Anjou, et nous servons les clients de l'Ouest-de-l'Île de deux façons — l'entraînement privé à domicile, où l'entraîneur se déplace chez vous, et les cours de groupe à Anjou pour ceux qui sont à l'aise avec la route. Pour la plupart des familles de l'Ouest-de-l'Île, tout se passe à la maison."
+      },
+      "maxLength": 575
+    },
+    "location.west-island.how.0.title": {
+      "source": "data",
+      "dataPath": "location/west-island/how.0.title",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 1: title “Free discovery call”",
+      "default": {
+        "en": "Free discovery call",
+        "fr": "Appel découverte gratuit"
+      },
+      "maxLength": 35
+    },
+    "location.west-island.how.0.body": {
+      "source": "data",
+      "dataPath": "location/west-island/how.0.body",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 1: body “Start with a free 15-minute call. Tell…”",
+      "default": {
+        "en": "Start with a free 15-minute call. Tell us what your dog is doing, where in the West Island you live, and what you want to change.",
+        "fr": "Commencez par un appel gratuit de 15 minutes. Expliquez-nous ce que fait votre chien, où vous habitez dans l'Ouest-de-l'Île et ce que vous voulez changer."
+      },
+      "maxLength": 220
+    },
+    "location.west-island.how.1.title": {
+      "source": "data",
+      "dataPath": "location/west-island/how.1.title",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 2: title “Consultation at your home”",
+      "default": {
+        "en": "Consultation at your home",
+        "fr": "Consultation à votre domicile"
+      },
+      "maxLength": 45
+    },
+    "location.west-island.how.1.body": {
+      "source": "data",
+      "dataPath": "location/west-island/how.1.body",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 2: body “Your program begins with an in-home consultation…”",
+      "default": {
+        "en": "Your program begins with an in-home consultation and assessment. The trainer sees your dog's behaviour where it actually happens — your entrance, your street, your routine.",
+        "fr": "Votre programme commence par une consultation et une évaluation à la maison. L'entraîneur observe le comportement de votre chien là où il se produit vraiment : votre entrée, votre rue, votre routine."
+      },
+      "maxLength": 280
+    },
+    "location.west-island.how.2.title": {
+      "source": "data",
+      "dataPath": "location/west-island/how.2.title",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 3: title “A plan built as session packages”",
+      "default": {
+        "en": "A plan built as session packages",
+        "fr": "Un plan bâti en forfaits de séances"
+      },
+      "maxLength": 50
+    },
+    "location.west-island.how.2.body": {
+      "source": "data",
+      "dataPath": "location/west-island/how.2.body",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 3: body “In-home training is structured as a consultation…”",
+      "default": {
+        "en": "In-home training is structured as a consultation plus a package of 3, 5, or 7 sessions. Your trainer builds the plan around your dog, your goals, and your household.",
+        "fr": "L'entraînement à domicile est structuré en une consultation suivie d'un forfait de 3, 5 ou 7 séances. Votre entraîneur bâtit le plan autour de votre chien, de vos objectifs et de votre famille."
+      },
+      "maxLength": 275
+    },
+    "location.west-island.how.3.title": {
+      "source": "data",
+      "dataPath": "location/west-island/how.3.title",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 4: title “Training in your real environment”",
+      "default": {
+        "en": "Training in your real environment",
+        "fr": "Un entraînement dans votre vrai environnement"
+      },
+      "maxLength": 65
+    },
+    "location.west-island.how.3.body": {
+      "source": "data",
+      "dataPath": "location/west-island/how.3.body",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How it works",
+      "label": "Step 4: body “Sessions happen at your home and on…”",
+      "default": {
+        "en": "Sessions happen at your home and on your own streets, so the skills hold up in the places you actually live and walk your dog.",
+        "fr": "Les séances se déroulent chez vous et dans vos propres rues, pour que les acquis tiennent là où vous vivez et promenez réellement votre chien."
+      },
+      "maxLength": 200
+    },
+    "location.west-island.helpTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/helpTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Section title",
+      "default": {
+        "en": "What we help with in the West Island",
+        "fr": "Ce que nous travaillons dans l'Ouest-de-l'Île"
+      },
+      "maxLength": 65
+    },
+    "location.west-island.helpIntro": {
+      "source": "data",
+      "dataPath": "location/west-island/helpIntro",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Paragraph under the section title",
+      "default": {
+        "en": "The problems West Island owners call us about are the same ones we work on across Montreal — and each one has a dedicated program.",
+        "fr": "Les problèmes pour lesquels les propriétaires de l'Ouest-de-l'Île nous appellent sont les mêmes que partout à Montréal — et chacun a son programme dédié."
+      },
+      "maxLength": 215
+    },
+    "location.west-island.help.0.label": {
+      "source": "data",
+      "dataPath": "location/west-island/help.0.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 1: label “Pulling on leash & obedience”",
+      "default": {
+        "en": "Pulling on leash & obedience",
+        "fr": "Tire en laisse et obéissance"
+      },
+      "maxLength": 40
+    },
+    "location.west-island.help.0.description": {
+      "source": "data",
+      "dataPath": "location/west-island/help.0.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 1: description “Loose-leash walking, recall, and manners that hold…”",
+      "default": {
+        "en": "Loose-leash walking, recall, and manners that hold up on a real walk.",
+        "fr": "Marche en laisse détendue, rappel et manières qui tiennent lors d'une vraie promenade."
+      },
+      "maxLength": 125
+    },
+    "location.west-island.help.1.label": {
+      "source": "data",
+      "dataPath": "location/west-island/help.1.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 2: label “Leash reactivity”",
+      "default": {
+        "en": "Leash reactivity",
+        "fr": "Réactivité en laisse"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.help.1.description": {
+      "source": "data",
+      "dataPath": "location/west-island/help.1.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 2: description “Barking and lunging at dogs, bikes, or…”",
+      "default": {
+        "en": "Barking and lunging at dogs, bikes, or strangers on walks.",
+        "fr": "Jappements et élans vers les chiens, les vélos ou les inconnus en promenade."
+      },
+      "maxLength": 110
+    },
+    "location.west-island.help.2.label": {
+      "source": "data",
+      "dataPath": "location/west-island/help.2.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 3: label “Puppy training”",
+      "default": {
+        "en": "Puppy training",
+        "fr": "Entraînement pour chiots"
+      },
+      "maxLength": 35
+    },
+    "location.west-island.help.2.description": {
+      "source": "data",
+      "dataPath": "location/west-island/help.2.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 3: description “Foundations, socialization, and routines for new puppies.”",
+      "default": {
+        "en": "Foundations, socialization, and routines for new puppies.",
+        "fr": "Bases, socialisation et routines pour les nouveaux chiots."
+      },
+      "maxLength": 85
+    },
+    "location.west-island.help.3.label": {
+      "source": "data",
+      "dataPath": "location/west-island/help.3.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 4: label “Aggression”",
+      "default": {
+        "en": "Aggression",
+        "fr": "Agressivité"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.help.3.description": {
+      "source": "data",
+      "dataPath": "location/west-island/help.3.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 4: description “Growling, snapping, guarding, or a bite history…”",
+      "default": {
+        "en": "Growling, snapping, guarding, or a bite history that needs a safety-first plan.",
+        "fr": "Grognements, pincements, protection de ressources ou historique de morsure qui demande un plan axé sur la sécurité."
+      },
+      "maxLength": 165
+    },
+    "location.west-island.help.4.label": {
+      "source": "data",
+      "dataPath": "location/west-island/help.4.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 5: label “Separation anxiety”",
+      "default": {
+        "en": "Separation anxiety",
+        "fr": "Anxiété de séparation"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.help.4.description": {
+      "source": "data",
+      "dataPath": "location/west-island/help.4.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "How we can help",
+      "label": "Help card 5: description “Dogs who panic, bark, or destroy when…”",
+      "default": {
+        "en": "Dogs who panic, bark, or destroy when left alone at home.",
+        "fr": "Chiens qui paniquent, jappent ou détruisent lorsqu'ils restent seuls à la maison."
+      },
+      "maxLength": 115
+    },
+    "location.west-island.whyTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/whyTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Why us",
+      "label": "Section title",
+      "default": {
+        "en": "Why in-home training works well in the West Island",
+        "fr": "Pourquoi l'entraînement à domicile fonctionne bien dans l'Ouest-de-l'Île"
+      },
+      "maxLength": 105
+    },
+    "location.west-island.why.0": {
+      "source": "data",
+      "dataPath": "location/west-island/why.0",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Why us",
+      "label": "Paragraph 1 “Most of the behaviour problems we see…”",
+      "default": {
+        "en": "Most of the behaviour problems we see don't happen in a training hall. They happen at your front door in Dollard-des-Ormeaux, on a quiet crescent in Kirkland, or at the park down the street in Pointe-Claire. In-home training lets the trainer see the actual trigger points: the window your dog barks from, the entrance that sets him off when guests arrive, the exact stretch of sidewalk where the pulling starts.",
+        "fr": "La plupart des problèmes de comportement que nous voyons ne se produisent pas dans une salle d'entraînement. Ils arrivent à votre porte d'entrée à Dollard-des-Ormeaux, sur un croissant tranquille de Kirkland ou au parc au bout de votre rue à Pointe-Claire. L'entraînement à domicile permet à l'entraîneur de voir les vrais déclencheurs : la fenêtre d'où votre chien jappe, l'entrée qui l'énerve quand des invités arrivent, le segment précis de trottoir où il commence à tirer."
+      },
+      "maxLength": 670
+    },
+    "location.west-island.why.1": {
+      "source": "data",
+      "dataPath": "location/west-island/why.1",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Why us",
+      "label": "Paragraph 2 “The West Island is also a genuinely…”",
+      "default": {
+        "en": "The West Island is also a genuinely good place to train. Quieter residential streets in Beaconsfield and Baie-D'Urfé give us room to build leash skills without the constant pressure of downtown traffic. Waterfront walks and off-leash parks offer real-world distractions that stay manageable while your dog is learning. And family neighbourhoods in Pierrefonds-Roxboro and Dollard-des-Ormeaux are full of young dogs, which makes early puppy work and adolescent training a natural fit for in-home sessions.",
+        "fr": "L'Ouest-de-l'Île est aussi un excellent terrain d'entraînement. Les rues résidentielles plus calmes de Beaconsfield et de Baie-D'Urfé donnent l'espace nécessaire pour bâtir la marche en laisse sans la pression constante du centre-ville. Les promenades au bord de l'eau et les parcs sans laisse offrent des distractions réelles, mais gérables pendant que votre chien apprend. Et les quartiers familiaux de Pierrefonds-Roxboro et de Dollard-des-Ormeaux comptent beaucoup de jeunes chiens — un contexte idéal pour travailler les bases avec un chiot ou encadrer un chien adolescent à domicile."
+      },
+      "maxLength": 825
+    },
+    "location.west-island.why.2": {
+      "source": "data",
+      "dataPath": "location/west-island/why.2",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Why us",
+      "label": "Paragraph 3 “Travel is our job, not yours. Our…”",
+      "default": {
+        "en": "Travel is our job, not yours. Our trainers cover the whole territory — Pointe-Claire, Kirkland, Dorval, Lachine, Sainte-Anne-de-Bellevue, Île-Bizard, and everywhere in between. If you can walk your dog there, we can train there.",
+        "fr": "Le déplacement, c'est notre travail, pas le vôtre. Nos entraîneurs couvrent tout le territoire — Pointe-Claire, Kirkland, Dorval, Lachine, Sainte-Anne-de-Bellevue, L'Île-Bizard et tout ce qui se trouve entre les deux. Si vous pouvez y promener votre chien, nous pouvons y travailler."
+      },
+      "maxLength": 400
+    },
+    "location.west-island.groupTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/groupTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Group classes",
+      "label": "Section title",
+      "default": {
+        "en": "Group classes at our Anjou facility",
+        "fr": "Les cours de groupe à notre installation d'Anjou"
+      },
+      "maxLength": 70
+    },
+    "location.west-island.groupBody.0": {
+      "source": "data",
+      "dataPath": "location/west-island/groupBody.0",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Group classes",
+      "label": "Paragraph 1 “Our group classes — obedience levels, puppy…”",
+      "default": {
+        "en": "Our group classes — obedience levels, puppy socialization, reactivity groups — run at our facility at 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2. We won't pretend that's around the corner: from most of the West Island it's a drive across the island along Highway 40 or Highway 20.",
+        "fr": "Nos cours de groupe — niveaux d'obéissance, socialisation pour chiots, groupes de réactivité — se donnent à notre installation du 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2. Soyons francs : ce n'est pas à côté. Depuis la majeure partie de l'Ouest-de-l'Île, il faut compter un trajet par l'autoroute 40 ou la 20."
+      },
+      "maxLength": 460
+    },
+    "location.west-island.groupBody.1": {
+      "source": "data",
+      "dataPath": "location/west-island/groupBody.1",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Group classes",
+      "label": "Paragraph 2 “If you're up for the trip, group…”",
+      "default": {
+        "en": "If you're up for the trip, group classes add what a living room can't: controlled distractions, other dogs, and handler practice in a structured setting. If the drive doesn't fit your schedule, in-home and private training cover the full program without it — the group option is simply there when you want it.",
+        "fr": "Si la route ne vous fait pas peur, les cours de groupe ajoutent ce qu'un salon ne peut pas offrir : des distractions contrôlées, d'autres chiens et de la pratique pour le maître dans un cadre structuré. Si le déplacement ne convient pas à votre horaire, l'entraînement à domicile et les cours privés couvrent le programme au complet — l'option de groupe reste là si l'envie vous prend."
+      },
+      "maxLength": 540
+    },
+    "location.west-island.groupLinkLabel": {
+      "source": "data",
+      "dataPath": "location/west-island/groupLinkLabel",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Group classes",
+      "label": "Link to group classes",
+      "default": {
+        "en": "See group classes",
+        "fr": "Voir les cours de groupe"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.faqTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/faqTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Section title",
+      "default": {
+        "en": "West Island dog training FAQ",
+        "fr": "FAQ dressage dans l'Ouest-de-l'Île"
+      },
+      "maxLength": 50
+    },
+    "location.west-island.faqs.0.question": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.0.question",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 1: question “Do you come to Pointe-Claire, Kirkland, and…”",
+      "default": {
+        "en": "Do you come to Pointe-Claire, Kirkland, and Dollard-des-Ormeaux?",
+        "fr": "Vous déplacez-vous à Pointe-Claire, Kirkland ou Dollard-des-Ormeaux?"
+      },
+      "maxLength": 100
+    },
+    "location.west-island.faqs.0.answer": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.0.answer",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 1: answer “Yes. Our in-home training covers the whole…”",
+      "default": {
+        "en": "Yes. Our in-home training covers the whole West Island, including Pointe-Claire, Kirkland, Dollard-des-Ormeaux, Beaconsfield, Baie-D'Urfé, Sainte-Anne-de-Bellevue, Dorval, Lachine, Pierrefonds-Roxboro, and Île-Bizard. The trainer travels to you.",
+        "fr": "Oui. Notre entraînement à domicile couvre tout l'Ouest-de-l'Île : Pointe-Claire, Kirkland, Dollard-des-Ormeaux, Beaconsfield, Baie-D'Urfé, Sainte-Anne-de-Bellevue, Dorval, Lachine, Pierrefonds-Roxboro et L'Île-Bizard. C'est l'entraîneur qui se déplace chez vous."
+      },
+      "maxLength": 370
+    },
+    "location.west-island.faqs.1.question": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.1.question",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 2: question “How much does dog training in the…”",
+      "default": {
+        "en": "How much does dog training in the West Island cost?",
+        "fr": "Combien coûte le dressage de chien dans l'Ouest-de-l'Île?"
+      },
+      "maxLength": 80
+    },
+    "location.west-island.faqs.1.answer": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.1.answer",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 2: answer “In-home training is structured as a consultation…”",
+      "default": {
+        "en": "In-home training is structured as a consultation followed by a package of 3, 5, or 7 sessions. The right package depends on your dog and your goals, which is why we start with a free 15-minute call — you get clear pricing for your situation before committing to anything.",
+        "fr": "L'entraînement à domicile est structuré en une consultation suivie d'un forfait de 3, 5 ou 7 séances. Le bon forfait dépend de votre chien et de vos objectifs. C'est pourquoi nous commençons par un appel gratuit de 15 minutes : vous obtenez un prix clair pour votre situation avant de vous engager."
+      },
+      "maxLength": 420
+    },
+    "location.west-island.faqs.2.question": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.2.question",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 3: question “Can we do the training in French?”",
+      "default": {
+        "en": "Can we do the training in French?",
+        "fr": "Le service est-il offert en français?"
+      },
+      "maxLength": 55
+    },
+    "location.west-island.faqs.2.answer": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.2.answer",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 3: answer “Yes. Montreal Canine Training serves clients in…”",
+      "default": {
+        "en": "Yes. Montreal Canine Training serves clients in both English and French — start the conversation in whichever language you prefer.",
+        "fr": "Oui. Entraînement Canin Montréal sert ses clients en français et en anglais — commencez la conversation dans la langue de votre choix."
+      },
+      "maxLength": 190
+    },
+    "location.west-island.faqs.3.question": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.3.question",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 4: question “At what age should my puppy start…”",
+      "default": {
+        "en": "At what age should my puppy start training?",
+        "fr": "À quel âge mon chiot devrait-il commencer?"
+      },
+      "maxLength": 65
+    },
+    "location.west-island.faqs.3.answer": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.3.answer",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 4: answer “Early. Our puppy socialization classes take puppies…”",
+      "default": {
+        "en": "Early. Our puppy socialization classes take puppies from 10 to 20 weeks old, and in-home puppy foundations can begin as soon as your puppy has settled in at home. The sooner good routines are in place, the fewer habits you have to un-train later.",
+        "fr": "Tôt. Nos cours de socialisation accueillent les chiots de 10 à 20 semaines, et les bases à domicile peuvent commencer dès que votre chiot est installé à la maison. Plus les bonnes routines s'installent tôt, moins il y aura de mauvais plis à défaire ensuite."
+      },
+      "maxLength": 360
+    },
+    "location.west-island.faqs.4.question": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.4.question",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 5: question “How do we get started?”",
+      "default": {
+        "en": "How do we get started?",
+        "fr": "Comment commencer?"
+      },
+      "maxLength": 35
+    },
+    "location.west-island.faqs.4.answer": {
+      "source": "data",
+      "dataPath": "location/west-island/faqs.4.answer",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Questions",
+      "label": "Question 5: answer “Book a free 15-minute discovery call or…”",
+      "default": {
+        "en": "Book a free 15-minute discovery call or submit a request form through the site. We'll talk about your dog, where you are in the West Island, and what you want to change — then recommend the right starting point, whether that's an in-home consultation or an evaluation for group classes.",
+        "fr": "Réservez un appel découverte gratuit de 15 minutes ou remplissez le formulaire de demande sur le site. Nous parlerons de votre chien, de votre coin de l'Ouest-de-l'Île et de ce que vous voulez changer, puis nous vous recommanderons le bon point de départ : une consultation à domicile ou une évaluation pour les cours de groupe."
+      },
+      "maxLength": 460
+    },
+    "location.west-island.relatedTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/relatedTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Section title",
+      "default": {
+        "en": "Related programs",
+        "fr": "Programmes liés"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.related.0.label": {
+      "source": "data",
+      "dataPath": "location/west-island/related.0.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 1: label “In-home dog training”",
+      "default": {
+        "en": "In-home dog training",
+        "fr": "Entraînement à domicile"
+      },
+      "maxLength": 35
+    },
+    "location.west-island.related.0.description": {
+      "source": "data",
+      "dataPath": "location/west-island/related.0.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 1: description “The core service for West Island clients…”",
+      "default": {
+        "en": "The core service for West Island clients — training where the behaviour happens.",
+        "fr": "Le service de base pour les clients de l'Ouest-de-l'Île : un entraînement là où le comportement se produit."
+      },
+      "maxLength": 150
+    },
+    "location.west-island.related.1.label": {
+      "source": "data",
+      "dataPath": "location/west-island/related.1.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 2: label “Private dog training”",
+      "default": {
+        "en": "Private dog training",
+        "fr": "Cours privés pour chiens"
+      },
+      "maxLength": 35
+    },
+    "location.west-island.related.1.description": {
+      "source": "data",
+      "dataPath": "location/west-island/related.1.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 2: description “One-on-one coaching for behaviour cases and obedience…”",
+      "default": {
+        "en": "One-on-one coaching for behaviour cases and obedience goals.",
+        "fr": "Coaching individuel pour les cas de comportement et les objectifs d'obéissance."
+      },
+      "maxLength": 115
+    },
+    "location.west-island.related.2.label": {
+      "source": "data",
+      "dataPath": "location/west-island/related.2.label",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 3: label “Group classes”",
+      "default": {
+        "en": "Group classes",
+        "fr": "Cours de groupe"
+      },
+      "maxLength": 30
+    },
+    "location.west-island.related.2.description": {
+      "source": "data",
+      "dataPath": "location/west-island/related.2.description",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Related pages",
+      "label": "Related link 3: description “Obedience, puppy, and reactivity groups at our…”",
+      "default": {
+        "en": "Obedience, puppy, and reactivity groups at our Anjou facility.",
+        "fr": "Groupes d'obéissance, de chiots et de réactivité à notre installation d'Anjou."
+      },
+      "maxLength": 110
+    },
+    "location.west-island.ctaTitle": {
+      "source": "data",
+      "dataPath": "location/west-island/ctaTitle",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Bottom of page",
+      "label": "Title",
+      "default": {
+        "en": "Your trainer comes to you.",
+        "fr": "Votre entraîneur se déplace chez vous."
+      },
+      "maxLength": 55
+    },
+    "location.west-island.ctaBody": {
+      "source": "data",
+      "dataPath": "location/west-island/ctaBody",
+      "pages": [
+        "/dog-training-west-island"
+      ],
+      "section": "Bottom of page",
+      "label": "Paragraph",
+      "default": {
+        "en": "Tell us where you are in the West Island and what your dog is doing. We'll start with a free 15-minute call and recommend the right program — no facility visit required.",
+        "fr": "Dites-nous où vous êtes dans l'Ouest-de-l'Île et ce que fait votre chien. Nous commencerons par un appel gratuit de 15 minutes et vous recommanderons le bon programme — sans que vous ayez à vous déplacer."
+      },
+      "maxLength": 290
     }
   },
   "images": {
@@ -3452,6 +4888,57 @@
         }
       },
       "aspect": "3/4"
+    },
+    "facility.grooming.photo": {
+      "source": "data",
+      "dataPath": "facility/grooming/photo",
+      "pages": [
+        "/grooming"
+      ],
+      "section": "Top of page",
+      "label": "Main photo",
+      "default": {
+        "src": "/images/canine-spa-bath.png",
+        "alt": {
+          "en": "A German Shepherd in the MTL Canine Spa grooming bath",
+          "fr": "Un berger allemand dans le bain de toilettage de MTL Canine Spa"
+        }
+      },
+      "aspect": "4/3"
+    },
+    "facility.apprenticeships.photo": {
+      "source": "data",
+      "dataPath": "facility/apprenticeships/photo",
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Top of page",
+      "label": "Main photo",
+      "default": {
+        "src": "/images/october-2026/apprenticeship-practice.webp",
+        "alt": {
+          "en": "Apprentices learning hands-on dog handling at Montreal Canine Training",
+          "fr": "Des apprentis s’exercent au maniement des chiens chez MTL Canine Training"
+        }
+      },
+      "aspect": "5/4"
+    },
+    "facility.training-offer.photo": {
+      "source": "data",
+      "dataPath": "facility/training-offer/photo",
+      "pages": [
+        "/training-offer"
+      ],
+      "section": "Top of page",
+      "label": "Main photo",
+      "default": {
+        "src": "/images/Classes images/in-home.webp",
+        "alt": {
+          "en": "Dog owners with their German Shepherd at Montreal Canine Training",
+          "fr": "Des propriétaires avec leur berger allemand chez MTL Canine Training"
+        }
+      },
+      "aspect": "5/4"
     }
   },
   "lists": {

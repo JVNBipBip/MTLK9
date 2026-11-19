@@ -24,9 +24,13 @@ type FieldBase = {
   /**
    * "code": the default English lives in a client component (via
    * useEditableText / EditablePhoto) and this entry mirrors it. Omitted: the
-   * registry is the source of the default (server components).
+   * registry is the source of the default (server components). "data": the
+   * default lives in a bilingual data file (lib/facility-services.ts…), read by
+   * EditableCopy; dataPath says where.
    */
-  source?: "code"
+  source?: "code" | "data"
+  /** source "data": where the default lives, e.g. "facility/grooming/heading". */
+  dataPath?: string
   /** No-locale paths the field renders on, e.g. "/daycare". */
   pages: string[]
   /** Group heading in the admin editor, e.g. "Top of page". */

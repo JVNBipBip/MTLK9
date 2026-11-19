@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowRight, CalendarDays, Clock } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { EditableText } from "@/components/editable-text"
 import { blogPosts } from "@/lib/blog"
 import { formatLocalizedDateTime } from "@/lib/i18n/format"
 import { buildLocalizedMetadata, getRequestLocale, localizedPath } from "@/lib/seo"
@@ -31,14 +32,10 @@ export default async function BlogPage() {
       <section className="px-6 pb-16 pt-32 lg:px-8 lg:pb-24 lg:pt-40">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="mb-6 text-balance font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            {locale === "fr"
-              ? "De vrais conseils pour de vrais propriétaires de chiens"
-              : "Real Advice for Real Dog Owners"}
+            <EditableText id="blog.page.heading" locale={locale} />
           </h1>
           <p className="text-lg text-muted-foreground md:text-xl">
-            {locale === "fr"
-              ? "Conseils, guides et explications fondées sur la science, écrits par notre équipe d'entraîneurs."
-              : "Tips, guides, and science-backed advice written by our team of trainers."}
+            <EditableText id="blog.page.intro" locale={locale} />
           </p>
         </div>
       </section>
@@ -98,9 +95,7 @@ export default async function BlogPage() {
             })}
           </div>
           <p className="mt-12 text-center text-sm text-muted-foreground">
-            {locale === "fr"
-              ? "De nouveaux guides chaque mois — rédigés par nos entraîneurs."
-              : "New guides every month — written by our trainers."}
+            <EditableText id="blog.page.footerNote" locale={locale} />
           </p>
         </div>
       </section>

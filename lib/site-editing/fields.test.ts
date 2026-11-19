@@ -16,6 +16,8 @@ import {
 } from "@/lib/site-editing/fields"
 import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { getFaqData } from "@/lib/faq-data"
+import { facilityServices } from "@/lib/facility-services"
+import { locationPages } from "@/lib/location-pages"
 
 const ROOT = path.resolve(__dirname, "../..")
 const PUBLIC_DIR = path.join(ROOT, "public")
@@ -89,6 +91,8 @@ describe("editable field registry", () => {
     // List items are numbered from a prefix the page passes (idPrefix="services.obedience.forYouIf").
     const listPrefix = (id: string) => (/\.\d+$/.test(id) ? id.replace(/\.\d+$/, "") : null)
     const unused = [...textIds, ...imageIds].filter((id) => {
+      // Rendered by position from a data file; checked against it below instead.
+      if ((textFields[id as TextFieldId] ?? imageFields[id as ImageFieldId]).source === "data") return false
       if (source.includes(`"${id}"`)) return false
       const prefix = listPrefix(id)
       return !(prefix && source.includes(`idPrefix="${prefix}"`))
@@ -111,14 +115,53 @@ describe("fields whose default lives in a client component", () => {
     const field = textFields[id]
     // The English is still written in a component exactly as registered…
     expect(source()).toContain(JSON.stringify(field.default.en))
-    // …and its French is what the translation table renders today.
-    expect(field.default.fr).toBe(getLocalizedText("fr", field.default.en))
+    // …and its French is what the translation table renders today, or is written alongside it.
+    const fromTable = field.default.fr === getLocalizedText("fr", field.default.en)
+    expect(fromTable || source().includes(JSON.stringify(field.default.fr))).toBe(true)
   })
 
   it.each(codeImages)("%s: registry default matches the component", (id) => {
     const field = imageFields[id]
     expect(source()).toContain(JSON.stringify(field.default.src))
     expect(field.default.alt.fr).toBe(getLocalizedText("fr", field.default.alt.en))
+  })
+})
+
+describe("fields whose default lives in a data file", () => {
+  type Copy = { en: string; fr: string }
+  const at = (value: unknown, keys: string[]) => keys.reduce<unknown>((current, key) => (current as Record<string, unknown>)?.[key], value)
+
+  /** The data file's current value for a dataPath like "facility/grooming/sections.0.title". */
+  function fromData(dataPath: string): Copy | { src: string; alt: Copy } {
+    const [kind, owner, rest] = dataPath.split("/")
+    const keys = rest.split(".")
+    if (kind === "facility") {
+      const service = facilityServices[owner as keyof typeof facilityServices]
+      if (rest === "photo") return { src: service.image, alt: service.imageAlt }
+      return at(service, keys) as Copy
+    }
+    if (kind === "location") {
+      const page = locationPages[owner as keyof typeof locationPages]
+      return { en: at(page.content.en, keys) as string, fr: at(page.content.fr, keys) as string }
+    }
+    throw new Error(`Unknown dataPath ${dataPath}`)
+  }
+
+  const dataText = textIds.filter((id) => textFields[id].source === "data")
+  const dataImages = imageIds.filter((id) => imageFields[id].source === "data")
+
+  it("exist (service template and location pages)", () => {
+    expect(dataText.length).toBeGreaterThan(0)
+  })
+
+  it.each(dataText)("%s matches its data file in both languages", (id) => {
+    const field = textFields[id] as typeof textFields[TextFieldId] & { dataPath: string }
+    expect(fromData(field.dataPath)).toEqual(field.default)
+  })
+
+  it.each(dataImages)("%s matches its data file", (id) => {
+    const field = imageFields[id] as typeof imageFields[ImageFieldId] & { dataPath: string }
+    expect(fromData(field.dataPath)).toEqual(field.default)
   })
 })
 
