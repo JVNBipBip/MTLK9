@@ -13,6 +13,7 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
+import { getBusinessDetails } from "@/lib/business-details"
 import { useEditableValue } from "@/lib/site-editing/use-editable"
 
 const navLinks = [
@@ -30,6 +31,7 @@ const navLinks = [
 export function Header() {
   const t = useTranslations("common")
   const value = useEditableValue()
+  const business = getBusinessDetails()
   // Menu labels are list-only: clicking them in the editor still navigates.
   const nav = (key: string) => value(`header.nav.${key}`, t(`nav.${key}` as Parameters<typeof t>[0]), { listOnly: true })
   const [isOpen, setIsOpen] = useState(false)
@@ -110,7 +112,7 @@ export function Header() {
                 className="hidden 2xl:flex whitespace-nowrap text-sm font-medium text-black/80 hover:text-black items-center gap-1.5"
               >
                 <Phone className="w-3.5 h-3.5" />
-                514 826 9558
+                {value("business.phone", business.phone)}
               </button>
             </FreeCallLink>
             <FreeCallLink>
@@ -161,7 +163,7 @@ export function Header() {
                         className="text-black/85 flex items-center gap-2 px-3 py-2 text-base font-medium w-full text-left"
                       >
                         <Phone className="w-4 h-4" />
-                        514 826 9558
+                        {value("business.phone", business.phone)}
                       </button>
                     </FreeCallLink>
                     <FreeCallLink onClick={() => setIsOpen(false)}>

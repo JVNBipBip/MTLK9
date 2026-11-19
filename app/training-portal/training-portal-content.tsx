@@ -18,6 +18,7 @@ import {
 import { GroupClassesContent } from "./group-classes-content"
 import { trackFBCompleteRegistration, trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
+import { getBusinessDetails } from "@/lib/business-details"
 
 function formatDateTime(iso: string, intlLocale: string) {
   return new Date(iso).toLocaleString(intlLocale, {
@@ -414,10 +415,10 @@ export function TrainingPortalContent({
                         openFreeCallModal()
                       }}
                     >
-                      514 826 9558
+                      {getBusinessDetails().phone}
                     </button>
                     <span className="hidden sm:inline text-amber-700">·</span>
-                    <a href="mailto:mtlcaninetraining@gmail.com" className="hover:underline break-all">mtlcaninetraining@gmail.com</a>
+                    <a href={getBusinessDetails().emailHref} className="hover:underline break-all">{getBusinessDetails().email}</a>
                   </div>
                 </div>
                 <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-3 max-w-full">
@@ -453,7 +454,7 @@ export function TrainingPortalContent({
                       variant="outline"
                       className="flex-1 min-w-0 w-full rounded-full border-amber-200 text-amber-900 hover:bg-amber-100 hover:text-amber-950"
                     >
-                      <a href="mailto:mtlcaninetraining@gmail.com">
+                      <a href={getBusinessDetails().emailHref}>
                         <Mail className="w-4 h-4 mr-2" />
                         Email
                       </a>

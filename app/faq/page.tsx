@@ -10,6 +10,8 @@ import { getFaqData } from "@/lib/faq-data"
 import { JsonLd, buildFaqJsonLd } from "@/components/json-ld"
 import { defaultLocale, isAppLocale, localeHeaderName, type AppLocale } from "@/lib/i18n/config"
 import { buildLocalizedMetadata } from "@/lib/seo"
+import { getBusinessDetails } from "@/lib/business-details"
+import { EditableCopy } from "@/components/editable-copy"
 
 export function generateMetadata() {
   return buildLocalizedMetadata({
@@ -77,14 +79,14 @@ export default async function FaqPage() {
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </FreeCallLink>
-                <a href="tel:+15148269558" data-conversion-location="faq_cta">
+                <a href={getBusinessDetails().phoneHref} data-conversion-location="faq_cta">
                   <Button
                     size="lg"
                     variant="outline"
                     className="rounded-full px-8 py-6 text-base border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground bg-transparent"
                   >
                     <Phone className="mr-2 w-4 h-4" />
-                    514 826 9558
+                    <EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} />
                   </Button>
                 </a>
               </div>

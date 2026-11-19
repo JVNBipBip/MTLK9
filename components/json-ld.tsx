@@ -1,6 +1,7 @@
 import { localizedUrl } from "@/lib/seo"
 import type { AppLocale } from "@/lib/i18n/config"
 import type { BlogPost } from "@/lib/blog/types"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -16,6 +17,9 @@ const SITE_URL = "https://www.mtlcaninetraining.com"
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`
 export const WEBSITE_ID = `${SITE_URL}/#website`
 
+// Contact details come from lib/business-details.ts (owner-editable).
+const business = getBusinessDetails()
+
 export const localBusinessJsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -25,21 +29,22 @@ export const localBusinessJsonLd = {
   description:
     "Real-world dog training in Montreal. Calm walks, confident dogs, and clear plans — through humane, evidence-guided methods.",
   url: SITE_URL,
-  telephone: "+1-514-826-9558",
-  email: "mtlcaninetraining@gmail.com",
+  telephone: business.phoneInternational,
+  email: business.email,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "7770 Boulevard Henri-Bourassa E",
-    addressLocality: "Montreal",
-    addressRegion: "QC",
-    postalCode: "H1E 1P2",
+    streetAddress: business.street,
+    addressLocality: business.city,
+    addressRegion: business.provinceCode,
+    postalCode: business.postalCode,
     addressCountry: "CA",
   },
-  geo: {
+  // The map pin belongs to the original address; leave it out once he changes the address.
+  ...(business.addressChanged ? {} : { geo: {
     "@type": "GeoCoordinates",
     latitude: 45.6221191,
     longitude: -73.5857889,
-  },
+  } }),
   openingHoursSpecification: [
     {
       "@type": "OpeningHoursSpecification",

@@ -6,6 +6,7 @@ import {
   resolveImage,
   resolveList,
   resolveText,
+  FIELD_FORMATS,
   siteEdits,
   textFields,
   type ImageFieldId,
@@ -20,6 +21,7 @@ import { facilityServices } from "@/lib/facility-services"
 import { locationPages } from "@/lib/location-pages"
 import { messages } from "@/lib/i18n/messages"
 import { footerLinks } from "@/lib/footer-links"
+import { BUSINESS_DEFAULTS } from "@/lib/business-details"
 
 const ROOT = path.resolve(__dirname, "../..")
 const PUBLIC_DIR = path.join(ROOT, "public")
@@ -151,6 +153,10 @@ describe("fields whose default lives in a data file", () => {
       const messageKeys = owner.split(".")
       return { en: at(messages.en, messageKeys) as string, fr: at(messages.fr, messageKeys) as string }
     }
+    if (kind === "business") {
+      const value = BUSINESS_DEFAULTS[owner as keyof typeof BUSINESS_DEFAULTS]
+      return { en: value, fr: value }
+    }
     if (kind === "footer-links") {
       return footerLinks[owner as keyof typeof footerLinks][Number(rest)].label
     }
@@ -194,6 +200,15 @@ describe("published site edits", () => {
         expect(edit[locale]).not.toMatch(/[<>]/)
         expect(edit[locale]).not.toMatch(PRICE_LIKE)
       }
+    }
+  })
+
+  it("business details are in a valid format and the same in both languages", () => {
+    for (const [id, edit] of Object.entries(siteEdits.text)) {
+      const field = textFields[id as TextFieldId]
+      if (!edit || !field?.format || field.format === "text") continue
+      expect(edit.en).toMatch(FIELD_FORMATS[field.format])
+      if (field.sameInBothLanguages) expect(edit.fr).toBe(edit.en)
     }
   })
 
@@ -288,5 +303,14 @@ describe("editable lists (FAQ)", () => {
       question: listFields.faq.default.categories[0].items[0].question.fr,
       answer: listFields.faq.default.categories[0].items[0].answer.fr,
     })
+  })
+})
+
+describe("business detail defaults", () => {
+  it("each has a valid format", () => {
+    for (const id of textIds.filter((id) => textFields[id].format && textFields[id].format !== "text")) {
+      const field = textFields[id]
+      expect(field.default.en).toMatch(FIELD_FORMATS[field.format as keyof typeof FIELD_FORMATS])
+    }
   })
 })

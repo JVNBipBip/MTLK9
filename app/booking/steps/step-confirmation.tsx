@@ -6,6 +6,7 @@ import { getIntlLocale } from "@/lib/i18n/config"
 import { TORONTO_TIME_ZONE } from "@/lib/i18n/format"
 import { bookingStepCopy } from "../translations"
 import type { BookingFormData } from "../types"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function StepConfirmation({
   formData,
@@ -70,19 +71,19 @@ export function StepConfirmation({
         <p className="text-sm text-muted-foreground mb-3">{copy.questionsBeforeThen}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="tel:+15148269558"
+            href={getBusinessDetails().phoneHref}
             data-conversion-location="booking_confirmation"
             className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             <Phone className="w-4 h-4" />
-            514 826 9558
+            {getBusinessDetails().phone}
           </a>
           <a
-            href="mailto:mtlcaninetraining@gmail.com"
+            href={getBusinessDetails().emailHref}
             className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             <Mail className="w-4 h-4" />
-            mtlcaninetraining@gmail.com
+            {getBusinessDetails().email}
           </a>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useEditableText } from "@/lib/site-editing/use-editable"
 import { useHeroCtaExperiment } from "@/components/use-hero-cta-experiment"
 import { heroCtaLabel } from "@/lib/hero-cta-experiment"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function HeroSection() {
   const t = useLocalizedText()
@@ -98,7 +99,7 @@ export function HeroSection() {
               </Button>
             </FreeCallLink>
             <Link
-              href="tel:+15148269558"
+              href={getBusinessDetails().phoneHref}
               data-conversion-location="homepage_hero"
               className="w-full sm:w-auto"
             >

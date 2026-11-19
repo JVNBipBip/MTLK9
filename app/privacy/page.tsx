@@ -2,6 +2,7 @@ import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
+import { getBusinessDetails } from "@/lib/business-details"
 
 const privacySections = [
   {
@@ -65,8 +66,8 @@ export default async function PrivacyPage() {
           <h2 className="text-xl font-semibold text-foreground mt-10 mb-3">{t("7. Your Rights")}</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
             {t("Under applicable Canadian and Quebec privacy laws, you have the right to access, correct, or delete your personal information. To exercise these rights, contact us at")} {" "}
-            <a href="mailto:mtlcaninetraining@gmail.com" className="text-primary hover:underline">
-              mtlcaninetraining@gmail.com
+            <a href={getBusinessDetails().emailHref} className="text-primary hover:underline">
+              {getBusinessDetails().email}
             </a>
             .
           </p>
@@ -80,18 +81,18 @@ export default async function PrivacyPage() {
           <p className="text-muted-foreground leading-relaxed">
             {locale === "fr" ? "Entraînement Canin Montréal inc." : "Montreal Canine Training Inc."}
             <br />
-            7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
+            {getBusinessDetails().addressLine}
             <br />
-            <a href="mailto:mtlcaninetraining@gmail.com" className="text-primary hover:underline">
-              mtlcaninetraining@gmail.com
+            <a href={getBusinessDetails().emailHref} className="text-primary hover:underline">
+              {getBusinessDetails().email}
             </a>
             <br />
             <a
-              href="tel:+15148269558"
+              href={getBusinessDetails().phoneHref}
               data-conversion-location="privacy_contact"
               className="text-primary hover:underline"
             >
-              514 826 9558
+              {getBusinessDetails().phone}
             </a>
           </p>
         </div>

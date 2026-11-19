@@ -5246,6 +5246,102 @@
         "fr": "Avis Google"
       },
       "maxLength": 20
+    },
+    "business.phone": {
+      "source": "data",
+      "dataPath": "business/phone",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Phone number — changes it everywhere",
+      "default": {
+        "en": "514 826 9558",
+        "fr": "514 826 9558"
+      },
+      "maxLength": 25,
+      "format": "phone",
+      "sameInBothLanguages": true
+    },
+    "business.email": {
+      "source": "data",
+      "dataPath": "business/email",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Email address — changes it everywhere",
+      "default": {
+        "en": "mtlcaninetraining@gmail.com",
+        "fr": "mtlcaninetraining@gmail.com"
+      },
+      "maxLength": 80,
+      "format": "email",
+      "sameInBothLanguages": true
+    },
+    "business.street": {
+      "source": "data",
+      "dataPath": "business/street",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Address: street — changes it everywhere",
+      "default": {
+        "en": "7770 Boulevard Henri-Bourassa E",
+        "fr": "7770 Boulevard Henri-Bourassa E"
+      },
+      "maxLength": 80,
+      "format": "text",
+      "sameInBothLanguages": true
+    },
+    "business.city": {
+      "source": "data",
+      "dataPath": "business/city",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Address: city — changes it everywhere",
+      "default": {
+        "en": "Montreal",
+        "fr": "Montreal"
+      },
+      "maxLength": 40,
+      "format": "text",
+      "sameInBothLanguages": true
+    },
+    "business.province": {
+      "source": "data",
+      "dataPath": "business/province",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Address: province — changes it everywhere",
+      "default": {
+        "en": "Quebec",
+        "fr": "Quebec"
+      },
+      "maxLength": 40,
+      "format": "text",
+      "sameInBothLanguages": true
+    },
+    "business.postalCode": {
+      "source": "data",
+      "dataPath": "business/postalCode",
+      "pages": [
+        "*"
+      ],
+      "section": "Business details (every page)",
+      "label": "Address: postal code — changes it everywhere",
+      "default": {
+        "en": "H1E 1P2",
+        "fr": "H1E 1P2"
+      },
+      "maxLength": 10,
+      "format": "postalCode",
+      "sameInBothLanguages": true
     }
   },
   "images": {

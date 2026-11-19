@@ -26,6 +26,7 @@ import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { trackFBEvent } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
 import type { ServiceInterest } from "@/lib/service-inquiries"
+import { getBusinessDetails } from "@/lib/business-details"
 
 type OpenTrainingPortalOptions = {
   mode?: TrainingPortalMode
@@ -247,7 +248,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
             </Button>
             <div className="space-y-2 pt-1">
               <a
-                href="tel:+15148269558"
+                href={getBusinessDetails().phoneHref}
                 data-conversion-location="inquiry_modal"
                 onClick={() => trackContactLinkClick("phone")}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors"
@@ -256,10 +257,10 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
                   <Phone className="size-3.5 shrink-0 text-primary" aria-hidden />
                   <span className="font-medium truncate">{t("Call us")}</span>
                 </span>
-                <span className="text-muted-foreground shrink-0 ml-2 tabular-nums">514 826 9558</span>
+                <span className="text-muted-foreground shrink-0 ml-2 tabular-nums">{getBusinessDetails().phone}</span>
               </a>
               <a
-                href="mailto:mtlcaninetraining@gmail.com"
+                href={getBusinessDetails().emailHref}
                 onClick={() => trackContactLinkClick("email")}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs sm:text-sm hover:bg-muted/40 transition-colors gap-2"
               >
@@ -268,7 +269,7 @@ export function BookingFormProvider({ children }: { children: ReactNode }) {
                   <span className="font-medium truncate">{t("Email us")}</span>
                 </span>
                 <span className="text-muted-foreground truncate max-w-[52%] sm:max-w-[58%]">
-                  mtlcaninetraining@gmail.com
+                  {getBusinessDetails().email}
                 </span>
               </a>
             </div>

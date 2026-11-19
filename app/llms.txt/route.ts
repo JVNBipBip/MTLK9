@@ -1,4 +1,5 @@
 import { detectLocaleFromAcceptLanguage } from "@/lib/i18n/config"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function GET(request: Request) {
   const locale = detectLocaleFromAcceptLanguage(request.headers.get("accept-language"))
@@ -24,8 +25,8 @@ Entraînement Canin Montréal offre des services professionnels d'entraînement 
 
 ## Informations clés
 
-- Adresse: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
-- Téléphone: 514 826 9558
+- Adresse: ${getBusinessDetails().addressLine}
+- Téléphone: ${getBusinessDetails().phone}
 - Secteurs servis: Montréal, Ouest-de-l'Île, Laval
 - Site Web: https://www.mtlcaninetraining.com/fr
 
@@ -57,8 +58,8 @@ Montreal Canine Training provides professional dog training services in Montreal
 
 ## Key Information
 
-- Location: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
-- Phone: 514 826 9558
+- Location: ${getBusinessDetails().addressLine}
+- Phone: ${getBusinessDetails().phone}
 - Areas served: Montreal, West Island, Laval
 - Website: https://www.mtlcaninetraining.com
 

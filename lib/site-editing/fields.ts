@@ -42,7 +42,18 @@ type FieldBase = {
 export type EditableTextField = FieldBase & {
   default: LocalizedString
   maxLength: number
+  /** Checked on publish (business details). Plain text when omitted. */
+  format?: "text" | "phone" | "email" | "postalCode"
+  /** One value used in both languages (phone, email, address). */
+  sameInBothLanguages?: boolean
 }
+
+/** What each format accepts. Mirrored in MTLK9-Admin lib/website/content.ts. */
+export const FIELD_FORMATS = {
+  phone: /^(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
+  email: /^[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}$/i,
+  postalCode: /^[A-Z]\d[A-Z] ?\d[A-Z]\d$/i,
+} as const
 
 export type EditableImageField = FieldBase & {
   default: { src: string; alt: LocalizedString }

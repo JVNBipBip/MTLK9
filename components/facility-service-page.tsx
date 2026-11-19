@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { ServiceInquiryButton } from "@/components/service-inquiry-button"
 import { facilityServices, serviceCopy, type FacilityService, type FacilityServiceId } from "@/lib/facility-services"
 import { buildLocalizedMetadata, getRequestLocale, localizedPath } from "@/lib/seo"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function facilityServiceMetadata(id: FacilityServiceId) {
   const { path, title, description } = facilityServices[id]
@@ -27,7 +28,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
       {e("cta", service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
     </a>
   ) : id === "apprenticeships" ? (
-    <a href={`mailto:mtlcaninetraining@gmail.com?subject=${encodeURIComponent(locale === "fr" ? "Programmes d’apprentissage en entraînement canin" : "Dog Trainer Apprenticeship Programs")}`} className={linkClass}>
+    <a href={`${getBusinessDetails().emailHref}?subject=${encodeURIComponent(locale === "fr" ? "Programmes d’apprentissage en entraînement canin" : "Dog Trainer Apprenticeship Programs")}`} className={linkClass}>
       {e("cta", service.cta)}<ArrowUpRight className="size-5 shrink-0" aria-hidden />
     </a>
   ) : (
@@ -92,7 +93,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
           <div className="rounded-3xl bg-secondary/15 p-7 md:p-10">
             <h2 className="mb-5 text-2xl font-semibold"><EditableCopy id="facility.shared.nextStep" copy={{ en: "Let’s talk about the next step.", fr: "Parlons de la prochaine étape." }} locale={locale} /></h2>
             {action}
-            <a href="tel:+15148269558" className="mt-5 block w-fit text-sm font-medium text-primary underline underline-offset-4">{locale === "fr" ? "Une question? Appelez le" : "Questions? Call"} 514 826 9558</a>
+            <a href={getBusinessDetails().phoneHref} className="mt-5 block w-fit text-sm font-medium text-primary underline underline-offset-4">{locale === "fr" ? "Une question? Appelez le" : "Questions? Call"} <EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} /></a>
           </div>
         </div>
       )}
@@ -105,7 +106,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
             { src: "/images/october-2026/apprenticeship-graduate.webp", en: "A participant and two dogs at Montreal Canine Training", fr: "Une participante et deux chiens chez MTL Canine Training" },
             { src: "/images/october-2026/apprenticeship-graduate-2.webp", en: "A participant with a dog and certificate at our school", fr: "Une participante avec son chien et son certificat à notre école" },
           ].map(photo => <div key={photo.src} className="relative aspect-[3/4] overflow-hidden rounded-3xl"><Image src={photo.src} alt={photo[locale]} fill sizes="(max-width: 639px) 100vw, 33vw" className="object-cover" /></div>)}
-          <a href="/images/october-2026/apprenticeship-poster.webp" target="_blank" rel="noopener noreferrer" className="relative block aspect-[3/4] overflow-hidden rounded-3xl bg-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" aria-label={locale === "fr" ? "Voir l’affiche du programme de janvier 2027" : "View the January 2027 program poster"}><Image src="/images/october-2026/apprenticeship-poster.webp" alt={locale === "fr" ? "Affiche : apprentissage en entraînement canin, dès janvier 2027. Informations au 514 826 9558." : "Dog trainer apprenticeship poster: starts January 2027. Information: 514 826 9558."} fill sizes="(max-width: 639px) 100vw, 33vw" className="object-contain" /></a>
+          <a href="/images/october-2026/apprenticeship-poster.webp" target="_blank" rel="noopener noreferrer" className="relative block aspect-[3/4] overflow-hidden rounded-3xl bg-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary" aria-label={locale === "fr" ? "Voir l’affiche du programme de janvier 2027" : "View the January 2027 program poster"}><Image src="/images/october-2026/apprenticeship-poster.webp" alt={locale === "fr" ? `Affiche : apprentissage en entraînement canin, dès janvier 2027. Informations au $<EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} />.` : `Dog trainer apprenticeship poster: starts January 2027. Information: $<EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} />.`} fill sizes="(max-width: 639px) 100vw, 33vw" className="object-contain" /></a>
         </div>
       </section>}
       <Footer />

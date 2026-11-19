@@ -10,6 +10,8 @@ import { EditableText } from "@/components/editable-text"
 import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, daycareMoney, quoteDaycare } from "@/lib/daycare-pricing"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
+import { getBusinessDetails } from "@/lib/business-details"
+import { EditableCopy } from "@/components/editable-copy"
 
 // Owner-editable copy lives in content/editable-fields.json. Prices, product
 // names, opening hours and the phone number stay here on purpose: they must
@@ -129,7 +131,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
             </a>
           </article>
         </div>
-        <a href="tel:+15148269558" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4"><Phone className="size-4" aria-hidden />{t("Questions? Call", "Une question? Appelez le")} 514 826 9558</a>
+        <a href={getBusinessDetails().phoneHref} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4"><Phone className="size-4" aria-hidden />{t("Questions? Call", "Une question? Appelez le")} <EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} /></a>
       </div>
     </section>
     <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">

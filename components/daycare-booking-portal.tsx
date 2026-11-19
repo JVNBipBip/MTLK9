@@ -14,6 +14,7 @@ import { DAYCARE_BUNDLE_WEEKS } from "@/lib/daycare-policy";
 import { DaycareDatePicker, DaycareSelect } from "./daycare-date-picker";
 import { bookableDaycarePasses, type DaycarePortal as Portal, type DaycarePortalBooking, type DaycarePortalDog } from "@/lib/daycare-portal-types";
 import { DaycareHouseholdReservationForm } from "./daycare-household-reservation-form";
+import { getBusinessDetails } from "@/lib/business-details";
 type Booking = DaycarePortalBooking & { applicationId: string; dogName: string };
 const errors: Record<string, [string, string]> = {
   unauthorized: [
@@ -100,8 +101,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     setMessage(
       errors[key]?.[fr ? 1 : 0] ||
         t(
-          "We couldn’t confirm the result. Refresh before retrying, or call Nick at 514 826 9558.",
-          "Impossible de confirmer le résultat. Actualisez avant de réessayer, ou appelez Nick au 514 826 9558.",
+          `We couldn’t confirm the result. Refresh before retrying, or call Nick at ${getBusinessDetails().phone}.`,
+          `Impossible de confirmer le résultat. Actualisez avant de réessayer, ou appelez Nick au ${getBusinessDetails().phone}.`,
         ),
     );
   async function post(body: object) {
@@ -692,8 +693,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
         </h3>
         <p>
           {t(
-            "Bundles start at the first visit: 5 visits within 4 weeks, 10 within 7 weeks, 20 within 12 weeks. Each dog has its own balance. With at least 24 hours’ notice, move a visit without penalty. With less notice, a cancelled visit is forfeited; single visits are non-refundable. For billing questions, call Nick at 514 826 9558.",
-            "Les forfaits commencent à la première visite : 5 visites en 4 semaines, 10 en 7 semaines et 20 en 12 semaines. Chaque chien a son propre solde. Avec au moins 24 heures d’avis, déplacez une visite sans pénalité. Avec moins d’avis, la visite annulée est perdue; les visites individuelles sont non remboursables. Questions de facturation : Nick au 514 826 9558.",
+            `Bundles start at the first visit: 5 visits within 4 weeks, 10 within 7 weeks, 20 within 12 weeks. Each dog has its own balance. With at least 24 hours’ notice, move a visit without penalty. With less notice, a cancelled visit is forfeited; single visits are non-refundable. For billing questions, call Nick at ${getBusinessDetails().phone}.`,
+            `Les forfaits commencent à la première visite : 5 visites en 4 semaines, 10 en 7 semaines et 20 en 12 semaines. Chaque chien a son propre solde. Avec au moins 24 heures d’avis, déplacez une visite sans pénalité. Avec moins d’avis, la visite annulée est perdue; les visites individuelles sont non remboursables. Questions de facturation : Nick au ${getBusinessDetails().phone}.`,
           )}
         </p>
       </aside>

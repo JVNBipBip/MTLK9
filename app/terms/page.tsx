@@ -2,6 +2,7 @@ import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { buildLocalizedMetadata, getRequestLocale } from "@/lib/seo"
+import { getBusinessDetails } from "@/lib/business-details"
 
 const termsSections = [
   {
@@ -90,18 +91,18 @@ export default async function TermsPage() {
           <p className="text-muted-foreground leading-relaxed">
             {locale === "fr" ? "Entraînement Canin Montréal inc." : "Montreal Canine Training Inc."}
             <br />
-            7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
+            {getBusinessDetails().addressLine}
             <br />
-            <a href="mailto:mtlcaninetraining@gmail.com" className="text-primary hover:underline">
-              mtlcaninetraining@gmail.com
+            <a href={getBusinessDetails().emailHref} className="text-primary hover:underline">
+              {getBusinessDetails().email}
             </a>
             <br />
             <a
-              href="tel:+15148269558"
+              href={getBusinessDetails().phoneHref}
               data-conversion-location="terms_contact"
               className="text-primary hover:underline"
             >
-              514 826 9558
+              {getBusinessDetails().phone}
             </a>
           </p>
         </div>

@@ -21,6 +21,7 @@ import {
   type WelcomePopupVariant,
 } from "@/lib/welcome-popup-content"
 import { normalizeWelcomePhone } from "@/lib/welcome-signup"
+import { getBusinessDetails } from "@/lib/business-details"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -298,7 +299,7 @@ function WelcomePopupInner() {
                 {content.bookCta}
               </Button>
               <a
-                href="tel:+15148269558"
+                href={getBusinessDetails().phoneHref}
                 data-conversion-location="welcome_popup"
                 onClick={handleCallNick}
                 className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-semibold text-foreground transition-colors hover:bg-muted"

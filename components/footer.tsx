@@ -6,6 +6,7 @@ import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppLocale } from "@/components/locale-provider"
+import { getBusinessDetails } from "@/lib/business-details"
 import { footerLinks } from "@/lib/footer-links"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { useEditableValue } from "@/lib/site-editing/use-editable"
@@ -14,6 +15,7 @@ import { useEditableValue } from "@/lib/site-editing/use-editable"
 export function Footer() {
   const t = useTranslations("common")
   const value = useEditableValue()
+  const business = getBusinessDetails()
   const locale = useAppLocale()
   const hrefFor = (href: string) => (href.startsWith("/") ? addLocaleToPathname(href, locale) : href)
 
@@ -34,21 +36,24 @@ export function Footer() {
               <FreeCallLink className="flex items-center gap-3 hover:text-background transition-colors text-left w-full sm:w-auto cursor-pointer">
                 <span className="flex items-center gap-3">
                   <Phone className="w-4 h-4" />
-                  <span>514 826 9558</span>
+                  <span>{value("business.phone", business.phone)}</span>
                 </span>
               </FreeCallLink>
-              <Link href="mailto:mtlcaninetraining@gmail.com" className="flex items-center gap-3 hover:text-background transition-colors">
+              <Link href={business.emailHref} className="flex items-center gap-3 hover:text-background transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>mtlcaninetraining@gmail.com</span>
+                <span>{value("business.email", business.email)}</span>
               </Link>
               <Link
-                href="https://maps.app.goo.gl/GoTny9wRbvZ1Y81fA"
+                href={business.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-3 hover:text-background transition-colors"
               >
                 <MapPin className="w-4 h-4 shrink-0" />
-                <span>7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2</span>
+                <span>
+                  {value("business.street", business.street)}, {value("business.city", business.city)}, {value("business.province", business.province)}{" "}
+                  {value("business.postalCode", business.postalCode)}
+                </span>
               </Link>
             </div>
             <div className="flex gap-4 mt-6">

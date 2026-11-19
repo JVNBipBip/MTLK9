@@ -21,8 +21,10 @@ import { trackFBLead } from "@/lib/facebook-pixel"
 import posthog from "posthog-js"
 import { heroCtaExperimentProperties } from "@/lib/hero-cta-experiment"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
+import { getBusinessDetails } from "@/lib/business-details"
 
-const CONSULTATION_LOCATION = "7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2"
+// The facility address, from the owner-editable business details.
+const CONSULTATION_LOCATION = getBusinessDetails().addressLine
 
 const TOTAL_STEPS = 2
 

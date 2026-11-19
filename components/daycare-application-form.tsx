@@ -4,6 +4,7 @@ import { useRef, useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { DAYCARE_FIELDS, DAYCARE_STEPS, daycareAnswerLabel, daycareFieldVisible, validateDaycareAnswers, type DaycareAnswers, type DaycareLocale } from "@/lib/daycare-intake"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function DaycareApplicationForm({ locale }: { locale: DaycareLocale }) {
   const fr = locale === "fr"
@@ -44,7 +45,7 @@ export function DaycareApplicationForm({ locale }: { locale: DaycareLocale }) {
       setAnswers({})
       requestAnimationFrame(() => heading.current?.focus())
     } catch {
-      setMessage(t("We couldn’t submit your application. Your answers are still here. Please try again, or call 514 826 9558.", "Votre demande n’a pas pu être envoyée. Vos réponses sont toujours ici. Réessayez ou appelez le 514 826 9558."))
+      setMessage(t(`We couldn’t submit your application. Your answers are still here. Please try again, or call ${getBusinessDetails().phone}.`, `Votre demande n’a pas pu être envoyée. Vos réponses sont toujours ici. Réessayez ou appelez le ${getBusinessDetails().phone}.`))
     } finally { setBusy(false) }
   }
 

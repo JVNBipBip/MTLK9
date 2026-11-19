@@ -1,5 +1,6 @@
 import { getFaqData } from "@/lib/faq-data"
 import { detectLocaleFromAcceptLanguage } from "@/lib/i18n/config"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export function GET(request: Request) {
   const locale = detectLocaleFromAcceptLanguage(request.headers.get("accept-language"))
@@ -97,8 +98,8 @@ ${faqSection}
 ## Coordonnées
 
 - Nom: Entraînement Canin Montréal (MTL K9)
-- Adresse: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
-- Téléphone: 514 826 9558
+- Adresse: ${getBusinessDetails().addressLine}
+- Téléphone: ${getBusinessDetails().phone}
 - Site Web: https://www.mtlcaninetraining.com/fr
 - Secteurs servis: Montréal, Ouest-de-l'Île, Laval
 
@@ -207,8 +208,8 @@ ${faqSection}
 ## Contact Information
 
 - Business Name: Montreal Canine Training (MTL K9)
-- Address: 7770 Boulevard Henri-Bourassa E, Montreal, Quebec H1E 1P2
-- Phone: 514 826 9558
+- Address: ${getBusinessDetails().addressLine}
+- Phone: ${getBusinessDetails().phone}
 - Website: https://www.mtlcaninetraining.com
 - Areas served: Montreal, West Island, Laval
 

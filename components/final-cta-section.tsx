@@ -7,10 +7,13 @@ import { ArrowRight, Phone } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import { useEditableText } from "@/lib/site-editing/use-editable"
+import { getBusinessDetails } from "@/lib/business-details"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
 
 export function FinalCTASection() {
   const text = useEditableText()
+  const value = useEditableValue()
+  const business = getBusinessDetails()
   const locale = useAppLocale()
   const sectionRef = useRef<HTMLElement>(null)
 
@@ -61,7 +64,7 @@ export function FinalCTASection() {
                 className="rounded-full px-8 py-6 text-base border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground bg-transparent"
               >
                 <Phone className="mr-2 w-4 h-4" />
-                514 826 9558
+                {value("business.phone", business.phone)}
               </Button>
             </FreeCallLink>
           </div>

@@ -9,6 +9,7 @@ import {
 } from "@/lib/client-email-layout"
 import { sendClientFacingEmail, sendEmail } from "@/lib/email"
 import { addLocaleToPathname, defaultLocale, type AppLocale } from "@/lib/i18n/config"
+import { getBusinessDetails } from "@/lib/business-details"
 
 export const STAFF_BOOKING_NOTIFY_EMAIL = "mtlcaninetraining@gmail.com"
 
@@ -166,7 +167,7 @@ const inquiryClientEmail = {
     preheader: "Our team will follow up shortly about your assessment.",
     lead: (name: string) =>
       `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Hi ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Thanks for contacting us about an in-person assessment. Our team has your details and will follow up shortly.</p>`,
-    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">If anything urgent comes up, call <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">If anything urgent comes up, call <a href="${getBusinessDetails().phoneHref}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">${getBusinessDetails().phone}</a>.</p>`,
   },
   fr: {
     subject: "Nous avons bien reçu votre demande de consultation — Montreal K9 Training",
@@ -174,7 +175,7 @@ const inquiryClientEmail = {
     preheader: "Notre équipe vous répondra sous peu.",
     lead: (name: string) =>
       `<p style="margin:0 0 16px;color:${CLIENT_EMAIL_BODY};">Bonjour ${escapeHtmlForEmail(name)},</p><p style="margin:0;color:${CLIENT_EMAIL_BODY};">Merci de nous avoir écrit au sujet d'une évaluation en personne. Notre équipe a bien reçu vos informations et vous répondra sous peu.</p>`,
-    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Pour toute urgence : <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+    footer: `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Pour toute urgence : <a href="${getBusinessDetails().phoneHref}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">${getBusinessDetails().phone}</a>.</p>`,
   },
 } satisfies Record<
   AppLocale,
@@ -283,7 +284,7 @@ const consultationBookedClientEmail = {
     },
     footerNote: "Booking notice from Montreal Canine Training.",
     footer:
-      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Questions? Call <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Questions? Call <a href="${getBusinessDetails().phoneHref}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">${getBusinessDetails().phone}</a>.</p>`,
   },
   fr: {
     subject: "Merci pour votre réservation d'évaluation — Montreal K9 Training",
@@ -305,7 +306,7 @@ const consultationBookedClientEmail = {
     },
     footerNote: "Avis de réservation — Entraînement Canin Montréal.",
     footer:
-      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Des questions? <a href="tel:+15148269558" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">514 826 9558</a>.</p>`,
+      `<p style="margin:20px 0 0;font-size:14px;color:${CLIENT_EMAIL_ACCENT_MUTED};">Des questions? <a href="${getBusinessDetails().phoneHref}" style="color:${CLIENT_EMAIL_ACCENT_PRIMARY};">${getBusinessDetails().phone}</a>.</p>`,
   },
 } satisfies Record<
   AppLocale,
