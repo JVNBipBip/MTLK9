@@ -24,9 +24,25 @@ const edits = publishedEdits as unknown as SiteEdits
 export function useEditableText() {
   const locale = useAppLocale()
   return useCallback(
-    (id: TextFieldId, english: string) => {
+    (id: TextFieldId, english: string, options?: { listOnly?: boolean }) => {
       const value = edits.text[id]?.[locale] || getLocalizedText(locale, english)
-      return <EditableTextClient id={id} locale={locale} value={value} />
+      return <EditableTextClient id={id} locale={locale} value={value} listOnly={options?.listOnly} />
+    },
+    [locale],
+  )
+}
+
+/**
+ * For copy already localized by its source (next-intl messages, inline
+ * {en, fr} pairs): his published edit, else that value. Registry entries for
+ * these are source: "data" with a dataPath, checked by fields.test.ts.
+ */
+export function useEditableValue() {
+  const locale = useAppLocale()
+  return useCallback(
+    (id: string, localized: string, options?: { listOnly?: boolean }) => {
+      const value = edits.text[id]?.[locale] || localized
+      return <EditableTextClient id={id} locale={locale} value={value} listOnly={options?.listOnly} />
     },
     [locale],
   )

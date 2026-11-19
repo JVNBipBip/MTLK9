@@ -18,6 +18,8 @@ import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { getFaqData } from "@/lib/faq-data"
 import { facilityServices } from "@/lib/facility-services"
 import { locationPages } from "@/lib/location-pages"
+import { messages } from "@/lib/i18n/messages"
+import { footerLinks } from "@/lib/footer-links"
 
 const ROOT = path.resolve(__dirname, "../..")
 const PUBLIC_DIR = path.join(ROOT, "public")
@@ -33,6 +35,7 @@ const textIds = Object.keys(textFields) as TextFieldId[]
 const imageIds = Object.keys(imageFields) as ImageFieldId[]
 
 function routeExists(page: string) {
+  if (page === "*") return true // header and footer: every page
   const dir = page === "/" ? path.join(ROOT, "app") : path.join(ROOT, "app", page)
   return fs.existsSync(path.join(dir, "page.tsx"))
 }
@@ -134,7 +137,7 @@ describe("fields whose default lives in a data file", () => {
   /** The data file's current value for a dataPath like "facility/grooming/sections.0.title". */
   function fromData(dataPath: string): Copy | { src: string; alt: Copy } {
     const [kind, owner, rest] = dataPath.split("/")
-    const keys = rest.split(".")
+    const keys = (rest ?? "").split(".")
     if (kind === "facility") {
       const service = facilityServices[owner as keyof typeof facilityServices]
       if (rest === "photo") return { src: service.image, alt: service.imageAlt }
@@ -143,6 +146,13 @@ describe("fields whose default lives in a data file", () => {
     if (kind === "location") {
       const page = locationPages[owner as keyof typeof locationPages]
       return { en: at(page.content.en, keys) as string, fr: at(page.content.fr, keys) as string }
+    }
+    if (kind === "messages") {
+      const messageKeys = owner.split(".")
+      return { en: at(messages.en, messageKeys) as string, fr: at(messages.fr, messageKeys) as string }
+    }
+    if (kind === "footer-links") {
+      return footerLinks[owner as keyof typeof footerLinks][Number(rest)].label
     }
     throw new Error(`Unknown dataPath ${dataPath}`)
   }

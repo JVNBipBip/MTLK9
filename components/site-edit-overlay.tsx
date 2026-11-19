@@ -36,8 +36,10 @@ function rectOf(element: Element): FrameRect {
   return { top: rect.top, left: rect.left, width: rect.width, height: rect.height }
 }
 
+/** The editable field under the pointer. Link labels marked list-only are skipped, so links still work. */
 function editableFrom(target: EventTarget | null): HTMLElement | null {
-  return target instanceof Element ? target.closest<HTMLElement>("[data-edit-key]") : null
+  const element = target instanceof Element ? target.closest<HTMLElement>("[data-edit-key]") : null
+  return element && element.dataset.editListOnly !== "true" ? element : null
 }
 
 function kindOf(element: HTMLElement): FieldKind {

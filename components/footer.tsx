@@ -6,40 +6,14 @@ import { Mail, MapPin, Phone, Instagram, Facebook } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppLocale } from "@/components/locale-provider"
+import { footerLinks } from "@/lib/footer-links"
 import { addLocaleToPathname } from "@/lib/i18n/config"
+import { useEditableValue } from "@/lib/site-editing/use-editable"
 
-const footerLinks = {
-  training: [
-    { label: { en: "Day Training", fr: "Entraînement de jour" }, href: "/day-training" },
-    { label: { en: "Daycare", fr: "Garderie" }, href: "/daycare" },
-    { label: { en: "Grooming · MTL Canine Spa", fr: "Toilettage · MTL Canine Spa" }, href: "/grooming" },
-    { label: { en: "Trainer Apprenticeships", fr: "Apprentissage pour entraîneurs" }, href: "/apprenticeships" },
-    { label: { en: "Save 30% on Your Training", fr: "Économisez 30 % sur l’entraînement" }, href: "/training-offer" },
-    { label: { en: "Consultation", fr: "Consultation" }, href: "/services/consultation" },
-    { label: { en: "Reactivity Training", fr: "Réactivité" }, href: "/services/reactivity" },
-    { label: { en: "Aggressive Dog Training", fr: "Chien agressif" }, href: "/services/aggression" },
-    { label: { en: "Separation Anxiety", fr: "Anxiété de séparation" }, href: "/services/separation-anxiety" },
-    { label: { en: "Private Classes", fr: "Cours privés" }, href: "/services/private-classes" },
-    { label: { en: "Obedience Training", fr: "Obéissance" }, href: "/services/obedience" },
-    { label: { en: "Puppy Training", fr: "Chiots" }, href: "/services/puppy-training" },
-    { label: { en: "In-Home Training", fr: "À domicile" }, href: "/services/in-home" },
-    { label: { en: "West Island Dog Training", fr: "Dressage Ouest-de-l'Île" }, href: "/dog-training-west-island" },
-  ],
-  company: [
-    { label: { en: "About Us", fr: "À propos" }, href: "/about" },
-    { label: { en: "Results", fr: "Résultats" }, href: "/results" },
-    { label: { en: "FAQ", fr: "FAQ" }, href: "/faq" },
-    { label: { en: "Contact", fr: "Contact" }, href: "/booking" },
-  ],
-  resources: [
-    { label: { en: "Contact Us for a Free Call", fr: "Appel découverte gratuit" }, href: "/booking" },
-    { label: { en: "Book an Evaluation", fr: "Réserver une évaluation" }, href: "/booking" },
-    { label: { en: "Google Reviews", fr: "Avis Google" }, href: "https://maps.app.goo.gl/GoTny9wRbvZ1Y81fA" },
-  ],
-}
 
 export function Footer() {
   const t = useTranslations("common")
+  const value = useEditableValue()
   const locale = useAppLocale()
   const hrefFor = (href: string) => (href.startsWith("/") ? addLocaleToPathname(href, locale) : href)
 
@@ -54,7 +28,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-background/70 leading-relaxed mb-6 max-w-sm">
-              {t("footer.description")}
+              {value("footer.description", t("footer.description"))}
             </p>
             <div className="space-y-3 text-sm text-background/70">
               <FreeCallLink className="flex items-center gap-3 hover:text-background transition-colors text-left w-full sm:w-auto cursor-pointer">
@@ -101,12 +75,12 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">{t("footer.trainingPrograms")}</h4>
+            <h4 className="font-medium text-background mb-4">{value("footer.trainingPrograms", t("footer.trainingPrograms"))}</h4>
             <ul className="space-y-3">
-              {footerLinks.training.map((link) => (
+              {footerLinks.training.map((link, i) => (
                 <li key={`${link.href}-${link.label.en}`}>
                   <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
-                    {link.label[locale]}
+                    {value(`footer.links.training.${i}`, link.label[locale], { listOnly: true })}
                   </Link>
                 </li>
               ))}
@@ -114,12 +88,12 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">{t("footer.company")}</h4>
+            <h4 className="font-medium text-background mb-4">{value("footer.company", t("footer.company"))}</h4>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
+              {footerLinks.company.map((link, i) => (
                 <li key={`${link.href}-${link.label.en}`}>
                   <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
-                    {link.label[locale]}
+                    {value(`footer.links.company.${i}`, link.label[locale], { listOnly: true })}
                   </Link>
                 </li>
               ))}
@@ -127,12 +101,12 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-medium text-background mb-4">{t("footer.getStarted")}</h4>
+            <h4 className="font-medium text-background mb-4">{value("footer.getStarted", t("footer.getStarted"))}</h4>
             <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
+              {footerLinks.resources.map((link, i) => (
                 <li key={`${link.href}-${link.label.en}`}>
                   <Link href={hrefFor(link.href)} className="text-sm text-background/70 hover:text-background transition-colors">
-                    {link.label[locale]}
+                    {value(`footer.links.resources.${i}`, link.label[locale], { listOnly: true })}
                   </Link>
                 </li>
               ))}
@@ -142,7 +116,7 @@ export function Footer() {
 
         <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-background/50">
-            © {new Date().getFullYear()} Montreal Canine Training. {t("footer.allRightsReserved")}
+            © {new Date().getFullYear()} Montreal Canine Training. {value("footer.allRightsReserved", t("footer.allRightsReserved"))}
           </p>
           <div className="flex gap-6 text-sm text-background/50">
             <Link href={hrefFor("/privacy")} className="hover:text-background transition-colors">

@@ -13,6 +13,7 @@ import { FreeCallLink } from "@/components/booking-form-provider"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname, stripLocaleFromPathname } from "@/lib/i18n/config"
+import { useEditableValue } from "@/lib/site-editing/use-editable"
 
 const navLinks = [
   { labelKey: "trainingPrograms", href: "/services" },
@@ -28,6 +29,9 @@ const navLinks = [
 
 export function Header() {
   const t = useTranslations("common")
+  const value = useEditableValue()
+  // Menu labels are list-only: clicking them in the editor still navigates.
+  const nav = (key: string) => value(`header.nav.${key}`, t(`nav.${key}` as Parameters<typeof t>[0]), { listOnly: true })
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
@@ -69,10 +73,10 @@ export function Header() {
           <div className="hidden xl:flex items-center gap-5">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex min-h-11 items-center gap-1 text-sm font-medium text-black focus-visible:outline-2 focus-visible:outline-primary">
-                {t("nav.trainingPrograms")}<ChevronDown className="size-3.5" aria-hidden />
+                {nav("trainingPrograms")}<ChevronDown className="size-3.5" aria-hidden />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-60 rounded-2xl p-2" sideOffset={12}>
-                {navLinks.filter((link) => ["/services", "/group-classes", "/apprenticeships"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
+                {navLinks.filter((link) => ["/services", "/group-classes", "/apprenticeships"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{nav(link.labelKey)}</Link></DropdownMenuItem>)}
               </DropdownMenuContent>
             </DropdownMenu>
             {navLinks.filter((link) => ["/daycare", "/grooming", "/training-offer", "/results"].includes(link.href)).map((link) => (
@@ -85,15 +89,15 @@ export function Header() {
                     : "text-black hover:text-black/70"
                 }`}
               >
-                {t(`nav.${link.labelKey}`)}
+                {nav(link.labelKey)}
               </Link>
             ))}
             <DropdownMenu>
               <DropdownMenuTrigger className="flex min-h-11 items-center gap-1 text-sm font-medium text-black focus-visible:outline-2 focus-visible:outline-primary">
-                {t("nav.more")}<ChevronDown className="size-3.5" aria-hidden />
+                {nav("more")}<ChevronDown className="size-3.5" aria-hidden />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-44 rounded-2xl p-2" sideOffset={12}>
-                {navLinks.filter((link) => ["/about", "/faq"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{t(`nav.${link.labelKey}`)}</Link></DropdownMenuItem>)}
+                {navLinks.filter((link) => ["/about", "/faq"].includes(link.href)).map((link) => <DropdownMenuItem key={link.href} asChild><Link href={localeHref(link.href)} className="min-h-11 rounded-lg">{nav(link.labelKey)}</Link></DropdownMenuItem>)}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -111,7 +115,7 @@ export function Header() {
             </FreeCallLink>
             <FreeCallLink>
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6">
-                {t("bookFreeCall")}
+                {value("header.bookFreeCall", t("bookFreeCall"))}
               </Button>
             </FreeCallLink>
           </div>
@@ -145,7 +149,7 @@ export function Header() {
                         }`}
                         onClick={() => setIsOpen(false)}
                       >
-                        {t(`nav.${link.labelKey}`)}
+                        {nav(link.labelKey)}
                       </Link>
                     ))}
                   </div>
@@ -162,7 +166,7 @@ export function Header() {
                     </FreeCallLink>
                     <FreeCallLink onClick={() => setIsOpen(false)}>
                       <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-full h-11">
-                        {t("bookFreeCall")}
+                        {value("header.bookFreeCall", t("bookFreeCall"))}
                       </Button>
                     </FreeCallLink>
                   </div>

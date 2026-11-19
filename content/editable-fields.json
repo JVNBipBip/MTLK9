@@ -4756,6 +4756,496 @@
         "fr": "Dites-nous où vous êtes dans l'Ouest-de-l'Île et ce que fait votre chien. Nous commencerons par un appel gratuit de 15 minutes et vous recommanderons le bon programme — sans que vous ayez à vous déplacer."
       },
       "maxLength": 290
+    },
+    "header.nav.trainingPrograms": {
+      "source": "data",
+      "dataPath": "messages/common.nav.trainingPrograms",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Training Programs”",
+      "default": {
+        "en": "Training Programs",
+        "fr": "Entraînement"
+      },
+      "maxLength": 25
+    },
+    "header.nav.groupClasses": {
+      "source": "data",
+      "dataPath": "messages/common.nav.groupClasses",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Group Classes”",
+      "default": {
+        "en": "Group Classes",
+        "fr": "Cours de groupe"
+      },
+      "maxLength": 20
+    },
+    "header.nav.daycare": {
+      "source": "data",
+      "dataPath": "messages/common.nav.daycare",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Daycare”",
+      "default": {
+        "en": "Daycare",
+        "fr": "Garderie"
+      },
+      "maxLength": 20
+    },
+    "header.nav.grooming": {
+      "source": "data",
+      "dataPath": "messages/common.nav.grooming",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Grooming”",
+      "default": {
+        "en": "Grooming",
+        "fr": "Toilettage"
+      },
+      "maxLength": 20
+    },
+    "header.nav.apprenticeships": {
+      "source": "data",
+      "dataPath": "messages/common.nav.apprenticeships",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Trainer Apprenticeships”",
+      "default": {
+        "en": "Trainer Apprenticeships",
+        "fr": "Apprentissage pour entraîneurs"
+      },
+      "maxLength": 40
+    },
+    "header.nav.results": {
+      "source": "data",
+      "dataPath": "messages/common.nav.results",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “Results”",
+      "default": {
+        "en": "Results",
+        "fr": "Résultats"
+      },
+      "maxLength": 20
+    },
+    "header.nav.aboutUs": {
+      "source": "data",
+      "dataPath": "messages/common.nav.aboutUs",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “About Us”",
+      "default": {
+        "en": "About Us",
+        "fr": "À propos"
+      },
+      "maxLength": 20
+    },
+    "header.nav.faq": {
+      "source": "data",
+      "dataPath": "messages/common.nav.faq",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “FAQ”",
+      "default": {
+        "en": "FAQ",
+        "fr": "FAQ"
+      },
+      "maxLength": 20
+    },
+    "header.nav.more": {
+      "source": "data",
+      "dataPath": "messages/common.nav.more",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Menu: “More”",
+      "default": {
+        "en": "More",
+        "fr": "Plus"
+      },
+      "maxLength": 20
+    },
+    "header.bookFreeCall": {
+      "source": "data",
+      "dataPath": "messages/common.bookFreeCall",
+      "pages": [
+        "*"
+      ],
+      "section": "Header (every page)",
+      "label": "Main button in the menu bar",
+      "default": {
+        "en": "Contact Us",
+        "fr": "Contactez-nous"
+      },
+      "maxLength": 20
+    },
+    "footer.description": {
+      "source": "data",
+      "dataPath": "messages/common.footer.description",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Paragraph under the name",
+      "default": {
+        "en": "Real-world training for real Montreal life. Calm walks, confident dogs, and clear plans — through humane methods and a team of specialists who have seen it all before.",
+        "fr": "Un entraînement concret pour la vraie vie à Montréal. Des promenades calmes, des chiens confiants et des plans clairs, avec des méthodes humaines et une équipe de spécialistes expérimentés."
+      },
+      "maxLength": 265
+    },
+    "footer.trainingPrograms": {
+      "source": "data",
+      "dataPath": "messages/common.footer.trainingPrograms",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Column 1 title",
+      "default": {
+        "en": "Training Programs",
+        "fr": "Entraînement"
+      },
+      "maxLength": 30
+    },
+    "footer.company": {
+      "source": "data",
+      "dataPath": "messages/common.footer.company",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Column 2 title",
+      "default": {
+        "en": "Company",
+        "fr": "Entreprise"
+      },
+      "maxLength": 30
+    },
+    "footer.getStarted": {
+      "source": "data",
+      "dataPath": "messages/common.footer.getStarted",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Column 3 title",
+      "default": {
+        "en": "Get Started",
+        "fr": "Commencer"
+      },
+      "maxLength": 30
+    },
+    "footer.allRightsReserved": {
+      "source": "data",
+      "dataPath": "messages/common.footer.allRightsReserved",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Copyright line (after the year and name)",
+      "default": {
+        "en": "All rights reserved.",
+        "fr": "Tous droits réservés."
+      },
+      "maxLength": 30
+    },
+    "footer.links.training.0": {
+      "source": "data",
+      "dataPath": "footer-links/training/0",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Day Training”",
+      "default": {
+        "en": "Day Training",
+        "fr": "Entraînement de jour"
+      },
+      "maxLength": 25
+    },
+    "footer.links.training.1": {
+      "source": "data",
+      "dataPath": "footer-links/training/1",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Daycare”",
+      "default": {
+        "en": "Daycare",
+        "fr": "Garderie"
+      },
+      "maxLength": 20
+    },
+    "footer.links.training.2": {
+      "source": "data",
+      "dataPath": "footer-links/training/2",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Grooming · MTL Canine Spa”",
+      "default": {
+        "en": "Grooming · MTL Canine Spa",
+        "fr": "Toilettage · MTL Canine Spa"
+      },
+      "maxLength": 35
+    },
+    "footer.links.training.3": {
+      "source": "data",
+      "dataPath": "footer-links/training/3",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Trainer Apprenticeships”",
+      "default": {
+        "en": "Trainer Apprenticeships",
+        "fr": "Apprentissage pour entraîneurs"
+      },
+      "maxLength": 40
+    },
+    "footer.links.training.5": {
+      "source": "data",
+      "dataPath": "footer-links/training/5",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Consultation”",
+      "default": {
+        "en": "Consultation",
+        "fr": "Consultation"
+      },
+      "maxLength": 20
+    },
+    "footer.links.training.6": {
+      "source": "data",
+      "dataPath": "footer-links/training/6",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Reactivity Training”",
+      "default": {
+        "en": "Reactivity Training",
+        "fr": "Réactivité"
+      },
+      "maxLength": 25
+    },
+    "footer.links.training.7": {
+      "source": "data",
+      "dataPath": "footer-links/training/7",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Aggressive Dog Training”",
+      "default": {
+        "en": "Aggressive Dog Training",
+        "fr": "Chien agressif"
+      },
+      "maxLength": 30
+    },
+    "footer.links.training.8": {
+      "source": "data",
+      "dataPath": "footer-links/training/8",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Separation Anxiety”",
+      "default": {
+        "en": "Separation Anxiety",
+        "fr": "Anxiété de séparation"
+      },
+      "maxLength": 30
+    },
+    "footer.links.training.9": {
+      "source": "data",
+      "dataPath": "footer-links/training/9",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Private Classes”",
+      "default": {
+        "en": "Private Classes",
+        "fr": "Cours privés"
+      },
+      "maxLength": 20
+    },
+    "footer.links.training.10": {
+      "source": "data",
+      "dataPath": "footer-links/training/10",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Obedience Training”",
+      "default": {
+        "en": "Obedience Training",
+        "fr": "Obéissance"
+      },
+      "maxLength": 25
+    },
+    "footer.links.training.11": {
+      "source": "data",
+      "dataPath": "footer-links/training/11",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Puppy Training”",
+      "default": {
+        "en": "Puppy Training",
+        "fr": "Chiots"
+      },
+      "maxLength": 20
+    },
+    "footer.links.training.12": {
+      "source": "data",
+      "dataPath": "footer-links/training/12",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “In-Home Training”",
+      "default": {
+        "en": "In-Home Training",
+        "fr": "À domicile"
+      },
+      "maxLength": 20
+    },
+    "footer.links.training.13": {
+      "source": "data",
+      "dataPath": "footer-links/training/13",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “West Island Dog Training”",
+      "default": {
+        "en": "West Island Dog Training",
+        "fr": "Dressage Ouest-de-l'Île"
+      },
+      "maxLength": 30
+    },
+    "footer.links.company.0": {
+      "source": "data",
+      "dataPath": "footer-links/company/0",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “About Us”",
+      "default": {
+        "en": "About Us",
+        "fr": "À propos"
+      },
+      "maxLength": 20
+    },
+    "footer.links.company.1": {
+      "source": "data",
+      "dataPath": "footer-links/company/1",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Results”",
+      "default": {
+        "en": "Results",
+        "fr": "Résultats"
+      },
+      "maxLength": 20
+    },
+    "footer.links.company.2": {
+      "source": "data",
+      "dataPath": "footer-links/company/2",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “FAQ”",
+      "default": {
+        "en": "FAQ",
+        "fr": "FAQ"
+      },
+      "maxLength": 20
+    },
+    "footer.links.company.3": {
+      "source": "data",
+      "dataPath": "footer-links/company/3",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Contact”",
+      "default": {
+        "en": "Contact",
+        "fr": "Contact"
+      },
+      "maxLength": 20
+    },
+    "footer.links.resources.0": {
+      "source": "data",
+      "dataPath": "footer-links/resources/0",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Contact Us for a Free Call”",
+      "default": {
+        "en": "Contact Us for a Free Call",
+        "fr": "Appel découverte gratuit"
+      },
+      "maxLength": 35
+    },
+    "footer.links.resources.1": {
+      "source": "data",
+      "dataPath": "footer-links/resources/1",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Book an Evaluation”",
+      "default": {
+        "en": "Book an Evaluation",
+        "fr": "Réserver une évaluation"
+      },
+      "maxLength": 30
+    },
+    "footer.links.resources.2": {
+      "source": "data",
+      "dataPath": "footer-links/resources/2",
+      "pages": [
+        "*"
+      ],
+      "section": "Footer (every page)",
+      "label": "Footer link: “Google Reviews”",
+      "default": {
+        "en": "Google Reviews",
+        "fr": "Avis Google"
+      },
+      "maxLength": 20
     }
   },
   "images": {
