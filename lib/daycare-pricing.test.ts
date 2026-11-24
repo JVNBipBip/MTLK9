@@ -1,4 +1,30 @@
-import { quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "./daycare-pricing"
+import { DAYCARE_PROMO, daycarePromoActive, quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "./daycare-pricing"
+
+// Regular-price tests must not depend on whether today falls inside a sale.
+beforeAll(() => { jest.useFakeTimers({ now: Date.parse("2026-11-03T12:00:00-05:00") }) })
+afterAll(() => { jest.useRealTimers() })
+
+describe("Black Friday 2026 daycare sale", () => {
+  const at = (iso: string) => Date.parse(iso)
+  it("runs Thursday 00:00 through Sunday 23:59 Montreal time", () => {
+    expect(daycarePromoActive(at("2026-11-25T23:59:59-05:00"))).toBe(false)
+    expect(daycarePromoActive(at("2026-11-26T00:00:00-05:00"))).toBe(true)
+    expect(daycarePromoActive(at("2026-11-29T23:59:59-05:00"))).toBe(true)
+    expect(daycarePromoActive(at("2026-11-30T00:00:00-05:00"))).toBe(false)
+  })
+  it("replaces the bundle discounts with 12/18/25% and keeps the regular price as compare-at", () => {
+    const now = at("2026-11-27T10:00:00-05:00")
+    expect(quoteDaycare("full", [], 1, false, now)).toMatchObject({ totalCents: 5500, promo: null })
+    expect(quoteDaycare("full", [], 5, false, now)).toMatchObject({ discountPercent: 12, totalCents: 24200, standardTotalCents: 26125, promo: DAYCARE_PROMO.id })
+    expect(quoteDaycare("full", [], 10, false, now)).toMatchObject({ discountPercent: 18, totalCents: 45100, standardTotalCents: 51150 })
+    expect(quoteDaycare("full", [], 20, false, now)).toMatchObject({ discountPercent: 25, totalCents: 82500, standardTotalCents: 96800 })
+    // Second-dog 30% still stacks after the bundle discount.
+    expect(quoteDaycare("full", [], 20, true, now).totalCents).toBe(82500 - Math.round(82500 * 0.3))
+  })
+  it("goes back to regular pricing after the sale", () => {
+    expect(quoteDaycare("full", [], 20, false, at("2026-11-30T00:00:00-05:00"))).toMatchObject({ discountPercent: 12, totalCents: 96800, standardTotalCents: 96800, promo: null })
+  })
+})
 
 describe("approved daycare pricing", () => {
   it("matches all 128 combinations against Nick’s rates, bundle percentages and additional second-dog discount",()=>{

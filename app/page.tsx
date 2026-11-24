@@ -12,6 +12,8 @@ import { ServicesOverview } from "@/components/services-overview"
 import { TrainingMoments } from "@/components/training-moments"
 import { getFaqData } from "@/lib/faq-data"
 import { getRequestLocale } from "@/lib/seo"
+import { DaycarePromoBanner } from "@/components/daycare-promo-banner"
+import { daycarePromoActive } from "@/lib/daycare-pricing"
 
 export default async function Home() {
   const locale = await getRequestLocale()
@@ -19,6 +21,7 @@ export default async function Home() {
     <main className="min-h-screen bg-background">
       <Header />
       <HeroSection />
+      {daycarePromoActive() && <div className="px-5 pt-8 md:px-8"><DaycarePromoBanner locale={locale} className="mx-auto max-w-6xl" /></div>}
       <TrustStrip />
       <ServicesOverview />
       <PainPointsSection />
