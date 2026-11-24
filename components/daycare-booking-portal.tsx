@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   daycareMoney,
-  DAYCARE_BASE_CENTS, DAYCARE_ADD_ON_CENTS, DAYCARE_DISCOUNT_PERCENT,
+  DAYCARE_BASE_CENTS, DAYCARE_ADD_ON_CENTS, DAYCARE_PROMO,
+  daycareDiscountPercent,
   quoteDaycare,
   type DaycareStay,
   type DaycareAddOn,
@@ -15,6 +16,7 @@ import { DaycareDatePicker, DaycareSelect } from "./daycare-date-picker";
 import { bookableDaycarePasses, type DaycarePortal as Portal, type DaycarePortalBooking, type DaycarePortalDog } from "@/lib/daycare-portal-types";
 import { DaycareHouseholdReservationForm } from "./daycare-household-reservation-form";
 import { getBusinessDetails } from "@/lib/business-details";
+import { useDaycareNow } from "@/lib/use-daycare-now";
 type Booking = DaycarePortalBooking & { applicationId: string; dogName: string };
 const errors: Record<string, [string, string]> = {
   unauthorized: [
@@ -83,6 +85,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
   const [showAll,setShowAll] = useState(false);
   // null = follow the account: book when a paid balance exists, otherwise buy first.
   const [step, setStep] = useState<"buy" | "book" | null>(null);
+  const now = useDaycareNow();
   const [editing, setEditing] = useState<Booking | null>(null),
     [slot, setSlot] = useState<DaycareSlot>({
       date: "",
@@ -166,7 +169,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
       timeZone: "America/Toronto",
     });
   const selectedDog = data?.dogs.find(dog => dog.id === selectedDogId) || data?.dogs[0];
-  const quote = quoteDaycare(stay, addOns, visits, selectedDog?.secondDog);
+  // Display only: the server re-prices at checkout with its own clock.
+  const quote = quoteDaycare(stay, addOns, visits, selectedDog?.secondDog, now);
   const today = torontoDate();
   const upcoming =
     data?.dogs.flatMap(dog => dog.bookings.map(b => ({ ...b, applicationId: dog.id, dogName: dog.dogName }))).filter((b) => b.status === "booked" && b.date >= today).sort((a,b)=>a.date.localeCompare(b.date) || a.arrival.localeCompare(b.arrival)) ||
@@ -595,7 +599,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                           <input type="radio" name="daycare-visits" className="size-5 shrink-0 accent-primary" checked={visits === n} onChange={() => { setVisits(n as DaycareVisits); setPlannedDates([]); }} />
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          {n === 1 ? t("Single visit", "Visite unique") : <>−{DAYCARE_DISCOUNT_PERCENT[n]}% · {DAYCARE_BUNDLE_WEEKS[n]} {t("weeks", "semaines")}</>}
+                          {n === 1 ? t("Single visit", "Visite unique") : <><span className={daycareDiscountPercent(n, now) !== daycareDiscountPercent(n, 0) ? "font-semibold text-primary" : undefined}>−{daycareDiscountPercent(n, now)}%</span> · {DAYCARE_BUNDLE_WEEKS[n]} {t("weeks", "semaines")}</>}
                         </span>
                       </label>
                     ))}
@@ -616,7 +620,8 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
               </div>
               <div className="rounded-2xl bg-primary p-6 text-primary-foreground lg:sticky lg:top-28">
                 <p className="text-sm opacity-80">{t("Total before GST & QST", "Total avant TPS et TVQ")}</p>
-                <p className="mt-1 text-4xl font-semibold tabular-nums">{money(quote.totalCents)}</p>
+                {quote.promo && <p className="mt-2 inline-block rounded-full bg-primary-foreground/15 px-2.5 py-0.5 text-xs font-semibold">{t(`${DAYCARE_PROMO.en} −${quote.discountPercent}%`, `${DAYCARE_PROMO.fr} −${quote.discountPercent} %`)}</p>}
+                <p className="mt-1 flex flex-wrap items-baseline gap-x-3">{quote.promo && <s className="text-xl tabular-nums opacity-60"><span className="sr-only">{t("Regular price ", "Prix régulier ")}</span>{money(quote.standardTotalCents)}</s>}<span className="text-4xl font-semibold tabular-nums">{money(quote.totalCents)}</span></p>
                 <dl className="mt-4 space-y-1.5 text-sm">
                   <div className="flex justify-between gap-3"><dt className="opacity-80">{visits} × {stay === "half" ? t("half day", "demi-journée") : t("full day", "journée complète")}</dt><dd className="tabular-nums">{money(quote.perVisitCents)} {t("each", "chacune")}</dd></div>
                   {quote.savingsCents > 0 && <div className="flex justify-between gap-3 font-semibold"><dt>{t("You save", "Vous économisez")}</dt><dd className="tabular-nums">{money(quote.savingsCents)}</dd></div>}

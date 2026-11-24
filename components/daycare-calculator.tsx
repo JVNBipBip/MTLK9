@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { Check, Plus } from "lucide-react"
-import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_DISCOUNT_PERCENT, daycareMoney, quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "@/lib/daycare-pricing"
+import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_DISCOUNT_PERCENT, DAYCARE_PROMO, daycareDiscountPercent, daycareMoney, daycarePromoActive, quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "@/lib/daycare-pricing"
 import { daycareBundleWindow, daycareStayDuration } from "@/lib/daycare-policy"
 import type { AppLocale } from "@/lib/i18n/config"
+import { useDaycareNow } from "@/lib/use-daycare-now"
 
 const options = [
   { key: "training", en: "Complete Training", fr: "Entraînement complet", detailEn: "Obedience, manners and your own training goals.", detailFr: "Obéissance, bonnes manières et vos objectifs." },
@@ -12,12 +13,14 @@ const options = [
   { key: "individual", en: "One-on-One Play", fr: "Jeux individuels", detailEn: "Personal attention, play and enrichment.", detailFr: "Attention personnalisée, jeux et enrichissement." },
 ] as const
 
-export function DaycareCalculator({ locale }: { locale: AppLocale }) {
+export function DaycareCalculator({ locale, initialNow }: { locale: AppLocale; initialNow?: number }) {
   const fr = locale === "fr"
   const [stay, setStay] = useState<DaycareStay>("full")
   const [addOns, setAddOns] = useState<DaycareAddOn[]>([])
   const [visits, setVisits] = useState<DaycareVisits>(1)
-  const quote = quoteDaycare(stay, addOns, visits)
+  const now = useDaycareNow(initialNow)
+  const promoOn = daycarePromoActive(now)
+  const quote = quoteDaycare(stay, addOns, visits, false, now)
   const bundleWindow = daycareBundleWindow(visits, locale)
   const money = (cents: number) => daycareMoney(cents, locale)
   const choice = "relative flex cursor-pointer items-center justify-between gap-3 rounded-2xl border p-5 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-primary"
@@ -48,7 +51,10 @@ export function DaycareCalculator({ locale }: { locale: AppLocale }) {
           {([1, 5, 10, 20] as const).map(value => <label key={value} className={choice}>
             <input type="radio" name="daycare-visits" checked={visits === value} onChange={() => setVisits(value)} className="size-4 accent-primary" />
             <span className="flex-1"><span className="block font-semibold">{value} {fr ? (value === 1 ? "visite" : "visites") : (value === 1 ? "visit" : "visits")}</span>
-              <span className="mt-1 block text-xs text-muted-foreground">{value === 1 ? (fr ? "À la carte" : "Pay per visit") : (fr ? `−${DAYCARE_DISCOUNT_PERCENT[value]} %` : `Save ${DAYCARE_DISCOUNT_PERCENT[value]}%`)}</span>
+              <span className="mt-1 block text-xs text-muted-foreground">{value === 1 ? (fr ? "À la carte" : "Pay per visit") : promoOn
+                ? <><s className="mr-1.5">{fr ? `−${DAYCARE_DISCOUNT_PERCENT[value]} %` : `${DAYCARE_DISCOUNT_PERCENT[value]}%`}</s><strong className="text-primary">{fr ? `−${daycareDiscountPercent(value, now)} %` : `Save ${daycareDiscountPercent(value, now)}%`}</strong></>
+                : (fr ? `−${DAYCARE_DISCOUNT_PERCENT[value]} %` : `Save ${DAYCARE_DISCOUNT_PERCENT[value]}%`)}</span>
+              {value !== 1 && promoOn && <span className="mt-1.5 inline-block rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{fr ? DAYCARE_PROMO.fr : DAYCARE_PROMO.en}</span>}
               {value !== 1 && <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">{daycareBundleWindow(value, locale)}</span>}
               {value === 20 && <span className="mt-2 block text-xs font-semibold text-primary">{fr ? "Meilleur prix" : "Best value"}</span>}
             </span>
@@ -62,9 +68,9 @@ export function DaycareCalculator({ locale }: { locale: AppLocale }) {
       <dl className="mt-7 space-y-4 text-sm">
         <div className="flex justify-between gap-4"><dt>{fr ? "Prix régulier par visite" : "Regular price per visit"}</dt><dd>{money(quote.regularPerVisitCents)}</dd></div>
         <div className="flex justify-between gap-4"><dt>{fr ? "Nombre de visites" : "Number of visits"}</dt><dd>{visits}</dd></div>
-        <div className="flex justify-between gap-4"><dt>{fr ? "Rabais du forfait" : "Bundle discount"}</dt><dd>{quote.discountPercent}{fr ? " %" : "%"}</dd></div>
+        <div className="flex justify-between gap-4"><dt>{quote.promo ? (fr ? `Rabais ${DAYCARE_PROMO.fr}` : `${DAYCARE_PROMO.en} discount`) : (fr ? "Rabais du forfait" : "Bundle discount")}</dt><dd>{quote.promo && <s className="mr-2 text-primary-foreground/60">{quote.standardDiscountPercent}{fr ? " %" : "%"}</s>}{quote.discountPercent}{fr ? " %" : "%"}</dd></div>
         {quote.savingsCents > 0 && <div className="flex justify-between gap-4 font-semibold"><dt>{fr ? "Vous économisez" : "You save"}</dt><dd>{money(quote.savingsCents)}</dd></div>}
-        <div className="border-t border-white/20 pt-6"><dt className="text-primary-foreground/75">{fr ? "Total avant taxes" : "Total before tax"}</dt><dd className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">{money(quote.totalCents)}</dd></div>
+        <div className="border-t border-white/20 pt-6"><dt className="text-primary-foreground/75">{fr ? "Total avant taxes" : "Total before tax"}</dt><dd className="mt-2 flex flex-wrap items-baseline gap-x-3">{quote.promo && <s className="text-xl text-primary-foreground/60 sm:text-2xl"><span className="sr-only">{fr ? "Prix régulier " : "Regular price "}</span>{money(quote.standardTotalCents)}</s>}<span className="text-4xl font-semibold tracking-tight sm:text-5xl">{money(quote.totalCents)}</span></dd></div>
       </dl>
       <p className="mt-4 flex items-center gap-2 text-sm"><Check className="size-4" aria-hidden />{money(quote.perVisitCents)} {fr ? "par visite" : "per visit"}</p>
       {bundleWindow && <p className="mt-4 text-sm font-medium">{bundleWindow}</p>}

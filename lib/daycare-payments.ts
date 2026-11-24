@@ -10,6 +10,7 @@ import { parseDaycarePlan } from "./daycare-plan";
 import { daycareHash } from "./daycare-booking-store";
 import { daycareHouseholdAccounts, type DaycarePrincipal } from "./daycare-household";
 import {
+  DAYCARE_PROMO,
   quoteDaycare,
   type DaycareAddOn,
   type DaycareStay,
@@ -186,7 +187,7 @@ export async function createDaycareCheckout(
       ...(customer.customerId ? { customer_id: customer.customerId } : {}),
       line_items: [
         {
-          name: `Daycare · ${input.stay === "half" ? "Half day" : "Full day"} · ${input.visits} visit(s)${input.addOns.length ? ` · ${input.addOns.join(", ")}` : ""}${account.secondDog ? " · second dog 30%" : ""}`,
+          name: `Daycare · ${input.stay === "half" ? "Half day" : "Full day"} · ${input.visits} visit(s)${input.addOns.length ? ` · ${input.addOns.join(", ")}` : ""}${quote.promo ? ` · ${DAYCARE_PROMO.en} ${quote.discountPercent}%` : ""}${account.secondDog ? " · second dog 30%" : ""}`,
           quantity: "1",
           base_price_money: { amount: quote.totalCents, currency: "CAD" },
         },

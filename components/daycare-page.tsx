@@ -7,7 +7,8 @@ import { DaycarePolicy } from "@/components/daycare-policy"
 import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
 import { EditableImage } from "@/components/editable-image"
 import { EditableText } from "@/components/editable-text"
-import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, daycareMoney, quoteDaycare } from "@/lib/daycare-pricing"
+import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_PROMO, daycareDiscountPercent, daycareMoney, daycarePromoActive, quoteDaycare } from "@/lib/daycare-pricing"
+import { DaycarePromoBanner } from "@/components/daycare-promo-banner"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 import { getBusinessDetails } from "@/lib/business-details"
@@ -23,6 +24,9 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
   const t = (en: string, french: string) => fr ? french : en
   const training = focus === "day-training"
   const money = (cents: number) => daycareMoney(cents, locale)
+  const now = Date.now()
+  const promoOn = daycarePromoActive(now)
+  const pct = (visits: 5 | 10 | 20) => daycareDiscountPercent(visits, now)
   const fullExperience = (stay: "half" | "full") => money(quoteDaycare(stay, ["training", "treadmill", "individual"], 1).totalCents)
   const text = (id: TextFieldId) => <EditableText id={id} locale={locale} />
   const included: TextFieldId[] = [
@@ -46,6 +50,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
         <div>
           <Link href={localizedPath(locale, "/")} className="mb-7 inline-block py-2 text-sm text-muted-foreground">← {t("Home", "Accueil")}</Link>
+          <DaycarePromoBanner locale={locale} now={now} className="mb-8" />
           <p className="mb-4 text-sm font-semibold text-primary">{text("daycare.hero.eyebrow")}</p>
           <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{text(training ? "daycare.hero.headingDayTraining" : "daycare.hero.heading")}</h1>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">{text(training ? "daycare.hero.introDayTraining" : "daycare.hero.intro")}</p>
@@ -96,8 +101,8 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
       <div className="mx-auto max-w-6xl">
         <p className="mb-3 text-sm font-semibold text-primary">{text("daycare.pricing.eyebrow")}</p>
         <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">{text("daycare.pricing.heading")}</h2>
-        <p className="mt-4 mb-10 max-w-2xl leading-relaxed text-muted-foreground">{t("Bundle 5 visits and save 5%, 10 visits and save 7%, or 20 visits and save 12%. Your selected add-ons receive the same discount.", "Économisez 5 % sur 5 visites, 7 % sur 10 visites ou 12 % sur 20 visites. Le même rabais s’applique aux options choisies.")}</p>
-        <DaycareCalculator locale={locale} />
+        <p className="mt-4 mb-10 max-w-2xl leading-relaxed text-muted-foreground">{t(`Bundle 5 visits and save ${pct(5)}%, 10 visits and save ${pct(10)}%, or 20 visits and save ${pct(20)}%. Your selected add-ons receive the same discount.`, `Économisez ${pct(5)} % sur 5 visites, ${pct(10)} % sur 10 visites ou ${pct(20)} % sur 20 visites. Le même rabais s’applique aux options choisies.`)}{promoOn && <strong className="text-foreground"> {t(`${DAYCARE_PROMO.en} pricing until Sunday at midnight, applied automatically.`, `Prix du ${DAYCARE_PROMO.fr} jusqu’à dimanche minuit, appliqués automatiquement.`)}</strong>}</p>
+        <DaycareCalculator locale={locale} initialNow={now} />
       </div>
     </section>
 
