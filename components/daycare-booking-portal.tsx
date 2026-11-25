@@ -12,7 +12,7 @@ import {
   daycareRates,
   PUBLISHED_RATES,
 } from "@/lib/daycare-pricing";
-import { PriceTag } from "@/components/price-tag";
+import { percentOff, PriceTag } from "@/components/price-tag";
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices";
 import { torontoDate, torontoTime, type DaycareSlot } from "@/lib/daycare-booking";
 import { DAYCARE_BUNDLE_WEEKS } from "@/lib/daycare-policy";
@@ -568,7 +568,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                         <span className="min-w-0 flex-1">
                           <span className="flex flex-wrap justify-between gap-x-3 font-semibold">
                             <span>{key === "half" ? t("Half day", "Demi-journée") : t("Full day", "Journée complète")}</span>
-                            <span className="tabular-nums"><PriceTag locale={fr ? "fr" : "en"} price={money(rates.base[key])} compareAt={rates.compareAt[key] && money(rates.compareAt[key]!)} /></span>
+                            <span className="tabular-nums"><PriceTag locale={fr ? "fr" : "en"} price={money(rates.base[key])} compareAt={rates.compareAt[key] && money(rates.compareAt[key]!)} percentOff={percentOff(rates.compareAt[key], rates.base[key])} /></span>
                           </span>
                           <span className="mt-0.5 block text-sm text-muted-foreground">{key === "half" ? t("Up to 6 hours", "Jusqu’à 6 h") : t("More than 6, up to 11 hours", "Plus de 6 h, jusqu’à 11 h")}</span>
                         </span>
@@ -589,7 +589,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                         />
                         <span className="flex min-w-0 flex-1 flex-wrap justify-between gap-x-3">
                           <span className="font-medium">{addOnLabel(key)}</span>
-                          <span className="tabular-nums text-muted-foreground">+<PriceTag locale={fr ? "fr" : "en"} price={money(rates.addOns[key])} compareAt={rates.compareAt[key] && money(rates.compareAt[key]!)} /></span>
+                          <span className="tabular-nums text-muted-foreground">+<PriceTag locale={fr ? "fr" : "en"} price={money(rates.addOns[key])} compareAt={rates.compareAt[key] && money(rates.compareAt[key]!)} percentOff={percentOff(rates.compareAt[key], rates.addOns[key])} /></span>
                         </span>
                       </label>
                     ))}

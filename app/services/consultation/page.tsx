@@ -13,7 +13,7 @@ import { useAppLocale } from "@/components/locale-provider"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
 import { PUBLISHED_PRICES, usd, usdCompareAt } from "@/lib/prices"
-import { PriceTag } from "@/components/price-tag"
+import { percentOff, PriceTag } from "@/components/price-tag"
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
 /** Owner-editable as services.consultation.covers.<n>. */
@@ -132,7 +132,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.puppy2Months5", "Puppy (2 months–5 months)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        <PriceTag locale={locale} price={t(`${usd("consultation.young", book.price)}+tx | 75 minutes`)} compareAt={usdCompareAt("consultation.young", book) && t(usdCompareAt("consultation.young", book)!)} />
+                        <PriceTag locale={locale} price={t(`${usd("consultation.young", book.price)}+tx | 75 minutes`)} compareAt={usdCompareAt("consultation.young", book) && t(usdCompareAt("consultation.young", book)!)} percentOff={percentOff(book.compareAt("consultation.young"), book.price("consultation.young"))} />
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
@@ -140,7 +140,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.adolescentAdult5Months", "Adolescent/Adult (5 months +)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        <PriceTag locale={locale} price={t(`${usd("consultation.adult", book.price)}+tx | 75 minutes`)} compareAt={usdCompareAt("consultation.adult", book) && t(usdCompareAt("consultation.adult", book)!)} />
+                        <PriceTag locale={locale} price={t(`${usd("consultation.adult", book.price)}+tx | 75 minutes`)} compareAt={usdCompareAt("consultation.adult", book) && t(usdCompareAt("consultation.adult", book)!)} percentOff={percentOff(book.compareAt("consultation.adult"), book.price("consultation.adult"))} />
                       </p>
                     </div>
                   </div>

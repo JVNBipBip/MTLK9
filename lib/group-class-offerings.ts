@@ -14,6 +14,8 @@ export type GroupClassOffering = {
   packagePrice?: string
   /** "$400" when the package is on sale (crossed out, with a Sale badge). */
   packageCompareAt?: string
+  /** Percent saved on the package when on sale. */
+  packageSavePercent?: number
   unitPrice?: string
   packageDetail?: string
   note?: string
@@ -41,6 +43,10 @@ export type GroupClassOffering = {
 export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): GroupClassOffering[] {
   const usd = (id: PriceId) => usdOf(id, book.price)
   const compareAt = (id: PriceId) => usdCompareAt(id, book)
+  const savePercent = (id: PriceId) => {
+    const regular = book.compareAt(id)
+    return regular ? Math.round((1 - book.price(id) / regular) * 100) : undefined
+  }
   const sections = buildInFacilityPricingSections(book)
   const rowsFromSections = (...labels: string[]): InFacilityPriceRow[] => {
   const wanted = new Set(labels)
@@ -110,6 +116,7 @@ export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): Gr
     imageAvif: "/images/Classes images/teen_puppy.avif",
     packagePrice: `${usd("group.teenPackage")} + tax`,
     packageCompareAt: compareAt("group.teenPackage"),
+    packageSavePercent: savePercent("group.teenPackage"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · dogs 5–9 months",
     heroTitle: "Teen Puppy Class in Montreal",
@@ -164,6 +171,7 @@ export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): Gr
     image: "/images/Classes images/reactivity_group_class.webp",
     packagePrice: `${usd("group.reactivityPackage")} + tax`,
     packageCompareAt: compareAt("group.reactivityPackage"),
+    packageSavePercent: savePercent("group.reactivityPackage"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · reactivity & triggers",
     heroTitle: "Reactivity Group Class in Montreal",
@@ -219,6 +227,7 @@ export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): Gr
     imageClassName: "object-[center_30%]",
     packagePrice: `${usd("group.level1Package")} + tax`,
     packageCompareAt: compareAt("group.level1Package"),
+    packageSavePercent: savePercent("group.level1Package"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · basic obedience",
     heroTitle: "Level 1 Obedience Class in Montreal",
@@ -271,6 +280,7 @@ export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): Gr
     image: "/images/mt_royal_image.jpg",
     packagePrice: `${usd("group.level2Package")} + tax`,
     packageCompareAt: compareAt("group.level2Package"),
+    packageSavePercent: savePercent("group.level2Package"),
     packageDetail: "for 5 classes",
     heroEyebrow: "5-class series · pack walks",
     heroTitle: "Level 2 Obedience Class in Montreal",
@@ -320,6 +330,7 @@ export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): Gr
     image: "/images/Classes images/obedience.webp",
     packagePrice: `${usd("group.level3Package")} + tax`,
     packageCompareAt: compareAt("group.level3Package"),
+    packageSavePercent: savePercent("group.level3Package"),
     packageDetail: "for 5 classes",
     note: "Coming soon",
     comingSoon: true,

@@ -4,7 +4,7 @@ import type { AppLocale } from "@/lib/i18n/config"
 import { daycareMoney, daycareRates, quoteDaycare, type DaycareAddOn } from "@/lib/daycare-pricing"
 import { frenchDollars, PUBLISHED_PRICES, usd, type PriceId } from "@/lib/prices"
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
-import { PriceTag } from "@/components/price-tag"
+import { percentOff, PriceTag } from "@/components/price-tag"
 
 /**
  * Prices inside server-rendered pages. Visitors get exactly the published
@@ -22,6 +22,7 @@ export function LivePriceText({ id, locale, en, fr }: { id: PriceId; locale: App
       locale={locale}
       price={(locale === "fr" ? fr : en).replace("{price}", amount(book.price))}
       compareAt={compareAt === null ? null : amount(() => compareAt)}
+      percentOff={percentOff(compareAt, book.price(id))}
     />
   )
 }
@@ -36,5 +37,5 @@ export function DaycareLivePrice({ of, locale }: { of: "half" | "full" | Daycare
   }
   const cents = of === "half" || of === "full" ? rates.base[of] : rates.addOns[of]
   const compareAt = rates.compareAt[of]
-  return <PriceTag locale={locale} price={daycareMoney(cents, locale)} compareAt={compareAt === null ? null : daycareMoney(compareAt, locale)} />
+  return <PriceTag locale={locale} price={daycareMoney(cents, locale)} compareAt={compareAt === null ? null : daycareMoney(compareAt, locale)} percentOff={percentOff(compareAt, cents)} />
 }

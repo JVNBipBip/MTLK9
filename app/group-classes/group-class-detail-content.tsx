@@ -103,7 +103,7 @@ export function GroupClassDetailContent({ offering: published }: { offering: Gro
               <div className="reveal opacity-0 animation-delay-500 mt-6 flex flex-wrap gap-2">
                 {offering.packagePrice ? (
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur-sm">
-                    {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} />
+                    {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} percentOff={offering.packageSavePercent} onDark />
                     {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                   </span>
                 ) : null}

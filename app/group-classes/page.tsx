@@ -124,7 +124,7 @@ export default function GroupClassesPage() {
                     <div className="mb-4 flex flex-wrap gap-2">
                       {offering.packagePrice ? (
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                          {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} />
+                          {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} percentOff={offering.packageSavePercent} />
                           {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                         </span>
                       ) : null}
