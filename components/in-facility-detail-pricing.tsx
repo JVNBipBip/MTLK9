@@ -34,7 +34,7 @@ export function InFacilityDetailPricing({
           <div key={row.label} className="px-4 py-3 sm:px-5 sm:py-3.5">
             <div className="flex justify-between gap-4 items-start">
               <span className="text-sm text-muted-foreground leading-snug min-w-0">{t(row.label)}</span>
-              <span className="text-sm font-semibold text-primary tabular-nums shrink-0"><PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} /></span>
+              <span className="text-sm font-semibold text-primary tabular-nums shrink-0"><PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} percentOff={row.savePercent} /></span>
             </div>
             {row.note ? <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{t(row.note)}</p> : null}
           </div>

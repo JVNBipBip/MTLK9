@@ -78,7 +78,7 @@ function OverviewContent({
             <div key={row.label}>
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
                 <p className="font-display text-lg md:text-xl tracking-tight text-foreground">{t(row.label)}</p>
-                <p className="text-muted-foreground text-base md:text-lg tabular-nums"><PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} /></p>
+                <p className="text-muted-foreground text-base md:text-lg tabular-nums"><PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} percentOff={row.savePercent} /></p>
               </div>
               {row.note ? (
                 <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{t(row.note)}</p>

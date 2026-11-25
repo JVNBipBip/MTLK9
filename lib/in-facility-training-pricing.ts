@@ -11,6 +11,8 @@ export type InFacilityPriceRow = {
   price: string
   /** "$400" when on sale: shown crossed out before the price, with a Sale badge. */
   compareAt?: string
+  /** Percent saved when on sale. */
+  savePercent?: number
   note?: string
 }
 
@@ -24,7 +26,8 @@ export function buildInFacilityPricingSections(book: PriceBook = PUBLISHED_PRICE
   const usd = (id: PriceId) => usdOf(id, book.price)
   const sale = (id: PriceId) => {
     const compareAt = usdCompareAt(id, book)
-    return compareAt ? { compareAt } : {}
+    const regular = book.compareAt(id)
+    return compareAt && regular ? { compareAt, savePercent: Math.round((1 - book.price(id) / regular) * 100) } : {}
   }
   return [
   {
