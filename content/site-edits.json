@@ -1,4 +1,10 @@
 {
-  "text": {},
+  "text": {
+    "footer.allRightsReserved": {
+      "en": "All rights reserved (test).",
+      "fr": "Tous droits réservés.",
+      "frSource": "edited"
+    }
+  },
   "images": {}
 }
