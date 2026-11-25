@@ -24,6 +24,8 @@ export type AdminToSite =
   | { type: "drafts"; drafts: EditDrafts }
   | { type: "select"; key: string }
   | { type: "deselect" }
+  /** He's pointing at this field in the editor's list: outline it (scrolling to it if needed); null clears. */
+  | { type: "hover"; key: string | null }
   | { type: "navigate"; path: string }
 
 /** Admin origins allowed to frame and drive the site (from next.config.mjs). */

@@ -48,7 +48,20 @@ function kindOf(element: HTMLElement): FieldKind {
 }
 
 function findField(key: string) {
-  return document.querySelector<HTMLElement>(`[data-edit-key="${CSS.escape(key)}"]`)
+  const all = document.querySelectorAll<HTMLElement>(`[data-edit-key="${CSS.escape(key)}"]`)
+  // Prefer a copy that's actually shown (some sections render a mobile and a desktop version).
+  for (const element of all) {
+    const rect = element.getBoundingClientRect()
+    if (rect.width > 0 && rect.height > 0) return element
+  }
+  return all[0] ?? null
+}
+
+/** Whether most of the element is already on screen. */
+function inView(element: Element) {
+  const rect = element.getBoundingClientRect()
+  const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
+  return visibleHeight >= Math.min(rect.height, window.innerHeight) * 0.6
 }
 
 function fieldsOnPage() {
@@ -109,6 +122,18 @@ export default function SiteEditOverlay() {
           activeEl.current = null
           setActive(null)
           break
+        case "hover": {
+          const element = typeof data.key === "string" ? findField(data.key) : null
+          if (!element) {
+            hoverEl.current = null
+            setHover(null)
+            break
+          }
+          if (!inView(element)) element.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" })
+          hoverEl.current = element
+          setHover({ key: element.dataset.editKey!, kind: kindOf(element), rect: rectOf(element) })
+          break
+        }
         case "navigate":
           // A full load, not router.push: the locale lives in the root layout, which
           // a client-side navigation from /en/… to /fr/… would not re-render.
