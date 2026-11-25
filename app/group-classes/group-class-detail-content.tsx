@@ -98,13 +98,13 @@ export function GroupClassDetailContent({ offering }: { offering: GroupClassOffe
               <div className="reveal opacity-0 animation-delay-500 mt-6 flex flex-wrap gap-2">
                 {offering.packagePrice ? (
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur-sm">
-                    {t("Package")}: {offering.packagePrice}
+                    {t("Package")}: {t(offering.packagePrice)}
                     {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                   </span>
                 ) : null}
                 {offering.unitPrice ? (
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur-sm">
-                    {t("Unit")}: {offering.unitPrice}
+                    {t("Unit")}: {t(offering.unitPrice)}
                   </span>
                 ) : null}
                 {offering.note ? (
