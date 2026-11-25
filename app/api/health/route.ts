@@ -97,17 +97,6 @@ const checks = () => [
     }
     return outcome.fail("No email provider configured: confirmation emails can't send")
   }, "gmail_smtp"),
-
-  customCheck("gohighlevel", "GoHighLevel", async () => {
-    if (!env("GHL_API_KEY") || !env("GHL_LOCATION_ID")) return outcome.warn("GHL_API_KEY / GHL_LOCATION_ID not set: leads won't reach the CRM")
-    const res = await fetch(`https://services.leadconnectorhq.com/locations/${encodeURIComponent(env("GHL_LOCATION_ID"))}`, {
-      headers: { Authorization: `Bearer ${env("GHL_API_KEY")}`, Version: "2021-07-28", Accept: "application/json" },
-      cache: "no-store",
-    })
-    if (res.ok) return outcome.ok("Token valid; location reachable")
-    if (res.status === 401 || res.status === 403) return outcome.fail(`GoHighLevel rejected the token (HTTP ${res.status})`)
-    return outcome.warn(`GoHighLevel returned HTTP ${res.status}`)
-  }, "gohighlevel"),
 ]
 
 export const GET = healthHandler(checks)
