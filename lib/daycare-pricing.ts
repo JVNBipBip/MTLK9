@@ -1,6 +1,16 @@
-/** Approved daycare brief, training add-on updated October 30, 2026. CAD cents, before tax. */
-export const DAYCARE_BASE_CENTS = { half: 4000, full: 5500 } as const
-export const DAYCARE_ADD_ON_CENTS = { training: 4000, treadmill: 1500, individual: 2000 } as const
+import { centsOf } from "@/lib/prices"
+
+/**
+ * CAD cents, before tax. The amounts are owner-editable (Website editor →
+ * Prices → Daycare; defaults in lib/prices.ts): the page and the checkout both
+ * read them here, so what he sets is exactly what customers are charged.
+ */
+export const DAYCARE_BASE_CENTS = { half: centsOf("daycare.halfDay"), full: centsOf("daycare.fullDay") } as const
+export const DAYCARE_ADD_ON_CENTS = {
+  training: centsOf("daycare.addOnTraining"),
+  treadmill: centsOf("daycare.addOnTreadmill"),
+  individual: centsOf("daycare.addOnIndividual"),
+} as const
 export const DAYCARE_DISCOUNT_PERCENT = { 1: 0, 5: 5, 10: 7, 20: 12 } as const
 
 export type DaycareStay = keyof typeof DAYCARE_BASE_CENTS

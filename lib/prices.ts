@@ -16,7 +16,9 @@ import publishedEdits from "@/content/site-edits.json"
  * - "square": Square charges its own catalog price; the page only shows it.
  * - "none": not paid online.
  *
- * Daycare prices are separate (lib/daycare-pricing.ts) for now.
+ * Daycare (half/full day and add-ons) is charged by our own checkout from
+ * these amounts (lib/daycare-pricing.ts); the bundle discounts and the
+ * Black Friday sale stay in that file.
  */
 export const PRICE_DEFAULTS = {
   "consultation.young": 135,
@@ -42,6 +44,11 @@ export const PRICE_DEFAULTS = {
   "apprenticeship.program": 3000,
   "deposit.puppySocial": 30,
   "deposit.consultation": 30,
+  "daycare.halfDay": 40,
+  "daycare.fullDay": 55,
+  "daycare.addOnTraining": 40,
+  "daycare.addOnTreadmill": 15,
+  "daycare.addOnIndividual": 20,
 } as const
 
 export type PriceId = keyof typeof PRICE_DEFAULTS

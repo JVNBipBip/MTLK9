@@ -12750,6 +12750,72 @@
       "min": 7,
       "max": 120,
       "chargedBy": "website"
+    },
+    "daycare.halfDay": {
+      "pages": [
+        "/daycare",
+        "/regular-daycare",
+        "/day-training"
+      ],
+      "section": "Daycare",
+      "label": "Half day (up to 6 hours), per visit",
+      "default": 40,
+      "min": 10,
+      "max": 160,
+      "chargedBy": "website",
+      "below": "daycare.fullDay"
+    },
+    "daycare.fullDay": {
+      "pages": [
+        "/daycare",
+        "/regular-daycare",
+        "/day-training"
+      ],
+      "section": "Daycare",
+      "label": "Full day (up to 11 hours), per visit",
+      "default": 55,
+      "min": 13,
+      "max": 220,
+      "chargedBy": "website"
+    },
+    "daycare.addOnTraining": {
+      "pages": [
+        "/daycare",
+        "/regular-daycare",
+        "/day-training"
+      ],
+      "section": "Daycare",
+      "label": "Add-on: Complete Training, per visit",
+      "default": 40,
+      "min": 10,
+      "max": 160,
+      "chargedBy": "website"
+    },
+    "daycare.addOnTreadmill": {
+      "pages": [
+        "/daycare",
+        "/regular-daycare",
+        "/day-training"
+      ],
+      "section": "Daycare",
+      "label": "Add-on: Treadmill Exercise, per visit",
+      "default": 15,
+      "min": 3,
+      "max": 60,
+      "chargedBy": "website"
+    },
+    "daycare.addOnIndividual": {
+      "pages": [
+        "/daycare",
+        "/regular-daycare",
+        "/day-training"
+      ],
+      "section": "Daycare",
+      "label": "Add-on: One-on-One Play, per visit",
+      "default": 20,
+      "min": 5,
+      "max": 80,
+      "chargedBy": "website"
     }
   }
 }

@@ -7,7 +7,7 @@ import { frenchTextTranslations } from "@/lib/i18n/dom-translations"
 import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
 
-type PriceField = { pages: string[]; section: string; label: string; default: number; min: number; max: number; chargedBy: string }
+type PriceField = { pages: string[]; section: string; label: string; default: number; min: number; max: number; chargedBy: string; below?: string }
 const fields = (registry as unknown as { prices: Record<string, PriceField> }).prices
 const ROOT = path.resolve(__dirname, "..")
 
@@ -34,6 +34,10 @@ describe("owner-editable prices", () => {
     expect(field.min).toBeLessThanOrEqual(field.default)
     expect(field.max).toBeGreaterThanOrEqual(field.default)
     expect(["website", "square", "none"]).toContain(field.chargedBy)
+    if (field.below) {
+      expect(fields[field.below]).toBeDefined()
+      expect(field.default).toBeLessThan(fields[field.below].default)
+    }
   })
 
   it("published prices are whole dollars within their limits", () => {
@@ -61,7 +65,7 @@ describe("owner-editable prices", () => {
 describe("with prices he changed", () => {
   it("every sentence, the French and the deposit charge follow the new amounts", () => {
     jest.isolateModules(() => {
-      jest.doMock("@/content/site-edits.json", () => ({ text: {}, images: {}, prices: { "group.level1Package": 1380, "deposit.puppySocial": 45, "consultation.young": 2.5 } }))
+      jest.doMock("@/content/site-edits.json", () => ({ text: {}, images: {}, prices: { "group.level1Package": 1380, "deposit.puppySocial": 45, "consultation.young": 2.5, "daycare.halfDay": 42 } }))
       const { IN_FACILITY_PRICING_SECTIONS: rows } = jest.requireActual("@/lib/in-facility-training-pricing") as typeof import("@/lib/in-facility-training-pricing")
       const { getGroupClassOffering } = jest.requireActual("@/lib/group-class-offerings") as typeof import("@/lib/group-class-offerings")
       const { getLocalizedText } = jest.requireActual("@/lib/i18n/localized-text") as typeof import("@/lib/i18n/localized-text")
@@ -73,6 +77,10 @@ describe("with prices he changed", () => {
       expect(info).toBe("Package: 4 classes · $1,380 + tax")
       expect(getLocalizedText("fr", info)).toBe("Forfait : 4 cours · 1 380 $ + taxes")
       expect(PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS).toBe(4500)
+      // Daycare: the quote the checkout charges uses his amounts.
+      const { quoteDaycare } = jest.requireActual("@/lib/daycare-pricing") as typeof import("@/lib/daycare-pricing")
+      const quote = quoteDaycare("half", ["treadmill"], 1, false, Date.parse("2026-12-15T12:00:00-05:00"))
+      expect(quote.totalCents).toBe(4200 + 1500)
       // Not a whole dollar amount: ignored, the default stays.
       const consult = rows.flatMap((section) => section.rows).find((candidate) => candidate.label.startsWith("In-Facility Consultation (2"))!
       expect(consult.price).toBe("$135 + tax")
