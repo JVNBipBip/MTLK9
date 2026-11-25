@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
 import { Button } from "@/components/ui/button"
 import { useAppLocale } from "@/components/locale-provider"
+import { PriceTag } from "@/components/price-tag"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useEditableText } from "@/lib/site-editing/use-editable"
 import { isPriceLike } from "@/lib/site-editing/price-rule"
@@ -123,7 +124,7 @@ export default function GroupClassesPage() {
                     <div className="mb-4 flex flex-wrap gap-2">
                       {offering.packagePrice ? (
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                          {t("Package")}: {t(offering.packagePrice)}
+                          {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} />
                           {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                         </span>
                       ) : null}

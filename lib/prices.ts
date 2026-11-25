@@ -63,10 +63,33 @@ export function isUsablePrice(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 100_000
 }
 
+const publishedCompareAt = ((publishedEdits as { compareAt?: Record<string, unknown> }).compareAt ?? {}) as Record<string, unknown>
+
 /** His published price, else the default. Only whole, positive dollar amounts are ever used. */
 export function priceOf(id: PriceId): number {
   const value = published[id]
   return isUsablePrice(value) ? value : PRICE_DEFAULTS[id]
+}
+
+/**
+ * His "compare at" price for a sale: a higher, crossed-out "was" price shown
+ * next to the real one with a Sale badge. Null when there's no sale, including
+ * when it isn't higher than the price. Never charged; display only.
+ */
+export function compareAtOf(id: PriceId, price: PriceSource = priceOf): number | null {
+  const value = publishedCompareAt[id]
+  return isUsablePrice(value) && value > price(id) ? value : null
+}
+
+/** Prices plus their sale ("compare at") prices: published, or his drafts in the editor. */
+export type PriceBook = { price: PriceSource; compareAt: (id: PriceId) => number | null }
+
+export const PUBLISHED_PRICES: PriceBook = { price: priceOf, compareAt: (id) => compareAtOf(id) }
+
+/** "$400" for a compare-at amount, or undefined when there's no sale. */
+export function usdCompareAt(id: PriceId, book: PriceBook = PUBLISHED_PRICES): string | undefined {
+  const amount = book.compareAt(id)
+  return amount === null ? undefined : `$${amount.toLocaleString("en-US")}`
 }
 
 /** "$1,234": the way the English copy writes a price (French is derived from it). */

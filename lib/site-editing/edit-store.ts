@@ -17,6 +17,8 @@ export type EditDrafts = {
   lists?: Partial<Record<string, ListValue>>
   /** Price drafts, whole dollars (Prices panel). Pages rebuild their price text from them. */
   prices?: Partial<Record<string, number>>
+  /** Sale "compare at" drafts; null removes the sale. */
+  compareAt?: Partial<Record<string, number | null>>
 }
 
 let drafts: EditDrafts | null = null

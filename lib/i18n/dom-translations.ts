@@ -594,6 +594,7 @@ export const frenchTextTranslations: Record<string, string> = {
   "{price} + tax per class": "{price} + taxes par cours",
   // Every row of the in-facility price list is written in this one shape.
   "{price} + tax": "{price} + taxes",
+  "{price}": "{price}",
   "per class · 10–20 weeks": "par cours · 10 à 20 semaines",
   "Group class · puppies 10–20 weeks": "Cours en groupe · chiots 10 à 20 semaines",
   "Drop-in · puppies 10–20 weeks": "À la carte · chiots 10 à 20 semaines",

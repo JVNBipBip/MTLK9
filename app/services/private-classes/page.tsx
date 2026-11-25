@@ -10,16 +10,18 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useAppLocale } from "@/components/locale-provider"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
 import { buildInFacilityPricingSections, IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
-import type { PriceSource } from "@/lib/prices"
+import type { PriceBook } from "@/lib/prices"
+import { PriceTag } from "@/components/price-tag"
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
 const packageRows = (sections = IN_FACILITY_PRICING_SECTIONS) =>
   sections.find((section) => section.title === "Private Classes")?.rows.slice(0, 3) ?? []
 const publishedPackageRows = packageRows()
-const draftPackageRows = (price: PriceSource) => packageRows(buildInFacilityPricingSections(price))
+const draftPackageRows = (book: PriceBook) => packageRows(buildInFacilityPricingSections(book))
 
 /** Owner-editable as services.privateClasses.topics.<n>. */
 const topicsIdPrefix = "services.privateClasses.topics"
@@ -80,6 +82,7 @@ export default function PrivateClassesPage() {
   const text = useEditableText()
   // In the editor's live preview, his unsaved prices; otherwise the published ones.
   const draftPrices = useDraftPrices()
+  const locale = useAppLocale()
   const privatePackageRows = draftPrices ? draftPackageRows(draftPrices) : publishedPackageRows
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -186,7 +189,7 @@ export default function PrivateClassesPage() {
                       >
                         <p className="font-display text-lg md:text-xl tracking-tight text-foreground">{t(row.label)}</p>
                         <p className="text-muted-foreground text-base md:text-lg whitespace-nowrap tabular-nums shrink-0">
-                          {t(row.price)}
+                          <PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} />
                         </p>
                       </div>
                     ))}
