@@ -1,4 +1,7 @@
 {
   "text": {},
-  "images": {}
+  "images": {},
+  "prices": {
+    "group.level1Class": 99
+  }
 }
