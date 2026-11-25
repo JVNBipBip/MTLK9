@@ -1,6 +1,6 @@
 /** MTL Canine Training — in-facility price list (CAD, + tax). Amounts come from lib/prices.ts (owner-editable). */
 
-import { usd } from "@/lib/prices"
+import { priceOf, usd as usdOf, type PriceId, type PriceSource } from "@/lib/prices"
 
 export const IN_FACILITY_BRAND = "MTL Canine Training"
 
@@ -17,7 +17,10 @@ export type InFacilityPriceSection = {
   rows: InFacilityPriceRow[]
 }
 
-export const IN_FACILITY_PRICING_SECTIONS: InFacilityPriceSection[] = [
+/** The price list, built from a price source (his drafts while he edits; published prices otherwise). */
+export function buildInFacilityPricingSections(price: PriceSource = priceOf): InFacilityPriceSection[] {
+  const usd = (id: PriceId) => usdOf(id, price)
+  return [
   {
     title: "Consultation",
     rows: [
@@ -56,7 +59,10 @@ export const IN_FACILITY_PRICING_SECTIONS: InFacilityPriceSection[] = [
       { label: "Reactivity group class — 1 class", price: `${usd("group.reactivityClass")} + tax` },
     ],
   },
-]
+  ]
+}
+
+export const IN_FACILITY_PRICING_SECTIONS: InFacilityPriceSection[] = buildInFacilityPricingSections()
 
 /** Sections shown on the group-classes page (packages + drop-ins). */
 export const GROUP_CLASS_PRICING_SECTIONS: InFacilityPriceSection[] =

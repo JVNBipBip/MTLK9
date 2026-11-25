@@ -3,7 +3,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
-import { FreeCallLink } from "@/components/booking-form-provider"
+import { FreeCallButton } from "@/components/booking-form-provider"
 import { EditableText } from "@/components/editable-text"
 import { FaqAccordion } from "@/components/faq-accordion"
 import { getFaqData } from "@/lib/faq-data"
@@ -70,15 +70,10 @@ export default async function FaqPage() {
                 <EditableText id="faq.page.ctaBody" locale={locale} />
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <FreeCallLink>
-                  <Button
-                    size="lg"
-                    className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group"
-                  >
-                    <EditableText id="faq.page.ctaButton" locale={locale} />
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </FreeCallLink>
+                <FreeCallButton size="lg" className="bg-background text-foreground hover:bg-background/90 rounded-full px-8 py-6 text-base group">
+                  <EditableText id="faq.page.ctaButton" locale={locale} />
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </FreeCallButton>
                 <a href={getBusinessDetails().phoneHref} data-conversion-location="faq_cta">
                   <Button
                     size="lg"

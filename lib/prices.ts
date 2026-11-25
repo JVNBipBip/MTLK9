@@ -16,7 +16,9 @@ import publishedEdits from "@/content/site-edits.json"
  * - "square": Square charges its own catalog price; the page only shows it.
  * - "none": not paid online.
  *
- * Daycare prices are separate (lib/daycare-pricing.ts) for now.
+ * Daycare (half/full day and add-ons) is charged by our own checkout from
+ * these amounts (lib/daycare-pricing.ts); the bundle discounts and the
+ * Black Friday sale stay in that file.
  */
 export const PRICE_DEFAULTS = {
   "consultation.young": 135,
@@ -42,28 +44,41 @@ export const PRICE_DEFAULTS = {
   "apprenticeship.program": 3000,
   "deposit.puppySocial": 30,
   "deposit.consultation": 30,
+  "daycare.halfDay": 40,
+  "daycare.fullDay": 55,
+  "daycare.addOnTraining": 40,
+  "daycare.addOnTreadmill": 15,
+  "daycare.addOnIndividual": 20,
 } as const
 
 export type PriceId = keyof typeof PRICE_DEFAULTS
 
 const published = ((publishedEdits as { prices?: Record<string, unknown> }).prices ?? {}) as Record<string, unknown>
 
+/** Where amounts come from: normally priceOf; in the editor, his unsaved drafts on top (useDraftPrices). */
+export type PriceSource = (id: PriceId) => number
+
+/** A usable price: a whole, positive dollar amount. */
+export function isUsablePrice(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 100_000
+}
+
 /** His published price, else the default. Only whole, positive dollar amounts are ever used. */
 export function priceOf(id: PriceId): number {
   const value = published[id]
-  return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 100_000 ? value : PRICE_DEFAULTS[id]
+  return isUsablePrice(value) ? value : PRICE_DEFAULTS[id]
 }
 
 /** "$1,234": the way the English copy writes a price (French is derived from it). */
-export function usd(id: PriceId): string {
-  return `$${priceOf(id).toLocaleString("en-US")}`
+export function usd(id: PriceId, price: PriceSource = priceOf): string {
+  return `$${price(id).toLocaleString("en-US")}`
 }
 
 /** "1 234 $": for the few places whose French is written out rather than translated. */
-export function frenchDollars(id: PriceId): string {
-  return `${priceOf(id).toLocaleString("en-US").replace(/,/g, " ")} $`
+export function frenchDollars(id: PriceId, price: PriceSource = priceOf): string {
+  return `${price(id).toLocaleString("en-US").replace(/,/g, " ")} $`
 }
 
-export function centsOf(id: PriceId): number {
-  return priceOf(id) * 100
+export function centsOf(id: PriceId, price: PriceSource = priceOf): number {
+  return price(id) * 100
 }

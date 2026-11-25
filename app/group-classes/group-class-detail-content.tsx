@@ -16,7 +16,8 @@ import { isPriceLike } from "@/lib/site-editing/price-rule"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import type { GroupClassOffering } from "@/lib/group-class-offerings"
+import { getGroupClassOffering, type GroupClassOffering } from "@/lib/group-class-offerings"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
 const heroSecondaryButtonClassName =
   "rounded-full bg-white text-foreground hover:bg-transparent hover:text-white border border-white px-6 py-5 text-sm md:text-base transition-colors"
@@ -24,7 +25,10 @@ const heroSecondaryButtonClassName =
 const ctaSecondaryButtonClassName =
   "rounded-full bg-white text-foreground hover:bg-muted border border-foreground px-8 py-6 text-base transition-colors"
 
-export function GroupClassDetailContent({ offering }: { offering: GroupClassOffering }) {
+export function GroupClassDetailContent({ offering: published }: { offering: GroupClassOffering }) {
+  // In the editor's live preview, rebuilt with his unsaved prices; otherwise as published.
+  const draftPrices = useDraftPrices()
+  const offering = useMemo(() => (draftPrices && getGroupClassOffering(published.id, draftPrices)) || published, [draftPrices, published])
   const t = useLocalizedText()
   const text = useEditableText()
   const locale = useAppLocale()

@@ -1,6 +1,25 @@
-/** Approved daycare brief, training add-on updated October 30, 2026. CAD cents, before tax. */
-export const DAYCARE_BASE_CENTS = { half: 4000, full: 5500 } as const
-export const DAYCARE_ADD_ON_CENTS = { training: 4000, treadmill: 1500, individual: 2000 } as const
+import { centsOf, priceOf, type PriceSource } from "@/lib/prices"
+
+/**
+ * CAD cents, before tax. The amounts are owner-editable (Website editor →
+ * Prices → Daycare; defaults in lib/prices.ts): the page and the checkout both
+ * read them here, so what he sets is exactly what customers are charged.
+ */
+export function daycareRates(price: PriceSource = priceOf) {
+  return {
+    base: { half: centsOf("daycare.halfDay", price), full: centsOf("daycare.fullDay", price) },
+    addOns: {
+      training: centsOf("daycare.addOnTraining", price),
+      treadmill: centsOf("daycare.addOnTreadmill", price),
+      individual: centsOf("daycare.addOnIndividual", price),
+    },
+  }
+}
+export type DaycareRates = ReturnType<typeof daycareRates>
+
+const PUBLISHED_RATES = daycareRates()
+export const DAYCARE_BASE_CENTS = PUBLISHED_RATES.base
+export const DAYCARE_ADD_ON_CENTS = PUBLISHED_RATES.addOns
 export const DAYCARE_DISCOUNT_PERCENT = { 1: 0, 5: 5, 10: 7, 20: 12 } as const
 
 export type DaycareStay = keyof typeof DAYCARE_BASE_CENTS
@@ -31,14 +50,15 @@ export function daycareDiscountPercent(visits: DaycareVisits, now = Date.now()):
 }
 
 /** Also validates callers at runtime; never accept a price or discount from a browser. */
-export function quoteDaycare(stay: DaycareStay, addOns: readonly DaycareAddOn[], visits: DaycareVisits, secondDog = false, now = Date.now()) {
+/** `rates`: only the editor's live preview passes its own; the checkout always uses the published ones. */
+export function quoteDaycare(stay: DaycareStay, addOns: readonly DaycareAddOn[], visits: DaycareVisits, secondDog = false, now = Date.now(), rates: DaycareRates = PUBLISHED_RATES) {
   if (!Object.hasOwn(DAYCARE_BASE_CENTS, stay) || !Object.hasOwn(DAYCARE_DISCOUNT_PERCENT, visits)) {
     throw new Error("Invalid daycare selection")
   }
   if (!Array.isArray(addOns) || addOns.length > 3 || addOns.some((key) => !Object.hasOwn(DAYCARE_ADD_ON_CENTS, key))) {
     throw new Error("Invalid daycare add-on")
   }
-  const regularPerVisitCents = DAYCARE_BASE_CENTS[stay] + [...new Set<DaycareAddOn>(addOns)].reduce((sum, key) => sum + DAYCARE_ADD_ON_CENTS[key], 0)
+  const regularPerVisitCents = rates.base[stay] + [...new Set<DaycareAddOn>(addOns)].reduce((sum, key) => sum + rates.addOns[key], 0)
   const regularTotalCents = regularPerVisitCents * visits
   const totalAt = (percent: number) => {
     const bundleSavingsCents = Math.round(regularTotalCents * percent / 100)

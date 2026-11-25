@@ -1,6 +1,6 @@
 import type { InFacilityPriceRow, InFacilityPriceSection } from "@/lib/in-facility-training-pricing"
-import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
-import { usd } from "@/lib/prices"
+import { buildInFacilityPricingSections } from "@/lib/in-facility-training-pricing"
+import { priceOf, usd as usdOf, type PriceId, type PriceSource } from "@/lib/prices"
 
 export type GroupClassOffering = {
   id: string
@@ -32,18 +32,25 @@ export type GroupClassOffering = {
   classInfo?: string[]
 }
 
-function rowsFromSections(...labels: string[]): InFacilityPriceRow[] {
+/**
+ * The classes, built from a price source (his drafts while he edits; published
+ * prices otherwise), so every sentence with a price follows the price list.
+ */
+export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupClassOffering[] {
+  const usd = (id: PriceId) => usdOf(id, price)
+  const sections = buildInFacilityPricingSections(price)
+  const rowsFromSections = (...labels: string[]): InFacilityPriceRow[] => {
   const wanted = new Set(labels)
   const out: InFacilityPriceRow[] = []
-  for (const section of IN_FACILITY_PRICING_SECTIONS) {
+  for (const section of sections) {
     for (const row of section.rows) {
       if (wanted.has(row.label)) out.push(row)
     }
   }
   return out
-}
+  }
 
-export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
+  return [
   {
     id: "puppy-socialization-class",
     label: "Puppy Socialization Class",
@@ -343,10 +350,15 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     pricingRows: rowsFromSections("Level 3 Obedience — 5 classes"),
   },
 ]
+}
+
+export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = buildGroupClassOfferings()
 
 const offeringById = new Map(GROUP_CLASS_OFFERINGS.map((o) => [o.id, o]))
 
-export function getGroupClassOffering(id: string): GroupClassOffering | undefined {
+/** With `price`: rebuilt from those prices (the editor's live preview). */
+export function getGroupClassOffering(id: string, price?: PriceSource): GroupClassOffering | undefined {
+  if (price) return buildGroupClassOfferings(price).find((offering) => offering.id === id.trim())
   return offeringById.get(id.trim())
 }
 

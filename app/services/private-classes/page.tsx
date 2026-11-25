@@ -12,10 +12,14 @@ import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
-import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
+import { buildInFacilityPricingSections, IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
+import type { PriceSource } from "@/lib/prices"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
-const privatePackageRows =
-  IN_FACILITY_PRICING_SECTIONS.find((section) => section.title === "Private Classes")?.rows.slice(0, 3) ?? []
+const packageRows = (sections = IN_FACILITY_PRICING_SECTIONS) =>
+  sections.find((section) => section.title === "Private Classes")?.rows.slice(0, 3) ?? []
+const publishedPackageRows = packageRows()
+const draftPackageRows = (price: PriceSource) => packageRows(buildInFacilityPricingSections(price))
 
 /** Owner-editable as services.privateClasses.topics.<n>. */
 const topicsIdPrefix = "services.privateClasses.topics"
@@ -74,6 +78,9 @@ const focusedPrivateSupportLinks = [
 export default function PrivateClassesPage() {
   const t = useLocalizedText()
   const text = useEditableText()
+  // In the editor's live preview, his unsaved prices; otherwise the published ones.
+  const draftPrices = useDraftPrices()
+  const privatePackageRows = draftPrices ? draftPackageRows(draftPrices) : publishedPackageRows
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

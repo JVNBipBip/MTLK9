@@ -14,7 +14,8 @@ import { useEditableText } from "@/lib/site-editing/use-editable"
 import { isPriceLike } from "@/lib/site-editing/price-rule"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { addLocaleToPathname } from "@/lib/i18n/config"
-import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
+import { buildGroupClassOfferings, GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
 
 export default function GroupClassesPage() {
@@ -26,6 +27,9 @@ export default function GroupClassesPage() {
   const stepsIdPrefix = "groupClasses.steps"
   const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
+  // In the editor's live preview, rebuilt with his unsaved prices; otherwise the published ones.
+  const draftPrices = useDraftPrices()
+  const offerings = useMemo(() => (draftPrices ? buildGroupClassOfferings(draftPrices) : GROUP_CLASS_OFFERINGS), [draftPrices])
 
   const learnMoreHref = useMemo(() => {
     const hrefs: Record<string, string> = {}
@@ -86,7 +90,7 @@ export default function GroupClassesPage() {
       <section className="px-6 lg:px-8 pt-4 lg:pt-6 pb-8 lg:pb-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {GROUP_CLASS_OFFERINGS.map((offering, index) => (
+            {offerings.map((offering, index) => (
               <article
                 key={offering.id}
                 className={`reveal opacity-0 group flex flex-col rounded-3xl overflow-hidden border border-border/50 bg-card shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/25 transition-all duration-300 ${
