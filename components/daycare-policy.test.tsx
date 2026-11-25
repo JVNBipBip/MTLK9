@@ -136,3 +136,21 @@ describe("Nick's October 27–28 daycare terms", () => {
     expect(html).toContain(locale === "fr" ? "ne garantit pas un emploi" : "does not guarantee employment")
   })
 })
+
+describe("Black Friday 2026 daycare sale", () => {
+  afterEach(() => { jest.useRealTimers() })
+  it.each(["en", "fr"] as const)("shows the auto-applied sale with compare-at percentages only during the window in %s", async locale => {
+    jest.mocked(getRequestLocale).mockResolvedValue(locale)
+    jest.useFakeTimers({ now: Date.parse("2026-11-27T09:00:00-05:00") })
+    const sale = renderToStaticMarkup(await DaycarePage({ focus: "daycare" }))
+    expect(sale).toContain(locale === "fr" ? "jusqu’à 25 % de rabais" : "up to 25% off")
+    expect(sale).toContain(locale === "fr" ? "aucun code requis" : "no code needed")
+    expect(sale).toContain(locale === "fr" ? "<s class=\"mr-1.5\">−12 %</s>" : "<s class=\"mr-1.5\">12%</s>")
+    expect(sale).toContain(locale === "fr" ? "−25 %" : "Save 25%")
+    expect(sale).toContain(locale === "fr" ? "−18 %" : "Save 18%")
+    jest.setSystemTime(Date.parse("2026-11-30T00:00:00-05:00"))
+    const after = renderToStaticMarkup(await DaycarePage({ focus: "daycare" }))
+    expect(after).not.toContain(locale === "fr" ? "Vendredi fou" : "Black Friday")
+    expect(after).toContain(locale === "fr" ? "−12 %" : "Save 12%")
+  })
+})
