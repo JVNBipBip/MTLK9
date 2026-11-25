@@ -1,5 +1,6 @@
 // Health endpoint for the Control Center. Returns statuses only, never secrets.
 // Requires `Authorization: Bearer <HEALTH_TOKEN>` (set HEALTH_TOKEN in Vercel).
+import { createHash } from "node:crypto"
 import nodemailer from "nodemailer"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { SQUARE_TOKENS_COLLECTION } from "@/lib/domain"
@@ -61,13 +62,31 @@ const checks = () => [
         auth: { user: env("SMTP_USER"), pass: env("SMTP_PASS") },
         connectionTimeout: 8_000, greetingTimeout: 8_000, socketTimeout: 8_000,
       })
+      // Log in to the mailbox at most once an hour (failures are rechecked after 10 min) and reuse the result
+      // in between, so the client's account doesn't see a sign-in every 5 minutes. Cached in Firestore
+      // because serverless instances don't keep memory between calls.
+      // Keyed by server + login, so a local run with other credentials never shares production's result.
+      const cacheKey = createHash("sha256").update(`${env("SMTP_HOST")}|${env("SMTP_USER")}`).digest("hex").slice(0, 16)
+      const cacheRef = getAdminDb().collection("system_health").doc(`smtp-${cacheKey}`)
+      const cached = (await cacheRef.get()).data() as { checkedAt?: number; status?: "ok" | "fail"; message?: string } | undefined
+      const maxAgeMs = cached?.status === "fail" ? 10 * 60_000 : 60 * 60_000
+      if (cached?.checkedAt && cached.status && cached.message && Date.now() - cached.checkedAt < maxAgeMs) {
+        const mins = Math.max(1, Math.round((Date.now() - cached.checkedAt) / 60_000))
+        return outcome[cached.status](`${cached.message} (checked ${mins} min ago)`)
+      }
+      let result: { status: "ok" | "fail"; message: string }
       try {
         await transport.verify() // connects and logs in; sends nothing
-        return outcome.ok(`SMTP login works (${env("SMTP_HOST")})`)
+        result = { status: "ok", message: `SMTP login works (${env("SMTP_HOST")})` }
       } catch (err) {
         const code = (err as { code?: string }).code
-        return outcome.fail(code === "EAUTH" ? "SMTP login rejected (password changed or app password revoked?)" : `SMTP connection failed (${code ?? "error"})`)
+        result = {
+          status: "fail",
+          message: code === "EAUTH" ? "SMTP login rejected (password changed or app password revoked?)" : `SMTP connection failed (${code ?? "error"})`,
+        }
       }
+      await cacheRef.set({ ...result, checkedAt: Date.now() }).catch(() => {})
+      return outcome[result.status](result.message)
     }
     if (env("RESEND_API_KEY")) {
       const res = await fetch("https://api.resend.com/domains", { headers: { Authorization: `Bearer ${env("RESEND_API_KEY")}` }, cache: "no-store" })
