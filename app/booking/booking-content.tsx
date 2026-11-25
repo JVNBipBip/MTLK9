@@ -222,7 +222,7 @@ export function BookingContent({
   const copy = bookingContentCopy[locale]
   // In the editor's live preview, the specialist pricing line uses his unsaved prices.
   const draftPrices = useDraftPrices()
-  const recommendedPricing = draftPrices ? specialistPricingLine(locale, draftPrices) : copy.recommendedPricing
+  const recommendedPricing = draftPrices ? specialistPricingLine(locale, draftPrices.price) : copy.recommendedPricing
   const intlLocale = getIntlLocale(locale)
   /** Modal uses nested flex scroll; page variant scrolls with the document (avoids zero-height flex collapse on resume/trainer pages). */
   const shellClass = cn(

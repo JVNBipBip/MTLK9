@@ -12738,7 +12738,8 @@
       "default": 30,
       "min": 7,
       "max": 120,
-      "chargedBy": "website"
+      "chargedBy": "website",
+      "noCompareAt": true
     },
     "deposit.consultation": {
       "pages": [
@@ -12749,7 +12750,8 @@
       "default": 30,
       "min": 7,
       "max": 120,
-      "chargedBy": "website"
+      "chargedBy": "website",
+      "noCompareAt": true
     },
     "daycare.halfDay": {
       "pages": [

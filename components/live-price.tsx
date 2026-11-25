@@ -2,32 +2,39 @@
 
 import type { AppLocale } from "@/lib/i18n/config"
 import { daycareMoney, daycareRates, quoteDaycare, type DaycareAddOn } from "@/lib/daycare-pricing"
-import { frenchDollars, priceOf, usd, type PriceId } from "@/lib/prices"
+import { frenchDollars, PUBLISHED_PRICES, usd, type PriceId } from "@/lib/prices"
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
+import { PriceTag } from "@/components/price-tag"
 
 /**
  * Prices inside server-rendered pages. Visitors get exactly the published
- * price (rendered on the server as before); inside the Website editor the
- * text follows his unsaved prices as he types them.
+ * price (rendered on the server as before), with the Sale treatment when he
+ * set a compare-at price; inside the Website editor they follow his drafts.
  */
 
 /** "{price} CAD + tax" with the price filled in for the locale. */
 export function LivePriceText({ id, locale, en, fr }: { id: PriceId; locale: AppLocale; en: string; fr: string }) {
-  const price = useDraftPrices() ?? priceOf
-  return <>{locale === "fr" ? fr.replace("{price}", frenchDollars(id, price)) : en.replace("{price}", usd(id, price))}</>
+  const book = useDraftPrices() ?? PUBLISHED_PRICES
+  const amount = (value: (id: PriceId) => number) => (locale === "fr" ? frenchDollars(id, value) : usd(id, value))
+  const compareAt = book.compareAt(id)
+  return (
+    <PriceTag
+      locale={locale}
+      price={(locale === "fr" ? fr : en).replace("{price}", amount(book.price))}
+      compareAt={compareAt === null ? null : amount(() => compareAt)}
+    />
+  )
 }
 
 const ALL_ADD_ONS: DaycareAddOn[] = ["training", "treadmill", "individual"]
 
 /** A daycare amount: a stay, an add-on, or a stay with every add-on ("allHalf" / "allFull"). */
 export function DaycareLivePrice({ of, locale }: { of: "half" | "full" | DaycareAddOn | "allHalf" | "allFull"; locale: AppLocale }) {
-  const draftPrices = useDraftPrices()
-  const rates = daycareRates(draftPrices ?? priceOf)
-  const cents =
-    of === "half" || of === "full"
-      ? rates.base[of]
-      : of === "allHalf" || of === "allFull"
-        ? quoteDaycare(of === "allHalf" ? "half" : "full", ALL_ADD_ONS, 1, false, Date.now(), rates).totalCents
-        : rates.addOns[of]
-  return <>{daycareMoney(cents, locale)}</>
+  const rates = daycareRates(useDraftPrices() ?? PUBLISHED_PRICES)
+  if (of === "allHalf" || of === "allFull") {
+    return <>{daycareMoney(quoteDaycare(of === "allHalf" ? "half" : "full", ALL_ADD_ONS, 1, false, Date.now(), rates).totalCents, locale)}</>
+  }
+  const cents = of === "half" || of === "full" ? rates.base[of] : rates.addOns[of]
+  const compareAt = rates.compareAt[of]
+  return <PriceTag locale={locale} price={daycareMoney(cents, locale)} compareAt={compareAt === null ? null : daycareMoney(compareAt, locale)} />
 }

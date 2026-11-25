@@ -1,6 +1,6 @@
 import type { InFacilityPriceRow, InFacilityPriceSection } from "@/lib/in-facility-training-pricing"
 import { buildInFacilityPricingSections } from "@/lib/in-facility-training-pricing"
-import { priceOf, usd as usdOf, type PriceId, type PriceSource } from "@/lib/prices"
+import { PUBLISHED_PRICES, usd as usdOf, usdCompareAt, type PriceBook, type PriceId } from "@/lib/prices"
 
 export type GroupClassOffering = {
   id: string
@@ -12,6 +12,8 @@ export type GroupClassOffering = {
   imageAvif?: string
   imageClassName?: string
   packagePrice?: string
+  /** "$400" when the package is on sale (crossed out, with a Sale badge). */
+  packageCompareAt?: string
   unitPrice?: string
   packageDetail?: string
   note?: string
@@ -36,9 +38,10 @@ export type GroupClassOffering = {
  * The classes, built from a price source (his drafts while he edits; published
  * prices otherwise), so every sentence with a price follows the price list.
  */
-export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupClassOffering[] {
-  const usd = (id: PriceId) => usdOf(id, price)
-  const sections = buildInFacilityPricingSections(price)
+export function buildGroupClassOfferings(book: PriceBook = PUBLISHED_PRICES): GroupClassOffering[] {
+  const usd = (id: PriceId) => usdOf(id, book.price)
+  const compareAt = (id: PriceId) => usdCompareAt(id, book)
+  const sections = buildInFacilityPricingSections(book)
   const rowsFromSections = (...labels: string[]): InFacilityPriceRow[] => {
   const wanted = new Set(labels)
   const out: InFacilityPriceRow[] = []
@@ -106,6 +109,7 @@ export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupCla
     image: "/images/Classes images/teen_puppy.webp",
     imageAvif: "/images/Classes images/teen_puppy.avif",
     packagePrice: `${usd("group.teenPackage")} + tax`,
+    packageCompareAt: compareAt("group.teenPackage"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · dogs 5–9 months",
     heroTitle: "Teen Puppy Class in Montreal",
@@ -159,6 +163,7 @@ export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupCla
     ],
     image: "/images/Classes images/reactivity_group_class.webp",
     packagePrice: `${usd("group.reactivityPackage")} + tax`,
+    packageCompareAt: compareAt("group.reactivityPackage"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · reactivity & triggers",
     heroTitle: "Reactivity Group Class in Montreal",
@@ -213,6 +218,7 @@ export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupCla
     imageAvif: "/images/Classes images/obedience_group_class_1.avif",
     imageClassName: "object-[center_30%]",
     packagePrice: `${usd("group.level1Package")} + tax`,
+    packageCompareAt: compareAt("group.level1Package"),
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · basic obedience",
     heroTitle: "Level 1 Obedience Class in Montreal",
@@ -264,6 +270,7 @@ export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupCla
     ],
     image: "/images/mt_royal_image.jpg",
     packagePrice: `${usd("group.level2Package")} + tax`,
+    packageCompareAt: compareAt("group.level2Package"),
     packageDetail: "for 5 classes",
     heroEyebrow: "5-class series · pack walks",
     heroTitle: "Level 2 Obedience Class in Montreal",
@@ -312,6 +319,7 @@ export function buildGroupClassOfferings(price: PriceSource = priceOf): GroupCla
     bullets: ["Consultation required first", "As of 12 months", "Off-Leash Reliability"],
     image: "/images/Classes images/obedience.webp",
     packagePrice: `${usd("group.level3Package")} + tax`,
+    packageCompareAt: compareAt("group.level3Package"),
     packageDetail: "for 5 classes",
     note: "Coming soon",
     comingSoon: true,
@@ -357,8 +365,8 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = buildGroupClassOfferi
 const offeringById = new Map(GROUP_CLASS_OFFERINGS.map((o) => [o.id, o]))
 
 /** With `price`: rebuilt from those prices (the editor's live preview). */
-export function getGroupClassOffering(id: string, price?: PriceSource): GroupClassOffering | undefined {
-  if (price) return buildGroupClassOfferings(price).find((offering) => offering.id === id.trim())
+export function getGroupClassOffering(id: string, book?: PriceBook): GroupClassOffering | undefined {
+  if (book) return buildGroupClassOfferings(book).find((offering) => offering.id === id.trim())
   return offeringById.get(id.trim())
 }
 

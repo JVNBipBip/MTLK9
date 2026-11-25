@@ -15,6 +15,7 @@ import { useEditableText } from "@/lib/site-editing/use-editable"
 import { isPriceLike } from "@/lib/site-editing/price-rule"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { useAppLocale } from "@/components/locale-provider"
+import { PriceTag } from "@/components/price-tag"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { getGroupClassOffering, type GroupClassOffering } from "@/lib/group-class-offerings"
 import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
@@ -102,7 +103,7 @@ export function GroupClassDetailContent({ offering: published }: { offering: Gro
               <div className="reveal opacity-0 animation-delay-500 mt-6 flex flex-wrap gap-2">
                 {offering.packagePrice ? (
                   <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-primary-foreground backdrop-blur-sm">
-                    {t("Package")}: {t(offering.packagePrice)}
+                    {t("Package")}: <PriceTag locale={locale} price={t(offering.packagePrice)} compareAt={offering.packageCompareAt && t(offering.packageCompareAt)} />
                     {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                   </span>
                 ) : null}

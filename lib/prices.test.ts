@@ -7,7 +7,7 @@ import { frenchTextTranslations } from "@/lib/i18n/dom-translations"
 import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
 
-type PriceField = { pages: string[]; section: string; label: string; default: number; min: number; max: number; chargedBy: string; below?: string }
+type PriceField = { pages: string[]; section: string; label: string; default: number; min: number; max: number; chargedBy: string; below?: string; noCompareAt?: boolean }
 const fields = (registry as unknown as { prices: Record<string, PriceField> }).prices
 const ROOT = path.resolve(__dirname, "..")
 
@@ -40,6 +40,17 @@ describe("owner-editable prices", () => {
     }
   })
 
+  it("published sale (compare-at) prices are whole dollars, above the price, on prices that allow a sale", () => {
+    const compareAt = (publishedEdits as { compareAt?: Record<string, unknown> }).compareAt ?? {}
+    for (const [id, value] of Object.entries(compareAt)) {
+      const field = fields[id]
+      expect(field).toBeDefined()
+      expect(field.noCompareAt).not.toBe(true)
+      expect(Number.isInteger(value)).toBe(true)
+      expect(value as number).toBeLessThanOrEqual(field.max * 2)
+    }
+  })
+
   it("published prices are whole dollars within their limits", () => {
     const prices = (publishedEdits as { prices?: Record<string, unknown> }).prices ?? {}
     for (const [id, value] of Object.entries(prices)) {
@@ -65,7 +76,12 @@ describe("owner-editable prices", () => {
 describe("with prices he changed", () => {
   it("every sentence, the French and the deposit charge follow the new amounts", () => {
     jest.isolateModules(() => {
-      jest.doMock("@/content/site-edits.json", () => ({ text: {}, images: {}, prices: { "group.level1Package": 1380, "deposit.puppySocial": 45, "consultation.young": 2.5, "daycare.halfDay": 42 } }))
+      jest.doMock("@/content/site-edits.json", () => ({
+        text: {},
+        images: {},
+        prices: { "group.level1Package": 1380, "deposit.puppySocial": 45, "consultation.young": 2.5, "daycare.halfDay": 42 },
+        compareAt: { "group.level1Package": 1500, "group.teenPackage": 300, "daycare.halfDay": 50 },
+      }))
       const { IN_FACILITY_PRICING_SECTIONS: rows } = jest.requireActual("@/lib/in-facility-training-pricing") as typeof import("@/lib/in-facility-training-pricing")
       const { getGroupClassOffering } = jest.requireActual("@/lib/group-class-offerings") as typeof import("@/lib/group-class-offerings")
       const { getLocalizedText } = jest.requireActual("@/lib/i18n/localized-text") as typeof import("@/lib/i18n/localized-text")
@@ -81,6 +97,13 @@ describe("with prices he changed", () => {
       const { quoteDaycare } = jest.requireActual("@/lib/daycare-pricing") as typeof import("@/lib/daycare-pricing")
       const quote = quoteDaycare("half", ["treadmill"], 1, false, Date.parse("2026-12-15T12:00:00-05:00"))
       expect(quote.totalCents).toBe(4200 + 1500)
+      // Sales: shown with the compare-at price, never charged; a compare-at not above the price is no sale.
+      expect(row.compareAt).toBe("$1,500")
+      expect(getGroupClassOffering("level-1-obedience-class")!.packageCompareAt).toBe("$1,500")
+      expect(getGroupClassOffering("teen-puppy-class")!.packageCompareAt).toBeUndefined()
+      const { daycareRates } = jest.requireActual("@/lib/daycare-pricing") as typeof import("@/lib/daycare-pricing")
+      expect(daycareRates().compareAt.half).toBe(5000)
+      expect(daycareRates().base.half).toBe(4200)
       // Not a whole dollar amount: ignored, the default stays.
       const consult = rows.flatMap((section) => section.rows).find((candidate) => candidate.label.startsWith("In-Facility Consultation (2"))!
       expect(consult.price).toBe("$135 + tax")

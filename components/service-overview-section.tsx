@@ -4,6 +4,8 @@ import type { ReactNode } from "react"
 import { Check } from "lucide-react"
 import type { InFacilityPriceRow } from "@/lib/in-facility-training-pricing"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useAppLocale } from "@/components/locale-provider"
+import { PriceTag } from "@/components/price-tag"
 
 type ServiceOverviewSectionProps = {
   eyebrow: string
@@ -32,6 +34,7 @@ function OverviewContent({
   "items" | "body" | "calloutLabel" | "calloutText" | "pricingRows" | "edit"
 >) {
   const t = useLocalizedText()
+  const locale = useAppLocale()
   const hasPricing = pricingRows && pricingRows.length > 0
 
   return (
@@ -75,7 +78,7 @@ function OverviewContent({
             <div key={row.label}>
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
                 <p className="font-display text-lg md:text-xl tracking-tight text-foreground">{t(row.label)}</p>
-                <p className="text-muted-foreground text-base md:text-lg tabular-nums">{t(row.price)}</p>
+                <p className="text-muted-foreground text-base md:text-lg tabular-nums"><PriceTag locale={locale} price={t(row.price)} compareAt={row.compareAt && t(row.compareAt)} /></p>
               </div>
               {row.note ? (
                 <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{t(row.note)}</p>

@@ -1,23 +1,35 @@
-import { centsOf, priceOf, type PriceSource } from "@/lib/prices"
+import { centsOf, PUBLISHED_PRICES, type PriceBook, type PriceId } from "@/lib/prices"
 
 /**
  * CAD cents, before tax. The amounts are owner-editable (Website editor →
  * Prices → Daycare; defaults in lib/prices.ts): the page and the checkout both
  * read them here, so what he sets is exactly what customers are charged.
  */
-export function daycareRates(price: PriceSource = priceOf) {
+export function daycareRates(book: PriceBook = PUBLISHED_PRICES) {
+  const compare = (id: PriceId) => {
+    const amount = book.compareAt(id)
+    return amount === null ? null : amount * 100
+  }
   return {
-    base: { half: centsOf("daycare.halfDay", price), full: centsOf("daycare.fullDay", price) },
+    base: { half: centsOf("daycare.halfDay", book.price), full: centsOf("daycare.fullDay", book.price) },
     addOns: {
-      training: centsOf("daycare.addOnTraining", price),
-      treadmill: centsOf("daycare.addOnTreadmill", price),
-      individual: centsOf("daycare.addOnIndividual", price),
+      training: centsOf("daycare.addOnTraining", book.price),
+      treadmill: centsOf("daycare.addOnTreadmill", book.price),
+      individual: centsOf("daycare.addOnIndividual", book.price),
+    },
+    /** Sale "was" prices in cents (display only), or null. */
+    compareAt: {
+      half: compare("daycare.halfDay"),
+      full: compare("daycare.fullDay"),
+      training: compare("daycare.addOnTraining"),
+      treadmill: compare("daycare.addOnTreadmill"),
+      individual: compare("daycare.addOnIndividual"),
     },
   }
 }
 export type DaycareRates = ReturnType<typeof daycareRates>
 
-const PUBLISHED_RATES = daycareRates()
+export const PUBLISHED_RATES = daycareRates()
 export const DAYCARE_BASE_CENTS = PUBLISHED_RATES.base
 export const DAYCARE_ADD_ON_CENTS = PUBLISHED_RATES.addOns
 export const DAYCARE_DISCOUNT_PERCENT = { 1: 0, 5: 5, 10: 7, 20: 12 } as const
