@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Check, Plus } from "lucide-react"
-import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_DISCOUNT_PERCENT, DAYCARE_PROMO, daycareDiscountPercent, daycareMoney, daycarePromoActive, quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "@/lib/daycare-pricing"
+import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_DISCOUNT_PERCENT, DAYCARE_PROMO, daycareDiscountPercent, daycareMoney, daycarePromoActive, daycareRates, quoteDaycare, type DaycareAddOn, type DaycareStay, type DaycareVisits } from "@/lib/daycare-pricing"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 import { daycareBundleWindow, daycareStayDuration } from "@/lib/daycare-policy"
 import type { AppLocale } from "@/lib/i18n/config"
 import { useDaycareNow } from "@/lib/use-daycare-now"
@@ -20,7 +21,10 @@ export function DaycareCalculator({ locale, initialNow }: { locale: AppLocale; i
   const [visits, setVisits] = useState<DaycareVisits>(1)
   const now = useDaycareNow(initialNow)
   const promoOn = daycarePromoActive(now)
-  const quote = quoteDaycare(stay, addOns, visits, false, now)
+  // In the editor's live preview, his unsaved prices; otherwise the published ones (what checkout charges).
+  const draftPrices = useDraftPrices()
+  const rates = useMemo(() => (draftPrices ? daycareRates(draftPrices) : { base: DAYCARE_BASE_CENTS, addOns: DAYCARE_ADD_ON_CENTS }), [draftPrices])
+  const quote = quoteDaycare(stay, addOns, visits, false, now, rates)
   const bundleWindow = daycareBundleWindow(visits, locale)
   const money = (cents: number) => daycareMoney(cents, locale)
   const choice = "relative flex cursor-pointer items-center justify-between gap-3 rounded-2xl border p-5 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-primary"
@@ -33,7 +37,7 @@ export function DaycareCalculator({ locale, initialNow }: { locale: AppLocale; i
           {(["half", "full"] as const).map(value => <label key={value} className={choice}>
             <input type="radio" name="daycare-stay" value={value} checked={stay === value} onChange={() => setStay(value)} className="size-4 accent-primary" />
             <span className="flex-1"><span className="block font-semibold">{value === "half" ? (fr ? "Demi-journée" : "Half day") : (fr ? "Journée complète" : "Full day")}</span><span className="mt-1 block text-sm text-muted-foreground">{daycareStayDuration(value, locale)}</span></span>
-            <strong className="whitespace-nowrap">{money(DAYCARE_BASE_CENTS[value])}</strong>
+            <strong className="whitespace-nowrap">{money(rates.base[value])}</strong>
           </label>)}
         </div>
       </fieldset>
@@ -42,7 +46,7 @@ export function DaycareCalculator({ locale, initialNow }: { locale: AppLocale; i
         <div className="space-y-3">{options.map(option => <label key={option.key} className={choice}>
           <input type="checkbox" checked={addOns.includes(option.key)} onChange={event => setAddOns(current => event.target.checked ? [...current, option.key] : current.filter(key => key !== option.key))} className="size-5 shrink-0 accent-primary" />
           <span className="flex-1"><span className="block font-semibold">{fr ? option.fr : option.en}</span><span className="mt-1 block text-sm leading-relaxed text-muted-foreground">{fr ? option.detailFr : option.detailEn}</span></span>
-          <span className="flex items-center gap-1 whitespace-nowrap font-semibold"><Plus className="size-3" aria-hidden />{money(DAYCARE_ADD_ON_CENTS[option.key])}</span>
+          <span className="flex items-center gap-1 whitespace-nowrap font-semibold"><Plus className="size-3" aria-hidden />{money(rates.addOns[option.key])}</span>
         </label>)}</div>
       </fieldset>
       <fieldset>

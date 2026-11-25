@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, ArrowUpRight, Check, Instagram } from "lucide-react"
 import { EditableCopy, EditableDataPhoto } from "@/components/editable-copy"
+import { LivePriceText } from "@/components/live-price"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ServiceInquiryButton } from "@/components/service-inquiry-button"
@@ -48,7 +49,7 @@ export async function FacilityServicePage({ id }: { id: FacilityServiceId }) {
               <p className="mb-5 text-sm font-semibold tracking-wide text-primary">{e("eyebrow", service.eyebrow)}</p>
               <h1 className="max-w-xl text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">{e("heading", service.heading)}</h1>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{e("intro", service.intro)}</p>
-              {service.price && <p className="mt-6 text-2xl font-semibold text-primary">{t(service.price)}</p>}
+              {service.price && <p className="mt-6 text-2xl font-semibold text-primary">{service.livePrice ? <LivePriceText {...service.livePrice} locale={locale} /> : t(service.price)}</p>}
               <div className="mt-8">{action}</div>
               {(id === "day-training" || id === "regular-daycare" || id === "daycare") && (
                 <p className="mt-5 text-sm text-muted-foreground">{locale === "fr" ? "Journées et demi-journées · Évaluation préalable" : "Full days & half days · Assessment required"}</p>

@@ -7,12 +7,13 @@ import { DaycarePolicy } from "@/components/daycare-policy"
 import { DaycareHouseholdOffer } from "@/components/daycare-household-offer"
 import { EditableImage } from "@/components/editable-image"
 import { EditableText } from "@/components/editable-text"
-import { DAYCARE_ADD_ON_CENTS, DAYCARE_BASE_CENTS, DAYCARE_PROMO, daycareDiscountPercent, daycareMoney, daycarePromoActive, quoteDaycare } from "@/lib/daycare-pricing"
+import { DAYCARE_PROMO, daycareDiscountPercent, daycarePromoActive } from "@/lib/daycare-pricing"
 import { DaycarePromoBanner } from "@/components/daycare-promo-banner"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 import { getBusinessDetails } from "@/lib/business-details"
 import { EditableCopy } from "@/components/editable-copy"
+import { DaycareLivePrice } from "@/components/live-price"
 
 // Owner-editable copy lives in content/editable-fields.json. Prices, product
 // names, opening hours and the phone number stay here on purpose: they must
@@ -23,11 +24,9 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
   const fr = locale === "fr"
   const t = (en: string, french: string) => fr ? french : en
   const training = focus === "day-training"
-  const money = (cents: number) => daycareMoney(cents, locale)
   const now = Date.now()
   const promoOn = daycarePromoActive(now)
   const pct = (visits: 5 | 10 | 20) => daycareDiscountPercent(visits, now)
-  const fullExperience = (stay: "half" | "full") => money(quoteDaycare(stay, ["training", "treadmill", "individual"], 1).totalCents)
   const text = (id: TextFieldId) => <EditableText id={id} locale={locale} />
   const included: TextFieldId[] = [
     "daycare.included.item1",
@@ -39,9 +38,9 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
   ]
   // Titles are product names shared with the calculator and Square, so they stay in code.
   const addOns = [
-    { title: t("Complete Training", "Entraînement complet"), price: DAYCARE_ADD_ON_CENTS.training, kicker: text("daycare.addOns.training.kicker"), copy: text("daycare.addOns.training.description"), detail: text("daycare.addOns.training.sessions") },
-    { title: t("Treadmill Exercise", "Exercice sur tapis roulant"), price: DAYCARE_ADD_ON_CENTS.treadmill, kicker: text("daycare.addOns.treadmill.kicker"), copy: text("daycare.addOns.treadmill.description"), detail: text("daycare.addOns.treadmill.sessions") },
-    { title: t("One-on-One Play", "Jeux individuels"), price: DAYCARE_ADD_ON_CENTS.individual, kicker: text("daycare.addOns.individual.kicker"), copy: text("daycare.addOns.individual.description"), detail: text("daycare.addOns.individual.detail") },
+    { title: t("Complete Training", "Entraînement complet"), addOn: "training" as const, kicker: text("daycare.addOns.training.kicker"), copy: text("daycare.addOns.training.description"), detail: text("daycare.addOns.training.sessions") },
+    { title: t("Treadmill Exercise", "Exercice sur tapis roulant"), addOn: "treadmill" as const, kicker: text("daycare.addOns.treadmill.kicker"), copy: text("daycare.addOns.treadmill.description"), detail: text("daycare.addOns.treadmill.sessions") },
+    { title: t("One-on-One Play", "Jeux individuels"), addOn: "individual" as const, kicker: text("daycare.addOns.individual.kicker"), copy: text("daycare.addOns.individual.description"), detail: text("daycare.addOns.individual.detail") },
   ]
 
   return <main className="min-h-screen bg-background">
@@ -66,7 +65,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
           </div>
           <div className="absolute bottom-5 right-5 left-5 rounded-2xl bg-background/95 p-5 shadow-sm backdrop-blur-sm">
             <p className="text-sm font-medium">{text("daycare.hero.photoCaption")}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{t("Half day", "Demi-journée")} {money(DAYCARE_BASE_CENTS.half)} · {t("Full day", "Journée")} {money(DAYCARE_BASE_CENTS.full)} · {t("Plus tax","Taxes en sus")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Half day", "Demi-journée")} <DaycareLivePrice of="half" locale={locale} /> · {t("Full day", "Journée")} <DaycareLivePrice of="full" locale={locale} /> · {t("Plus tax","Taxes en sus")}</p>
           </div>
         </div>
       </div>
@@ -86,13 +85,13 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
         <div className="mt-9 grid gap-5 lg:grid-cols-3">{addOns.map((option, i) => <article key={option.title} className="flex flex-col rounded-3xl border border-border p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">0{i+1} · {option.kicker}</p>
           <h3 className="mt-5 text-2xl font-semibold">{option.title}</h3>
-          <p className="mt-4 text-4xl font-semibold tracking-tight text-primary">+{money(option.price)}<span className="ml-2 text-sm font-normal text-muted-foreground">{t("/ visit + tax", "/ visite + taxes")}</span></p>
+          <p className="mt-4 text-4xl font-semibold tracking-tight text-primary">+<DaycareLivePrice of={option.addOn} locale={locale} /><span className="ml-2 text-sm font-normal text-muted-foreground">{t("/ visit + tax", "/ visite + taxes")}</span></p>
           <p className="mt-5 flex-1 leading-relaxed text-muted-foreground">{option.copy}</p>
           <p className="mt-6 border-t border-border pt-5 text-sm font-medium">{option.detail}</p>
         </article>)}</div>
         <div className="mt-5 flex flex-col justify-between gap-5 rounded-3xl bg-secondary/15 px-7 py-6 sm:flex-row sm:items-center">
           <div><h3 className="text-xl font-semibold">{text("daycare.addOns.fullExperience.title")}</h3><p className="mt-1 text-sm text-muted-foreground">{text("daycare.addOns.fullExperience.subtitle")}</p></div>
-          <p className="text-lg font-semibold">{t(`Half day ${fullExperience("half")} · Full day ${fullExperience("full")}`, `Demi-journée ${fullExperience("half")} · Journée ${fullExperience("full")}`)}<span className="mt-1 block text-sm font-normal text-muted-foreground">{t("CAD, plus applicable taxes", "Dollars canadiens, taxes en sus")}</span></p>
+          <p className="text-lg font-semibold">{t("Half day ", "Demi-journée ")}<DaycareLivePrice of="allHalf" locale={locale} />{t(" · Full day ", " · Journée ")}<DaycareLivePrice of="allFull" locale={locale} /><span className="mt-1 block text-sm font-normal text-muted-foreground">{t("CAD, plus applicable taxes", "Dollars canadiens, taxes en sus")}</span></p>
         </div>
       </div>
     </section>

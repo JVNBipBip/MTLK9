@@ -11,7 +11,8 @@ import { BookingLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
-import { usd } from "@/lib/prices"
+import { priceOf, usd } from "@/lib/prices"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
 /** Owner-editable as services.consultation.covers.<n>. */
 const coversIdPrefix = "services.consultation.covers"
@@ -36,6 +37,8 @@ const forYouIf = [
 export default function ConsultationPage() {
   const t = useLocalizedText()
   const text = useEditableText()
+  // In the editor's live preview, his unsaved prices; otherwise the published ones.
+  const price = useDraftPrices() ?? priceOf
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -126,7 +129,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.puppy2Months5", "Puppy (2 months–5 months)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        {t(`${usd("consultation.young")}+tx | 75 minutes`)}
+                        {t(`${usd("consultation.young", price)}+tx | 75 minutes`)}
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
@@ -134,7 +137,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.adolescentAdult5Months", "Adolescent/Adult (5 months +)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        {t(`${usd("consultation.adult")}+tx | 75 minutes`)}
+                        {t(`${usd("consultation.adult", price)}+tx | 75 minutes`)}
                       </p>
                     </div>
                   </div>

@@ -15,6 +15,8 @@ export type EditDrafts = {
   text: Partial<Record<string, Partial<LocalizedString>>>
   images: Partial<Record<string, { src: string; alt?: Partial<LocalizedString> }>>
   lists?: Partial<Record<string, ListValue>>
+  /** Price drafts, whole dollars (Prices panel). Pages rebuild their price text from them. */
+  prices?: Partial<Record<string, number>>
 }
 
 let drafts: EditDrafts | null = null

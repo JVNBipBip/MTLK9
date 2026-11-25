@@ -22,7 +22,8 @@ import posthog from "posthog-js"
 import { heroCtaExperimentProperties } from "@/lib/hero-cta-experiment"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 import { getBusinessDetails } from "@/lib/business-details"
-import { frenchDollars, usd } from "@/lib/prices"
+import { frenchDollars, priceOf, usd } from "@/lib/prices"
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices"
 
 // The facility address, from the owner-editable business details.
 const CONSULTATION_LOCATION = getBusinessDetails().addressLine
@@ -49,6 +50,12 @@ function isStepValid(step: number, formData: BookingFormData): boolean {
   }
 }
 
+function specialistPricingLine(locale: "en" | "fr", price = priceOf) {
+  return locale === "fr"
+    ? `L'évaluation spécialisée est de ${frenchDollars("consultation.specialist", price)} CAD (${frenchDollars("consultation.adult", price)} CAD pour l'évaluation standard). Les créneaux recommandés sont indiqués par un point ci-dessous.`
+    : `Specialist assessment is ${usd("consultation.specialist", price)} CAD (standard is ${usd("consultation.adult", price)} CAD). Recommended slots are marked with a dot below.`
+}
+
 const bookingContentCopy = {
   en: {
     close: "Close",
@@ -64,7 +71,7 @@ const bookingContentCopy = {
       "Please note: some assessments may have different pricing than our standard evaluation.",
     recommendedSpecialist: "Recommended openings",
     recommendedPricing:
-      `Specialist assessment is ${usd("consultation.specialist")} CAD (standard is ${usd("consultation.adult")} CAD). Recommended slots are marked with a dot below.`,
+      specialistPricingLine("en"),
     noSlotsFallback: "No slots available right now. Use the free call option on the site to reach us.",
     noFilteredSlotsNick:
       "No assessment times matched these answers right now. Please call or email us and we will help you schedule.",
@@ -130,7 +137,7 @@ const bookingContentCopy = {
       "Veuillez noter que certaines évaluations peuvent avoir un tarif différent de notre évaluation standard.",
     recommendedSpecialist: "Créneaux recommandés",
     recommendedPricing:
-      `L'évaluation spécialisée est de ${frenchDollars("consultation.specialist")} CAD (${frenchDollars("consultation.adult")} CAD pour l'évaluation standard). Les créneaux recommandés sont indiqués par un point ci-dessous.`,
+      specialistPricingLine("fr"),
     noSlotsFallback:
       "Aucun créneau n'est disponible pour le moment. Utilisez l'option d'appel gratuit sur le site pour nous joindre.",
     noFilteredSlotsNick:
@@ -213,6 +220,9 @@ export function BookingContent({
 }) {
   const locale = useAppLocale()
   const copy = bookingContentCopy[locale]
+  // In the editor's live preview, the specialist pricing line uses his unsaved prices.
+  const draftPrices = useDraftPrices()
+  const recommendedPricing = draftPrices ? specialistPricingLine(locale, draftPrices) : copy.recommendedPricing
   const intlLocale = getIntlLocale(locale)
   /** Modal uses nested flex scroll; page variant scrolls with the document (avoids zero-height flex collapse on resume/trainer pages). */
   const shellClass = cn(
@@ -831,7 +841,7 @@ export function BookingContent({
                         {copy.recommendedSpecialist}
                       </p>
                       <p className="text-muted-foreground pl-4">
-                        {copy.recommendedPricing}
+                        {recommendedPricing}
                       </p>
                     </div>
                   ) : null}

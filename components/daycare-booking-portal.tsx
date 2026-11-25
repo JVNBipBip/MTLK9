@@ -9,7 +9,9 @@ import {
   type DaycareStay,
   type DaycareAddOn,
   type DaycareVisits,
+  daycareRates,
 } from "@/lib/daycare-pricing";
+import { useDraftPrices } from "@/lib/site-editing/use-draft-prices";
 import { torontoDate, torontoTime, type DaycareSlot } from "@/lib/daycare-booking";
 import { DAYCARE_BUNDLE_WEEKS } from "@/lib/daycare-policy";
 import { DaycareDatePicker, DaycareSelect } from "./daycare-date-picker";
@@ -170,7 +172,10 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
     });
   const selectedDog = data?.dogs.find(dog => dog.id === selectedDogId) || data?.dogs[0];
   // Display only: the server re-prices at checkout with its own clock.
-  const quote = quoteDaycare(stay, addOns, visits, selectedDog?.secondDog, now);
+  // In the editor's live preview, his unsaved prices; otherwise the published ones.
+  const draftPrices = useDraftPrices();
+  const rates = draftPrices ? daycareRates(draftPrices) : { base: DAYCARE_BASE_CENTS, addOns: DAYCARE_ADD_ON_CENTS };
+  const quote = quoteDaycare(stay, addOns, visits, selectedDog?.secondDog, now, rates);
   const today = torontoDate();
   const upcoming =
     data?.dogs.flatMap(dog => dog.bookings.map(b => ({ ...b, applicationId: dog.id, dogName: dog.dogName }))).filter((b) => b.status === "booked" && b.date >= today).sort((a,b)=>a.date.localeCompare(b.date) || a.arrival.localeCompare(b.arrival)) ||
@@ -561,7 +566,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                         <span className="min-w-0 flex-1">
                           <span className="flex flex-wrap justify-between gap-x-3 font-semibold">
                             <span>{key === "half" ? t("Half day", "Demi-journée") : t("Full day", "Journée complète")}</span>
-                            <span className="tabular-nums">{money(DAYCARE_BASE_CENTS[key])}</span>
+                            <span className="tabular-nums">{money(rates.base[key])}</span>
                           </span>
                           <span className="mt-0.5 block text-sm text-muted-foreground">{key === "half" ? t("Up to 6 hours", "Jusqu’à 6 h") : t("More than 6, up to 11 hours", "Plus de 6 h, jusqu’à 11 h")}</span>
                         </span>
@@ -582,7 +587,7 @@ export function DaycareBookingPortal({ locale }: { locale: "en" | "fr" }) {
                         />
                         <span className="flex min-w-0 flex-1 flex-wrap justify-between gap-x-3">
                           <span className="font-medium">{addOnLabel(key)}</span>
-                          <span className="tabular-nums text-muted-foreground">+{money(DAYCARE_ADD_ON_CENTS[key])}</span>
+                          <span className="tabular-nums text-muted-foreground">+{money(rates.addOns[key])}</span>
                         </span>
                       </label>
                     ))}
