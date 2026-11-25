@@ -4,7 +4,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
-import { ProgramSignupLink } from "@/components/booking-form-provider"
+import { ProgramSignupButton } from "@/components/booking-form-provider"
 import { addLocaleToPathname, type AppLocale } from "@/lib/i18n/config"
 import type { LocationPageData } from "@/lib/location-pages"
 import { EditableCopy } from "@/components/editable-copy"
@@ -46,12 +46,10 @@ export function LocationPage({
             {e("intro")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <ProgramSignupLink>
-              <Button className="rounded-full bg-primary px-6 py-5 text-sm text-primary-foreground hover:bg-primary/90 md:text-base">
-                {e("primaryCta")}
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-              </Button>
-            </ProgramSignupLink>
+            <ProgramSignupButton className="rounded-full bg-primary px-6 py-5 text-sm text-primary-foreground hover:bg-primary/90 md:text-base">
+              {e("primaryCta")}
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </ProgramSignupButton>
             <Button
               asChild
               variant="outline"
@@ -225,12 +223,10 @@ export function LocationPage({
             {e("ctaBody")}
           </p>
           <div className="mt-8">
-            <ProgramSignupLink>
-              <Button size="lg" className="rounded-full px-8 py-6 text-base">
-                {e("primaryCta")}
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-              </Button>
-            </ProgramSignupLink>
+            <ProgramSignupButton size="lg" className="rounded-full px-8 py-6 text-base">
+              {e("primaryCta")}
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </ProgramSignupButton>
           </div>
         </div>
       </section>

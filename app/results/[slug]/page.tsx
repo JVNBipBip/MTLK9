@@ -3,10 +3,9 @@ import { EditableText } from "@/components/editable-text"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { ArrowRight } from "lucide-react"
-import { FreeCallLink } from "@/components/booking-form-provider"
+import { FreeCallButton } from "@/components/booking-form-provider"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Button } from "@/components/ui/button"
 import { WistiaClickToPlay } from "@/components/wistia-click-to-play"
 import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { buildLocalizedMetadata, getRequestLocale, noIndexMetadata } from "@/lib/seo"
@@ -122,12 +121,10 @@ export default async function StoryPage({ params }: StoryPageProps) {
             </blockquote>
 
             <div className="pt-2">
-              <FreeCallLink>
-                <Button size="lg" className="rounded-full px-8 py-6 text-base group">
-                  <EditableText id="results.story.button" locale={locale} />
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </FreeCallLink>
+              <FreeCallButton size="lg" className="rounded-full px-8 py-6 text-base group">
+                <EditableText id="results.story.button" locale={locale} />
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </FreeCallButton>
             </div>
           </div>
         </div>

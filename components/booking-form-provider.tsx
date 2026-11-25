@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useState,
+  type ComponentProps,
   type ReactElement,
   type ReactNode,
 } from "react"
@@ -528,5 +529,30 @@ export function TrainingPortalLink({
     >
       {children}
     </button>
+  )
+}
+
+/**
+ * A Button that opens the program sign-up form. Use these instead of
+ * <ProgramSignupLink><Button>…</Button></ProgramSignupLink> in server
+ * components whose button text is owner-editable: there, the server sees the
+ * Button as a pending client element, so the Link can't merge its click
+ * handler and the server and browser render different buttons (a hydration
+ * error). Built here, in client code, both sides render the same button.
+ */
+export function ProgramSignupButton(props: ComponentProps<typeof Button>) {
+  return (
+    <ProgramSignupLink>
+      <Button {...props} />
+    </ProgramSignupLink>
+  )
+}
+
+/** A Button that opens the free discovery call form (see ProgramSignupButton). */
+export function FreeCallButton(props: ComponentProps<typeof Button>) {
+  return (
+    <FreeCallLink>
+      <Button {...props} />
+    </FreeCallLink>
   )
 }
