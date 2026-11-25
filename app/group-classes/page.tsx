@@ -119,13 +119,13 @@ export default function GroupClassesPage() {
                     <div className="mb-4 flex flex-wrap gap-2">
                       {offering.packagePrice ? (
                         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                          {t("Package")}: {offering.packagePrice}
+                          {t("Package")}: {t(offering.packagePrice)}
                           {offering.packageDetail ? ` · ${t(offering.packageDetail)}` : ""}
                         </span>
                       ) : null}
                       {offering.unitPrice ? (
                         <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-medium text-secondary">
-                          {t("Unit")}: {offering.unitPrice}
+                          {t("Unit")}: {t(offering.unitPrice)}
                         </span>
                       ) : null}
                       {offering.note ? (

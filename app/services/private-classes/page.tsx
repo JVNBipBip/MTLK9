@@ -179,7 +179,7 @@ export default function PrivateClassesPage() {
                       >
                         <p className="font-display text-lg md:text-xl tracking-tight text-foreground">{t(row.label)}</p>
                         <p className="text-muted-foreground text-base md:text-lg whitespace-nowrap tabular-nums shrink-0">
-                          {row.price}
+                          {t(row.price)}
                         </p>
                       </div>
                     ))}
