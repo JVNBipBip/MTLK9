@@ -1,5 +1,6 @@
 import type { AppLocale } from "@/lib/i18n/config"
 import type { ServiceInterest } from "@/lib/service-inquiries"
+import { frenchDollars, usd } from "@/lib/prices"
 
 type Copy = { en: string; fr: string }
 export type FacilitySection = { title: Copy; paragraphs?: Copy[]; items?: Copy[] }
@@ -153,7 +154,7 @@ export const facilityServices = {
     description: { en: "Our January 2027 apprenticeship combines six online theory classes, five shadowing half days and five practical half days. Learn from Montreal Canine Training.", fr: "Notre programme de janvier 2027 comprend six cours théoriques en ligne, cinq demi-journées d’observation et cinq demi-journées de pratique à Montréal." },
     eyebrow: { en: "Dog Trainer Apprenticeship · January 2027", fr: "Apprentissage en entraînement canin · Janvier 2027" },
     heading: { en: "Turn your passion into a path.", fr: "Donnez une direction à votre passion." },
-    price: { en: "$3,000 CAD + tax", fr: "3 000 $ CA + taxes" },
+    price: { en: `${usd("apprenticeship.program")} CAD + tax`, fr: `${frenchDollars("apprenticeship.program")} CA + taxes` },
     intro: { en: "Build real knowledge and hands-on experience, whether you want a career with dogs or a deeper understanding of your own. Starting January 2027, our program brings together theory, observation and practical training with the Montreal Canine Training team.", fr: "Développez vos connaissances et votre expérience pratique, que vous souhaitiez travailler avec les chiens ou mieux comprendre le vôtre. Dès janvier 2027, notre programme combine théorie, observation et entraînement pratique avec l’équipe de MTL Canine Training." },
     image: "/images/october-2026/apprenticeship-practice.webp",
     imageAlt: { en: "Apprentices learning hands-on dog handling at Montreal Canine Training", fr: "Des apprentis s’exercent au maniement des chiens chez MTL Canine Training" },

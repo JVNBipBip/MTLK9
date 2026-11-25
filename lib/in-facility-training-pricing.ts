@@ -1,4 +1,6 @@
-/** MTL Canine Training — in-facility price list (CAD, + tax). */
+/** MTL Canine Training — in-facility price list (CAD, + tax). Amounts come from lib/prices.ts (owner-editable). */
+
+import { usd } from "@/lib/prices"
 
 export const IN_FACILITY_BRAND = "MTL Canine Training"
 
@@ -19,39 +21,39 @@ export const IN_FACILITY_PRICING_SECTIONS: InFacilityPriceSection[] = [
   {
     title: "Consultation",
     rows: [
-      { label: "In-Facility Consultation (2–5 months)", price: "$135 + tax" },
-      { label: "In-Facility Consultation (5 months +)", price: "$145 + tax" },
+      { label: "In-Facility Consultation (2–5 months)", price: `${usd("consultation.young")} + tax` },
+      { label: "In-Facility Consultation (5 months +)", price: `${usd("consultation.adult")} + tax` },
     ],
   },
   {
     title: "Private Classes",
     rows: [
-      { label: "Option A — 3 classes", price: "$390 + tax" },
-      { label: "Option B — 5 classes", price: "$620 + tax" },
-      { label: "Option C — 7 classes", price: "$820 + tax" },
-      { label: "Option A — Puppy — 3 classes", price: "$360 + tax", note: "Option B & C not available for puppies." },
-      { label: "Private class / unit", price: "$140 + tax" },
-      { label: "Private class / unit (2–5 months)", price: "$130 + tax" },
+      { label: "Option A — 3 classes", price: `${usd("private.packA")} + tax` },
+      { label: "Option B — 5 classes", price: `${usd("private.packB")} + tax` },
+      { label: "Option C — 7 classes", price: `${usd("private.packC")} + tax` },
+      { label: "Option A — Puppy — 3 classes", price: `${usd("private.puppyPackA")} + tax`, note: "Option B & C not available for puppies." },
+      { label: "Private class / unit", price: `${usd("private.unit")} + tax` },
+      { label: "Private class / unit (2–5 months)", price: `${usd("private.unitYoung")} + tax` },
     ],
   },
   {
     title: "Group Classes — Package Rates",
     rows: [
-      { label: "Puppy socialization (10–20 weeks)", price: "$50 + tax" },
-      { label: "Teen puppy group — 4 classes", price: "$350 + tax" },
-      { label: "Level 1 Obedience — 4 classes", price: "$360 + tax" },
-      { label: "Level 2 Obedience — 5 classes", price: "$450 + tax" },
-      { label: "Level 3 Obedience — 5 classes", price: "$450 + tax" },
-      { label: "Reactivity group class — 4 classes", price: "$360 + tax" },
+      { label: "Puppy socialization (10–20 weeks)", price: `${usd("group.puppySocial")} + tax` },
+      { label: "Teen puppy group — 4 classes", price: `${usd("group.teenPackage")} + tax` },
+      { label: "Level 1 Obedience — 4 classes", price: `${usd("group.level1Package")} + tax` },
+      { label: "Level 2 Obedience — 5 classes", price: `${usd("group.level2Package")} + tax` },
+      { label: "Level 3 Obedience — 5 classes", price: `${usd("group.level3Package")} + tax` },
+      { label: "Reactivity group class — 4 classes", price: `${usd("group.reactivityPackage")} + tax` },
     ],
   },
   {
     title: "Group Classes — Individual Rates",
     rows: [
-      { label: "Teen puppy group — 1 class", price: "$90 + tax" },
-      { label: "Level 1 Obedience — 1 class", price: "$95 + tax" },
-      { label: "Level 2 Obedience — 1 class", price: "$95 + tax" },
-      { label: "Reactivity group class — 1 class", price: "$95 + tax" },
+      { label: "Teen puppy group — 1 class", price: `${usd("group.teenClass")} + tax` },
+      { label: "Level 1 Obedience — 1 class", price: `${usd("group.level1Class")} + tax` },
+      { label: "Level 2 Obedience — 1 class", price: `${usd("group.level2Class")} + tax` },
+      { label: "Reactivity group class — 1 class", price: `${usd("group.reactivityClass")} + tax` },
     ],
   },
 ]

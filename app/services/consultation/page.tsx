@@ -11,6 +11,7 @@ import { BookingLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
+import { usd } from "@/lib/prices"
 
 /** Owner-editable as services.consultation.covers.<n>. */
 const coversIdPrefix = "services.consultation.covers"
@@ -125,7 +126,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.puppy2Months5", "Puppy (2 months–5 months)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        {t("$135+tx | 75 minutes")}
+                        {t(`${usd("consultation.young")}+tx | 75 minutes`)}
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
@@ -133,7 +134,7 @@ export default function ConsultationPage() {
                         {text("services.consultation.adolescentAdult5Months", "Adolescent/Adult (5 months +)")}
                       </p>
                       <p className="text-muted-foreground text-base md:text-lg">
-                        {t("$145+tx | 75 minutes")}
+                        {t(`${usd("consultation.adult")}+tx | 75 minutes`)}
                       </p>
                     </div>
                   </div>

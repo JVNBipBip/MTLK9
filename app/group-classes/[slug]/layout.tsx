@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getGroupClassOffering, groupClassOfferingIds } from "@/lib/group-class-offerings"
 import { buildLocalizedMetadata } from "@/lib/seo"
+import { frenchDollars, usd } from "@/lib/prices"
 
 const META_BY_SLUG: Record<
   string,
@@ -13,9 +14,9 @@ const META_BY_SLUG: Record<
       fr: "Cours de socialisation pour chiots — Montréal",
     },
     description: {
-      en: "Group puppy socialization in Montreal — $50 + tax per class for pups 10–20 weeks. Play, confidence building, and safe interactions.",
+      en: `Group puppy socialization in Montreal — ${usd("group.puppySocial")} + tax per class for pups 10–20 weeks. Play, confidence building, and safe interactions.`,
       fr:
-        "Socialisation en groupe pour chiots à Montréal — 50 $ + taxes par cours (10 à 20 semaines). Jeu, confiance et interactions sécuritaires.",
+        `Socialisation en groupe pour chiots à Montréal — ${frenchDollars("group.puppySocial")} + taxes par cours (10 à 20 semaines). Jeu, confiance et interactions sécuritaires.`,
     },
   },
   "teen-puppy-class": {

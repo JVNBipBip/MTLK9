@@ -12487,5 +12487,269 @@
         ]
       }
     }
+  },
+  "prices": {
+    "consultation.young": {
+      "pages": [
+        "/services/consultation",
+        "/services/private-classes"
+      ],
+      "section": "Consultations",
+      "label": "Consultation, puppies 2–5 months",
+      "default": 135,
+      "min": 33,
+      "max": 540,
+      "chargedBy": "square"
+    },
+    "consultation.adult": {
+      "pages": [
+        "/services/consultation",
+        "/booking"
+      ],
+      "section": "Consultations",
+      "label": "Consultation, dogs 5 months and up (standard)",
+      "default": 145,
+      "min": 36,
+      "max": 580,
+      "chargedBy": "square"
+    },
+    "consultation.specialist": {
+      "pages": [
+        "/booking"
+      ],
+      "section": "Consultations",
+      "label": "Specialist assessment",
+      "default": 165,
+      "min": 41,
+      "max": 660,
+      "chargedBy": "square"
+    },
+    "private.packA": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Option A — 3 classes",
+      "default": 390,
+      "min": 97,
+      "max": 1560,
+      "chargedBy": "square"
+    },
+    "private.packB": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Option B — 5 classes",
+      "default": 620,
+      "min": 155,
+      "max": 2480,
+      "chargedBy": "square"
+    },
+    "private.packC": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Option C — 7 classes",
+      "default": 820,
+      "min": 205,
+      "max": 3280,
+      "chargedBy": "square"
+    },
+    "private.puppyPackA": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Option A — Puppy — 3 classes",
+      "default": 360,
+      "min": 90,
+      "max": 1440,
+      "chargedBy": "square"
+    },
+    "private.unit": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Single private class",
+      "default": 140,
+      "min": 35,
+      "max": 560,
+      "chargedBy": "square"
+    },
+    "private.unitYoung": {
+      "pages": [
+        "/services/private-classes"
+      ],
+      "section": "Private classes",
+      "label": "Single private class, puppies 2–5 months",
+      "default": 130,
+      "min": 32,
+      "max": 520,
+      "chargedBy": "square"
+    },
+    "group.puppySocial": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/puppy-socialization-class"
+      ],
+      "section": "Group classes",
+      "label": "Puppy socialization, per class",
+      "default": 50,
+      "min": 12,
+      "max": 200,
+      "chargedBy": "square"
+    },
+    "group.teenPackage": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/teen-puppy-class"
+      ],
+      "section": "Group classes",
+      "label": "Teen puppy — 4-class package",
+      "default": 350,
+      "min": 87,
+      "max": 1400,
+      "chargedBy": "square"
+    },
+    "group.teenClass": {
+      "pages": [
+        "/group-classes/teen-puppy-class"
+      ],
+      "section": "Group classes",
+      "label": "Teen puppy — 1 class",
+      "default": 90,
+      "min": 22,
+      "max": 360,
+      "chargedBy": "square"
+    },
+    "group.level1Package": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/level-1-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 1 Obedience — 4-class package",
+      "default": 360,
+      "min": 90,
+      "max": 1440,
+      "chargedBy": "square"
+    },
+    "group.level1Class": {
+      "pages": [
+        "/group-classes/level-1-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 1 Obedience — 1 class",
+      "default": 95,
+      "min": 23,
+      "max": 380,
+      "chargedBy": "square"
+    },
+    "group.level2Package": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/level-2-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 2 Obedience — 5-class package",
+      "default": 450,
+      "min": 112,
+      "max": 1800,
+      "chargedBy": "square"
+    },
+    "group.level2Class": {
+      "pages": [
+        "/group-classes/level-2-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 2 Obedience — 1 class",
+      "default": 95,
+      "min": 23,
+      "max": 380,
+      "chargedBy": "square"
+    },
+    "group.level2Rejoin": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/level-2-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 2 Obedience — rejoin after graduating, per class",
+      "default": 25,
+      "min": 6,
+      "max": 100,
+      "chargedBy": "square"
+    },
+    "group.level3Package": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/level-3-obedience-class"
+      ],
+      "section": "Group classes",
+      "label": "Level 3 Obedience — 5-class package",
+      "default": 450,
+      "min": 112,
+      "max": 1800,
+      "chargedBy": "square"
+    },
+    "group.reactivityPackage": {
+      "pages": [
+        "/group-classes",
+        "/group-classes/reactivity-group-class"
+      ],
+      "section": "Group classes",
+      "label": "Reactivity group — 4-class package",
+      "default": 360,
+      "min": 90,
+      "max": 1440,
+      "chargedBy": "square"
+    },
+    "group.reactivityClass": {
+      "pages": [
+        "/group-classes/reactivity-group-class"
+      ],
+      "section": "Group classes",
+      "label": "Reactivity group — 1 class",
+      "default": 95,
+      "min": 23,
+      "max": 380,
+      "chargedBy": "square"
+    },
+    "apprenticeship.program": {
+      "pages": [
+        "/apprenticeships"
+      ],
+      "section": "Apprenticeship",
+      "label": "Dog trainer apprenticeship program",
+      "default": 3000,
+      "min": 750,
+      "max": 12000,
+      "chargedBy": "none"
+    },
+    "deposit.puppySocial": {
+      "pages": [
+        "/training-portal"
+      ],
+      "section": "Deposits",
+      "label": "Puppy socialization drop-in deposit",
+      "default": 30,
+      "min": 7,
+      "max": 120,
+      "chargedBy": "website"
+    },
+    "deposit.consultation": {
+      "pages": [
+        "/booking"
+      ],
+      "section": "Deposits",
+      "label": "Consultation deposit (the deposit checkout is currently switched off)",
+      "default": 30,
+      "min": 7,
+      "max": 120,
+      "chargedBy": "website"
+    }
   }
 }

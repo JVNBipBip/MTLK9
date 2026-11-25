@@ -1,5 +1,6 @@
 import type { InFacilityPriceRow, InFacilityPriceSection } from "@/lib/in-facility-training-pricing"
 import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
+import { usd } from "@/lib/prices"
 
 export type GroupClassOffering = {
   id: string
@@ -51,7 +52,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
       "Fun and positive way for young puppies to start their training journey! Focused on proper play, confidence building, and creating successful interactions in a safe environment.",
     bullets: ["Drop-in class", "10–20 weeks", "Must show proof of vaccination"],
     image: "/images/Classes images/puppy_social.jpg",
-    note: "Cost per class: $50 + tax per class",
+    note: `Cost per class: ${usd("group.puppySocial")} + tax per class`,
     heroEyebrow: "Drop-in · puppies 10–20 weeks",
     heroTitle: "Puppy Socialization Class in Montreal",
     heroDescription:
@@ -60,7 +61,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Drop-in class",
       "Age group: 10 weeks to 20 weeks old",
-      "Cost: $50 + tax per class",
+      `Cost: ${usd("group.puppySocial")} + tax per class`,
       "Booking: classes available upon demand",
       "Must show proof of vaccination",
       "Puppy must be free of fleas, ticks, and parasites.",
@@ -97,7 +98,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     bullets: ["Consultation required first", "5 months – 9 months", "Handler coaching"],
     image: "/images/Classes images/teen_puppy.webp",
     imageAvif: "/images/Classes images/teen_puppy.avif",
-    packagePrice: "$350 + tax",
+    packagePrice: `${usd("group.teenPackage")} + tax`,
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · dogs 5–9 months",
     heroTitle: "Teen Puppy Class in Montreal",
@@ -107,7 +108,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Consultation required first",
       "Age: 5 months to 9 months old",
-      "Package: 4 classes · $350 + tax",
+      `Package: 4 classes · ${usd("group.teenPackage")} + tax`,
       "Engagement building, confidence building, socialization, leash manners, and intro to new environments/distractions",
       "Complete all classes within 2 months of your start date",
       "Minimum 3 dogs required for the class to run · classes hosted biweekly",
@@ -150,7 +151,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
       "Handler coaching",
     ],
     image: "/images/Classes images/reactivity_group_class.webp",
-    packagePrice: "$360 + tax",
+    packagePrice: `${usd("group.reactivityPackage")} + tax`,
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · reactivity & triggers",
     heroTitle: "Reactivity Group Class in Montreal",
@@ -160,7 +161,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Consultation required first",
       "Available for all ages",
-      "Package: 4 classes · $360 + tax",
+      `Package: 4 classes · ${usd("group.reactivityPackage")} + tax`,
       "Focus: gradual exposure to a group setting while working through distractions and overcoming reactivity",
       "Payment due in full before the first session",
       "Bring food/treats, leash, collar, water, toy, and potty bags to every session",
@@ -204,7 +205,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     image: "/images/Classes images/obedience_group_class_1.webp",
     imageAvif: "/images/Classes images/obedience_group_class_1.avif",
     imageClassName: "object-[center_30%]",
-    packagePrice: "$360 + tax",
+    packagePrice: `${usd("group.level1Package")} + tax`,
     packageDetail: "for 4 classes",
     heroEyebrow: "4-class series · basic obedience",
     heroTitle: "Level 1 Obedience Class in Montreal",
@@ -214,7 +215,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Consultation required first",
       "As of 9 months old",
-      "Package: 4 classes · $360 + tax",
+      `Package: 4 classes · ${usd("group.level1Package")} + tax`,
       "Six basic commands: sit, down, stay, heel, come, and place — with engagement and neutral behavior around distractions",
       "Payment due in full before the first session",
       "Bring food/treats, leash, collar, water, toy, and potty bags to every session",
@@ -252,10 +253,10 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
       "Consultation required first",
       "As of 12 months",
       "Real-world training and proofing",
-      "$25/class for the lifetime of the dog after package completion!",
+      `${usd("group.level2Rejoin")}/class for the lifetime of the dog after package completion!`,
     ],
     image: "/images/mt_royal_image.jpg",
-    packagePrice: "$450 + tax",
+    packagePrice: `${usd("group.level2Package")} + tax`,
     packageDetail: "for 5 classes",
     heroEyebrow: "5-class series · pack walks",
     heroTitle: "Level 2 Obedience Class in Montreal",
@@ -265,9 +266,9 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Consultation required first",
       "As of 12 months",
-      "Package: 5 classes · $450 + tax",
+      `Package: 5 classes · ${usd("group.level2Package")} + tax`,
       "Group walks across Montreal — real-world training and proofing",
-      "After graduation, rejoin this class for the lifetime of your dog for $25 per class",
+      `After graduation, rejoin this class for the lifetime of your dog for ${usd("group.level2Rejoin")} per class`,
       "Complete all classes within 2 months of your start date",
       "Minimum 6 dogs required for the class to run · classes hosted biweekly",
       "Payment due in full before the first session",
@@ -303,7 +304,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     summary: "Taking training to the next Level!",
     bullets: ["Consultation required first", "As of 12 months", "Off-Leash Reliability"],
     image: "/images/Classes images/obedience.webp",
-    packagePrice: "$450 + tax",
+    packagePrice: `${usd("group.level3Package")} + tax`,
     packageDetail: "for 5 classes",
     note: "Coming soon",
     comingSoon: true,
@@ -315,7 +316,7 @@ export const GROUP_CLASS_OFFERINGS: GroupClassOffering[] = [
     classInfo: [
       "Consultation required first",
       "As of 12 months",
-      "Package: 5 classes · $450 + tax · Coming soon",
+      `Package: 5 classes · ${usd("group.level3Package")} + tax · Coming soon`,
       "Off-leash reliability — basic commands and engagement performed off-leash",
       "Some classes may begin with a 15-minute safety seminar before off-leash activities",
       "Complete all classes within 2 months of your start date",

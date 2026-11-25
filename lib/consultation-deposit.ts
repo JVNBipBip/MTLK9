@@ -1,6 +1,8 @@
 import { defaultLocale, isAppLocale, type AppLocale } from "@/lib/i18n/config"
+import { centsOf } from "@/lib/prices"
 
-export const CONSULTATION_DEPOSIT_AMOUNT_CENTS = 3000
+/** Owner-editable (Prices panel → deposit.consultation): charged by our checkout. */
+export const CONSULTATION_DEPOSIT_AMOUNT_CENTS = centsOf("deposit.consultation")
 export const TEST_CONSULTATION_DEPOSIT_AMOUNT_CENTS = 100
 export const CONSULTATION_DEPOSIT_CURRENCY = "CAD"
 export const TEST_CONSULTATION_DEPOSIT_EMAIL = "sam.diquinz@gmail.com"

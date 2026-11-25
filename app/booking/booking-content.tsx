@@ -22,6 +22,7 @@ import posthog from "posthog-js"
 import { heroCtaExperimentProperties } from "@/lib/hero-cta-experiment"
 import { FOLLOW_UP_QUESTIONS_BY_ISSUE, GOALS_OPTIONS_BY_ISSUE } from "./constants"
 import { getBusinessDetails } from "@/lib/business-details"
+import { frenchDollars, usd } from "@/lib/prices"
 
 // The facility address, from the owner-editable business details.
 const CONSULTATION_LOCATION = getBusinessDetails().addressLine
@@ -63,7 +64,7 @@ const bookingContentCopy = {
       "Please note: some assessments may have different pricing than our standard evaluation.",
     recommendedSpecialist: "Recommended openings",
     recommendedPricing:
-      "Specialist assessment is $165 CAD (standard is $145 CAD). Recommended slots are marked with a dot below.",
+      `Specialist assessment is ${usd("consultation.specialist")} CAD (standard is ${usd("consultation.adult")} CAD). Recommended slots are marked with a dot below.`,
     noSlotsFallback: "No slots available right now. Use the free call option on the site to reach us.",
     noFilteredSlotsNick:
       "No assessment times matched these answers right now. Please call or email us and we will help you schedule.",
@@ -129,7 +130,7 @@ const bookingContentCopy = {
       "Veuillez noter que certaines évaluations peuvent avoir un tarif différent de notre évaluation standard.",
     recommendedSpecialist: "Créneaux recommandés",
     recommendedPricing:
-      "L'évaluation spécialisée est de 165 $ CAD (145 $ CAD pour l'évaluation standard). Les créneaux recommandés sont indiqués par un point ci-dessous.",
+      `L'évaluation spécialisée est de ${frenchDollars("consultation.specialist")} CAD (${frenchDollars("consultation.adult")} CAD pour l'évaluation standard). Les créneaux recommandés sont indiqués par un point ci-dessous.`,
     noSlotsFallback:
       "Aucun créneau n'est disponible pour le moment. Utilisez l'option d'appel gratuit sur le site pour nous joindre.",
     noFilteredSlotsNick:

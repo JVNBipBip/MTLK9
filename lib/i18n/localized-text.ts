@@ -10,14 +10,12 @@ const PRICE_TOKEN = "{price}"
 const PRICE_TOKEN_PATTERN = /\{price\}/g
 
 /**
- * English copy writes `$50`; Quebec French writes `50 $`.
- *
- * The digits are passed through as written, so `$1,234` becomes `1,234 $`
- * rather than the `1 234 $` a French thousands separator would use. No current
- * string needs that, and guessing at it would change figures nobody reviewed.
+ * English copy writes `$50` and `$1,234`; Quebec French writes `50 $` and
+ * `1 234 $` (a space between thousands). Prices are owner-editable
+ * (lib/prices.ts), so a four-figure price can appear in any sentence.
  */
 function toFrenchPrice(englishPrice: string) {
-  return `${englishPrice.slice(1)} $`
+  return `${englishPrice.slice(1).replace(/,/g, " ")} $`
 }
 
 /**

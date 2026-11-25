@@ -1,9 +1,11 @@
 /** Puppy socialization “drop-in” — no assessment; deposit + intake required. */
 
+import { centsOf } from "@/lib/prices"
+
 export const PUPPY_SOCIALIZATION_CLASS_TYPE_ID = "puppy-socialization-class"
 
-/** CAD — $30.00 */
-export const PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS = 3000
+/** CAD. Owner-editable (Prices panel → deposit.puppySocial): charged by our checkout. */
+export const PUPPY_SOCIAL_DROP_IN_DEPOSIT_CENTS = centsOf("deposit.puppySocial")
 
 export type PuppySocialDropInIntakePayload = {
   clientName: string
