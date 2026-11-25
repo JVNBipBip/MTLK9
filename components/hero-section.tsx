@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Phone } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-import { useEditableText } from "@/lib/site-editing/use-editable"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
+import { useAppLocale } from "@/components/locale-provider"
 import { useHeroCtaExperiment } from "@/components/use-hero-cta-experiment"
 import { heroCtaLabel } from "@/lib/hero-cta-experiment"
 import { getBusinessDetails } from "@/lib/business-details"
@@ -15,6 +16,8 @@ import { getBusinessDetails } from "@/lib/business-details"
 export function HeroSection() {
   const t = useLocalizedText()
   const text = useEditableText()
+  const value = useEditableValue()
+  const locale = useAppLocale()
   const { variant: ctaVariant, ctaRef, trackCtaClick } = useHeroCtaExperiment()
   const sectionRef = useRef<HTMLElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -56,7 +59,7 @@ export function HeroSection() {
               {" "}
               ★★★★★
             </span>
-            <span>{t(" · 130+ Google reviews")}</span>
+            <span>{" · "}{value("home.hero.reviews", locale === "fr" ? "130+ avis Google" : "130+ Google reviews")}</span>
           </p>
           <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-background/80 font-medium mb-4 md:mb-6">
             {text("home.hero.eyebrow", "Montreal #1 Dog School")}

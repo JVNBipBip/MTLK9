@@ -5,14 +5,14 @@ import type { TextFieldId } from "@/lib/site-editing/fields"
 import { getRequestLocale, localizedPath } from "@/lib/seo"
 
 const services = [
-  { path: "/services", icon: Target, en: "Dog Training", fr: "Entraînement canin", description: "home.services.training.description" },
-  { path: "/day-training", icon: Sun, en: "Day Training", fr: "Entraînement de jour", description: "home.services.dayTraining.description" },
-  { path: "/regular-daycare", icon: Dog, en: "Daycare", fr: "Garderie", description: "home.services.daycare.description" },
-  { path: "/grooming", icon: Scissors, en: "Grooming", fr: "Toilettage", description: "home.services.grooming.description" },
-  { path: "/apprenticeships", icon: GraduationCap, en: "Dog Trainer Apprenticeships", fr: "Apprentissage pour entraîneurs canins", description: "home.services.apprenticeships.description" },
-] as const satisfies readonly ({ description: TextFieldId } & Record<string, unknown>)[]
+  { path: "/services", icon: Target, name: "home.services.training.name", description: "home.services.training.description" },
+  { path: "/day-training", icon: Sun, name: "home.services.dayTraining.name", description: "home.services.dayTraining.description" },
+  { path: "/regular-daycare", icon: Dog, name: "home.services.daycare.name", description: "home.services.daycare.description" },
+  { path: "/grooming", icon: Scissors, name: "home.services.grooming.name", description: "home.services.grooming.description" },
+  { path: "/apprenticeships", icon: GraduationCap, name: "home.services.apprenticeships.name", description: "home.services.apprenticeships.description" },
+] as const satisfies readonly ({ name: TextFieldId; description: TextFieldId } & Record<string, unknown>)[]
 
-// Service names, dates and the offer link stay here: they're navigation and schedule details.
+// The offer link stays here: it states a discount, and discounts are changed in code.
 
 export async function ServicesOverview() {
   const locale = await getRequestLocale()
@@ -25,10 +25,10 @@ export async function ServicesOverview() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {services.map(({ icon: Icon, ...service }) => <Link key={service.path} href={localizedPath(locale, service.path)} className="group flex min-h-48 flex-col rounded-2xl border border-border bg-background p-5 transition-colors hover:border-primary/40 hover:bg-primary/5">
           <div className="mb-5 flex items-center justify-between"><Icon className="size-6 text-primary" aria-hidden /><ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden /></div>
-          <h3 className="text-lg font-semibold leading-tight">{service[locale]}</h3>
+          <h3 className="text-lg font-semibold leading-tight"><EditableText id={service.name} locale={locale} /></h3>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground"><EditableText id={service.description} locale={locale} /></p>
-          {(service.path === "/day-training" || service.path === "/regular-daycare") && <p className="mt-auto pt-4 text-xs font-semibold text-primary">{locale === "fr" ? "Lundis et mardis · Dès le 1er novembre" : "Mondays & Tuesdays · Starting November 1"}</p>}
-          {service.path === "/apprenticeships" && <p className="mt-auto pt-4 text-xs font-semibold text-primary">{locale === "fr" ? "Prochaine cohorte : janvier 2027" : "Next program: January 2027"}</p>}
+          {(service.path === "/day-training" || service.path === "/regular-daycare") && <p className="mt-auto pt-4 text-xs font-semibold text-primary"><EditableText id="home.services.daycareSchedule" locale={locale} /></p>}
+          {service.path === "/apprenticeships" && <p className="mt-auto pt-4 text-xs font-semibold text-primary"><EditableText id="home.services.apprenticeshipsDate" locale={locale} /></p>}
         </Link>)}
       </div>
     </div>

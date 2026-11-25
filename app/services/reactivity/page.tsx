@@ -124,6 +124,7 @@ export default function ReactivityPage() {
         <ServiceForYouSection items={forYouIf} idPrefix="services.reactivity.forYouIf" />
 
         <FocusedSupportLinksSection
+          idPrefix="services.reactivity.related"
           eyebrow={{
             en: "Related behaviour support",
             fr: "Soutien comportemental lié",

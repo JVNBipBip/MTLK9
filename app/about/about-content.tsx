@@ -1,14 +1,21 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Image from "next/image"
 import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
 import { FreeCallLink } from "@/components/booking-form-provider"
 import { useAppLocale } from "@/components/locale-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-import { useEditableText } from "@/lib/site-editing/use-editable"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
+import type { BioRender } from "@/components/trainer-bio-read-more"
+import { EditableImageClient } from "@/components/editable-image-client"
+import publishedEdits from "@/content/site-edits.json"
+import type { SiteEdits } from "@/lib/site-editing/fields"
+
+const edits = publishedEdits as unknown as SiteEdits
+/** Trainer cards are owner-editable under about.team.<trainer>.* (name, title, bio, photo). */
+const teamIdPrefix = "about.team"
 import { TrainerBioReadMoreSection } from "@/components/trainer-bio-read-more"
 import {
   TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG,
@@ -22,6 +29,8 @@ import {
 
 type AboutTeamTrainerCard = {
   bookingSlug: CanonicalTrainerBookingSlug
+  /** Owner-editable ids for the name, job title and years line. */
+  ids: { name: string; title: string; years: string }
   name: string
   title: string
   titleFr?: string
@@ -35,6 +44,7 @@ type AboutTeamTrainerCard = {
 
 const TEAM_ABOUT_META: Record<CanonicalTrainerBookingSlug, Omit<AboutTeamTrainerCard, "bookingSlug">> = {
   nick: {
+    ids: { name: "about.team.nick.name", title: "about.team.nick.title", years: "about.team.nick.years" },
     name: "Nick Azzuolo",
     title: "Owner, Founder & Head Trainer",
     years: "15+ years",
@@ -45,6 +55,7 @@ const TEAM_ABOUT_META: Record<CanonicalTrainerBookingSlug, Omit<AboutTeamTrainer
     photoPosition: TEAM_TRAINER_PHOTO_POSITIONS_BY_BOOKING_SLUG.nick,
   },
   tyson: {
+    ids: { name: "about.team.tyson.name", title: "about.team.tyson.title", years: "about.team.tyson.years" },
     name: "Tyson Jerome White",
     title: "Trainer",
     years: "10+ years",
@@ -54,6 +65,7 @@ const TEAM_ABOUT_META: Record<CanonicalTrainerBookingSlug, Omit<AboutTeamTrainer
     photo: TEAM_TRAINER_PHOTOS_BY_BOOKING_SLUG.tyson,
   },
   mia: {
+    ids: { name: "about.team.mia.name", title: "about.team.mia.title", years: "about.team.mia.years" },
     name: "Mia M",
     title: "Trainer",
     titleFr: "Entraîneuse",
@@ -76,6 +88,7 @@ export function AboutContent() {
   const locale = useAppLocale()
   const t = useLocalizedText()
   const text = useEditableText()
+  const value = useEditableValue()
   const wrapperRef = useRef<HTMLDivElement>(null)
   const teamScrollerRef = useRef<HTMLDivElement>(null)
   const [activeTeamIndex, setActiveTeamIndex] = useState(0)
@@ -174,6 +187,13 @@ export function AboutContent() {
               const years = locale === "fr" && trainer.yearsFr ? trainer.yearsFr : t(trainer.years)
               const photoDesc = t(trainer.photoDesc)
               const narrative = TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG[trainer.bookingSlug]
+              // Owner-editable bio: about.team.<slug>.origin.<n>, .specializes, .offers.<n>, .personal.
+              const bioRender: BioRender = (part, piece, index) => {
+                const base = `about.team.${trainer.bookingSlug}`
+                if (part === "whatTheyOfferLabel") return value("about.team.offerLabel", t("What they offer"))
+                const id = { origin: `${base}.origin.${index}`, aboutSpecializes: `${base}.specializes`, pill: `${base}.offers.${index}`, personal: `${base}.personal` }[part]
+                return value(id, piece)
+              }
               const bioTexts = localizeTrainerBioReadMoreTexts(
                 narrative,
                 locale === "fr" ? "fr" : "en",
@@ -189,9 +209,12 @@ export function AboutContent() {
                   <div className="bg-card rounded-3xl border border-border/50 overflow-hidden shadow-lg shadow-primary/5 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 h-full flex flex-col">
                     <div className="relative aspect-[4/3] bg-muted" aria-label={photoDesc}>
                       {trainer.photo ? (
-                        <Image
-                          src={trainer.photo}
-                          alt={photoDesc}
+                        <EditableImageClient
+                          id={`${teamIdPrefix}.${trainer.bookingSlug}.photo`}
+                          locale={locale}
+                          aspect="4/3"
+                          src={edits.images[`${teamIdPrefix}.${trainer.bookingSlug}.photo`]?.src ?? trainer.photo}
+                          alt={edits.images[`${teamIdPrefix}.${trainer.bookingSlug}.photo`]?.alt?.[locale] || photoDesc}
                           fill
                           className={`object-cover ${trainer.photoPosition ?? ""}`}
                           sizes="(max-width: 1024px) 100vw, 50vw"
@@ -207,14 +230,15 @@ export function AboutContent() {
                     <div className="p-6 lg:p-8 flex flex-col flex-grow">
                       <div className="flex items-baseline gap-2 mb-2">
                         <h3 className="font-display text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-                          {trainer.name}
+                          {value(trainer.ids.name, trainer.name)}
                         </h3>
-                        <span className="text-sm text-primary font-medium">{years}</span>
+                        <span className="text-sm text-primary font-medium">{value(trainer.ids.years, years)}</span>
                       </div>
-                      <p className="text-sm font-medium text-secondary mb-1">{title}</p>
+                      <p className="text-sm font-medium text-secondary mb-1">{value(trainer.ids.title, title)}</p>
                       <TrainerBioReadMoreSection
                         preset="about"
                         texts={bioTexts}
+                        render={bioRender}
                         readMoreLabel={t("Read more")}
                         readLessLabel={t("Show less")}
                         className="mt-2 flex-grow"

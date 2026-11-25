@@ -124,6 +124,7 @@ export default function InHomePage() {
         <ServiceForYouSection items={forYouIf} idPrefix="services.inHome.forYouIf" />
 
         <FocusedSupportLinksSection
+          idPrefix="services.inHome.related"
           eyebrow={{
             en: "Home behaviour support",
             fr: "Soutien comportemental à domicile",

@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
 import { BookingLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
+
+/** Owner-editable as services.consultation.covers.<n>. */
+const coversIdPrefix = "services.consultation.covers"
 
 const consultationCovers = [
   "Meet and Greet",
@@ -69,9 +73,7 @@ export default function ConsultationPage() {
               {text("services.consultation.dogTrainingConsultationsIn", "Dog Training Consultations in Montreal")}
             </h1>
             <p className="reveal opacity-0 animation-delay-400 text-lg md:text-xl text-primary-foreground/90 max-w-2xl leading-relaxed">
-              {t(
-                "Meet with a trainer, clarify your goals and expectations, and let us create a personalized program designed to help you achieve the results you need.",
-              )}
+              {text("services.consultation.meetWithATrainer", "Meet with a trainer, clarify your goals and expectations, and let us create a personalized program designed to help you achieve the results you need.")}
             </p>
             <div className="reveal opacity-0 animation-delay-600 mt-8">
               <BookingLink>
@@ -137,10 +139,10 @@ export default function ConsultationPage() {
                   </div>
 
                   <ul className="space-y-4">
-                    {consultationCovers.map((item) => (
+                    {consultationCovers.map((item, index) => (
                       <li key={item} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-                        <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(item)}</span>
+                        <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{text(`${coversIdPrefix}.${index}` as TextFieldId, item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -159,9 +161,7 @@ export default function ConsultationPage() {
               {text("services.consultation.readyToScheduleYour", "Ready to schedule your consultation?")}
             </h2>
             <p className="reveal opacity-0 animation-delay-200 text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
-              {t(
-                "Choose a convenient time online, bring your dog, and we'll take it from there. If email works better first, you'll find that option inside the booking flow too.",
-              )}
+              {text("services.consultation.chooseAConvenientTime", "Choose a convenient time online, bring your dog, and we'll take it from there. If email works better first, you'll find that option inside the booking flow too.")}
             </p>
             <div className="reveal opacity-0 animation-delay-300">
               <BookingLink>

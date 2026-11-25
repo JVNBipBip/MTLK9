@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useEditableText } from "@/lib/site-editing/use-editable"
+import type { TextFieldId } from "@/lib/site-editing/fields"
 
 const stats = [
   {
@@ -11,6 +12,7 @@ const stats = [
     numericValue: 99,
     suffix: "%",
     label: "of dogs exhibit behavioral issues",
+    labelId: "home.stats.label1",
     source: "Texas A&M, 43,517 dogs studied",
   },
   {
@@ -18,6 +20,7 @@ const stats = [
     numericValue: 86,
     suffix: "%",
     label: "show separation or attachment behaviors",
+    labelId: "home.stats.label2",
     source: "",
   },
   {
@@ -25,6 +28,7 @@ const stats = [
     numericValue: 8,
     suffix: "%",
     label: "of owners ever enroll in formal training",
+    labelId: "home.stats.label3",
     source: "",
   },
 ]
@@ -92,7 +96,7 @@ export function StatsSection() {
         <div className="reveal opacity-0 animation-delay-400 mb-16 rounded-3xl border border-white/30 bg-white/10 backdrop-blur-sm shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <div className="px-6 py-4 border-b border-white/20 text-center">
             <p className="text-primary-foreground/95 text-sm md:text-base font-medium tracking-wide">
-              {t("Study source:")} <span className="font-semibold">{t(studySource)}</span>
+              {text("home.stats.sourceLabel", "Study source:")} <span className="font-semibold">{text("home.stats.source", "Texas A&M, 43,517 dogs studied")}</span>
             </p>
           </div>
 
@@ -103,7 +107,7 @@ export function StatsSection() {
                   {animatedValues[stat.label] ?? 0}
                   {stat.suffix}
                 </div>
-                <p className="text-primary-foreground text-lg mb-2">{t(stat.label)}</p>
+                <p className="text-primary-foreground text-lg mb-2">{text(stat.labelId as TextFieldId, stat.label)}</p>
               </div>
             ))}
           </div>

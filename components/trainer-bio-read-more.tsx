@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useId, useState, type ReactNode } from "react"
 import { ChevronDown } from "lucide-react"
 import {
   Collapsible,
@@ -19,7 +19,13 @@ export type TrainerBioReadMoreTexts = {
   personal: string
 }
 
+export type BioPart = "origin" | "aboutSpecializes" | "pill" | "personal" | "whatTheyOfferLabel"
+/** Wraps each piece of bio text (the About page makes them owner-editable). */
+export type BioRender = (part: BioPart, text: string, index?: number) => ReactNode
+const plain: BioRender = (_part, text) => text
+
 type TrainerBioReadMoreProps = {
+  render?: BioRender
   preset: TrainerBioReadMorePreset
   texts: TrainerBioReadMoreTexts
   readMoreLabel: string
@@ -27,7 +33,7 @@ type TrainerBioReadMoreProps = {
   className?: string
 }
 
-function OriginParagraphs({ text }: { text: string }) {
+function OriginParagraphs({ text, render }: { text: string; render: BioRender }) {
   return (
     <>
       {text
@@ -35,7 +41,7 @@ function OriginParagraphs({ text }: { text: string }) {
         .map((p) => p.trim())
         .filter(Boolean)
         .map((paragraph, index) => (
-          <p key={index}>{paragraph}</p>
+          <p key={index}>{render("origin", paragraph, index)}</p>
         ))}
     </>
   )
@@ -45,9 +51,11 @@ function OriginParagraphs({ text }: { text: string }) {
 function PillsScroller({
   labels,
   ultraCompact,
+  render,
 }: {
   labels: string[]
   ultraCompact?: boolean
+  render: BioRender
 }) {
   return (
     <div
@@ -67,7 +75,7 @@ function PillsScroller({
               : "text-[10px] leading-snug sm:text-[11px]",
           )}
         >
-          {label}
+          {render("pill", label, index)}
         </span>
       ))}
     </div>
@@ -76,14 +84,16 @@ function PillsScroller({
 
 function FullOffersBox({
   texts,
+  render,
 }: {
   texts: Pick<TrainerBioReadMoreTexts, "hostsPills" | "whatTheyOfferLabel">
+  render: BioRender
 }) {
   const { hostsPills, whatTheyOfferLabel } = texts
   return (
     <div className="rounded-xl border border-border/60 bg-muted/35 px-2.5 py-2 md:rounded-2xl md:px-3 md:py-2.5">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground md:text-[11px] mb-1.5 md:mb-2">
-        {whatTheyOfferLabel}
+        {render("whatTheyOfferLabel", whatTheyOfferLabel)}
       </p>
       <div className="flex flex-wrap gap-1 md:gap-1.5">
         {hostsPills.map((label, index) => (
@@ -91,7 +101,7 @@ function FullOffersBox({
             key={index}
             className="inline-flex max-w-full rounded-full border border-border/70 bg-background/90 px-2 py-0.5 md:px-2.5 md:py-1 text-left text-[10px] leading-snug font-medium text-foreground shadow-sm md:text-xs"
           >
-            {label}
+            {render("pill", label, index)}
           </span>
         ))}
       </div>
@@ -99,7 +109,7 @@ function FullOffersBox({
   )
 }
 
-function FullBioBlock({ texts }: { texts: TrainerBioReadMoreTexts }) {
+function FullBioBlock({ texts, render }: { texts: TrainerBioReadMoreTexts; render: BioRender }) {
   const {
     origin,
     aboutSpecializes,
@@ -111,26 +121,26 @@ function FullBioBlock({ texts }: { texts: TrainerBioReadMoreTexts }) {
   return (
     <div className="space-y-3 text-muted-foreground text-sm leading-relaxed">
       <div className="space-y-3">
-        <OriginParagraphs text={origin} />
+        <OriginParagraphs text={origin} render={render} />
       </div>
-      {aboutSpecializes ? <p className="font-medium text-foreground/95">{aboutSpecializes}</p> : null}
-      <FullOffersBox texts={{ hostsPills, whatTheyOfferLabel }} />
-      <p className="text-muted-foreground text-sm leading-relaxed">{personal}</p>
+      {aboutSpecializes ? <p className="font-medium text-foreground/95">{render("aboutSpecializes", aboutSpecializes)}</p> : null}
+      <FullOffersBox texts={{ hostsPills, whatTheyOfferLabel }} render={render} />
+      <p className="text-muted-foreground text-sm leading-relaxed">{render("personal", personal)}</p>
     </div>
   )
 }
 
-function CompactTeaser({ texts }: { texts: TrainerBioReadMoreTexts }) {
+function CompactTeaser({ texts, render }: { texts: TrainerBioReadMoreTexts; render: BioRender }) {
   const { aboutSpecializes, hostsPills } = texts
 
   return (
     <div className="rounded-xl border border-border/50 bg-muted/25 px-2.5 py-2 md:px-3 md:py-2.5">
       {aboutSpecializes ? (
         <p className="text-muted-foreground text-[11px] leading-snug sm:text-xs mb-2 line-clamp-4 sm:line-clamp-3 md:line-clamp-2 md:text-sm">
-          {aboutSpecializes}
+          {render("aboutSpecializes", aboutSpecializes)}
         </p>
       ) : null}
-      <PillsScroller labels={hostsPills} ultraCompact />
+      <PillsScroller labels={hostsPills} ultraCompact render={render} />
     </div>
   )
 }
@@ -149,12 +159,14 @@ function BookingTrainerSpecializesOnly({ texts }: { texts: TrainerBioReadMoreTex
 
 function BioExpandableCompact({
   texts,
+  render,
   readMoreLabel,
   readLessLabel,
   triggerClassName,
   wrapperClassName,
 }: {
   texts: TrainerBioReadMoreTexts
+  render: BioRender
   readMoreLabel: string
   readLessLabel: string
   triggerClassName?: string
@@ -165,7 +177,7 @@ function BioExpandableCompact({
 
   return (
     <div className={cn("space-y-2", wrapperClassName)}>
-      <CompactTeaser texts={texts} />
+      <CompactTeaser texts={texts} render={render} />
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger
           id={`${idControls}-toggle`}
@@ -186,7 +198,7 @@ function BioExpandableCompact({
         </CollapsibleTrigger>
         <CollapsibleContent id={`${idControls}-expanded`} className="overflow-hidden">
           <div className="pt-4">
-            <FullBioBlock texts={texts} />
+            <FullBioBlock texts={texts} render={render} />
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -202,6 +214,7 @@ function BioExpandableCompact({
 export function TrainerBioReadMoreSection({
   preset,
   texts,
+  render = plain,
   readMoreLabel,
   readLessLabel,
   className,
@@ -221,11 +234,12 @@ export function TrainerBioReadMoreSection({
     return (
       <div className={className}>
         <div className="hidden md:block space-y-3 pt-4 border-t border-border/40">
-          <FullBioBlock texts={texts} />
+          <FullBioBlock texts={texts} render={render} />
         </div>
         <div className="md:hidden pt-3 border-t border-border/40 space-y-2">
           <BioExpandableCompact
             texts={texts}
+            render={render}
             readMoreLabel={readMoreLabel}
             readLessLabel={readLessLabel}
             triggerClassName="min-h-10 border-primary bg-primary px-4 py-2.5 text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:text-primary-foreground"
@@ -240,6 +254,7 @@ export function TrainerBioReadMoreSection({
     <div className={cn("pt-2 border-t border-border/45", className)}>
       <BioExpandableCompact
         texts={texts}
+        render={render}
         readMoreLabel={readMoreLabel}
         readLessLabel={readLessLabel}
       />

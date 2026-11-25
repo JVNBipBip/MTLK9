@@ -53,7 +53,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
             <a href="#daycare-pricing" className="inline-flex min-h-14 items-center gap-3 rounded-full bg-primary px-7 py-4 font-semibold text-primary-foreground">{text("daycare.hero.primaryButton")}<ArrowDown className="size-4" aria-hidden /></a>
             <a href="#getting-started" className="inline-flex min-h-14 items-center rounded-full border border-border px-7 py-4 font-semibold">{text("daycare.hero.secondaryButton")}</a>
           </div>
-          <div className="mt-7 flex items-start gap-3 text-sm text-muted-foreground"><Clock3 className="mt-0.5 size-5 shrink-0" aria-hidden /><p><span className="block font-semibold text-foreground">{t("Mondays & Tuesdays", "Les lundis et mardis")}</span>{t("7:30 AM–6:30 PM · From November 1, 2026", "7 h 30 à 18 h 30 · Dès le 1er novembre 2026")}</p></div>
+          <div className="mt-7 flex items-start gap-3 text-sm text-muted-foreground"><Clock3 className="mt-0.5 size-5 shrink-0" aria-hidden /><p><span className="block font-semibold text-foreground"><EditableCopy id="daycare.hours.days" copy={{ en: "Mondays & Tuesdays", fr: "Les lundis et mardis" }} locale={locale} /></span><EditableCopy id="daycare.hours.times" copy={{ en: "7:30 AM–6:30 PM · From November 1, 2026", fr: "7 h 30 à 18 h 30 · Dès le 1er novembre 2026" }} locale={locale} /></p></div>
         </div>
         <div className="relative w-full max-w-[520px] justify-self-center lg:justify-self-end">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
@@ -131,7 +131,7 @@ export async function DaycarePage({ focus = "daycare" }: { focus?: "daycare" | "
             </a>
           </article>
         </div>
-        <a href={getBusinessDetails().phoneHref} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4"><Phone className="size-4" aria-hidden />{t("Questions? Call", "Une question? Appelez le")} <EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} /></a>
+        <a href={getBusinessDetails().phoneHref} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-primary underline underline-offset-4"><Phone className="size-4" aria-hidden /><EditableCopy id="daycare.questionsCall" copy={{ en: "Questions? Call", fr: "Une question? Appelez le" }} locale={locale} /> <EditableCopy id="business.phone" copy={{ en: getBusinessDetails().phone, fr: getBusinessDetails().phone }} locale={locale} /></a>
       </div>
     </section>
     <section className="mx-auto max-w-6xl px-5 pb-16 md:px-8">

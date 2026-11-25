@@ -10,13 +10,14 @@ import { TrustStrip } from "@/components/trust-strip"
 import { Button } from "@/components/ui/button"
 import { WistiaClickToPlay } from "@/components/wistia-click-to-play"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-import { useEditableText } from "@/lib/site-editing/use-editable"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
 import { localizeTransformationStory, transformationStories } from "@/lib/transformation-stories"
 
 export default function ResultsPage() {
   const locale = useAppLocale()
   const t = useLocalizedText()
   const text = useEditableText()
+  const value = useEditableValue()
   const contentRef = useRef<HTMLDivElement>(null)
   const caseStudies = transformationStories.map((story) => localizeTransformationStory(story, locale))
 
@@ -78,31 +79,31 @@ export default function ResultsPage() {
                     <div className="p-6 flex flex-col flex-grow">
                       <div className="flex items-baseline gap-2 mb-4">
                         <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
-                          {study.dogName}
+                          {value(`story.${study.slug}.dogName`, study.dogName)}
                         </h2>
-                        <span className="text-sm text-muted-foreground">{study.breed}</span>
+                        <span className="text-sm text-muted-foreground">{value(`story.${study.slug}.breed`, study.breed)}</span>
                       </div>
 
                       <div className="space-y-3 text-sm leading-relaxed flex-grow">
                         <div className="rounded-xl bg-destructive/[0.06] border-l-[3px] border-destructive/60 p-3.5">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive mb-1.5">
-                            {t("Before")}
+                            {text("stories.shared.before", "Before")}
                           </p>
-                          <p className="text-muted-foreground">{study.before}</p>
+                          <p className="text-muted-foreground">{value(`story.${study.slug}.before`, study.before)}</p>
                         </div>
                         <div className="flex justify-center -my-1" aria-hidden="true">
                           <ArrowDown className="w-4 h-4 text-muted-foreground/50" />
                         </div>
                         <div className="rounded-xl bg-primary/[0.06] border-l-[3px] border-primary/60 p-3.5">
                           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary mb-1.5">
-                            {t("After")}
+                            {text("stories.shared.after", "After")}
                           </p>
-                          <p className="text-muted-foreground">{study.after}</p>
+                          <p className="text-muted-foreground">{value(`story.${study.slug}.after`, study.after)}</p>
                         </div>
                       </div>
 
                       <blockquote className="mt-4 pt-4 border-t border-border/50 text-sm italic text-muted-foreground">
-                        &ldquo;{study.testimonial}&rdquo;
+                        &ldquo;{value(`story.${study.slug}.testimonial`, study.testimonial)}&rdquo;
                       </blockquote>
 
                       <FreeCallLink>

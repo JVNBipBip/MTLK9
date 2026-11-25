@@ -72,7 +72,7 @@ export function ServiceWorkOnSection({ goals, idPrefix, ctaMode = "program_signu
         <div className="reveal opacity-0">
           <div className="mb-4 flex items-center justify-between gap-4">
             <p className="text-xs md:text-sm uppercase tracking-[0.14em] text-muted-foreground/80">
-              {t("Swipe/Scroll to see each focus area")}
+              {text("services.shared.swipeHint", "Swipe/Scroll to see each focus area")}
             </p>
             <div className="hidden lg:flex items-center gap-2">
               <button
@@ -143,14 +143,14 @@ export function ServiceWorkOnSection({ goals, idPrefix, ctaMode = "program_signu
           {ctaMode === "book_consultation" ? (
             <BookingLink>
               <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                {t("Send an Inquiry")}
+                {text("services.shared.workOnInquiry", "Send an Inquiry")}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </BookingLink>
           ) : (
             <ProgramSignupLink>
               <Button className="rounded-full px-6 py-5 text-sm md:text-base group">
-                {t("Start Program Sign-Up")}
+                {text("services.shared.workOnSignUp", "Start Program Sign-Up")}
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </ProgramSignupLink>

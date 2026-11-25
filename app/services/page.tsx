@@ -5,14 +5,17 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { CardCoverImage } from "@/components/card-cover-image"
+import { EditableCardImage } from "@/components/editable-card-image"
 import { ArrowRight } from "lucide-react"
 import { BookingLink, TrainingPortalLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
-import { useEditableText } from "@/lib/site-editing/use-editable"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
+import type { TextFieldId } from "@/lib/site-editing/fields"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 type TrainingPathCard = {
+  /** Owner-editable ids for title, lead and body. */
+  ids: { title: TextFieldId; lead: TextFieldId; body: TextFieldId; photo: string }
   title: string
   lead: string
   body: string
@@ -22,6 +25,7 @@ type TrainingPathCard = {
 }
 
 type SpecializedServiceCard = {
+  ids: { title: TextFieldId; lead: TextFieldId; body: TextFieldId; photo: string }
   href: string
   title: {
     en: string
@@ -40,6 +44,7 @@ type SpecializedServiceCard = {
 
 const trainingPaths: TrainingPathCard[] = [
   {
+    ids: { title: "services.hub.path.consultation.title", lead: "services.hub.path.consultation.lead", body: "services.hub.path.consultation.body", photo: "services.hub.path.consultation.photo" },
     title: "Consultation",
     lead: "Start with an evaluation",
     body: "Start your dog's training journey with a 75-minute evaluation session designed to establish the right program for both you and your dog.",
@@ -47,6 +52,7 @@ const trainingPaths: TrainingPathCard[] = [
     variant: "consultation",
   },
   {
+    ids: { title: "services.hub.path.private.title", lead: "services.hub.path.private.lead", body: "services.hub.path.private.body", photo: "services.hub.path.private.photo" },
     title: "Private training",
     lead: "One-on-one sessions",
     body: "Our most popular option! Private classes offer personalized, hands-on training tailored to your specific goals. Only offered after a consultation.",
@@ -54,6 +60,7 @@ const trainingPaths: TrainingPathCard[] = [
     variant: "private",
   },
   {
+    ids: { title: "services.hub.path.group.title", lead: "services.hub.path.group.lead", body: "services.hub.path.group.body", photo: "services.hub.path.group.photo" },
     title: "Group Classes",
     lead: "From beginner group classes to advanced pack walks",
     body: "A variety of structured group classes available for all dogs, ranging from basic foundations to advanced obedience training.",
@@ -65,6 +72,7 @@ const trainingPaths: TrainingPathCard[] = [
 
 const specializedServices: SpecializedServiceCard[] = [
   {
+    ids: { title: "services.hub.specialized.aggression.title", lead: "services.hub.specialized.aggression.lead", body: "services.hub.specialized.aggression.body", photo: "services.hub.specialized.aggression.photo" },
     href: "/services/aggression",
     title: {
       en: "Aggressive dog training",
@@ -81,6 +89,7 @@ const specializedServices: SpecializedServiceCard[] = [
     image: "/images/Classes images/private.webp",
   },
   {
+    ids: { title: "services.hub.specialized.separationAnxiety.title", lead: "services.hub.specialized.separationAnxiety.lead", body: "services.hub.specialized.separationAnxiety.body", photo: "services.hub.specialized.separationAnxiety.photo" },
     href: "/services/separation-anxiety",
     title: {
       en: "Separation anxiety training",
@@ -183,6 +192,7 @@ export default function ServicesPage() {
       ? "Des pages ciblées pour les recherches à forte intention, avec un parcours privé clair lorsque le chien a besoin de plus qu'un cours de groupe."
       : "Focused service pages for high-intent searches, with a clear private-training path when a dog needs more than a general class."
   const learnMoreLabel = locale === "fr" ? "Voir le programme" : "View program"
+  const value = useEditableValue()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -231,7 +241,9 @@ export default function ServicesPage() {
                     }`}
                   >
                     <div className="relative aspect-[5/4] shrink-0 overflow-hidden">
-                      <CardCoverImage
+                      <EditableCardImage
+                        id={path.ids.photo}
+                        aspect="5/4"
                         src={path.image}
                         srcAvif={path.imageAvif}
                         alt={t(path.title)}
@@ -245,16 +257,16 @@ export default function ServicesPage() {
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-5">
                         <p className="font-display text-lg font-semibold tracking-tight text-white drop-shadow-sm md:text-xl">
-                          {t(path.title)}
+                          {text(path.ids.title, path.title)}
                         </p>
                         <p className="mt-1 text-xs font-medium uppercase tracking-[0.15em] text-white/85">
-                          {t(path.lead)}
+                          {text(path.ids.lead, path.lead)}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex flex-1 flex-col gap-4 p-5 lg:p-6">
-                      <p className="text-sm leading-relaxed text-muted-foreground">{t(path.body)}</p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">{text(path.ids.body, path.body)}</p>
                       <div className="mt-auto pt-1">
                         <PathCardCta
                           path={path}
@@ -276,13 +288,13 @@ export default function ServicesPage() {
           <div className="max-w-7xl mx-auto">
             <div className="max-w-3xl mb-8 lg:mb-10">
               <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-                {locale === "fr" ? "Services spécialisés" : "Specialized services"}
+                {value("services.hub.specialized.eyebrow", locale === "fr" ? "Services spécialisés" : "Specialized services")}
               </p>
               <h2 className="reveal opacity-0 animation-delay-200 font-display text-4xl md:text-5xl font-semibold tracking-tight text-foreground text-balance">
-                {specializedHeading}
+                {value("services.hub.specialized.heading", specializedHeading)}
               </h2>
               <p className="reveal opacity-0 animation-delay-400 mt-4 text-base md:text-lg text-muted-foreground leading-relaxed">
-                {specializedIntro}
+                {value("services.hub.specialized.intro", specializedIntro)}
               </p>
             </div>
 
@@ -297,7 +309,9 @@ export default function ServicesPage() {
                 >
                   <div className="grid min-h-full md:grid-cols-[0.9fr_1.1fr]">
                     <div className="relative min-h-[220px] overflow-hidden">
-                      <CardCoverImage
+                      <EditableCardImage
+                        id={service.ids.photo}
+                        aspect="4/3"
                         src={service.image}
                         alt={localized(locale, service.title)}
                         fill
@@ -307,16 +321,16 @@ export default function ServicesPage() {
                     </div>
                     <div className="flex flex-col p-6 lg:p-7">
                       <p className="text-xs font-medium uppercase tracking-[0.15em] text-secondary">
-                        {localized(locale, service.lead)}
+                        {value(service.ids.lead, localized(locale, service.lead))}
                       </p>
                       <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
-                        {localized(locale, service.title)}
+                        {value(service.ids.title, localized(locale, service.title))}
                       </h3>
                       <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                        {localized(locale, service.body)}
+                        {value(service.ids.body, localized(locale, service.body))}
                       </p>
                       <span className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                        {learnMoreLabel}
+                        {value("services.hub.specialized.link", learnMoreLabel)}
                         <ArrowRight className="w-4 h-4 transition-transform group-hover/card:translate-x-1" />
                       </span>
                     </div>
@@ -338,9 +352,7 @@ export default function ServicesPage() {
                   {text("services.hub.notSureWhereTo", "Not Sure Where to Start?")}
                 </h2>
                 <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-10">
-                  {t(
-                    "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit.",
-                  )}
+                  {text("services.hub.bookAConsultationAnd", "Book a consultation and we'll walk through your dog's behaviour, your goals, and whether private lessons or a group series is the best fit.")}
                 </p>
                 <div className="reveal opacity-0 animation-delay-600">
                   <BookingLink>

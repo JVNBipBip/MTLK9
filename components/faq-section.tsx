@@ -34,7 +34,7 @@ export function FaqSection({ categories }: { categories: FaqCategory[] }) {
             viewport={{ once: true, margin: "-8% 0px" }}
             transition={{ duration: 0.5, delay: 0.08, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
-            FAQ
+            {text("home.faq.heading", "FAQ")}
           </motion.h2>
           <motion.p
             className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"

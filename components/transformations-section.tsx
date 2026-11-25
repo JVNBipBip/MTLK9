@@ -10,6 +10,7 @@ import { ScrollAnimatedText } from "@/components/scroll-animated-text"
 import { WistiaClickToPlay } from "@/components/wistia-click-to-play"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import { useEditableText, useEditableValue } from "@/lib/site-editing/use-editable"
 import { localizeTransformationStory, transformationStories } from "@/lib/transformation-stories"
 
 function firstSentence(text: string) {
@@ -19,6 +20,8 @@ function firstSentence(text: string) {
 export function TransformationsSection() {
   const locale = useAppLocale()
   const t = useLocalizedText()
+  const text = useEditableText()
+  const value = useEditableValue()
   const stories = transformationStories.map((story) => localizeTransformationStory(story, locale))
   const sectionRef = useRef<HTMLElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -52,14 +55,14 @@ export function TransformationsSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-10 lg:mb-16">
           <p className="reveal opacity-0 text-sm uppercase tracking-[0.2em] text-secondary font-medium mb-4">
-            {t("Real Results")}
+            {text("home.stories.eyebrow", "Real Results")}
           </p>
           <ScrollAnimatedText
-            text={t("Transformation stories")}
+            text={text("home.stories.heading", "Transformation stories")}
             className="font-display text-3xl md:text-5xl lg:text-7xl text-foreground text-balance mb-6 font-semibold tracking-tight"
           />
           <p className="reveal opacity-0 animation-delay-400 text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            {t("Every dog on this page started exactly where yours is now.")}
+            {text("home.stories.intro", "Every dog on this page started exactly where yours is now.")}
           </p>
         </div>
 
@@ -94,12 +97,12 @@ export function TransformationsSection() {
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                       <div>
                         <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                          {story.dogName}
+                          {value(`story.${story.slug}.dogName`, story.dogName)}
                         </h3>
-                        <p className="text-sm text-muted-foreground">{story.breed}</p>
+                        <p className="text-sm text-muted-foreground">{value(`story.${story.slug}.breed`, story.breed)}</p>
                       </div>
                       <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1.5 rounded-full">
-                        {story.path}
+                        {value(`story.${story.slug}.path`, story.path)}
                       </span>
                     </div>
 
@@ -108,20 +111,20 @@ export function TransformationsSection() {
                       <div data-transformation-before className="relative pl-8 pb-5">
                         <span aria-hidden="true" className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-[3px] border-card bg-destructive/70 ring-1 ring-destructive/25" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-destructive mb-1.5">
-                          {t("Before")}
+                          {text("stories.shared.before", "Before")}
                         </p>
                         <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                          {firstSentence(story.before)}
+                          {value(`story.${story.slug}.before`, story.before, { format: firstSentence })}
                         </p>
                       </div>
                       <div data-transformation-after className="relative pl-8">
                         <span aria-hidden="true" className="absolute left-0 top-1.5 h-3 w-3 rounded-full border-[3px] border-card bg-primary ring-1 ring-primary/30" />
                         <div className="rounded-xl bg-primary/[0.08] px-3.5 py-3">
                           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary mb-1.5">
-                            {t("After")}
+                            {text("stories.shared.after", "After")}
                           </p>
                           <p className="line-clamp-3 text-sm font-medium leading-relaxed text-foreground">
-                            {firstSentence(story.after)}
+                            {value(`story.${story.slug}.after`, story.after, { format: firstSentence })}
                           </p>
                         </div>
                       </div>
@@ -132,7 +135,7 @@ export function TransformationsSection() {
                         type="button"
                         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 cursor-pointer"
                       >
-                        {t("Get Started")}
+                        {text("home.stories.button", "Get Started")}
                         <ArrowRight className="w-4 h-4" />
                       </button>
                     </FreeCallLink>
@@ -180,7 +183,7 @@ export function TransformationsSection() {
         <div className="text-center mt-12 flex flex-col items-center gap-3">
           <Link href={addLocaleToPathname("/results", locale)}>
             <Button variant="outline" className="rounded-full px-8 group">
-              {t("See All Results")}
+              {text("home.stories.seeAll", "See All Results")}
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

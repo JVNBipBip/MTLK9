@@ -103,7 +103,7 @@ export function PainPointsSection() {
                 </div>
                 <div className="flex flex-col justify-center p-7 md:p-10 lg:p-12">
                   <p className="text-xs uppercase tracking-[0.16em] text-secondary font-semibold mb-3">
-                    {t("Common Challenge")} · {index + 1}/{painPoints.length}
+                    {text("home.painPoints.cardLabel", "Common Challenge")} · {index + 1}/{painPoints.length}
                   </p>
                   <h3 className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground mb-4">
                     {text(point.questionId, point.question)}

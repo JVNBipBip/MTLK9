@@ -19,6 +19,10 @@ import { getLocalizedText } from "@/lib/i18n/localized-text"
 import { getFaqData } from "@/lib/faq-data"
 import { facilityServices } from "@/lib/facility-services"
 import { locationPages } from "@/lib/location-pages"
+import { moneyServicePages } from "@/lib/money-service-pages"
+import { transformationStories } from "@/lib/transformation-stories"
+import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
+import { TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG, type TeamTrainerPublicNarrative } from "@/lib/team-trainer-public-bios"
 import { messages } from "@/lib/i18n/messages"
 import { footerLinks } from "@/lib/footer-links"
 import { BUSINESS_DEFAULTS } from "@/lib/business-details"
@@ -39,7 +43,10 @@ const imageIds = Object.keys(imageFields) as ImageFieldId[]
 function routeExists(page: string) {
   if (page === "*") return true // header and footer: every page
   const dir = page === "/" ? path.join(ROOT, "app") : path.join(ROOT, "app", page)
-  return fs.existsSync(path.join(dir, "page.tsx"))
+  if (fs.existsSync(path.join(dir, "page.tsx"))) return true
+  // A page from a dynamic route, e.g. /group-classes/level-1-obedience-class → /group-classes/[slug].
+  const parent = path.dirname(dir)
+  return fs.existsSync(parent) && fs.readdirSync(parent).some((name) => /^\[.+\]$/.test(name) && fs.existsSync(path.join(parent, name, "page.tsx")))
 }
 
 function publicFileExists(src: string) {
@@ -94,13 +101,13 @@ describe("editable field registry", () => {
       .map((file) => fs.readFileSync(file, "utf8"))
       .join("\n")
     // List items are numbered from a prefix the page passes (idPrefix="services.obedience.forYouIf").
-    const listPrefix = (id: string) => (/\.\d+$/.test(id) ? id.replace(/\.\d+$/, "") : null)
+    // Sections that build their own ids under a prefix the page passes (idPrefix="services.reactivity.related").
+    const prefixes = [...source.matchAll(/[iI]dPrefix\s*=\s*"([^"]+)"/g)].map((match) => `${match[1]}.`)
     const unused = [...textIds, ...imageIds].filter((id) => {
       // Rendered by position from a data file; checked against it below instead.
       if ((textFields[id as TextFieldId] ?? imageFields[id as ImageFieldId]).source === "data") return false
       if (source.includes(`"${id}"`)) return false
-      const prefix = listPrefix(id)
-      return !(prefix && source.includes(`idPrefix="${prefix}"`))
+      return !prefixes.some((prefix) => id.startsWith(prefix))
     })
     expect(unused).toEqual([])
   })
@@ -127,8 +134,11 @@ describe("fields whose default lives in a client component", () => {
 
   it.each(codeImages)("%s: registry default matches the component", (id) => {
     const field = imageFields[id]
-    expect(source()).toContain(JSON.stringify(field.default.src))
-    expect(field.default.alt.fr).toBe(getLocalizedText("fr", field.default.alt.en))
+    // The photo path may sit in a small lib constant the component reads (team-trainer-photos.ts).
+    const withLib = source() + sourceFiles(path.join(ROOT, "lib")).map((file) => fs.readFileSync(file, "utf8")).join("\n")
+    expect(withLib).toContain(JSON.stringify(field.default.src))
+    const fromTable = field.default.alt.fr === getLocalizedText("fr", field.default.alt.en)
+    expect(fromTable || source().includes(JSON.stringify(field.default.alt.fr))).toBe(true)
   })
 })
 
@@ -148,6 +158,31 @@ describe("fields whose default lives in a data file", () => {
     if (kind === "location") {
       const page = locationPages[owner as keyof typeof locationPages]
       return { en: at(page.content.en, keys) as string, fr: at(page.content.fr, keys) as string }
+    }
+    if (kind === "money") {
+      const page = moneyServicePages[owner as keyof typeof moneyServicePages]
+      return { en: at(page.content.en, keys) as string, fr: at(page.content.fr, keys) as string }
+    }
+    if (kind === "group") {
+      const offering = GROUP_CLASS_OFFERINGS.find((candidate) => candidate.id === owner)!
+      if (rest === "photo") return { src: offering.image, alt: { en: offering.label, fr: getLocalizedText("fr", offering.label) } }
+      const en = at(offering, keys) as string
+      return { en, fr: getLocalizedText("fr", en) }
+    }
+    if (kind === "bio") {
+      const bio: TeamTrainerPublicNarrative = TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG[owner as keyof typeof TEAM_TRAINER_PUBLIC_NARRATIVE_BY_SLUG]
+      const [part, index] = keys
+      const paragraphs = (text: string) => text.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
+      if (part === "origin") return { en: paragraphs(bio.originEn)[Number(index)], fr: paragraphs(getLocalizedText("fr", bio.originEn))[Number(index)] }
+      if (part === "specializes") return { en: bio.aboutSpecializesEn, fr: bio.aboutSpecializesFr }
+      if (part === "offers") return { en: bio.hostsPillsEn[Number(index)], fr: bio.hostsPillsFr[Number(index)] }
+      return { en: bio.personalEn, fr: bio.personalFr ?? getLocalizedText("fr", bio.personalEn) }
+    }
+    if (kind === "story") {
+      const story = transformationStories.find((candidate) => candidate.slug === owner)!
+      if (rest === "dogName") return { en: story.dogName, fr: story.dogName }
+      const key = rest as "breed" | "path" | "before" | "after" | "testimonial"
+      return { en: story[key], fr: story.fr[key] }
     }
     if (kind === "messages") {
       const messageKeys = owner.split(".")

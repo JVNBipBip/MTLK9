@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { CardCoverImage } from "@/components/card-cover-image"
+import { EditableCardImage } from "@/components/editable-card-image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { BookingLink } from "@/components/booking-form-provider"
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 import { useAppLocale } from "@/components/locale-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
 import { useEditableText } from "@/lib/site-editing/use-editable"
+import { isPriceLike } from "@/lib/site-editing/price-rule"
+import type { TextFieldId } from "@/lib/site-editing/fields"
 import { addLocaleToPathname } from "@/lib/i18n/config"
 import { GROUP_CLASS_OFFERINGS } from "@/lib/group-class-offerings"
 import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
@@ -18,6 +20,10 @@ import { GroupClassesBookingPanel } from "./group-classes-booking-panel"
 export default function GroupClassesPage() {
   const t = useLocalizedText()
   const text = useEditableText()
+  // Owner-editable class cards: group.<class>.<key> (data in lib/group-class-offerings.ts). Prices stay in code.
+  const g = (id: string, key: string, english: string) =>
+    isPriceLike(english) ? t(english) : text(`group.${id}.${key}` as TextFieldId, english)
+  const stepsIdPrefix = "groupClasses.steps"
   const locale = useAppLocale()
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -71,9 +77,7 @@ export default function GroupClassesPage() {
               {text("groupClasses.dogTrainingClassesIn", "Dog training classes in Montreal for puppies, reactivity, and obedience")}
             </h1>
             <p className="reveal opacity-0 animation-delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              {t(
-                "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right class.",
-              )}
+              {text("groupClasses.assessmentFirstWeReview", "Assessment first: we review your dog’s behavior, sensitivities, and goals—then your trainer approves what you can book so you’re placed in the right class.")}
             </p>
           </div>
         </div>
@@ -90,7 +94,9 @@ export default function GroupClassesPage() {
                 }`}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
-                  <CardCoverImage
+                  <EditableCardImage
+                    id={`group.${offering.id}.photo`}
+                    aspect="4/3"
                     src={offering.image}
                     srcAvif={offering.imageAvif}
                     alt={t(offering.label)}
@@ -101,10 +107,10 @@ export default function GroupClassesPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
                     <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
-                      {t(offering.forText)}
+                      {g(offering.id, "forText", offering.forText)}
                     </p>
                     <h3 className="font-display text-2xl font-semibold tracking-tight text-white mt-1">
-                      {t(offering.label)}
+                      {g(offering.id, "label", offering.label)}
                     </h3>
                   </div>
                 </div>
@@ -124,17 +130,17 @@ export default function GroupClassesPage() {
                       ) : null}
                       {offering.note ? (
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                          {t(offering.note)}
+                          {g(offering.id, "note", offering.note)}
                         </span>
                       ) : null}
                     </div>
                   ) : null}
-                  <p className="text-muted-foreground leading-relaxed">{t(offering.summary)}</p>
+                  <p className="text-muted-foreground leading-relaxed">{g(offering.id, "summary", offering.summary)}</p>
                   <ul className="mt-5 space-y-2">
-                    {offering.bullets.map((bullet) => (
+                    {offering.bullets.map((bullet, bulletIndex) => (
                       <li key={bullet} className="flex items-start gap-2 text-sm text-foreground/85">
                         <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                        <span>{t(bullet)}</span>
+                        <span>{g(offering.id, `bullets.${bulletIndex}`, bullet)}</span>
                       </li>
                     ))}
                   </ul>
@@ -196,9 +202,9 @@ export default function GroupClassesPage() {
                     <span className="inline-flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary/10 text-primary font-display text-base font-semibold">
                       {index + 1}
                     </span>
-                    <h3 className="text-sm font-medium text-foreground leading-snug">{t(step.title)}</h3>
+                    <h3 className="text-sm font-medium text-foreground leading-snug">{text(`${stepsIdPrefix}.${index}.title` as TextFieldId, step.title)}</h3>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{t(step.body)}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{text(`${stepsIdPrefix}.${index}.body` as TextFieldId, step.body)}</p>
                 </li>
               ))}
             </ol>
@@ -239,9 +245,7 @@ export default function GroupClassesPage() {
                 {text("groupClasses.bookAnAssessmentAnd", "Book an assessment and we'll point you to the right class.")}
               </h2>
               <p className="text-primary-foreground/80 max-w-xl mx-auto mb-8 leading-relaxed">
-                {t(
-                  "No pressure, no guessing. We'll meet you and your dog, understand your goals, and recommend the group program that fits.",
-                )}
+                {text("groupClasses.noPressureNoGuessing", "No pressure, no guessing. We'll meet you and your dog, understand your goals, and recommend the group program that fits.")}
               </p>
               <BookingLink>
                 <Button

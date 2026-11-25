@@ -40,9 +40,9 @@ export function useEditableText() {
 export function useEditableValue() {
   const locale = useAppLocale()
   return useCallback(
-    (id: string, localized: string, options?: { listOnly?: boolean }) => {
+    (id: string, localized: string, options?: { listOnly?: boolean; format?: (value: string) => string }) => {
       const value = edits.text[id]?.[locale] || localized
-      return <EditableTextClient id={id} locale={locale} value={value} listOnly={options?.listOnly} />
+      return <EditableTextClient id={id} locale={locale} value={value} listOnly={options?.listOnly} format={options?.format} />
     },
     [locale],
   )

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { useAppLocale } from "@/components/locale-provider"
 import { addLocaleToPathname } from "@/lib/i18n/config"
+import { useEditableValue } from "@/lib/site-editing/use-editable"
 
 type LocalizedCopy = {
   en: string
@@ -21,26 +22,30 @@ export function FocusedSupportLinksSection({
   title,
   intro,
   links,
+  idPrefix,
 }: {
+  /** Owner-editable ids: <idPrefix>.eyebrow, .title, .intro, .links.<n>.title/.body. */
+  idPrefix: string
   eyebrow: LocalizedCopy
   title: LocalizedCopy
   intro: LocalizedCopy
   links: FocusedSupportLink[]
 }) {
   const locale = useAppLocale()
+  const value = useEditableValue()
 
   return (
     <section className="bg-muted/30 px-6 py-20 lg:px-8 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="max-w-3xl">
           <p className="reveal opacity-0 mb-4 text-sm font-medium uppercase tracking-[0.2em] text-secondary">
-            {eyebrow[locale]}
+            {value(`${idPrefix}.eyebrow`, eyebrow[locale])}
           </p>
           <h2 className="reveal opacity-0 animation-delay-200 text-balance font-display text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-            {title[locale]}
+            {value(`${idPrefix}.title`, title[locale])}
           </h2>
           <p className="reveal opacity-0 animation-delay-400 mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
-            {intro[locale]}
+            {value(`${idPrefix}.intro`, intro[locale])}
           </p>
         </div>
 
@@ -54,13 +59,13 @@ export function FocusedSupportLinksSection({
               }`}
             >
               <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
-                {link.title[locale]}
+                {value(`${idPrefix}.links.${index}.title`, link.title[locale])}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-                {link.body[locale]}
+                {value(`${idPrefix}.links.${index}.body`, link.body[locale])}
               </p>
               <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                {locale === "fr" ? "Voir le programme" : "View program"}
+                {value("services.shared.viewProgram", locale === "fr" ? "Voir le programme" : "View program")}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </span>
             </Link>

@@ -10,11 +10,15 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Check } from "lucide-react"
 import { ProgramSignupLink } from "@/components/booking-form-provider"
 import { useLocalizedText } from "@/lib/i18n/use-localized-text"
+import type { TextFieldId } from "@/lib/site-editing/fields"
 import { EditablePhoto, useEditableText } from "@/lib/site-editing/use-editable"
 import { IN_FACILITY_PRICING_SECTIONS } from "@/lib/in-facility-training-pricing"
 
 const privatePackageRows =
   IN_FACILITY_PRICING_SECTIONS.find((section) => section.title === "Private Classes")?.rows.slice(0, 3) ?? []
+
+/** Owner-editable as services.privateClasses.topics.<n>. */
+const topicsIdPrefix = "services.privateClasses.topics"
 
 const privateClassTopics = [
   "Leash Reactivity",
@@ -147,9 +151,7 @@ export default function PrivateClassesPage() {
               <div className="lg:col-span-7">
                 <article className="reveal opacity-0 animation-delay-200 bg-card rounded-3xl border border-border/50 shadow-lg shadow-primary/5 p-8 md:p-10">
                   <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                    {t(
-                      "Each session is tailored to the dog's specific needs while gradually introducing controlled distractions to help build confidence and set the dog up for success. As training progresses, we will meet in different environments to make the training more realistic and applicable to everyday life. Whether you need help with basic puppy training or need help with behavioural problems, private classes is the most ideal and productive route for training.",
-                    )}
+                    {text("services.privateClasses.eachSessionIsTailored", "Each session is tailored to the dog's specific needs while gradually introducing controlled distractions to help build confidence and set the dog up for success. As training progresses, we will meet in different environments to make the training more realistic and applicable to everyday life. Whether you need help with basic puppy training or need help with behavioural problems, private classes is the most ideal and productive route for training.")}
                   </p>
 
                   <div className="mt-8 pt-8 border-t border-border/50">
@@ -157,10 +159,10 @@ export default function PrivateClassesPage() {
                       {text("services.private.typicalTopicsCoveredIn", "Typical topics covered in private classes:")}
                     </p>
                     <ul className="space-y-3">
-                      {privateClassTopics.map((topic) => (
+                      {privateClassTopics.map((topic, index) => (
                         <li key={topic} className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-                          <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{t(topic)}</span>
+                          <span className="text-muted-foreground text-base md:text-lg leading-relaxed">{text(`${topicsIdPrefix}.${index}` as TextFieldId, topic)}</span>
                         </li>
                       ))}
                     </ul>
@@ -188,9 +190,7 @@ export default function PrivateClassesPage() {
                       {text("services.private.ourGoal", "Our goal")}
                     </p>
                     <p className="font-display text-xl md:text-2xl tracking-tight leading-snug text-foreground">
-                      {t(
-                        "Our goal is to successfully transition the dog into a group setting or help the owner achieve their desired training goals.",
-                      )}
+                      {text("services.privateClasses.ourGoalIsTo", "Our goal is to successfully transition the dog into a group setting or help the owner achieve their desired training goals.")}
                     </p>
                   </div>
                 </article>
@@ -202,6 +202,7 @@ export default function PrivateClassesPage() {
         <ServiceForYouSection items={forYouIf} idPrefix="services.private.forYouIf" />
 
         <FocusedSupportLinksSection
+          idPrefix="services.privateClasses.related"
           eyebrow={{
             en: "Focused behaviour support",
             fr: "Soutien comportemental ciblé",

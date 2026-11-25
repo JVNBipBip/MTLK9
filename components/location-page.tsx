@@ -83,7 +83,7 @@ export function LocationPage({
                   <ClipboardCheck className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-secondary">
-                  {locale === "fr" ? "Étape" : "Step"} {index + 1}
+                  <EditableCopy id="location.shared.step" copy={{ en: "Step", fr: "Étape" }} locale={locale} /> {index + 1}
                 </p>
                 <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
                   {e(`how.${index}.title`)}
@@ -119,7 +119,7 @@ export function LocationPage({
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e(`help.${i}.description`)}</p>
                 <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                  {locale === "fr" ? "Voir le programme" : "View program"}
+                  <EditableCopy id="location.shared.viewProgram" copy={{ en: "View program", fr: "Voir le programme" }} locale={locale} />
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </span>
               </Link>
@@ -207,7 +207,7 @@ export function LocationPage({
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e(`related.${i}.description`)}</p>
                 <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                  {locale === "fr" ? "Voir le programme" : "View program"}
+                  <EditableCopy id="location.shared.viewProgram" copy={{ en: "View program", fr: "Voir le programme" }} locale={locale} />
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </span>
               </Link>
