@@ -217,6 +217,36 @@ export function httpCheck(o: { key: string; label: string; url: string; provider
   };
 }
 
+/**
+ * Judge business activity against its own recent rate: "no new bookings for much longer than usual".
+ * The usual rate comes from the last 28 days, so it adapts to each client and to seasons:
+ *  - fewer than `minPer28d` events in 28 days → quiet period, not judged (off-season, new site)
+ *  - otherwise warn when the time since the last event exceeds max(48 h, 3 × the average gap), capped at 14 days
+ * Returns a warning, never a failure: a quiet spell is worth a look, not a 3 a.m. push.
+ */
+export function activityOutcome(input: {
+  what: string; // plural noun, e.g. "bookings"
+  lastAt: Date | null;
+  count7d: number;
+  count28d: number;
+  minPer28d?: number;
+  now?: Date;
+}): CheckOutcome {
+  const now = input.now ?? new Date();
+  const fmt = (h: number) => (h < 48 ? `${Math.round(h)} h` : `${Math.round(h / 24)} days`);
+  const meta = { lastAt: input.lastAt?.toISOString() ?? null, count7d: input.count7d, count28d: input.count28d };
+  if (input.count28d < (input.minPer28d ?? 4)) {
+    return ok(`Quiet period: ${input.count28d} ${input.what} in 28 days (not judged)`, meta);
+  }
+  const avgGapH = (28 * 24) / input.count28d;
+  const limitH = Math.min(Math.max(48, 3 * avgGapH), 14 * 24);
+  const sinceH = input.lastAt ? (now.getTime() - input.lastAt.getTime()) / 3_600_000 : Infinity;
+  if (sinceH > limitH) {
+    return warn(`No new ${input.what} for ${Number.isFinite(sinceH) ? fmt(sinceH) : "a long time"} (usually about one every ${fmt(avgGapH)}). Is the flow broken?`, meta);
+  }
+  return ok(`Last one ${fmt(sinceH)} ago · ${input.count7d} in 7 days, ${input.count28d} in 28`, meta);
+}
+
 /** Wrap your own logic, e.g. "a booking webhook arrived in the last 24h". */
 export function customCheck(key: string, label: string, run: () => Promise<CheckOutcome>, provider?: string): Check {
   return { key, label, provider, run };
