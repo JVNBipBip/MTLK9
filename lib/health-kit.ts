@@ -29,7 +29,16 @@ export type Check = {
   run: () => Promise<CheckOutcome>;
 };
 export type CheckResult = CheckOutcome & { key: string; label: string; provider?: string; latencyMs: number };
-export type HealthReport = { kit: number; checkedAt: string; checks: CheckResult[] };
+/** What's live: the deployed commit, when the host provides it (Vercel does automatically). */
+export type DeployedVersion = { commit: string; ref?: string | null };
+export type HealthReport = { kit: number; checkedAt: string; checks: CheckResult[]; version?: DeployedVersion };
+
+function detectVersion(): DeployedVersion | undefined {
+  const g = globalThis as { process?: { env?: Record<string, string | undefined> } };
+  const env = g.process?.env ?? {};
+  const commit = env.VERCEL_GIT_COMMIT_SHA || env.GIT_COMMIT_SHA || env.COMMIT_SHA;
+  return commit ? { commit, ref: env.VERCEL_GIT_COMMIT_REF || env.GIT_BRANCH || null } : undefined;
+}
 
 const ok = (message?: string, meta?: Meta): CheckOutcome => ({ status: "ok", message, meta });
 const warn = (message: string, meta?: Meta): CheckOutcome => ({ status: "warn", message, meta });
@@ -73,7 +82,7 @@ function tokensMatch(a: string, b: string) {
 }
 
 /** Request handler (Web standard Request/Response). Requires `Authorization: Bearer <HEALTH_TOKEN>`. */
-export function healthHandler(checks: Check[] | (() => Check[] | Promise<Check[]>), opts: { token?: string; timeoutMs?: number } = {}) {
+export function healthHandler(checks: Check[] | (() => Check[] | Promise<Check[]>), opts: { token?: string; timeoutMs?: number; version?: DeployedVersion } = {}) {
   return async (req: Request): Promise<Response> => {
     const headers = { "content-type": "application/json", "cache-control": "no-store" };
     // Works in Node, Vercel, Netlify and Deno (Supabase edge functions)
@@ -83,7 +92,9 @@ export function healthHandler(checks: Check[] | (() => Check[] | Promise<Check[]
     const given = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
     if (!tokensMatch(given, expected)) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers });
     const list = typeof checks === "function" ? await checks() : checks;
-    const report = await runChecks(list, opts.timeoutMs);
+    const report: HealthReport = await runChecks(list, opts.timeoutMs);
+    const version = opts.version ?? detectVersion();
+    if (version) report.version = version;
     return new Response(JSON.stringify(report), { status: 200, headers });
   };
 }
