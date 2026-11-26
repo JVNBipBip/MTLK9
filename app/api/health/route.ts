@@ -4,8 +4,10 @@ import { createHash } from "node:crypto"
 import nodemailer from "nodemailer"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { SQUARE_TOKENS_COLLECTION } from "@/lib/domain"
-import { getSquareConfigAsync } from "@/lib/square"
-import { customCheck, healthHandler, outcome } from "@/lib/health-kit"
+import { Timestamp } from "firebase-admin/firestore"
+import { getSquareConfigAsync, searchSquareAvailability } from "@/lib/square"
+import { getConsultationServiceVariationId } from "@/lib/square-service-config"
+import { activityOutcome, customCheck, healthHandler, outcome } from "@/lib/health-kit"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -47,6 +49,32 @@ const checks = () => [
       tokenExpiresAt: data.expiresAt,
     })
   }, "square"),
+
+  // What a customer sees: can a consultation actually be booked in the next 7 days?
+  customCheck("consultation-slots", "Bookable consultation slots", async () => {
+    const serviceVariationId = await getConsultationServiceVariationId()
+    if (!serviceVariationId) return outcome.warn("No consultation service configured (Admin → Service Mapping)")
+    const start = new Date(Date.now() + 60 * 60_000)
+    const end = new Date(Date.now() + 7 * 86_400_000)
+    const res = await searchSquareAvailability({ serviceVariationId, startAt: start.toISOString(), endAt: end.toISOString() })
+    const slots = res.availabilities?.length ?? 0
+    if (!slots) return outcome.warn("No bookable consultation slots in the next 7 days. Check staff availability in Square.")
+    const next = res.availabilities?.[0]?.start_at
+    return outcome.ok(`${slots} slot${slots === 1 ? "" : "s"} in the next 7 days${next ? `; next ${new Date(next).toISOString().slice(0, 16).replace("T", " ")} UTC` : ""}`)
+  }, "square"),
+
+  // Are consultation requests still coming in at the usual rate?
+  customCheck("consultation-activity", "Consultation requests", async () => {
+    const requests = getAdminDb().collectionGroup("consultations")
+    const since = (days: number) => Timestamp.fromMillis(Date.now() - days * 86_400_000)
+    const [last, week, month] = await Promise.all([
+      requests.orderBy("createdAt", "desc").limit(1).get(),
+      requests.where("createdAt", ">=", since(7)).orderBy("createdAt", "desc").count().get(),
+      requests.where("createdAt", ">=", since(28)).orderBy("createdAt", "desc").count().get(),
+    ])
+    const lastAt = (last.docs[0]?.get("createdAt") as Timestamp | undefined)?.toDate() ?? null
+    return activityOutcome({ what: "consultation requests", lastAt, count7d: week.data().count, count28d: month.data().count })
+  }, "firebase"),
 
   customCheck("firestore", "Firestore", async () => {
     await getAdminDb().collection(SQUARE_TOKENS_COLLECTION).limit(1).get()
