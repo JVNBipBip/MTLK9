@@ -16,7 +16,7 @@
  * Then set HEALTH_TOKEN in the project's environment to the token shown in the control center.
  */
 
-export const HEALTH_KIT_VERSION = 1;
+export const HEALTH_KIT_VERSION = 2; // 2: activityOutcome + reports the live commit
 
 export type CheckStatus = "ok" | "warn" | "fail";
 type Meta = Record<string, string | number | boolean | null>;
