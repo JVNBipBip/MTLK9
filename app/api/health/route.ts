@@ -4,6 +4,7 @@ import { createHash } from "node:crypto"
 import nodemailer from "nodemailer"
 import { getAdminDb } from "@/lib/firebase-admin"
 import { SQUARE_TOKENS_COLLECTION } from "@/lib/domain"
+import { getApps } from "firebase-admin/app"
 import { Timestamp } from "firebase-admin/firestore"
 import { getSquareConfigAsync, searchSquareAvailability } from "@/lib/square"
 import { getConsultationServiceVariationId } from "@/lib/square-service-config"
@@ -74,6 +75,25 @@ const checks = () => [
     ])
     const lastAt = (last.docs[0]?.get("createdAt") as Timestamp | undefined)?.toDate() ?? null
     return activityOutcome({ what: "consultation requests", lastAt, count7d: week.data().count, count28d: month.data().count })
+  }, "firebase"),
+
+  // Firestore scheduled backups: is there a recent one? (Turned on in the Firebase / Google Cloud console.)
+  customCheck("firestore-backups", "Firestore backups", async () => {
+    getAdminDb() // makes sure the admin app is initialized
+    const app = getApps()[0]
+    const projectId = app.options.projectId ?? env("FIREBASE_PROJECT_ID")
+    const token = (await app.options.credential!.getAccessToken()).access_token
+    const res = await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/locations/-/backups`, {
+      headers: { Authorization: `Bearer ${token}` }, cache: "no-store",
+    })
+    if (!res.ok) return outcome.warn(`Couldn't list Firestore backups (HTTP ${res.status})`)
+    const { backups = [] } = (await res.json()) as { backups?: { snapshotTime?: string; state?: string }[] }
+    const newest = backups.filter((b) => b.state === "READY" && b.snapshotTime).map((b) => Date.parse(b.snapshotTime!)).sort((a, b) => b - a)[0]
+    if (!newest) return outcome.warn("No Firestore backups. Turn on daily scheduled backups for this project.")
+    const hours = Math.round((Date.now() - newest) / 3_600_000)
+    if (hours > 72) return outcome.fail(`Newest Firestore backup is ${Math.round(hours / 24)} days old: the schedule stopped?`)
+    if (hours > 26) return outcome.warn(`Newest Firestore backup is ${hours} h old (expected daily)`)
+    return outcome.ok(`Last backup ${hours} h ago · ${backups.length} kept`)
   }, "firebase"),
 
   customCheck("firestore", "Firestore", async () => {
